@@ -1,13 +1,13 @@
 package com.qwaecd.paramagic.api;
 
-public abstract class MagicMapBase implements IMagicMap{
+public abstract class MagicBase implements IMagicMap{
     protected final String id;
     protected final String displayName;
     protected final String description;
-    protected final MagicMapType type;
+    protected final MagicType type;
     protected final int manaCost;
 
-    public MagicMapBase(String id, String displayName, String description, MagicMapType type, int manaCost) {
+    public MagicBase(String id, String displayName, String description, MagicType type, int manaCost) {
         this.id = id;
         this.displayName = displayName;
         this.description = description;
@@ -31,7 +31,7 @@ public abstract class MagicMapBase implements IMagicMap{
     }
 
     @Override
-    public MagicMapType getType() {
+    public MagicType getType() {
         return type;
     }
 

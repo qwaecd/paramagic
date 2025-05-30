@@ -34,7 +34,7 @@ public class GuideBookScreen extends Screen {
 
         guiGraphics.blit(
                 ModResource.GUIDE_BOOK_SCREEN,
-                windowWidth/3, windowHeight/3,
+                windowWidth/3, windowHeight/5,
                 0,
                 0,0,
                 windowWidth/3, windowWidth/3,

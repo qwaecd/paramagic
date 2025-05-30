@@ -11,19 +11,19 @@ public interface IMagicMap {
 
     /**
      * 获取法术枚举类型
-     * Get the type of this magic map
+     * Get the type of this magic
      */
-    MagicMapType getType();
+    MagicType getType();
 
     /**
      * 获取法术需要消耗的魔力
-     * Get the mana cost for this magic map
+     * Get the mana cost for this magic
      */
     int getManaCost();
 
     /**
      * 获取该法术映射的唯一标识符
-     * Get unique identifier for this magic map
+     * Get unique identifier for this magic
      */
     String getId();
 

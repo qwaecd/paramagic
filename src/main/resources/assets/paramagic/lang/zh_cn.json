@@ -1,4 +1,7 @@
 {
   "paramagic.main_tab": "参数魔法",
-  "item.paramagic.guide_book": "指导书"
+  "item.paramagic.guide_book": "指导书",
+  "paramagic.error_message.stack_overflow": "栈溢出",
+  "paramagic.error_message.insufficient_mana": "魔力不足",
+  "paramagic.error_message.default": "错误"
 }

@@ -52,7 +52,7 @@ public class Spell {
         return nodes.get(nodeId);
     }
 
-    // Mana line management
+
     public void addManaLine(ManaLine line) {
         manaLines.add(line);
     }

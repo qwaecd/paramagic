@@ -1,28 +1,22 @@
 package com.qwaecd.paramagic.init;
 
-import com.qwaecd.paramagic.api.IMagicMap;
-import com.qwaecd.paramagic.api.MagicMapType;
+import com.qwaecd.paramagic.api.*;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class MagicMapRegistry {
+    public static final List<IMagicMap> REGISTRY_MAGICS = new ArrayList<>();
     private static final Map<String, IMagicMap> MAGIC_MAPS = new ConcurrentHashMap<>();
-    private static final Map<MagicMapType, List<IMagicMap>> BY_TYPE = new ConcurrentHashMap<>();
+    private static final Map<MagicType, List<IMagicMap>> BY_TYPE = new ConcurrentHashMap<>();
 
     public static void init() {
-        // Initialize type lists
-        for (MagicMapType type : MagicMapType.values()) {
+        // 初始化Magic类型
+        for (MagicType type : MagicType.values()) {
             BY_TYPE.put(type, new ArrayList<>());
         }
-
-        // Register built-in magic maps
-//        register(new FireballMagicMap());
-//        register(new HealMagicMap());
-//        register(new GetNearbyEntitiesMap());
-//        register(new GetPlayerPositionMap());
-//        register(new TeleportMagicMap());
-//        register(new PlaceBlockMagicMap());
+        //注册在注册表内的Magic实例
+        REGISTRY_MAGICS.forEach(MagicMapRegistry::register);
     }
 
     public static void register(IMagicMap magicMap) {
@@ -34,7 +28,7 @@ public class MagicMapRegistry {
         return MAGIC_MAPS.get(id);
     }
 
-    public static List<IMagicMap> getByType(MagicMapType type) {
+    public static List<IMagicMap> getByType(MagicType type) {
         return new ArrayList<>(BY_TYPE.getOrDefault(type, Collections.emptyList()));
     }
 
@@ -44,5 +38,9 @@ public class MagicMapRegistry {
 
     public static Set<String> getAllIds() {
         return new HashSet<>(MAGIC_MAPS.keySet());
+    }
+
+    static {
+        //TODO 向待注册列表里添加Magic实例
     }
 }

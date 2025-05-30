@@ -1,4 +1,7 @@
 {
   "paramagic.main_tab": "Paramagic",
-  "item.paramagic.guide_book": "guide book"
+  "item.paramagic.guide_book": "guide book",
+  "paramagic.error_message.stack_overflow": "Stack overflow",
+  "paramagic.error_message.insufficient_mana": "Insufficient mana",
+  "paramagic.error_message.default": "Error"
 }

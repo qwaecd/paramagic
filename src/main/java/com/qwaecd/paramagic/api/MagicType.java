@@ -1,6 +1,6 @@
 package com.qwaecd.paramagic.api;
 
-public enum MagicMapType {
+public enum MagicType {
     EXECUTION,
     INFORMATION,
     RENDERING
