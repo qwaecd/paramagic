@@ -1,6 +1,6 @@
 {
   "parent": "minecraft:item/generated",
   "textures": {
-    "layer0": "paramagic:item/wallet"
+    "layer0": "paramagic:item/guide_book"
   }
 }
