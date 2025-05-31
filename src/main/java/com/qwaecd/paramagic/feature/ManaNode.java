@@ -2,6 +2,7 @@ package com.qwaecd.paramagic.feature;
 
 import com.qwaecd.paramagic.api.IMagicMap;
 import com.qwaecd.paramagic.init.MagicMapRegistry;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;

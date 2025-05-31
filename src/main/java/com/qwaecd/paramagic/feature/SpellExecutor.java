@@ -1,105 +1,110 @@
 package com.qwaecd.paramagic.feature;
 
-import com.qwaecd.paramagic.api.ErrorMessage;
-import com.qwaecd.paramagic.api.ExecutionResult;
-import com.qwaecd.paramagic.api.IMagicMap;
+
 import com.qwaecd.paramagic.api.ManaContext;
 import com.qwaecd.paramagic.config.Config;
-import com.qwaecd.paramagic.init.MagicMapRegistry;
-import net.minecraft.core.BlockPos;
+import com.qwaecd.paramagic.network.NetworkHandler;
+import com.qwaecd.paramagic.network.SpellExecutionPacket;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
 
-import java.util.Map;
+import java.util.ArrayDeque;
+import java.util.Queue;
+
 
 public class SpellExecutor {
     private static final int MAX_DEPTH = Config.getMaxDepth();
 
-    public static ExecutionResult executeSpell(Spell spell, ServerLevel level, Player caster, ItemStack wand, BlockPos targetPos) {
-        return executeSpell(spell, level, caster, wand, targetPos, 0);
+    private static final Queue<DelayedExecution> delayedExecutions = new ArrayDeque<>();
+
+    public static class ExecutionResult {
+        public final boolean success;
+        public final String errorMessage;
+        public final int manaConsumed;
+
+        public ExecutionResult(boolean success, String errorMessage, int manaConsumed) {
+            this.success = success;
+            this.errorMessage = errorMessage;
+            this.manaConsumed = manaConsumed;
+        }
     }
 
-    private static ExecutionResult executeSpell(Spell spell, ServerLevel level, Player caster, ItemStack wand, BlockPos targetPos, int depth) {
+    private static class DelayedExecution {
+        public final SpellNode node;
+        public final ManaContext context;
+        public final long executeAtTick;
+        public final int depth;
+
+        public DelayedExecution(SpellNode node, ManaContext context, long executeAtTick, int depth) {
+            this.node = node;
+            this.context = context;
+            this.executeAtTick = executeAtTick;
+            this.depth = depth;
+        }
+    }
+
+    public static ExecutionResult executeSpell(SpellNode rootNode, ManaContext context) {
+        return executeNode(rootNode, context, 0);
+    }
+
+    private static ExecutionResult executeNode(SpellNode node, ManaContext context, int depth) {
         if (depth > MAX_DEPTH) {
-            return ExecutionResult.failure(ErrorMessage.STACK_OVERFLOW);
+            return new ExecutionResult(false, "Maximum recursion depth exceeded", 0);
         }
 
-        int manaPool = getManaFromWand(wand);
-        if (manaPool <= 0) {
-            return ExecutionResult.failure(ErrorMessage.INSUFFICIENT_MANA);
+        if (context.getAvailableMana() < node.getMagicMap().getManaCost()) {
+            return new ExecutionResult(false, "Insufficient mana", 0);
         }
 
-        ManaContext context = new ManaContext(level, caster, wand, targetPos, manaPool);
+        try {
+            // Execute current node
+            node.getMagicMap().execute(context);
+            int consumedMana = node.getMagicMap().getManaCost();
+            context.setAvailableMana(context.getAvailableMana() - consumedMana);
+            node.setExecuted(true);
 
-        // 遍历所有魔力节点
-        for (ManaLine line : spell.getManaLines()) {
-            ExecutionResult lineResult = executeManaLine(line, spell, context, depth);
-            if (!lineResult.isSuccess()) {
-                return lineResult;
-            }
-        }
-
-        setManaToWand(wand, context.getAvailableMana());
-        return ExecutionResult.success();
-    }
-
-    private static ExecutionResult executeManaLine(ManaLine line, Spell spell, ManaContext context, int depth) {
-        for (String nodeId : line.getNodeSequence()) {
-            ManaNode node = spell.getNode(nodeId);
-            if (node == null) {
-                continue;
+            // Send render packet to clients if needed
+            if (context.getLevel() instanceof ServerLevel serverLevel) {
+                SpellExecutionPacket packet = new SpellExecutionPacket(
+                        node.getMagicMap().getId(),
+                        context.getCenter(),
+                        context.getParameters()
+                );
+                NetworkHandler.sendToClientsInRange(serverLevel, context.getCenter(), packet);
             }
 
-            if (node.isEndNode()) {
-                break;
-            }
-
-            // 扣除魔力
-            int consumed = node.consumeMana(context.getAvailableMana());
-            if (!context.consumeMana(consumed)) {
-                return ExecutionResult.failure(ErrorMessage.INSUFFICIENT_MANA);
-            }
-
-            // 执行所有节点
-            for (String mapId : node.getBoundMagicMaps()) {
-                IMagicMap magicMap = MagicMapRegistry.get(mapId);
-                if (magicMap == null) {
-                    continue;
-                }
-
-                ExecutionResult result = magicMap.execute(context);
-                if (!result.isSuccess()) {
-                    return result;
-                }
-
-                // 执行嵌套的法术
-                if (result.getReturnData().containsKey("nested_spell")) {
-                    Spell nestedSpell = (Spell) result.getReturnData().get("nested_spell");
-                    ExecutionResult nestedResult = executeSpell(nestedSpell, context.getLevel(),
-                            context.getCaster(), context.getWand(), context.getTargetPos(), depth + 1);
-                    if (!nestedResult.isSuccess()) {
-                        return nestedResult;
+            // Execute children with delay
+            int totalManaConsumed = consumedMana;
+            for (SpellNode child : node.getChildren()) {
+                if (child.getExecutionDelay() > 0) {
+                    scheduleDelayedExecution(child, context, child.getExecutionDelay(), depth + 1);
+                } else {
+                    ExecutionResult childResult = executeNode(child, context, depth + 1);
+                    if (!childResult.success) {
+                        return childResult;
                     }
-                }
-
-                // 更新参数
-                for (Map.Entry<String, Object> entry : result.getReturnData().entrySet()) {
-                    context.setParameter(entry.getKey(), entry.getValue());
+                    totalManaConsumed += childResult.manaConsumed;
                 }
             }
+
+            return new ExecutionResult(true, null, totalManaConsumed);
+
+        } catch (Exception e) {
+            return new ExecutionResult(false, "Execution error: " + e.getMessage(), 0);
         }
-
-        return ExecutionResult.success();
     }
 
-    private static int getManaFromWand(ItemStack wand) {
-        // TODO: Implement with Forge Capability system
-        return wand.getOrCreateTag().getInt("mana");
+    private static void scheduleDelayedExecution(SpellNode node, ManaContext context, int delay, int depth) {
+        long currentTick = context.getLevel().getGameTime();
+        delayedExecutions.offer(new DelayedExecution(node, context, currentTick + delay, depth));
     }
 
-    private static void setManaToWand(ItemStack wand, int mana) {
-        // TODO: Implement with Forge Capability system
-        wand.getOrCreateTag().putInt("mana", mana);
+    public static void tick() {
+        if (delayedExecutions.isEmpty()) return;
+
+        DelayedExecution next = delayedExecutions.peek();
+        if (next != null && next.context.getLevel().getGameTime() >= next.executeAtTick) {
+            delayedExecutions.poll();
+            executeNode(next.node, next.context, next.depth);
+        }
     }
 }
