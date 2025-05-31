@@ -11,8 +11,8 @@ public interface IClientRenderableMagicCircle {
     Phase getCurrentPhase();
 
     enum Phase {
-        BUILD,      // Construction phase
-        SUSTAIN,    // Maintenance phase
-        DISSIPATE   // Dissipation phase
+        BUILD,      // 构建
+        SUSTAIN,    // 维持
+        DISSIPATE   // 消散
     }
 }

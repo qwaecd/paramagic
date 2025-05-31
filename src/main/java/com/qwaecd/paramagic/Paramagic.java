@@ -1,5 +1,6 @@
 package com.qwaecd.paramagic;
 
+import com.qwaecd.paramagic.capability.ManaCapability;
 import com.qwaecd.paramagic.client.ClientEventHandler;
 import com.qwaecd.paramagic.client.renderer.MagicCircleRenderer;
 import com.qwaecd.paramagic.config.Config;
@@ -31,11 +32,11 @@ public class Paramagic
         modEventBus.addListener(this::clientSetup);
         MinecraftForge.EVENT_BUS.register(this);
         context.registerConfig(ModConfig.Type.COMMON, Config.SPEC);
+        FMLJavaModLoadingContext.get().getModEventBus().register(ManaCapability.class);
         DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> {
             MinecraftForge.EVENT_BUS.register(new ClientEventHandler());
         });
     }
-
     private void commonSetup(final FMLCommonSetupEvent event) {
         event.enqueueWork(() -> {
 //            ManaCapability.register();

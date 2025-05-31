@@ -1,7 +1,9 @@
 package com.qwaecd.paramagic.api;
 
+import com.qwaecd.paramagic.capability.ManaCapability;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 
 import java.util.HashMap;
@@ -22,13 +24,37 @@ public class ManaContext {
         this.availableMana = 0;
     }
 
+    public ManaContext(Level level, Player caster, BlockPos center, ItemStack wandItem) {
+        this.level = level;
+        this.caster = caster;
+        this.center = center;
+        this.parameters = new HashMap<>();
+        var cap = wandItem.getCapability(ManaCapability.MANA_STORAGE);
+        if(cap.isPresent()){
+            ManaCapability.IManaStorage mana = cap.resolve().get();
+            this.availableMana = mana.getMana();
+        }
+    }
+
     // Getters and setters
-    public Level getLevel() { return level; }
-    public Player getCaster() { return caster; }
-    public BlockPos getCenter() { return center; }
-    public Map<String, Object> getParameters() { return parameters; }
-    public int getAvailableMana() { return availableMana; }
-    public void setAvailableMana(int mana) { this.availableMana = mana; }
+    public Level getLevel() {
+        return level;
+    }
+    public Player getCaster() {
+        return caster;
+    }
+    public BlockPos getCenter() {
+        return center;
+    }
+    public Map<String, Object> getParameters() {
+        return parameters;
+    }
+    public int getAvailableMana() {
+        return availableMana;
+    }
+    public void setAvailableMana(int mana) {
+        this.availableMana = mana;
+    }
 
     public void addParameter(String key, Object value) {
         parameters.put(key, value);

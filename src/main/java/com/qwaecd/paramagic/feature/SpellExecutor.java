@@ -29,12 +29,12 @@ public class SpellExecutor {
     }
 
     private static class DelayedExecution {
-        public final SpellNode node;
+        public final ManaNode node;
         public final ManaContext context;
         public final long executeAtTick;
         public final int depth;
 
-        public DelayedExecution(SpellNode node, ManaContext context, long executeAtTick, int depth) {
+        public DelayedExecution(ManaNode node, ManaContext context, long executeAtTick, int depth) {
             this.node = node;
             this.context = context;
             this.executeAtTick = executeAtTick;
@@ -42,11 +42,11 @@ public class SpellExecutor {
         }
     }
 
-    public static ExecutionResult executeSpell(SpellNode rootNode, ManaContext context) {
+    public static ExecutionResult executeSpell(ManaNode rootNode, ManaContext context) {
         return executeNode(rootNode, context, 0);
     }
 
-    private static ExecutionResult executeNode(SpellNode node, ManaContext context, int depth) {
+    private static ExecutionResult executeNode(ManaNode node, ManaContext context, int depth) {
         if (depth > MAX_DEPTH) {
             return new ExecutionResult(false, "Maximum recursion depth exceeded", 0);
         }
@@ -60,6 +60,7 @@ public class SpellExecutor {
             node.getMagicMap().execute(context);
             int consumedMana = node.getMagicMap().getManaCost();
             context.setAvailableMana(context.getAvailableMana() - consumedMana);
+//            System.out.println("当前魔力："+context.getAvailableMana());
             node.setExecuted(true);
 
             // Send render packet to clients if needed
@@ -74,7 +75,7 @@ public class SpellExecutor {
 
             // Execute children with delay
             int totalManaConsumed = consumedMana;
-            for (SpellNode child : node.getChildren()) {
+            for (ManaNode child : node.getChildren()) {
                 if (child.getExecutionDelay() > 0) {
                     scheduleDelayedExecution(child, context, child.getExecutionDelay(), depth + 1);
                 } else {
@@ -93,7 +94,7 @@ public class SpellExecutor {
         }
     }
 
-    private static void scheduleDelayedExecution(SpellNode node, ManaContext context, int delay, int depth) {
+    private static void scheduleDelayedExecution(ManaNode node, ManaContext context, int delay, int depth) {
         long currentTick = context.getLevel().getGameTime();
         delayedExecutions.offer(new DelayedExecution(node, context, currentTick + delay, depth));
     }

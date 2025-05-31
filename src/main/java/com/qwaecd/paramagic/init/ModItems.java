@@ -2,6 +2,7 @@ package com.qwaecd.paramagic.init;
 
 
 import com.qwaecd.paramagic.item.GuideBook;
+import com.qwaecd.paramagic.item.MagicWandItem;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.CreativeModeTab;
@@ -22,6 +23,9 @@ public class ModItems {
 
     public static final RegistryObject<Item> GUIDE = registerItem("guide_book",
             () -> new GuideBook(new Item.Properties()));
+
+    public static final RegistryObject<Item> ADVANCED_WAND = registerItem("advanced_wand",
+            ()-> new MagicWandItem(new Item.Properties(),Integer.MAX_VALUE));
 
     public static final RegistryObject<CreativeModeTab> MAIN_TAB = TABS.register("main_tab",
             () -> CreativeModeTab.builder()
