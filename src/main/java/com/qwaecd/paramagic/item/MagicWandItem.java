@@ -75,10 +75,10 @@ public class MagicWandItem extends Item {
 
             ManaNode rootNode = new ManaNode(
                     new TestMagic(),
-                    0
+                    20
             );
             ManaNode node_1 = new ManaNode(new TestMagic(), 40);
-            node_1.addChild(new ManaNode(new TestMagic(), 5));
+            node_1.addChild(new ManaNode(new TestMagic(), 60));
             rootNode.addChild(node_1);
 
             SpellExecutor.executeSpell(rootNode, manaContext);

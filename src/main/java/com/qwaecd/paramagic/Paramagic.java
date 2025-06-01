@@ -46,7 +46,7 @@ public class Paramagic
     }
     private void clientSetup(final FMLClientSetupEvent event) {
         event.enqueueWork(() -> {
-            MagicCircleRenderer.init();
+//            MagicCircleRenderer.init();
         });
     }
 }

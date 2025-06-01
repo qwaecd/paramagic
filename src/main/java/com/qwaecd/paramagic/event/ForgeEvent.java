@@ -16,10 +16,10 @@ public class ForgeEvent {
         }
     }
 
-    @SubscribeEvent
-    public static void onServerTick(TickEvent.ClientTickEvent event){
-        if (event.phase == TickEvent.Phase.END) {
-            tick();
-        }
-    }
+//    @SubscribeEvent
+//    public static void onClientTick(TickEvent.ClientTickEvent event){
+//        if (event.phase == TickEvent.Phase.END) {
+//            tick();
+//        }
+//    }
 }

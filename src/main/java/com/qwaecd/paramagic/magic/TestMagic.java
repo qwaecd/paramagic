@@ -11,7 +11,7 @@ public class TestMagic implements IMagicMap {
         double x = context.getCenter().getX();
         double y = context.getCenter().getY();
         double z = context.getCenter().getZ();
-        level.explode(null,x,y,z,3.0f, Level.ExplosionInteraction.MOB);
+        level.explode(null,x,y,z,1.0f, Level.ExplosionInteraction.MOB);
     }
 
     @Override
