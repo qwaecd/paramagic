@@ -24,9 +24,17 @@ public class ExecutionResult {
         this.returnData = returnData != null ? returnData : new HashMap<>();
     }
 
-    public boolean isSuccess() { return success; }
-    public Component getErrorMessage() { return errorMessage; }
-    public Map<String, Object> getReturnData() { return returnData; }
+    public boolean isSuccess() {
+        return success;
+    }
+
+    public Component getErrorMessage() {
+        return errorMessage;
+    }
+
+    public Map<String, Object> getReturnData() {
+        return returnData;
+    }
 
     public static ExecutionResult success() {
         return new ExecutionResult(true);

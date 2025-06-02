@@ -18,7 +18,7 @@ public class Config {
         MAX_DEPTH = builder
                 .comment("法术嵌套的深度")
                 .comment("Maximum depth of spell nesting")
-                .defineInRange("maxDepth", 10,1, Integer.MAX_VALUE);
+                .defineInRange("maxDepth", 10, 1, Integer.MAX_VALUE);
 
 
         builder.pop();

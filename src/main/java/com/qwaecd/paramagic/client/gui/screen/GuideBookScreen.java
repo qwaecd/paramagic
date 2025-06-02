@@ -25,7 +25,7 @@ public class GuideBookScreen extends Screen {
         poseStack.pushPose();
 
         // Reset scaling to get actual pixel coordinates
-        float scale = (float)this.minecraft.getWindow().getGuiScale();
+        float scale = (float) this.minecraft.getWindow().getGuiScale();
         poseStack.scale(1.0f / scale, 1.0f / scale, 1.0f);
 
         // Get actual window dimensions
@@ -34,10 +34,10 @@ public class GuideBookScreen extends Screen {
 
         guiGraphics.blit(
                 ModResource.GUIDE_BOOK_SCREEN,
-                windowWidth/3, windowHeight/5,
+                windowWidth / 3, windowHeight / 5,
                 0,
-                0,0,
-                windowWidth/3, windowWidth/3,
+                0, 0,
+                windowWidth / 3, windowWidth / 3,
                 windowWidth, windowHeight
         );
 

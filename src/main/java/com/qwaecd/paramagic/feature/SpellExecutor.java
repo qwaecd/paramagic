@@ -16,32 +16,6 @@ public class SpellExecutor {
 
     private static final Queue<DelayedExecution> delayedExecutions = new ArrayDeque<>();
 
-    public static class ExecutionResult {
-        public final boolean success;
-        public final String errorMessage;
-        public final int manaConsumed;
-
-        public ExecutionResult(boolean success, String errorMessage, int manaConsumed) {
-            this.success = success;
-            this.errorMessage = errorMessage;
-            this.manaConsumed = manaConsumed;
-        }
-    }
-
-    private static class DelayedExecution {
-        public final ManaNode node;
-        public final ManaContext context;
-        public final long executeAtTick;
-        public final int depth;
-
-        public DelayedExecution(ManaNode node, ManaContext context, long executeAtTick, int depth) {
-            this.node = node;
-            this.context = context;
-            this.executeAtTick = executeAtTick;
-            this.depth = depth;
-        }
-    }
-
     public static ExecutionResult executeSpell(ManaNode rootNode, ManaContext context) {
         return executeNode(rootNode, context, 0);
     }
@@ -106,6 +80,32 @@ public class SpellExecutor {
         if (next != null && next.context.getLevel().getGameTime() >= next.executeAtTick) {
             delayedExecutions.poll();
             executeNode(next.node, next.context, next.depth);
+        }
+    }
+
+    public static class ExecutionResult {
+        public final boolean success;
+        public final String errorMessage;
+        public final int manaConsumed;
+
+        public ExecutionResult(boolean success, String errorMessage, int manaConsumed) {
+            this.success = success;
+            this.errorMessage = errorMessage;
+            this.manaConsumed = manaConsumed;
+        }
+    }
+
+    private static class DelayedExecution {
+        public final ManaNode node;
+        public final ManaContext context;
+        public final long executeAtTick;
+        public final int depth;
+
+        public DelayedExecution(ManaNode node, ManaContext context, long executeAtTick, int depth) {
+            this.node = node;
+            this.context = context;
+            this.executeAtTick = executeAtTick;
+            this.depth = depth;
         }
     }
 }

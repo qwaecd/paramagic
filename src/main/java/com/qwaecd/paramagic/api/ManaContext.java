@@ -30,7 +30,7 @@ public class ManaContext {
         this.center = center;
         this.parameters = new HashMap<>();
         var cap = wandItem.getCapability(ManaCapability.MANA_STORAGE);
-        if(cap.isPresent()){
+        if (cap.isPresent()) {
             ManaCapability.IManaStorage mana = cap.resolve().get();
             this.availableMana = mana.getMana();
         }
@@ -40,18 +40,23 @@ public class ManaContext {
     public Level getLevel() {
         return level;
     }
+
     public Player getCaster() {
         return caster;
     }
+
     public BlockPos getCenter() {
         return center;
     }
+
     public Map<String, Object> getParameters() {
         return parameters;
     }
+
     public int getAvailableMana() {
         return availableMana;
     }
+
     public void setAvailableMana(int mana) {
         this.availableMana = mana;
     }

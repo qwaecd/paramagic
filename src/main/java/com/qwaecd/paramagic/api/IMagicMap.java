@@ -2,9 +2,13 @@ package com.qwaecd.paramagic.api;
 
 public interface IMagicMap {
     void execute(ManaContext context);
+
     MagicMapType getType();
+
     String getId();
+
     int getCastDelay();
+
     int getManaCost();
 
     enum MagicMapType {

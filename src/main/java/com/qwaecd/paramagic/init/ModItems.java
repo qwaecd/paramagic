@@ -10,9 +10,11 @@ import net.minecraft.world.item.Item;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
+
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.function.Supplier;
+
 import static com.qwaecd.paramagic.Paramagic.MODID;
 
 public class ModItems {
@@ -25,7 +27,7 @@ public class ModItems {
             () -> new GuideBook(new Item.Properties()));
 
     public static final RegistryObject<Item> ADVANCED_WAND = registerItem("advanced_wand",
-            ()-> new MagicWandItem(new Item.Properties(),Integer.MAX_VALUE));
+            () -> new MagicWandItem(new Item.Properties(), Integer.MAX_VALUE));
 
     public static final RegistryObject<CreativeModeTab> MAIN_TAB = TABS.register("main_tab",
             () -> CreativeModeTab.builder()

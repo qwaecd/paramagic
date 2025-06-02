@@ -1,9 +1,11 @@
 package com.qwaecd.paramagic.init;
 
-import com.qwaecd.paramagic.api.*;
+import com.qwaecd.paramagic.api.IMagicMap;
 import net.minecraft.resources.ResourceLocation;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
 
 public class MagicMapRegistry {
     private static final Map<ResourceLocation, IMagicMap> MAGIC_MAPS = new HashMap<>();

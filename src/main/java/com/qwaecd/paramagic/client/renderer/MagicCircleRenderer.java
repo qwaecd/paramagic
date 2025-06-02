@@ -1,14 +1,13 @@
 package com.qwaecd.paramagic.client.renderer;
 
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.blaze3d.vertex.VertexFormat;
-import com.mojang.blaze3d.systems.RenderSystem;
+import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.RenderStateShard;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.GameRenderer;
-import net.minecraft.resources.ResourceLocation;
 import org.joml.Matrix3f;
 import org.joml.Matrix4f;
 
@@ -36,7 +35,7 @@ public class MagicCircleRenderer {
             new RenderStateShard.DepthTestStateShard("magic_depth_test", 515); // GL_LEQUAL
 
     private static final RenderStateShard.WriteMaskStateShard MAGIC_WRITE_MASK =
-            new RenderStateShard.WriteMaskStateShard( true, false);
+            new RenderStateShard.WriteMaskStateShard(true, false);
 
     // Custom RenderType for magic circles
     public static final RenderType MAGIC_CIRCLE_TYPE = createMagicCircleRenderType();

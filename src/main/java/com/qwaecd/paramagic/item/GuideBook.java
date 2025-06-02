@@ -15,8 +15,8 @@ public class GuideBook extends Item {
     }
 
     @Override
-    public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand usedHand){
-        if(level.isClientSide){
+    public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand usedHand) {
+        if (level.isClientSide) {
             Minecraft.getInstance().setScreen(new GuideBookScreen());
         }
 

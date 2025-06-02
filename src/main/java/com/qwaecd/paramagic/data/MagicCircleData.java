@@ -2,6 +2,7 @@ package com.qwaecd.paramagic.data;
 
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.phys.Vec3;
+
 import java.util.UUID;
 
 import static com.qwaecd.paramagic.Paramagic.MODID;

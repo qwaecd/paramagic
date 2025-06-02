@@ -2,7 +2,6 @@ package com.qwaecd.paramagic;
 
 import com.qwaecd.paramagic.capability.ManaCapability;
 import com.qwaecd.paramagic.client.ClientEventHandler;
-import com.qwaecd.paramagic.client.renderer.MagicCircleRenderer;
 import com.qwaecd.paramagic.config.Config;
 import com.qwaecd.paramagic.init.MagicMapRegistry;
 import com.qwaecd.paramagic.network.NetworkHandler;
@@ -20,11 +19,10 @@ import static com.qwaecd.paramagic.init.ModItems.ITEMS;
 import static com.qwaecd.paramagic.init.ModItems.TABS;
 
 @Mod(Paramagic.MODID)
-public class Paramagic
-{
+public class Paramagic {
     public static final String MODID = "paramagic";
-    public Paramagic(FMLJavaModLoadingContext context)
-    {
+
+    public Paramagic(FMLJavaModLoadingContext context) {
         IEventBus modEventBus = context.getModEventBus();
         ITEMS.register(modEventBus);
         TABS.register(modEventBus);
@@ -37,6 +35,7 @@ public class Paramagic
             MinecraftForge.EVENT_BUS.register(new ClientEventHandler());
         });
     }
+
     private void commonSetup(final FMLCommonSetupEvent event) {
         event.enqueueWork(() -> {
 //            ManaCapability.register();
@@ -44,6 +43,7 @@ public class Paramagic
             MagicMapRegistry.init();
         });
     }
+
     private void clientSetup(final FMLClientSetupEvent event) {
         event.enqueueWork(() -> {
 //            MagicCircleRenderer.init();

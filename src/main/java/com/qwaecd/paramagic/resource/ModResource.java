@@ -13,7 +13,7 @@ public class ModResource {
         GUIDE_BOOK_SCREEN = setResource("textures/gui/star.png");
     }
 
-    private static ResourceLocation setResource(String path){
+    private static ResourceLocation setResource(String path) {
         return ResourceLocation.fromNamespaceAndPath(MODID, path);
     }
 }

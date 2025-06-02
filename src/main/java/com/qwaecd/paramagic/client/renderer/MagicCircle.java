@@ -69,7 +69,7 @@ public class MagicCircle {
             currentRotation -= 360.0f;
         }
 
-        switch(state) {
+        switch (state) {
             case BUILDING:
                 float buildProgress = Math.min(1.0f, (float) age / buildDuration);
                 currentRadius = radius * buildProgress;
@@ -126,20 +126,61 @@ public class MagicCircle {
     }
 
     // Getters
-    public UUID getId() { return id; }
-    public Vec3 getPos() { return position; }
-    public float getYaw() { return yaw; }
-    public float getPitch() { return pitch; }
-    public ResourceLocation getTexture() { return texture; }
-    public float getRadius() { return radius; }
-    public float getCurrentRadius() { return currentRadius; }
-    public State getState() { return state; }
-    public int getAge() { return age; }
-    public boolean isFinished() { return finished; }
-    public float getAlpha() { return alpha; }
-    public float getCurrentRotation() { return currentRotation; }
+    public UUID getId() {
+        return id;
+    }
+
+    public Vec3 getPos() {
+        return position;
+    }
+
+    public float getYaw() {
+        return yaw;
+    }
+
+    public float getPitch() {
+        return pitch;
+    }
+
+    public ResourceLocation getTexture() {
+        return texture;
+    }
+
+    public float getRadius() {
+        return radius;
+    }
+
+    public float getCurrentRadius() {
+        return currentRadius;
+    }
+
+    public State getState() {
+        return state;
+    }
+
+    public int getAge() {
+        return age;
+    }
+
+    public boolean isFinished() {
+        return finished;
+    }
+
+    public float getAlpha() {
+        return alpha;
+    }
+
+    public float getCurrentRotation() {
+        return currentRotation;
+    }
 
     // Setters for dynamic modification
-    public void setRadius(float radius) { this.radius = radius; }
-    public void setState(State state) { this.state = state; this.age = 0; }
+    public void setRadius(float radius) {
+        this.radius = radius;
+    }
+
+    public void setState(State state) {
+        this.state = state;
+        this.age = 0;
+    }
 }

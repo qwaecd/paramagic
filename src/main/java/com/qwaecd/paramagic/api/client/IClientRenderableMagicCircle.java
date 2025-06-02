@@ -5,9 +5,13 @@ import net.minecraft.core.BlockPos;
 
 public interface IClientRenderableMagicCircle {
     void startRender(BlockPos center, Object... parameters);
+
     void tick();
+
     void render(PoseStack poseStack, float partialTick);
+
     boolean isFinished();
+
     Phase getCurrentPhase();
 
     enum Phase {

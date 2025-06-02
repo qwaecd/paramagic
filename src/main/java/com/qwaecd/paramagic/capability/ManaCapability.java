@@ -10,9 +10,10 @@ import net.minecraftforge.fml.common.Mod;
 
 import static com.qwaecd.paramagic.Paramagic.MODID;
 
-@Mod.EventBusSubscriber(modid = MODID,bus = Mod.EventBusSubscriber.Bus.FORGE)
+@Mod.EventBusSubscriber(modid = MODID, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class ManaCapability {
-    public static final Capability<IManaStorage> MANA_STORAGE = CapabilityManager.get(new CapabilityToken<>(){});
+    public static final Capability<IManaStorage> MANA_STORAGE = CapabilityManager.get(new CapabilityToken<>() {
+    });
 
     @SubscribeEvent
     public static void onRegisterCapabilities(RegisterCapabilitiesEvent event) {
@@ -21,9 +22,13 @@ public class ManaCapability {
 
     public interface IManaStorage extends INBTSerializable<CompoundTag> {
         int getMana();
+
         int getMaxMana();
+
         boolean consumeMana(int amount);
+
         void addMana(int amount);
+
         void setMana(int mana);
     }
 
@@ -37,10 +42,14 @@ public class ManaCapability {
         }
 
         @Override
-        public int getMana() { return mana; }
+        public int getMana() {
+            return mana;
+        }
 
         @Override
-        public int getMaxMana() { return maxMana; }
+        public int getMaxMana() {
+            return maxMana;
+        }
 
         @Override
         public boolean consumeMana(int amount) {

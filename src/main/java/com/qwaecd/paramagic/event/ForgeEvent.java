@@ -10,7 +10,7 @@ import static com.qwaecd.paramagic.feature.SpellExecutor.tick;
 @Mod.EventBusSubscriber(modid = MODID, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class ForgeEvent {
     @SubscribeEvent
-    public static void onServerTick(TickEvent.ServerTickEvent event){
+    public static void onServerTick(TickEvent.ServerTickEvent event) {
         if (event.phase == TickEvent.Phase.END) {
             tick();
         }

@@ -25,15 +25,19 @@ public class ManaNode {
     public IMagicMap getMagicMap() {
         return magicMap;
     }
+
     public List<ManaNode> getChildren() {
         return children;
     }
+
     public int getExecutionDelay() {
         return executionDelay;
     }
+
     public boolean isExecuted() {
         return executed;
     }
+
     public void setExecuted(boolean executed) {
         this.executed = executed;
     }

@@ -100,23 +100,32 @@ public class SpellExecutionPacket {
             byte type = buf.readByte();
             Object value;
             switch (type) {
-                case 0: value = buf.readUtf(); break;
-                case 1: value = buf.readFloat(); break;
-                case 2: value = buf.readInt(); break;
-                case 3: value = buf.readBoolean(); break;
-                default: value = null;
+                case 0:
+                    value = buf.readUtf();
+                    break;
+                case 1:
+                    value = buf.readFloat();
+                    break;
+                case 2:
+                    value = buf.readInt();
+                    break;
+                case 3:
+                    value = buf.readBoolean();
+                    break;
+                default:
+                    value = null;
             }
             if (value != null) {
                 parameters.put(key, value);
             }
         }
         // Read magic circle data
-        UUID circleId__ = buf.readUUID();
+        UUID circleId = buf.readUUID();
         float yaw = buf.readFloat();
         float pitch = buf.readFloat();
         ResourceLocation texture = buf.readResourceLocation();
         float radius = buf.readFloat();
-        return new SpellExecutionPacket(magicMapId, center, parameters, circleId__, yaw, pitch, texture, radius);
+        return new SpellExecutionPacket(magicMapId, center, parameters, circleId, yaw, pitch, texture, radius);
     }
 
     public static void handle(SpellExecutionPacket packet, Supplier<NetworkEvent.Context> ctx) {
@@ -141,6 +150,7 @@ public class SpellExecutionPacket {
         });
         ctx.get().setPacketHandled(true);
     }
+
     private static void handleSpellEffect(SpellExecutionPacket packet) {
         // Add particle effects, sounds, or other visual/audio feedback
         // This will be called on the client side
@@ -164,16 +174,39 @@ public class SpellExecutionPacket {
         }
         */
 
-        System.out.println("Spell executed: " + packet.magicMapId + " at " + packet.center);
+//        System.out.println("Spell executed: " + packet.magicMapId + " at " + packet.center);
     }
 
     // Getters
-    public String getSpellId() { return magicMapId; }
-    public Vec3 getPosition() { return center.getCenter(); }
-    public Map<String, Object> getParameters() { return parameters; }
-    public UUID getCircleId() { return circleId; }
-    public float getYaw() { return yaw; }
-    public float getPitch() { return pitch; }
-    public ResourceLocation getTexture() { return texture; }
-    public float getRadius() { return radius; }
+    public String getSpellId() {
+        return magicMapId;
+    }
+
+    public Vec3 getPosition() {
+        return center.getCenter();
+    }
+
+    public Map<String, Object> getParameters() {
+        return parameters;
+    }
+
+    public UUID getCircleId() {
+        return circleId;
+    }
+
+    public float getYaw() {
+        return yaw;
+    }
+
+    public float getPitch() {
+        return pitch;
+    }
+
+    public ResourceLocation getTexture() {
+        return texture;
+    }
+
+    public float getRadius() {
+        return radius;
+    }
 }
