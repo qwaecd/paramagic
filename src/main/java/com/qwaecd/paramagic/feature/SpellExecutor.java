@@ -1,6 +1,7 @@
 package com.qwaecd.paramagic.feature;
 
 
+import com.qwaecd.paramagic.api.ExecutionResult;
 import com.qwaecd.paramagic.api.ManaContext;
 import com.qwaecd.paramagic.config.Config;
 import com.qwaecd.paramagic.network.NetworkHandler;
@@ -54,7 +55,7 @@ public class SpellExecutor {
                     scheduleDelayedExecution(child, context, child.getExecutionDelay(), depth + 1);
                 } else {
                     ExecutionResult childResult = executeNode(child, context, depth + 1);
-                    if (!childResult.success) {
+                    if (!childResult.isSuccess()) {
                         return childResult;
                     }
                     totalManaConsumed += childResult.manaConsumed;
@@ -80,18 +81,6 @@ public class SpellExecutor {
         if (next != null && next.context.getLevel().getGameTime() >= next.executeAtTick) {
             delayedExecutions.poll();
             executeNode(next.node, next.context, next.depth);
-        }
-    }
-
-    public static class ExecutionResult {
-        public final boolean success;
-        public final String errorMessage;
-        public final int manaConsumed;
-
-        public ExecutionResult(boolean success, String errorMessage, int manaConsumed) {
-            this.success = success;
-            this.errorMessage = errorMessage;
-            this.manaConsumed = manaConsumed;
         }
     }
 

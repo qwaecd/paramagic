@@ -2,6 +2,7 @@ package com.qwaecd.paramagic.client.renderer;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import com.qwaecd.paramagic.resource.ModResource;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
@@ -44,7 +45,7 @@ public class MagicCircle {
         this.position = position.getCenter();
         this.yaw = yaw;
         this.pitch = pitch;
-        this.texture = texture;
+        this.texture = texture == null ? ModResource.DEFAULT_MAGIC_CIRCLE : texture;
         this.radius = radius;
         this.state = State.BUILDING;
         this.age = 0;
@@ -120,7 +121,7 @@ public class MagicCircle {
         VertexConsumer vertexConsumer = bufferSource.getBuffer(MagicCircleRenderer.MAGIC_CIRCLE_TYPE);
 
         // Render the magic circle geometry
-        MagicCircleRenderer.renderCircle(this, poseStack, vertexConsumer);
+        MagicCircleRenderer.renderCircle(this, poseStack, bufferSource);
 
         poseStack.popPose();
     }

@@ -1,24 +1,29 @@
 package com.qwaecd.paramagic.api;
 
-import net.minecraft.network.chat.Component;
 
 import java.util.HashMap;
 import java.util.Map;
 
 public class ExecutionResult {
     private final boolean success;
-    private final Component errorMessage;
+    private final String errorMessage;
     private final Map<String, Object> returnData;
+    public int manaConsumed;
 
     public ExecutionResult(boolean success) {
         this(success, null, new HashMap<>());
     }
 
-    public ExecutionResult(boolean success, Component errorMessage) {
+    public ExecutionResult(boolean success, String errorMessage) {
         this(success, errorMessage, new HashMap<>());
     }
 
-    public ExecutionResult(boolean success, Component errorMessage, Map<String, Object> returnData) {
+    public ExecutionResult(boolean success, String errorMessage, int manaConsumed) {
+        this(success, null, new HashMap<>());
+        this.manaConsumed = manaConsumed;
+    }
+
+    public ExecutionResult(boolean success, String errorMessage, Map<String, Object> returnData) {
         this.success = success;
         this.errorMessage = errorMessage;
         this.returnData = returnData != null ? returnData : new HashMap<>();
@@ -28,7 +33,7 @@ public class ExecutionResult {
         return success;
     }
 
-    public Component getErrorMessage() {
+    public String getErrorMessage() {
         return errorMessage;
     }
 
@@ -44,7 +49,7 @@ public class ExecutionResult {
         return new ExecutionResult(true, null, data);
     }
 
-    public static ExecutionResult failure(Component message) {
+    public static ExecutionResult failure(String message) {
         return new ExecutionResult(false, message);
     }
 }

@@ -5,9 +5,12 @@ import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.blaze3d.vertex.VertexFormat;
+import com.qwaecd.paramagic.resource.ModResource;
 import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderStateShard;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.resources.ResourceLocation;
 import org.joml.Matrix3f;
 import org.joml.Matrix4f;
 
@@ -38,13 +41,15 @@ public class MagicCircleRenderer {
             new RenderStateShard.WriteMaskStateShard(true, false);
 
     // Custom RenderType for magic circles
-    public static final RenderType MAGIC_CIRCLE_TYPE = createMagicCircleRenderType();
+    public static final RenderType MAGIC_CIRCLE_TYPE = createMagicCircleRenderType(ModResource.TEST_MAGIC_CIRCLE);
 
-    private static RenderType createMagicCircleRenderType() {
+    private static RenderType createMagicCircleRenderType(ResourceLocation texture) {
         RenderStateShard.ShaderStateShard shaderState = new RenderStateShard.ShaderStateShard(GameRenderer::getPositionColorTexShader);
+        RenderStateShard.TextureStateShard textureState = new RenderStateShard.TextureStateShard(texture, false, false);
 
         RenderType.CompositeState state = RenderType.CompositeState.builder()
                 .setShaderState(shaderState)
+                .setTextureState(textureState)
                 .setTransparencyState(MAGIC_TRANSPARENCY)
                 .setLightmapState(MAGIC_LIGHTMAP)
                 .setOverlayState(MAGIC_OVERLAY)
@@ -67,30 +72,40 @@ public class MagicCircleRenderer {
     /**
      * Render a magic circle with the given parameters
      */
-    public static void renderCircle(MagicCircle circle, PoseStack poseStack, VertexConsumer vertexConsumer) {
+    public static void renderCircle(MagicCircle circle, PoseStack poseStack, MultiBufferSource bufferSource) {
         float radius = circle.getCurrentRadius();
         float alpha = circle.getAlpha();
+        ResourceLocation texture = circle.getTexture(); // Get texture from MagicCircle
 
         if (radius <= 0 || alpha <= 0) {
             return;
         }
 
+        // Get the vertex consumer for this specific texture
+        RenderType renderType = createMagicCircleRenderType(texture);
+        VertexConsumer vertexConsumer = bufferSource.getBuffer(renderType);
+
         Matrix4f matrix4f = poseStack.last().pose();
         Matrix3f matrix3f = poseStack.last().normal();
 
-        // Render main circle
-        renderCircleRing(matrix4f, matrix3f, vertexConsumer, radius, radius * 0.95f, 64, alpha);
+        //TODO 设置自定义渲染法阵
 
-        // Render inner decorative circles
+        // Render main circle rings with texture
+        renderCircleRing(matrix4f, matrix3f, vertexConsumer, radius, radius * 0.95f, 64, alpha);
+        for (int i = 0; i < 32; i++) {
+            renderCircleRing(matrix4f, matrix3f, vertexConsumer, radius * 1.1f + i*0.5f, radius * 1.08f + i*0.5f, 128, alpha);
+        }
+        // Render inner decorative circles with texture
         renderCircleRing(matrix4f, matrix3f, vertexConsumer, radius * 0.8f, radius * 0.75f, 32, alpha * 0.7f);
         renderCircleRing(matrix4f, matrix3f, vertexConsumer, radius * 0.6f, radius * 0.55f, 24, alpha * 0.5f);
 
-        // Render center glow
-        renderCircleFilled(matrix4f, matrix3f, vertexConsumer, radius * 0.3f, 16, alpha * 0.3f);
+        // Render center glow with texture
+        renderCircleFilled(matrix4f, matrix3f, vertexConsumer, radius * 0.3f, 512, alpha * 0.3f);
 
-        // Render runic symbols (simplified as small circles for now)
+        // Render runic symbols with texture
         renderRunicSymbols(matrix4f, matrix3f, vertexConsumer, radius, alpha);
     }
+
 
     private static void renderCircleRing(Matrix4f matrix4f, Matrix3f matrix3f, VertexConsumer vertexConsumer,
                                          float outerRadius, float innerRadius, int segments, float alpha) {
@@ -115,11 +130,19 @@ public class MagicCircleRenderer {
             float x4 = innerRadius * cos2;
             float z4 = innerRadius * sin2;
 
-            // Create quad (two triangles)
-            addVertex(vertexConsumer, matrix4f, matrix3f, x1, 0, z1, 0, 1, 0, alpha, 1, 0);
-            addVertex(vertexConsumer, matrix4f, matrix3f, x3, 0, z3, 0, 1, 0, alpha, 0, 0);
-            addVertex(vertexConsumer, matrix4f, matrix3f, x4, 0, z4, 0, 1, 0, alpha, 0, 1);
-            addVertex(vertexConsumer, matrix4f, matrix3f, x2, 0, z2, 0, 1, 0, alpha, 1, 1);
+            // Calculate UV coordinates for ring texture mapping
+            // Map the angle to U coordinate (0 to 1 around the circle)
+            float u1 = (float) i / segments;
+            float u2 = (float) (i + 1) / segments;
+            // Map the radius to V coordinate (inner = 0, outer = 1)
+            float vInner = 0.0f;
+            float vOuter = 1.0f;
+
+            // Create quad (ring segment) with proper UV mapping
+            addVertex(vertexConsumer, matrix4f, matrix3f, x1, 0, z1, 0, 1, 0, alpha, u1, vOuter);
+            addVertex(vertexConsumer, matrix4f, matrix3f, x3, 0, z3, 0, 1, 0, alpha, u1, vInner);
+            addVertex(vertexConsumer, matrix4f, matrix3f, x4, 0, z4, 0, 1, 0, alpha, u2, vInner);
+            addVertex(vertexConsumer, matrix4f, matrix3f, x2, 0, z2, 0, 1, 0, alpha, u2, vOuter);
         }
     }
 
