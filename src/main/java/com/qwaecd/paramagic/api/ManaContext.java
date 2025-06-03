@@ -1,10 +1,10 @@
 package com.qwaecd.paramagic.api;
 
 import com.qwaecd.paramagic.capability.ManaCapability;
-import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.Vec3;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -12,11 +12,11 @@ import java.util.Map;
 public class ManaContext {
     private final Level level;
     private final Player caster;
-    private final BlockPos center;
+    private final Vec3 center;
     private final Map<String, Object> parameters;
     private int availableMana;
 
-    public ManaContext(Level level, Player caster, BlockPos center) {
+    private ManaContext(Level level, Player caster, Vec3 center) {
         this.level = level;
         this.caster = caster;
         this.center = center;
@@ -24,11 +24,8 @@ public class ManaContext {
         this.availableMana = 0;
     }
 
-    public ManaContext(Level level, Player caster, BlockPos center, ItemStack wandItem) {
-        this.level = level;
-        this.caster = caster;
-        this.center = center;
-        this.parameters = new HashMap<>();
+    public ManaContext(Level level, Player caster, Vec3 center, ItemStack wandItem) {
+        this(level, caster, center);
         var cap = wandItem.getCapability(ManaCapability.MANA_STORAGE);
         if (cap.isPresent()) {
             ManaCapability.IManaStorage mana = cap.resolve().get();
@@ -45,7 +42,7 @@ public class ManaContext {
         return caster;
     }
 
-    public BlockPos getCenter() {
+    public Vec3 getCenter() {
         return center;
     }
 

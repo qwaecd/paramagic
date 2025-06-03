@@ -35,7 +35,7 @@ public class SpellExecutor {
             node.getMagicMap().execute(context);
             int consumedMana = node.getMagicMap().getManaCost();
             context.setAvailableMana(context.getAvailableMana() - consumedMana);
-//            System.out.println("当前魔力："+context.getAvailableMana());
+            System.out.println("当前魔力："+context.getAvailableMana());
             node.setExecuted(true);
 
             // Send render packet to clients if needed
@@ -84,7 +84,7 @@ public class SpellExecutor {
         }
     }
 
-    private static class DelayedExecution {
+    public static class DelayedExecution {
         public final ManaNode node;
         public final ManaContext context;
         public final long executeAtTick;

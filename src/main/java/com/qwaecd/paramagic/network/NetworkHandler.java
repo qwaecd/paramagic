@@ -3,6 +3,7 @@ package com.qwaecd.paramagic.network;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.network.NetworkDirection;
 import net.minecraftforge.network.NetworkRegistry;
 import net.minecraftforge.network.simple.SimpleChannel;
@@ -28,8 +29,8 @@ public class NetworkHandler {
                 .add();
     }
 
-    public static void sendToClientsInRange(ServerLevel level, BlockPos center, Object packet) {
-        level.getChunkSource().chunkMap.getPlayers(level.getChunkAt(center).getPos(), false)
+    public static void sendToClientsInRange(ServerLevel level, Vec3 center, Object packet) {
+        level.getChunkSource().chunkMap.getPlayers(level.getChunkAt(BlockPos.containing(center)).getPos(), false)
                 .forEach(player -> INSTANCE.sendTo(packet, player.connection.connection, NetworkDirection.PLAY_TO_CLIENT));
     }
 }

@@ -8,9 +8,9 @@ public class TestMagic implements IMagicMap {
     @Override
     public void execute(ManaContext context) {
         Level level = context.getLevel();
-        double x = context.getCenter().getX();
-        double y = context.getCenter().getY();
-        double z = context.getCenter().getZ();
+        double x = context.getCenter().x;
+        double y = context.getCenter().y;
+        double z = context.getCenter().z;
         level.explode(null, x, y+1, z, 1.0f, Level.ExplosionInteraction.MOB);
     }
 

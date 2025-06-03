@@ -172,7 +172,7 @@ public class MagicCircleRenderer {
 
     private static void renderRunicSymbols(Matrix4f matrix4f, Matrix3f matrix3f, VertexConsumer vertexConsumer,
                                            float radius, float alpha) {
-        int symbolCount = 8;
+        int symbolCount = 5;
         float symbolRadius = radius * 0.9f;
         float symbolSize = radius * 0.05f;
 

@@ -4,7 +4,6 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.qwaecd.paramagic.resource.ModResource;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Quaternionf;
@@ -39,10 +38,10 @@ public class MagicCircle {
     private float rotationSpeed;
     private float currentRotation;
 
-    public MagicCircle(UUID id, BlockPos position, float yaw, float pitch,
+    public MagicCircle(UUID id, Vec3 position, float yaw, float pitch,
                        ResourceLocation texture, float radius) {
         this.id = id;
-        this.position = position.getCenter();
+        this.position = position;
         this.yaw = yaw;
         this.pitch = pitch;
         this.texture = texture == null ? ModResource.DEFAULT_MAGIC_CIRCLE : texture;

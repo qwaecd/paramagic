@@ -21,7 +21,6 @@ import static com.qwaecd.paramagic.init.ModItems.TABS;
 @Mod(Paramagic.MODID)
 public class Paramagic {
     public static final String MODID = "paramagic";
-
     public Paramagic(FMLJavaModLoadingContext context) {
         IEventBus modEventBus = context.getModEventBus();
         ITEMS.register(modEventBus);

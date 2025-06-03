@@ -8,6 +8,7 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.network.NetworkEvent;
+import org.joml.Vector3f;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -18,7 +19,7 @@ import static com.qwaecd.paramagic.Paramagic.MODID;
 
 public class SpellExecutionPacket {
     private final String magicMapId;
-    private final BlockPos center;
+    private final Vec3 center;
     private final Map<String, Object> parameters;
 
     // Magic circle specific data
@@ -28,7 +29,7 @@ public class SpellExecutionPacket {
     private final ResourceLocation texture;
     private final float radius;//半径
 
-    public SpellExecutionPacket(String magicMapId, BlockPos center, Map<String, Object> parameters) {
+    public SpellExecutionPacket(String magicMapId, Vec3 center, Map<String, Object> parameters) {
         this.magicMapId = magicMapId;
         this.center = center;
         this.parameters = parameters;
@@ -41,7 +42,7 @@ public class SpellExecutionPacket {
         this.radius = parameters.containsKey("radius") ? (Float) parameters.get("radius") : 3.0f;
     }
 
-    public SpellExecutionPacket(String magicMapId, BlockPos center, Map<String, Object> parameters,
+    public SpellExecutionPacket(String magicMapId, Vec3 center, Map<String, Object> parameters,
                                 UUID circleId, float yaw, float pitch, ResourceLocation texture, float radius) {
         this.magicMapId = magicMapId;
         this.center = center;
@@ -57,7 +58,7 @@ public class SpellExecutionPacket {
 
     public static void encode(SpellExecutionPacket packet, FriendlyByteBuf buf) {
         buf.writeUtf(packet.magicMapId);
-        buf.writeBlockPos(packet.center);
+        buf.writeVector3f(packet.center.toVector3f());
         buf.writeInt(packet.parameters.size());
         packet.parameters.forEach((key, value) -> {
             buf.writeUtf(key);
@@ -92,7 +93,7 @@ public class SpellExecutionPacket {
 
     public static SpellExecutionPacket decode(FriendlyByteBuf buf) {
         String magicMapId = buf.readUtf();
-        BlockPos center = buf.readBlockPos();
+        Vec3 center = new Vec3(buf.readVector3f());
         int paramCount = buf.readInt();
         Map<String, Object> parameters = new HashMap<>();
         for (int i = 0; i < paramCount; i++) {
@@ -183,7 +184,7 @@ public class SpellExecutionPacket {
     }
 
     public Vec3 getPosition() {
-        return center.getCenter();
+        return center;
     }
 
     public Map<String, Object> getParameters() {
