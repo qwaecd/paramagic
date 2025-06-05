@@ -1,10 +1,10 @@
 package com.qwaecd.paramagic.client.renderer;
 
 import com.qwaecd.paramagic.api.client.IClientRenderableMagicCircle;
-import net.minecraft.core.BlockPos;
+import net.minecraft.world.phys.Vec3;
 
 public abstract class BaseMagicCircleRenderer implements IClientRenderableMagicCircle {
-    protected BlockPos center;
+    protected Vec3 center;
     protected Phase currentPhase;
     protected int tickCount;
     protected boolean finished;
@@ -14,7 +14,7 @@ public abstract class BaseMagicCircleRenderer implements IClientRenderableMagicC
     protected static final int DISSIPATE_DURATION = 40; // 2 seconds
 
     @Override
-    public void startRender(BlockPos center, Object... parameters) {
+    public void startRender(Vec3 center, Object... parameters) {
         this.center = center;
         this.currentPhase = Phase.BUILD;
         this.tickCount = 0;

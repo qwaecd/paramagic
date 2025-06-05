@@ -79,6 +79,6 @@ public class ShaderManager {
         event.registerShader(particleInstance, instance -> register(particleShader, instance));
         */
 
-        System.out.println("Paramagic shaders registered successfully!");
+//        System.out.println("Paramagic shaders registered successfully!");
     }
 }

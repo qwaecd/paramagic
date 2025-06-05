@@ -11,6 +11,7 @@ import static com.qwaecd.paramagic.Paramagic.MODID;
  * Data record for magic circle parameters
  * Used for network synchronization and serialization
  */
+@Deprecated
 public record MagicCircleData(
         UUID id,
         Vec3 position,

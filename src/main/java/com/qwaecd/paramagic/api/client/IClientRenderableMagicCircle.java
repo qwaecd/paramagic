@@ -1,10 +1,10 @@
 package com.qwaecd.paramagic.api.client;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import net.minecraft.core.BlockPos;
+import net.minecraft.world.phys.Vec3;
 
 public interface IClientRenderableMagicCircle {
-    void startRender(BlockPos center, Object... parameters);
+    void startRender(Vec3 center, Object... parameters);
 
     void tick();
 
