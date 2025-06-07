@@ -22,6 +22,7 @@ public class CircleElement extends Element {
     @Override
     public void render(PoseStack poseStack, MultiBufferSource buffer, Vec3 centerPos, float partialTicks) {
         poseStack.pushPose();
+        poseStack.translate(centerPos.x, -80, centerPos.z);
         applyTransformations(poseStack);
 
         // Use different render types based on whether it's filled or not
@@ -36,6 +37,15 @@ public class CircleElement extends Element {
         float g = color.getGreen() / 255f;
         float b = color.getBlue() / 255f;
         float a = (color.getAlpha() / 255f) * alpha;
+        // Render circle in XZ plane (horizontal)
+        float testRadius = Math.max(radius, 10.0f);
+        for (int i = 0; i <= segments; i++) { // Note: <= to close the circle
+            float angle = i * angleStep;
+            float x = (float)Math.cos(angle) * testRadius;
+            float z = (float)Math.sin(angle) * testRadius;
+
+            consumer.vertex(matrix, x, 0, z).color(r, g, b, a).normal(normalMatrix, 0, 1, 0).endVertex();
+        }
 
         if (filled) {
             // Render filled circle using triangles

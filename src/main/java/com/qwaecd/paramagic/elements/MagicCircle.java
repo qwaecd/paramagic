@@ -21,14 +21,14 @@ public class MagicCircle {
         this.elements = new ArrayList<>();
         this.position = position;
         this.active = true;
-        this.totalTime = 0;
+        this.totalTime = 20;
     }
 
     public MagicCircle(Vec3 position, List<Element> elements){
         this.elements = elements;
         this.position = position;
         this.active = true;
-        this.totalTime = 0;
+        this.totalTime = 20;
     }
 
     public void update(float deltaTime) {

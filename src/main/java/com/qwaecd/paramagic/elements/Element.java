@@ -1,9 +1,17 @@
 package com.qwaecd.paramagic.elements;
 
+import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexFormat;
 import com.qwaecd.paramagic.api.animation.AnimationKeyframe;
 import com.qwaecd.paramagic.api.animation.AnimationTimeline;
+import com.qwaecd.paramagic.resource.ModResource;
+import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.RenderStateShard;
+import net.minecraft.client.renderer.RenderType;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Vector2f;
 

@@ -57,7 +57,7 @@ public class MagicCirclePacket {
     public static void handle(MagicCirclePacket packet, Supplier<NetworkEvent.Context> ctx){
         ctx.get().enqueueWork(()->{
             MagicCircle magicCircle = new MagicCircle(packet.position, packet.elements);
-            MagicCircleManager.getInstance().createCircle("base", magicCircle);
+            MagicCircleManager.getInstance().createCircle("custom", magicCircle);
         });
         ctx.get().setPacketHandled(true);
     }

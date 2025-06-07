@@ -14,7 +14,7 @@ import java.util.UUID;
 import java.util.function.Supplier;
 
 import static com.qwaecd.paramagic.Paramagic.MODID;
-
+@Deprecated
 public class SpellExecutionPacket {
     private final String magicMapId;
     private final Vec3 center;

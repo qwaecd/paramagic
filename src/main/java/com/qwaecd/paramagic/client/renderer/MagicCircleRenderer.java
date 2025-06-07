@@ -14,8 +14,7 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
 import org.joml.Matrix3f;
 import org.joml.Matrix4f;
-/*
-
+@Deprecated
 public class MagicCircleRenderer {
 
     // Custom render states for magic circles
@@ -71,44 +70,39 @@ public class MagicCircleRenderer {
         );
     }
 
-    */
-/**
-     * Render a magic circle with the given parameters
-     *//*
-
-    public static void renderCircle(MagicCircle circle, PoseStack poseStack, MultiBufferSource bufferSource) {
-        float radius = circle.getCurrentRadius();
-        float alpha = circle.getAlpha();
-        ResourceLocation texture = circle.getTexture(); // Get texture from MagicCircle
-
-        if (radius <= 0 || alpha <= 0) {
-            return;
-        }
-
-        // Get the vertex consumer for this specific texture
-        RenderType renderType = createMagicCircleRenderType(texture);
-        VertexConsumer vertexConsumer = bufferSource.getBuffer(renderType);
-
-        Matrix4f matrix4f = poseStack.last().pose();
-        Matrix3f matrix3f = poseStack.last().normal();
-
-        //TODO 设置自定义渲染法阵
-
-        // Render main circle rings with texture
-        renderCircleRing(matrix4f, matrix3f, vertexConsumer, radius, radius * 0.95f, 64, alpha);
-        for (int i = 0; i < 32; i++) {
-            renderCircleRing(matrix4f, matrix3f, vertexConsumer, radius * 1.1f + i*0.5f, radius * 1.08f + i*0.5f, 128, alpha);
-        }
-        // Render inner decorative circles with texture
-        renderCircleRing(matrix4f, matrix3f, vertexConsumer, radius * 0.8f, radius * 0.75f, 32, alpha * 0.7f);
-        renderCircleRing(matrix4f, matrix3f, vertexConsumer, radius * 0.6f, radius * 0.55f, 24, alpha * 0.5f);
-
-        // Render center glow with texture
-        renderCircleFilled(matrix4f, matrix3f, vertexConsumer, radius * 0.3f, 512, alpha * 0.3f);
-
-        // Render runic symbols with texture
-        renderRunicSymbols(matrix4f, matrix3f, vertexConsumer, radius, alpha);
-    }
+//    public static void renderCircle(MagicCircle circle, PoseStack poseStack, MultiBufferSource bufferSource) {
+//        float radius = circle.getCurrentRadius();
+//        float alpha = circle.getAlpha();
+//        ResourceLocation texture = circle.getTexture(); // Get texture from MagicCircle
+//
+//        if (radius <= 0 || alpha <= 0) {
+//            return;
+//        }
+//
+//        // Get the vertex consumer for this specific texture
+//        RenderType renderType = createMagicCircleRenderType(texture);
+//        VertexConsumer vertexConsumer = bufferSource.getBuffer(renderType);
+//
+//        Matrix4f matrix4f = poseStack.last().pose();
+//        Matrix3f matrix3f = poseStack.last().normal();
+//
+//        //TODO 设置自定义渲染法阵
+//
+//        // Render main circle rings with texture
+//        renderCircleRing(matrix4f, matrix3f, vertexConsumer, radius, radius * 0.95f, 64, alpha);
+//        for (int i = 0; i < 32; i++) {
+//            renderCircleRing(matrix4f, matrix3f, vertexConsumer, radius * 1.1f + i*0.5f, radius * 1.08f + i*0.5f, 128, alpha);
+//        }
+//        // Render inner decorative circles with texture
+//        renderCircleRing(matrix4f, matrix3f, vertexConsumer, radius * 0.8f, radius * 0.75f, 32, alpha * 0.7f);
+//        renderCircleRing(matrix4f, matrix3f, vertexConsumer, radius * 0.6f, radius * 0.55f, 24, alpha * 0.5f);
+//
+//        // Render center glow with texture
+//        renderCircleFilled(matrix4f, matrix3f, vertexConsumer, radius * 0.3f, 512, alpha * 0.3f);
+//
+//        // Render runic symbols with texture
+//        renderRunicSymbols(matrix4f, matrix3f, vertexConsumer, radius, alpha);
+//    }
 
 
     private static void renderCircleRing(Matrix4f matrix4f, Matrix3f matrix3f, VertexConsumer vertexConsumer,
@@ -228,4 +222,4 @@ public class MagicCircleRenderer {
     }
 }
 
-*/
+
