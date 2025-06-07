@@ -16,4 +16,9 @@ public class GroupElement extends Element {
         renderChildren(poseStack, buffer, centerPos, partialTicks);
         poseStack.popPose();
     }
+
+    @Override
+    public ElementType getElementType() {
+        return ElementType.GROUP;
+    }
 }

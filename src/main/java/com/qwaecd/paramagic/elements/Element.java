@@ -12,16 +12,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 public abstract class Element {
-    protected Vector2f offset = new Vector2f(0, 0);
-    protected Vector2f scale = new Vector2f(1, 1);
+    protected Vector2f offset = new Vector2f(0, 0); //偏移
+    protected Vector2f scale = new Vector2f(1, 1);  //缩放
     protected float rotation = 0f;
     protected float rotationSpeed = 0f;
-    protected Color color = new Color(255, 255, 255, 255);
+    protected Color color = new Color(0, 255, 233, 179);
     protected float alpha = 1f;
     protected int zOrder = 0;
     protected List<Element> children = new ArrayList<>();
     protected AnimationTimeline animation;
-    protected boolean visible = true;
+    protected boolean visible = true;   //是否可见
 
     public void update(float deltaTime) {
         // Update rotation
@@ -94,6 +94,7 @@ public abstract class Element {
     }
 
     // Getters and setters
+    public abstract ElementType getElementType();
     public void addChild(Element child) { children.add(child); }
     public void setAnimation(AnimationTimeline animation) { this.animation = animation; }
     public void setOffset(float x, float y) { offset.set(x, y); }
@@ -104,4 +105,13 @@ public abstract class Element {
     public void setAlpha(float alpha) { this.alpha = alpha; }
     public void setZOrder(int zOrder) { this.zOrder = zOrder; }
     public void setVisible(boolean visible) { this.visible = visible; }
+
+    public enum ElementType{
+        CIRCLE,
+        GROUP,
+        LINE,
+        PARTICLE,
+        RUNE,
+        TEXT;
+    }
 }

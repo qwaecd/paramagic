@@ -5,7 +5,7 @@ import com.qwaecd.paramagic.api.client.IClientRenderableMagicCircle;
 
 import java.util.ArrayList;
 import java.util.List;
-
+@Deprecated
 public class ClientMagicCircleManager {
     private static final List<IClientRenderableMagicCircle> activeCircles = new ArrayList<>();
 

@@ -48,6 +48,15 @@ public class LineElement extends Element {
         poseStack.popPose();
     }
 
+    @Override
+    public ElementType getElementType() {
+        return ElementType.LINE;
+    }
+
+    public Vector2f getStart() { return new Vector2f(start); }
+    public Vector2f getEnd() { return new Vector2f(end); }
+    public float getThickness() { return thickness; }
+
     public void setStart(float x, float y) { start.set(x, y); }
     public void setEnd(float x, float y) { end.set(x, y); }
     public void setThickness(float thickness) { this.thickness = thickness; }

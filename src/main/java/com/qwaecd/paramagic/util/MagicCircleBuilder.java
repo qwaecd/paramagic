@@ -1,11 +1,9 @@
 package com.qwaecd.paramagic.util;
 
-import com.qwaecd.paramagic.elements.CircleElement;
-import com.qwaecd.paramagic.elements.LineElement;
-import com.qwaecd.paramagic.elements.ParticleElement;
-import com.qwaecd.paramagic.elements.RuneElement;
-import com.qwaecd.paramagic.client.renderer.MagicCircle;
+import com.qwaecd.paramagic.elements.*;
+import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.world.phys.Vec3;
+import org.joml.Vector2f;
 
 import java.awt.*;
 

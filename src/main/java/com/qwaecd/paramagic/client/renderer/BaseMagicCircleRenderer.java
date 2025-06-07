@@ -2,7 +2,7 @@ package com.qwaecd.paramagic.client.renderer;
 
 import com.qwaecd.paramagic.api.client.IClientRenderableMagicCircle;
 import net.minecraft.world.phys.Vec3;
-
+@Deprecated
 public abstract class BaseMagicCircleRenderer implements IClientRenderableMagicCircle {
     protected Vec3 center;
     protected Phase currentPhase;

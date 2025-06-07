@@ -21,13 +21,10 @@ import net.minecraftforge.common.util.LazyOptional;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.util.Queue;
-
 
 public class MagicWandItem extends Item {
     private static final Logger LOGGER = LogManager.getLogger();
     private final int maxMana;
-    private Queue<SpellExecutor.DelayedExecution> delayedExecutionQueue;
 
     public MagicWandItem(Properties properties, int maxMana) {
         super(properties.durability(maxMana));
@@ -55,7 +52,7 @@ public class MagicWandItem extends Item {
 
     public void releaseUsing(ItemStack itemStack, Level level, LivingEntity livingEntity, int timeCharged) {
         setMana(itemStack,0);
-        System.out.println(getMana(itemStack));
+//        System.out.println(getMana(itemStack));
     }
 
     @Override

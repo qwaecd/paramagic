@@ -6,6 +6,7 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Matrix4f;
+import org.joml.Matrix3f;
 
 public class CircleElement extends Element {
     private float radius;
@@ -23,8 +24,10 @@ public class CircleElement extends Element {
         poseStack.pushPose();
         applyTransformations(poseStack);
 
-        VertexConsumer consumer = buffer.getBuffer(RenderType.lines());
+        // Use different render types based on whether it's filled or not
+        VertexConsumer consumer = buffer.getBuffer(filled ? RenderType.debugQuads() : RenderType.lines());
         Matrix4f matrix = poseStack.last().pose();
+        Matrix3f normalMatrix = poseStack.last().normal(); // Add normal matrix for proper rendering
 
         int segments = Math.max(16, (int)(radius * 4));
         float angleStep = 2 * (float)Math.PI / segments;
@@ -35,7 +38,7 @@ public class CircleElement extends Element {
         float a = (color.getAlpha() / 255f) * alpha;
 
         if (filled) {
-            // Render filled circle
+            // Render filled circle using triangles
             for (int i = 0; i < segments; i++) {
                 float angle1 = i * angleStep;
                 float angle2 = (i + 1) * angleStep;
@@ -45,13 +48,14 @@ public class CircleElement extends Element {
                 float x2 = (float)Math.cos(angle2) * radius;
                 float y2 = (float)Math.sin(angle2) * radius;
 
-                consumer.vertex(matrix, 0, 0, 0).color(r, g, b, a).endVertex();
-                consumer.vertex(matrix, x1, y1, 0).color(r, g, b, a).endVertex();
-                consumer.vertex(matrix, x1, y1, 0).color(r, g, b, a).endVertex();
-                consumer.vertex(matrix, x2, y2, 0).color(r, g, b, a).endVertex();
+                // Triangle from center to edge
+                consumer.vertex(matrix, 0, 0, 0).color(r, g, b, a).uv(0.5f, 0.5f).normal(normalMatrix, 0, 0, 1).endVertex();
+                consumer.vertex(matrix, x1, y1, 0).color(r, g, b, a).uv(0.5f + x1/radius * 0.5f, 0.5f + y1/radius * 0.5f).normal(normalMatrix, 0, 0, 1).endVertex();
+                consumer.vertex(matrix, x2, y2, 0).color(r, g, b, a).uv(0.5f + x2/radius * 0.5f, 0.5f + y2/radius * 0.5f).normal(normalMatrix, 0, 0, 1).endVertex();
+                consumer.vertex(matrix, x2, y2, 0).color(r, g, b, a).uv(0.5f + x2/radius * 0.5f, 0.5f + y2/radius * 0.5f).normal(normalMatrix, 0, 0, 1).endVertex();
             }
         } else {
-            // Render circle outline
+            // Render circle outline using lines
             for (int i = 0; i < segments; i++) {
                 float angle1 = i * angleStep;
                 float angle2 = (i + 1) * angleStep;
@@ -61,8 +65,9 @@ public class CircleElement extends Element {
                 float x2 = (float)Math.cos(angle2) * radius;
                 float y2 = (float)Math.sin(angle2) * radius;
 
-                consumer.vertex(matrix, x1, y1, 0).color(r, g, b, a).endVertex();
-                consumer.vertex(matrix, x2, y2, 0).color(r, g, b, a).endVertex();
+                // Add normal vectors for lines
+                consumer.vertex(matrix, x1, y1, 0).color(r, g, b, a).normal(normalMatrix, 0, 0, 1).endVertex();
+                consumer.vertex(matrix, x2, y2, 0).color(r, g, b, a).normal(normalMatrix, 0, 0, 1).endVertex();
             }
         }
 
@@ -70,6 +75,20 @@ public class CircleElement extends Element {
         poseStack.popPose();
     }
 
+    @Override
+    public ElementType getElementType() {
+        return ElementType.CIRCLE;
+    }
+
+    public float getRadius() {
+        return radius;
+    }
+
+    public boolean isFilled() {
+        return this.filled;
+    }
+
+    public float getThickness() { return thickness; }
     public void setRadius(float radius) { this.radius = radius; }
     public void setThickness(float thickness) {
         this.thickness = thickness;

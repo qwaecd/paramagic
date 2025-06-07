@@ -16,9 +16,23 @@ import static com.qwaecd.paramagic.Paramagic.MODID;
 public class ClientRenderEvents {
 
     @SubscribeEvent
+    public static void onClientTick(RenderLevelStageEvent event) {
+        float deltaTime = 0.05f; // 20 ticks per second
+        MagicCircleManager.getInstance().updateAll(deltaTime);
+    }
+
+    /**
+     * Call this method in your render event
+     */
+    public static void onRender(PoseStack poseStack, MultiBufferSource buffer, float partialTicks) {
+        MagicCircleManager.getInstance().renderAll(poseStack, buffer, partialTicks);
+    }
+
+    @SubscribeEvent
     public static void onRenderLevelStage(RenderLevelStageEvent event) {
         if (event.getStage() == RenderLevelStageEvent.Stage.AFTER_TRANSLUCENT_BLOCKS) {
-            renderMagicCircles(event);
+//            renderMagicCircles(event);
+            onRender(event.getPoseStack(),Minecraft.getInstance().renderBuffers().bufferSource(),40);
         }
     }
 
@@ -40,7 +54,7 @@ public class ClientRenderEvents {
         poseStack.translate(-cameraPos.x, -cameraPos.y, -cameraPos.z);
 
         // Render all active magic circles
-        MagicCircleManager.renderAll(poseStack, bufferSource);
+//        MagicCircleManager.renderAll(poseStack, bufferSource);
 
         // End batch to submit all rendering
         bufferSource.endBatch();

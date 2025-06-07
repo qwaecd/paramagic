@@ -50,6 +50,17 @@ public class TextElement extends Element {
         poseStack.popPose();
     }
 
+    @Override
+    public ElementType getElementType() {
+        return ElementType.TEXT;
+    }
+    public String getText() { return text; }
+    public int getFontSize() { return fontSize; }
+    public String getFontName() {
+        return fontName;
+    }
+    public TextAlign getAlign() { return align; }
+
     public void setText(String text) { this.text = text; }
     public void setFontSize(int fontSize) { this.fontSize = fontSize; }
     public void setAlign(TextAlign align) { this.align = align; }

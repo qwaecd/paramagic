@@ -22,10 +22,10 @@ public class NetworkHandler {
     private static int packetId = 0;
 
     public static void init() {
-        INSTANCE.messageBuilder(SpellExecutionPacket.class, packetId++, NetworkDirection.PLAY_TO_CLIENT)
-                .encoder(SpellExecutionPacket::encode)
-                .decoder(SpellExecutionPacket::decode)
-                .consumerMainThread(SpellExecutionPacket::handle)
+        INSTANCE.messageBuilder(MagicCirclePacket.class, packetId++, NetworkDirection.PLAY_TO_CLIENT)
+                .encoder(MagicCirclePacket::encode)
+                .decoder(MagicCirclePacket::decode)
+                .consumerMainThread(MagicCirclePacket::handle)
                 .add();
     }
 

@@ -1,14 +1,12 @@
 package com.qwaecd.paramagic.network;
 
 import com.qwaecd.paramagic.client.ClientSpellScheduler;
-import com.qwaecd.paramagic.client.renderer.MagicCircle;
+import com.qwaecd.paramagic.elements.MagicCircle;
 import com.qwaecd.paramagic.client.renderer.MagicCircleManager;
-import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.network.NetworkEvent;
-import org.joml.Vector3f;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -136,7 +134,7 @@ public class SpellExecutionPacket {
         NetworkEvent.Context context = ctx.get();
         context.enqueueWork(() -> {
             // Create and add magic circle on client side
-            MagicCircle circle = new MagicCircle(
+/*            MagicCircle circle = new MagicCircle(
                     packet.circleId,
                     packet.center,
                     packet.yaw,
@@ -144,7 +142,7 @@ public class SpellExecutionPacket {
                     packet.texture,
                     packet.radius
             );
-            MagicCircleManager.addCircle(circle);
+            MagicCircleManager.addCircle(circle);*/
 
             // Handle other spell effects here
             handleSpellEffect(packet);

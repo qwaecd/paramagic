@@ -66,6 +66,16 @@ public class ParticleElement extends Element {
         poseStack.popPose();
     }
 
+    @Override
+    public ElementType getElementType() {
+        return ElementType.PARTICLE;
+    }
+
+    public int getCount() { return count; }
+    public float getSpeed() { return speed; }
+    public int getLifetime() { return lifetime; }
+    public boolean isLoop() { return loop; }
+
     public void setParticleType(ParticleOptions particleType) { this.particleType = particleType; }
     public void setCount(int count) { this.count = count; }
     public void setSpeed(float speed) { this.speed = speed; }

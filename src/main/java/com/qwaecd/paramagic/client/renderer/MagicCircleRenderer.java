@@ -5,6 +5,7 @@ import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.blaze3d.vertex.VertexFormat;
+import com.qwaecd.paramagic.elements.MagicCircle;
 import com.qwaecd.paramagic.resource.ModResource;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -13,6 +14,7 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
 import org.joml.Matrix3f;
 import org.joml.Matrix4f;
+/*
 
 public class MagicCircleRenderer {
 
@@ -69,9 +71,11 @@ public class MagicCircleRenderer {
         );
     }
 
-    /**
+    */
+/**
      * Render a magic circle with the given parameters
-     */
+     *//*
+
     public static void renderCircle(MagicCircle circle, PoseStack poseStack, MultiBufferSource bufferSource) {
         float radius = circle.getCurrentRadius();
         float alpha = circle.getAlpha();
@@ -223,3 +227,5 @@ public class MagicCircleRenderer {
                 .endVertex();
     }
 }
+
+*/

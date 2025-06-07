@@ -2,6 +2,7 @@ package com.qwaecd.paramagic.elements;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.qwaecd.paramagic.resource.ModResource;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -9,7 +10,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.phys.Vec3;
 
 public class RuneElement extends Element {
-    private ResourceLocation texture;
+    private ResourceLocation texture = ModResource.DEFAULT_MAGIC_CIRCLE;
     private String glyph;
     private float size;
     private boolean useTexture;
@@ -50,10 +51,29 @@ public class RuneElement extends Element {
         poseStack.popPose();
     }
 
+    @Override
+    public ElementType getElementType() {
+        return ElementType.RUNE;
+    }
+
     public void setTexture(ResourceLocation texture) {
         this.texture = texture;
         this.useTexture = true;
     }
+
+    public  ResourceLocation getResourceLocation() {
+        return texture;
+    }
+    public String getGlyph() {
+        return glyph;
+    }
+    public float getSize() {
+        return size;
+    }
+    public boolean isUseTexture() {
+        return useTexture;
+    }
+
     public void setGlyph(String glyph) {
         this.glyph = glyph;
         this.useTexture = false;

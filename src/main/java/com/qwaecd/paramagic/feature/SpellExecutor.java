@@ -4,6 +4,8 @@ package com.qwaecd.paramagic.feature;
 import com.qwaecd.paramagic.api.ExecutionResult;
 import com.qwaecd.paramagic.api.ManaContext;
 import com.qwaecd.paramagic.config.Config;
+import com.qwaecd.paramagic.elements.MagicCircle;
+import com.qwaecd.paramagic.network.MagicCirclePacket;
 import com.qwaecd.paramagic.network.NetworkHandler;
 import com.qwaecd.paramagic.network.SpellExecutionPacket;
 import net.minecraft.server.level.ServerLevel;
@@ -40,10 +42,11 @@ public class SpellExecutor {
 
             // Send render packet to clients if needed
             if (context.getLevel() instanceof ServerLevel serverLevel) {
-                SpellExecutionPacket packet = new SpellExecutionPacket(
-                        node.getMagicMap().getId(),
+                MagicCircle basicCircle = MagicCircleExamples.createBasicCircle(context.getCenter());
+                MagicCirclePacket packet = new MagicCirclePacket(
                         context.getCenter(),
-                        context.getParameters()
+                        0,
+                        basicCircle.getElements()
                 );
                 NetworkHandler.sendToClientsInRange(serverLevel, context.getCenter(), packet);
             }
