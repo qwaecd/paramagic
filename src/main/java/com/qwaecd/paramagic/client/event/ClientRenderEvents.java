@@ -17,7 +17,7 @@ public class ClientRenderEvents {
 
     @SubscribeEvent
     public static void onClientTick(RenderLevelStageEvent event) {
-        float deltaTime = 0.05f; // 20 ticks per second
+        float deltaTime = 0.001f;
         MagicCircleManager.getInstance().updateAll(deltaTime);
     }
 

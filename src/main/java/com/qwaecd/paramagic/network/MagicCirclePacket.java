@@ -3,6 +3,7 @@ package com.qwaecd.paramagic.network;
 import com.qwaecd.paramagic.client.ClientSpellScheduler;
 import com.qwaecd.paramagic.client.renderer.MagicCircleManager;
 import com.qwaecd.paramagic.elements.*;
+import com.qwaecd.paramagic.feature.MagicCircleExamples;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.phys.Vec3;
@@ -56,8 +57,9 @@ public class MagicCirclePacket {
 
     public static void handle(MagicCirclePacket packet, Supplier<NetworkEvent.Context> ctx){
         ctx.get().enqueueWork(()->{
-            MagicCircle magicCircle = new MagicCircle(packet.position, packet.elements);
-            MagicCircleManager.getInstance().createCircle("custom", magicCircle);
+//            MagicCircle magicCircle = new MagicCircle(packet.position, packet.elements);
+
+            MagicCircleManager.getInstance().createCircle("custom", MagicCircleExamples.createBasicCircle(packet.position));
         });
         ctx.get().setPacketHandled(true);
     }

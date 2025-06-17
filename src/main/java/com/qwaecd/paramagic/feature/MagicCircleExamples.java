@@ -113,16 +113,18 @@ public class MagicCircleExamples {
         // Pentagram
         createPentagram(circle, 3f, new Color(200, 0, 0, 180));
 
-        // Ancient symbols at cardinal points
-        String[] symbols = {"♄", "♃", "♂", "☉", "♀", "☿", "☽", "⚹"};
+        // Ancient symbols at cardinal points{"♄", "♃", "♂", "☉", "♀", "☿", "☽", "⚹"}
+        String[] symbols = {"*", "*", "*", "*", "*", "*", "*", "*"};
         for (int i = 0; i < symbols.length; i++) {
             float angle = (float)(2 * Math.PI * i / symbols.length);
-            float x = (float)Math.cos(angle) * 6.2f;
-            float y = (float)Math.sin(angle) * 6.2f;
+            float x = (float)Math.cos(angle) * 6.2f * 2;
+            float y = (float)Math.sin(angle) * 6.2f * 2;
 
-            RuneElement symbol = new RuneElement(symbols[i], 18f);
+            RuneElement symbol = new RuneElement(symbols[i], 1f);
+//            symbol.setOffset(x-3.2f, y+0.5f);
             symbol.setOffset(x, y);
             symbol.setColor(new Color(139, 0, 0, 255));
+            symbol.setRotationSpeed(1f);
 
             // Pulsing animation
             AnimationTimeline pulse = new AnimationTimeline(2f + i * 0.2f, true, i * 0.1f, EasingType.EASE_IN_OUT);
@@ -147,7 +149,7 @@ public class MagicCircleExamples {
         MagicCircle circle = new MagicCircle(position);
 
         // Gentle outer ring
-        CircleElement outerRing = new CircleElement(4.5f, 0.3f);
+        CircleElement outerRing = new CircleElement(4.5f, 3f);
         outerRing.setColor(new Color(50, 255, 50, 120));
         AnimationTimeline breathe = new AnimationTimeline(4f, true, 0f, EasingType.EASE_IN_OUT);
         breathe.addKeyframe("scale", new AnimationKeyframe(
@@ -157,21 +159,21 @@ public class MagicCircleExamples {
         circle.addElement(outerRing);
 
         // Flowing middle rings
-        for (int i = 0; i < 3; i++) {
-            CircleElement ring = new CircleElement(3f - i * 0.7f, 0.1f);
+        for (int i = 0; i < 4; i++) {
+            CircleElement ring = new CircleElement(3f - i * 0.7f, 1f);
             ring.setColor(new Color(100, 255, 150, 100 - i * 20));
             ring.setRotationSpeed(10f + i * 5f);
             circle.addElement(ring);
         }
 
-        // Healing symbols
-        String[] healSymbols = {"♥", "☤", "✚", "☩"};
+        // Healing symbols{"♥", "☤", "✚", "☩"}
+        String[] healSymbols = {"✚", "✚", "✚", "✚"};
         for (int i = 0; i < healSymbols.length; i++) {
-            float angle = (float)(Math.PI / 2 * i);
-            float x = (float)Math.cos(angle) * 2.5f;
-            float y = (float)Math.sin(angle) * 2.5f;
+            double angle = (float)(2f * Math.PI / healSymbols.length * i);
+            float x = (float)Math.cos(angle);
+            float y = (float)Math.sin(angle);
 
-            RuneElement symbol = new RuneElement(healSymbols[i], 20f);
+            RuneElement symbol = new RuneElement(healSymbols[i], 0.8f);
             symbol.setOffset(x, y);
             symbol.setColor(new Color(255, 255, 255, 200));
 

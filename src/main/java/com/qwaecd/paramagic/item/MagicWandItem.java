@@ -2,8 +2,10 @@ package com.qwaecd.paramagic.item;
 
 import com.qwaecd.paramagic.api.ManaContext;
 import com.qwaecd.paramagic.capability.ManaCapability;
+import com.qwaecd.paramagic.client.renderer.MagicCircleManager;
 import com.qwaecd.paramagic.feature.ManaNode;
 import com.qwaecd.paramagic.feature.SpellExecutor;
+import com.qwaecd.paramagic.feature.dynamic.texture.DynamicTestTexture;
 import com.qwaecd.paramagic.magic.TestMagic;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.InteractionHand;
@@ -35,24 +37,49 @@ public class MagicWandItem extends Item {
     public ICapabilityProvider initCapabilities(ItemStack stack, CompoundTag nbt) {
         return new ManaCapability.ManaCapabilityProvider(maxMana);
     }
+
+    @Override
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand usedHand){
         ItemStack itemInHand = player.getItemInHand(usedHand);
         setMana(itemInHand,Integer.MAX_VALUE);
         player.startUsingItem(usedHand);
-        return InteractionResultHolder.consume(itemInHand);
+        if (level.isClientSide){
+            DynamicTestTexture testTexture = new DynamicTestTexture();
+            MagicCircleManager.getInstance().getDynamicTextures().add(testTexture);
+        }
+
+        return InteractionResultHolder.success(itemInHand);
     }
     @Override
     public void onUseTick(Level level, LivingEntity livingEntity, ItemStack itemStacktack, int remainingUseDuration) {
         // TODO: Implement spell selection and execution
+        if (livingEntity instanceof Player player && level.isClientSide) {
+            for (DynamicTestTexture dynamicTexture : MagicCircleManager.getInstance().getDynamicTextures()) {
+                if (dynamicTexture.isActive()) {
+                    // Update the texture with some example data
+                    dynamicTexture.updateTexture(
+                            (int) (Math.random() * 16),
+                            (int) (Math.random() * 16),
+                            new java.awt.Color((int) (Math.random() * 0xFFFFFF))
+                    );
+                }else {
+                    // If the texture is not active, remove it from the list
+                    MagicCircleManager.getInstance().getDynamicTextures().remove(dynamicTexture);
+                }
+            }
+
+        }
     }
 
+    @Override
     public int getUseDuration(ItemStack pStack) {
-        return Integer.MAX_VALUE;
+        return 32767;
     }
 
+    @Override
     public void releaseUsing(ItemStack itemStack, Level level, LivingEntity livingEntity, int timeCharged) {
-        setMana(itemStack,0);
 //        System.out.println(getMana(itemStack));
+        MagicCircleManager.getInstance().getDynamicTextures().clear();
     }
 
     @Override
@@ -67,7 +94,6 @@ public class MagicWandItem extends Item {
         ItemStack stack = player.getItemInHand(context.getHand());
         Level level = context.getLevel();
         if (!level.isClientSide) {
-            // Open spell selection GUI or execute spell
             // TODO: Implement spell selection and execution
             setMana(stack,Integer.MAX_VALUE);
 

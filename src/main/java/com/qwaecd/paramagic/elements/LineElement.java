@@ -5,6 +5,7 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.world.phys.Vec3;
+import org.joml.Matrix3f;
 import org.joml.Matrix4f;
 import org.joml.Vector2f;
 
@@ -35,14 +36,15 @@ public class LineElement extends Element {
 
         VertexConsumer consumer = buffer.getBuffer(RenderType.lines());
         Matrix4f matrix = poseStack.last().pose();
+        Matrix3f normalMatrix = poseStack.last().normal();
 
         float r = color.getRed() / 255f;
         float g = color.getGreen() / 255f;
         float b = color.getBlue() / 255f;
         float a = (color.getAlpha() / 255f) * alpha;
 
-        consumer.vertex(matrix, start.x, start.y, 0).color(r, g, b, a).endVertex();
-        consumer.vertex(matrix, end.x, end.y, 0).color(r, g, b, a).endVertex();
+        consumer.vertex(matrix, start.x, start.y, 0).color(r, g, b, a).uv(0.5f, 0.5f).normal(normalMatrix, 0, 0, 1).endVertex();
+        consumer.vertex(matrix, end.x, end.y, 0).color(r, g, b, a).color(r, g, b, a).uv(0.5f, 0.5f).normal(normalMatrix, 0, 0, 1).endVertex();
 
         renderChildren(poseStack, buffer, centerPos, partialTicks);
         poseStack.popPose();

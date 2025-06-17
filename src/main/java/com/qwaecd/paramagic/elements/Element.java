@@ -7,12 +7,14 @@ import com.mojang.blaze3d.vertex.VertexFormat;
 import com.qwaecd.paramagic.api.animation.AnimationKeyframe;
 import com.qwaecd.paramagic.api.animation.AnimationTimeline;
 import com.qwaecd.paramagic.resource.ModResource;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderStateShard;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.phys.Vec3;
+import org.joml.Quaternionf;
 import org.joml.Vector2f;
 
 import java.awt.*;
@@ -82,7 +84,9 @@ public abstract class Element {
     public abstract void render(PoseStack poseStack, MultiBufferSource buffer, Vec3 centerPos, float partialTicks);
 
     protected void applyTransformations(PoseStack poseStack) {
-        poseStack.translate(offset.x, offset.y, 0);
+        Vec3 position = Minecraft.getInstance().gameRenderer.getMainCamera().getPosition();
+        poseStack.translate(-offset.x-position.x(), -position.y(), -offset.y-position.z());
+        poseStack.mulPose(new Quaternionf(1, 0, 0, 1));
         if (rotation != 0) {
             poseStack.mulPose(com.mojang.math.Axis.ZP.rotationDegrees(rotation));
         }

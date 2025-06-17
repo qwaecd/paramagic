@@ -2,11 +2,14 @@ package com.qwaecd.paramagic.elements;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.core.BlockPos;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Matrix4f;
 import org.joml.Matrix3f;
+import org.joml.Quaternionf;
 
 public class CircleElement extends Element {
     private float radius;
@@ -22,30 +25,26 @@ public class CircleElement extends Element {
     @Override
     public void render(PoseStack poseStack, MultiBufferSource buffer, Vec3 centerPos, float partialTicks) {
         poseStack.pushPose();
-        poseStack.translate(centerPos.x, -80, centerPos.z);
+//        Vec3 position = Minecraft.getInstance().gameRenderer.getMainCamera().getPosition();
+//        float scale = 0.09f;
+//        poseStack.translate(-position.x(), -position.y()+1, -position.z());
+//        poseStack.mulPose(new Quaternionf(1, 0, 0, 1));
+//        poseStack.scale(scale,scale,scale);
+
         applyTransformations(poseStack);
 
         // Use different render types based on whether it's filled or not
-        VertexConsumer consumer = buffer.getBuffer(filled ? RenderType.debugQuads() : RenderType.lines());
+        VertexConsumer consumer = buffer.getBuffer(RenderType.lines());
         Matrix4f matrix = poseStack.last().pose();
         Matrix3f normalMatrix = poseStack.last().normal(); // Add normal matrix for proper rendering
 
-        int segments = Math.max(16, (int)(radius * 4));
+        int segments = Math.max(64, (int)(radius * 4));
         float angleStep = 2 * (float)Math.PI / segments;
 
         float r = color.getRed() / 255f;
         float g = color.getGreen() / 255f;
         float b = color.getBlue() / 255f;
         float a = (color.getAlpha() / 255f) * alpha;
-        // Render circle in XZ plane (horizontal)
-        float testRadius = Math.max(radius, 10.0f);
-        for (int i = 0; i <= segments; i++) { // Note: <= to close the circle
-            float angle = i * angleStep;
-            float x = (float)Math.cos(angle) * testRadius;
-            float z = (float)Math.sin(angle) * testRadius;
-
-            consumer.vertex(matrix, x, 0, z).color(r, g, b, a).normal(normalMatrix, 0, 1, 0).endVertex();
-        }
 
         if (filled) {
             // Render filled circle using triangles
@@ -74,7 +73,6 @@ public class CircleElement extends Element {
                 float y1 = (float)Math.sin(angle1) * radius;
                 float x2 = (float)Math.cos(angle2) * radius;
                 float y2 = (float)Math.sin(angle2) * radius;
-
                 // Add normal vectors for lines
                 consumer.vertex(matrix, x1, y1, 0).color(r, g, b, a).normal(normalMatrix, 0, 0, 1).endVertex();
                 consumer.vertex(matrix, x2, y2, 0).color(r, g, b, a).normal(normalMatrix, 0, 0, 1).endVertex();
