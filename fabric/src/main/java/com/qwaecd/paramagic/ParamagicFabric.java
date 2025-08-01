@@ -1,8 +1,8 @@
-package com.example.examplemod;
+package com.qwaecd.paramagic;
 
 import net.fabricmc.api.ModInitializer;
 
-public class ExampleMod implements ModInitializer {
+public class ParamagicFabric implements ModInitializer {
     
     @Override
     public void onInitialize() {
