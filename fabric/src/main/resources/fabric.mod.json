@@ -8,8 +8,8 @@
         "${mod_author}"
     ],
     "contact": {
-        "homepage": "https://fabricmc.net/",
-        "sources": "https://github.com/FabricMC/fabric-example-mod"
+        "homepage": "https://github.com/qwaecd",
+        "sources": "https://github.com/qwaecd/paramagic"
     },
     "license": "${license}",
     "icon": "assets/modid/${mod_id}.png",
