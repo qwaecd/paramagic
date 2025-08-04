@@ -1,5 +1,6 @@
 package com.qwaecd.paramagic.platform;
 
+import com.qwaecd.paramagic.core.render.RenderContext;
 import com.qwaecd.paramagic.platform.services.IPlatformHelper;
 import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.loading.FMLLoader;
@@ -23,4 +24,16 @@ public class ForgePlatformHelper implements IPlatformHelper {
 
         return !FMLLoader.isProduction();
     }
+
+    @Override
+    public void initializeOpenGL() {
+        // TODO: Implement OpenGL initialization for Forge
+    }
+
+    @Override
+    public RenderContext getRenderContext() {
+        // TODO: Implement RenderContext for Forge
+        return null;
+    }
+
 }

@@ -1,5 +1,7 @@
 package com.qwaecd.paramagic.platform.services;
 
+import com.qwaecd.paramagic.core.render.RenderContext;
+
 public interface IPlatformHelper {
 
     /**
@@ -33,4 +35,10 @@ public interface IPlatformHelper {
 
         return isDevelopmentEnvironment() ? "development" : "production";
     }
+    /**
+     * Initialize the OpenGL After the client has started.
+     */
+    void initializeOpenGL();
+
+    RenderContext getRenderContext();
 }
