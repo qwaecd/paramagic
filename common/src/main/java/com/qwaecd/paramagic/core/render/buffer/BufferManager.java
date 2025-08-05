@@ -1,6 +1,5 @@
 package com.qwaecd.paramagic.core.render.buffer;
 
-import com.qwaecd.paramagic.platform.Services;
 import lombok.experimental.UtilityClass;
 
 import java.nio.FloatBuffer;
@@ -37,7 +36,6 @@ public class BufferManager {
 
     public void bind() {
         prevVao = glGetInteger(GL_VERTEX_ARRAY_BINDING);
-        glEnableVertexAttribArray(0);
         glBindVertexArray(vao);
     }
 

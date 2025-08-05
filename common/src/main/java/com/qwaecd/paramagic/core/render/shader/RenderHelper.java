@@ -2,6 +2,7 @@ package com.qwaecd.paramagic.core.render.shader;
 
 import com.qwaecd.paramagic.core.render.RenderContext;
 import com.qwaecd.paramagic.core.render.buffer.WorldBuffer;
+import com.qwaecd.paramagic.platform.Services;
 import lombok.experimental.UtilityClass;
 
 import java.awt.*;
@@ -13,7 +14,8 @@ public class RenderHelper {
 
     public WorldBuffer startLines() {
         glEnable(GL_LINE_SMOOTH);
-        return new WorldBuffer(GL_LINES, ShaderManager.getPositionColorShader());
+        RenderContext renderContext = Services.PLATFORM.getRenderContext();
+        return new WorldBuffer(GL_LINES, ShaderManager.getPositionColorShader(), renderContext.getPoseStack().last().pose());
     }
 
     public void endLines(WorldBuffer buffer) {
@@ -28,5 +30,24 @@ public class RenderHelper {
         buffer.vert(x1, y1, z1, color.getRed() / 255f, color.getGreen() / 255f, color.getBlue() / 255f, color.getAlpha() / 255f);
         buffer.vert(x2, y2, z2, color.getRed() / 255f, color.getGreen() / 255f, color.getBlue() / 255f, color.getAlpha() / 255f);
     }
+    public WorldBuffer startTri() {
+        RenderContext renderContext = Services.PLATFORM.getRenderContext();
+        return new WorldBuffer(GL_TRIANGLES, ShaderManager.getPositionColorShader(), renderContext.getPoseStack().last().pose());
+    }
 
+    public void endTri(WorldBuffer buffer) {
+        glEnable(GL_BLEND);
+        glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+        glDisable(GL_CULL_FACE);
+        glDepthMask(false);
+        buffer.draw();
+        glDepthMask(true);
+        glEnable(GL_CULL_FACE);
+        glDisable(GL_BLEND);
+    }
+    public void drawTri(WorldBuffer buffer, float x1, float y1, float z1, float x2, float y2, float z2 , float x3, float y3, float z3, Color color) {
+        buffer.vert(x1, y1, z1, color.getRed() / 255f, color.getGreen() / 255f, color.getBlue() / 255f, color.getAlpha() / 255f);
+        buffer.vert(x2, y2, z2, color.getRed() / 255f, color.getGreen() / 255f, color.getBlue() / 255f, color.getAlpha() / 255f);
+        buffer.vert(x3, y3, z3, color.getRed() / 255f, color.getGreen() / 255f, color.getBlue() / 255f, color.getAlpha() / 255f);
+    }
 }

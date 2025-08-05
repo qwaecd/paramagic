@@ -37,6 +37,6 @@ public class FabricPlatformHelper implements IPlatformHelper {
 
     @Override
     public RenderContext getRenderContext() {
-        return new FabricRenderContext();
+        return FabricRenderContext.INSTANCE;
     }
 }

@@ -9,12 +9,9 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.joml.Matrix4f;
 import org.lwjgl.BufferUtils;
 
-import java.lang.reflect.Field;
 import java.nio.FloatBuffer;
 import java.util.ArrayList;
-import java.util.Deque;
 import java.util.List;
-import java.util.Objects;
 
 import static org.lwjgl.opengl.GL33.*;
 
@@ -28,11 +25,11 @@ public class WorldBuffer {
     private FloatBuffer projectionMatrix;
     private final Vec3 cameraPosition;
 
-    public WorldBuffer(int drawMode, Shader shader) {
+    public WorldBuffer(int drawMode, Shader shader, Matrix4f viewMatrix) {
         this.drawMode = drawMode;
         this.shader = shader;
         this.cameraPosition = RENDER_CONTEXT.getCamera().getPosition();
-        makeProjectionMatrix(RENDER_CONTEXT.getProjectionMatrix(), Objects.requireNonNull(getViewModelMatrix().peek()).pose());
+        makeProjectionMatrix(RENDER_CONTEXT.getProjectionMatrix(), viewMatrix);
     }
 
     public void vert(float x, float y, float z, float r, float g, float b, float a) {
@@ -52,6 +49,7 @@ public class WorldBuffer {
         applyProjectionMatrix();
 
         glVertexAttribPointer(0, 3, GL_FLOAT, false, 0, 0);
+        glEnableVertexAttribArray(0);
         glVertexAttribPointer(1, 4, GL_FLOAT, false, 0, vertices.size() * 3 * 4L);
 
         BufferManager.unbindBuffer();
@@ -83,27 +81,13 @@ public class WorldBuffer {
         return buffer.flip();
     }
 
-    private void makeProjectionMatrix(Matrix4f projectionMatrix, Matrix4f viewModelMatrix) {
-        this.projectionMatrix = projectionMatrix.mul(viewModelMatrix)
+    private void makeProjectionMatrix(Matrix4f projectionMatrix, Matrix4f viewMatrix) {
+        this.projectionMatrix = projectionMatrix.mul(viewMatrix)
                 .get(BufferUtils.createFloatBuffer(16));
 
     }
 
     private void applyProjectionMatrix() {
         shader.uniformMatrix4f("u_projection", projectionMatrix);
-    }
-
-    private Deque<PoseStack.Pose> getViewModelMatrix() {
-        Class<PoseStack> c = PoseStack.class;
-        try {
-            Field poseStack = c.getDeclaredField("poseStack");
-            Object o = poseStack;
-            poseStack.setAccessible(true);
-            return (Deque<PoseStack.Pose>) o;
-        } catch (NoSuchFieldException e) {
-            throw new RuntimeException("PoseStack field not found", e);
-        } catch (ClassCastException e) {
-            throw new RuntimeException("PoseStack field is not a Deque<PoseStack.Pose>", e);
-        }
     }
 }

@@ -22,6 +22,7 @@ public class ShaderManager {
     private Shader positionColorShader;
 
     public void init() {
+        loadShader();
     }
 
     private void loadShader() {
@@ -54,6 +55,7 @@ public class ShaderManager {
                 String msg = StringUtils.trim(glGetShaderInfoLog(shaderId, 32768));
                 throw new IOException("Couldn't compile " + type.name + " program {" + name + "} : " + msg);
             }
+            Constants.LOG.debug("Fuck shader {} compiled successfully", name);
             return shaderId;
         } catch (IOException e){
             Constants.LOG.error("Shader compilation error", e);
