@@ -48,13 +48,15 @@ public class WorldBuffer {
         BufferManager.writeBuffer(getBuffer());
         applyProjectionMatrix();
 
-        glVertexAttribPointer(0, 3, GL_FLOAT, false, 0, 0);
+        int stride = 7 * 4; // 7 floats (3 for pos, 4 for color), each 4 bytes
+        glVertexAttribPointer(0, 3, GL_FLOAT, false, stride, 0);
         glEnableVertexAttribArray(0);
-        glVertexAttribPointer(1, 4, GL_FLOAT, false, 0, vertices.size() * 3 * 4L);
+        glVertexAttribPointer(1, 4, GL_FLOAT, false, stride, 3 * 4L);
+        glEnableVertexAttribArray(1);
 
         BufferManager.unbindBuffer();
 
-        shader.unbind();
+        shader.bind();
         BufferManager.draw(drawMode, vertices.size());
         shader.unbind();
 
@@ -68,8 +70,6 @@ public class WorldBuffer {
             floats.add(vertex.getX());
             floats.add(vertex.getY());
             floats.add(vertex.getZ());
-        }
-        for (Vertex vertex : vertices) {
             floats.add(vertex.getR());
             floats.add(vertex.getG());
             floats.add(vertex.getB());
@@ -82,9 +82,8 @@ public class WorldBuffer {
     }
 
     private void makeProjectionMatrix(Matrix4f projectionMatrix, Matrix4f viewMatrix) {
-        this.projectionMatrix = projectionMatrix.mul(viewMatrix)
-                .get(BufferUtils.createFloatBuffer(16));
-
+        Matrix4f modelViewProjectionMatrix = new Matrix4f(projectionMatrix).mul(viewMatrix);
+        this.projectionMatrix = modelViewProjectionMatrix.get(BufferUtils.createFloatBuffer(16));
     }
 
     private void applyProjectionMatrix() {
