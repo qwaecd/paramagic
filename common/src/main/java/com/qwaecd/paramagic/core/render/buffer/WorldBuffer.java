@@ -1,10 +1,10 @@
 package com.qwaecd.paramagic.core.render.buffer;
 
-import com.qwaecd.paramagic.core.render.RenderContext;
+import com.qwaecd.paramagic.core.render.context.RenderContext;
 import com.qwaecd.paramagic.core.render.shader.Shader;
-import net.minecraft.world.phys.Vec3;
 import org.apache.commons.lang3.ArrayUtils;
 import org.joml.Matrix4f;
+import org.joml.Vector3d;
 import org.lwjgl.BufferUtils;
 
 import java.nio.FloatBuffer;
@@ -20,12 +20,12 @@ public class WorldBuffer {
 
     private final Shader shader;
     private FloatBuffer projectionMatrix;
-    private final Vec3 cameraPosition;
+    private final Vector3d cameraPosition;
 
     public WorldBuffer(int drawMode, Shader shader, Matrix4f viewMatrix, RenderContext context) {
         this.drawMode = drawMode;
         this.shader = shader;
-        this.cameraPosition = context.getCamera().getPosition();
+        this.cameraPosition = context.getCamera().position();
         makeProjectionMatrix(context.getProjectionMatrix(), viewMatrix);
     }
 

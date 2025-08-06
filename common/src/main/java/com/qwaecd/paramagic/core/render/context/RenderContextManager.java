@@ -1,4 +1,4 @@
-package com.qwaecd.paramagic.core.render;
+package com.qwaecd.paramagic.core.render.context;
 
 import java.util.Objects;
 import java.util.function.Supplier;

@@ -1,6 +1,8 @@
 package com.qwaecd.paramagic.core.render;
 
 import com.qwaecd.paramagic.core.render.buffer.WorldBuffer;
+import com.qwaecd.paramagic.core.render.context.RenderContext;
+import com.qwaecd.paramagic.core.render.context.RenderContextManager;
 import com.qwaecd.paramagic.core.render.shader.ShaderManager;
 import lombok.experimental.UtilityClass;
 
@@ -14,7 +16,7 @@ public class RenderHelper {
     public WorldBuffer startLines() {
         glEnable(GL_LINE_SMOOTH);
         RenderContext context = RenderContextManager.getContext();
-        return new WorldBuffer(GL_LINES, ShaderManager.getPositionColorShader(), context.getPoseStack().last().pose(), context);
+        return new WorldBuffer(GL_LINES, ShaderManager.getPositionColorShader(), context.getPoseStack().getLastPose().pose(), context);
     }
 
     public void endLines(WorldBuffer buffer) {
@@ -31,7 +33,7 @@ public class RenderHelper {
     }
     public WorldBuffer startTri() {
         RenderContext context = RenderContextManager.getContext();
-        return new WorldBuffer(GL_TRIANGLES, ShaderManager.getPositionColorShader(), context.getPoseStack().last().pose(), context);
+        return new WorldBuffer(GL_TRIANGLES, ShaderManager.getPositionColorShader(), context.getPoseStack().getLastPose().pose(), context);
     }
 
     public void endTri(WorldBuffer buffer) {

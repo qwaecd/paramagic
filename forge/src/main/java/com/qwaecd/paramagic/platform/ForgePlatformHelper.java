@@ -1,6 +1,5 @@
 package com.qwaecd.paramagic.platform;
 
-import com.qwaecd.paramagic.core.render.RenderContext;
 import com.qwaecd.paramagic.platform.services.IPlatformHelper;
 import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.loading.FMLLoader;

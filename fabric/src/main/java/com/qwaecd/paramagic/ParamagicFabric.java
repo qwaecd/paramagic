@@ -1,7 +1,9 @@
 package com.qwaecd.paramagic;
 
-import com.qwaecd.paramagic.client.render.FabricRenderContext;
-import com.qwaecd.paramagic.core.render.RenderContextManager;
+import com.qwaecd.paramagic.client.render.impl.FabricCamera;
+import com.qwaecd.paramagic.client.render.impl.FabricPoseStack;
+import com.qwaecd.paramagic.client.render.impl.FabricRenderContext;
+import com.qwaecd.paramagic.core.render.context.RenderContextManager;
 import com.qwaecd.paramagic.core.render.buffer.WorldBuffer;
 import com.qwaecd.paramagic.core.render.RenderHelper;
 import com.qwaecd.paramagic.platform.Services;
@@ -19,8 +21,8 @@ public class ParamagicFabric implements ModInitializer {
         Services.PLATFORM.initializeOpenGL();
         WorldRenderEvents.LAST.register(context -> {
             FabricRenderContext fabricContext = new FabricRenderContext(
-                    context.camera(),
-                    context.matrixStack(),
+                    new FabricCamera(context.camera()),
+                    new FabricPoseStack(context.matrixStack()),
                     context.projectionMatrix()
             );
 
