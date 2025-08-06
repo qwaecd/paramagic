@@ -30,10 +30,5 @@ public class ForgePlatformHelper implements IPlatformHelper {
         // TODO: Implement OpenGL initialization for Forge
     }
 
-    @Override
-    public RenderContext getRenderContext() {
-        // TODO: Implement RenderContext for Forge
-        return null;
-    }
 
 }

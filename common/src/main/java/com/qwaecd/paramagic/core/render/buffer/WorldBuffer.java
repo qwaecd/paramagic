@@ -1,9 +1,7 @@
 package com.qwaecd.paramagic.core.render.buffer;
 
-import com.mojang.blaze3d.vertex.PoseStack;
 import com.qwaecd.paramagic.core.render.RenderContext;
 import com.qwaecd.paramagic.core.render.shader.Shader;
-import com.qwaecd.paramagic.platform.Services;
 import net.minecraft.world.phys.Vec3;
 import org.apache.commons.lang3.ArrayUtils;
 import org.joml.Matrix4f;
@@ -16,7 +14,6 @@ import java.util.List;
 import static org.lwjgl.opengl.GL33.*;
 
 public class WorldBuffer {
-    public static final RenderContext RENDER_CONTEXT = Services.PLATFORM.getRenderContext();
     private final List<Vertex> vertices = new ArrayList<>();
 
     private final int drawMode;
@@ -25,11 +22,11 @@ public class WorldBuffer {
     private FloatBuffer projectionMatrix;
     private final Vec3 cameraPosition;
 
-    public WorldBuffer(int drawMode, Shader shader, Matrix4f viewMatrix) {
+    public WorldBuffer(int drawMode, Shader shader, Matrix4f viewMatrix, RenderContext context) {
         this.drawMode = drawMode;
         this.shader = shader;
-        this.cameraPosition = RENDER_CONTEXT.getCamera().getPosition();
-        makeProjectionMatrix(RENDER_CONTEXT.getProjectionMatrix(), viewMatrix);
+        this.cameraPosition = context.getCamera().getPosition();
+        makeProjectionMatrix(context.getProjectionMatrix(), viewMatrix);
     }
 
     public void vert(float x, float y, float z, float r, float g, float b, float a) {
