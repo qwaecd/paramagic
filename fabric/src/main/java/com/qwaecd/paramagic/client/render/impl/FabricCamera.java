@@ -6,12 +6,12 @@ import org.joml.Quaternionf;
 import org.joml.Vector3d;
 
 public class FabricCamera implements ICamera {
+    private Camera camera;
     private Vector3d position;
-    private Quaternionf rotation;
 
     public FabricCamera(Camera camera) {
         this.position = new Vector3d(camera.getPosition().toVector3f());
-        this.rotation = camera.rotation();
+        this.camera = camera;
     }
 
     @Override
@@ -21,6 +21,6 @@ public class FabricCamera implements ICamera {
 
     @Override
     public Quaternionf rotation() {
-        return this.rotation;
+        return this.camera.rotation();
     }
 }
