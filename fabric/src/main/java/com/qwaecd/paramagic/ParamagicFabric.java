@@ -25,13 +25,17 @@ public class ParamagicFabric implements ModInitializer {
                 RenderHelper.drawLine(buffer, 0, 100, 0, 0, 101, 0, Color.RED);
                 RenderHelper.endLines(buffer);
 
-                WorldBuffer buffer2 = RenderHelper.startTri();
-                RenderHelper.drawTri(buffer2,
-                        0, 102, 0,
-                        1, 101, 0,
-                        0, 101, 0,
-                        Color.GREEN);
-                RenderHelper.endTri(buffer2);
+                for (int j = 0; j < 128; j++) {
+                    for (int i = 0; i < 128; i++) {
+                        WorldBuffer buffer2 = RenderHelper.startTri();
+                        RenderHelper.drawTri(buffer2,
+                                0 + j, 102, i,
+                                1 + j, 101, i,
+                                0 + j, 101, i,
+                                Color.GREEN);
+                        RenderHelper.endTri(buffer2);
+                    }
+                }
             });
         });
     }
