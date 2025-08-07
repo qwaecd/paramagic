@@ -1,6 +1,7 @@
-package com.qwaecd.paramagic.core.render.buffer;
+package com.qwaecd.paramagic.core.render.vertex;
 
 import lombok.Getter;
+import org.joml.Vector3f;
 
 import java.awt.*;
 
@@ -24,7 +25,18 @@ public class Vertex {
     @Getter
     private float v;
     @Getter
-    private float normal;
+    private Vector3f normal = new Vector3f(1.0f);
+
+    boolean hasNormal = false;
+    boolean hasUV = false;
+
+    public boolean hasNormal() {
+        return this.hasNormal;
+    }
+
+    public boolean hasUV() {
+        return this.hasUV;
+    }
 
     public Vertex(float x, float y, float z, float r, float g, float b, float a) {
         this.x = x;
@@ -40,6 +52,13 @@ public class Vertex {
         this(x, y, z, r, g, b, a);
         this.u = u;
         this.v = v;
+        this.hasUV = true;
+    }
+
+    public Vertex(float x, float y, float z, float r, float g, float b, float a, Vector3f normal) {
+        this(x, y, z, r, g, b, a);
+        this.normal = normal;
+        this.hasNormal = true;
     }
 
     public static class Builder {
@@ -52,6 +71,9 @@ public class Vertex {
         private float a;
         private float u;
         private float v;
+        private boolean hasNormal = false;
+        private boolean hasUV = false;
+
 
         public Builder pos(float x, float y, float z) {
             this.x = x;
@@ -79,11 +101,23 @@ public class Vertex {
         public Builder uv(float u, float v) {
             this.u = u;
             this.v = v;
+            this.hasUV = true;
+            return this;
+        }
+
+        public Builder normal(float x, float y, float z) {
+            this.x = x;
+            this.y = y;
+            this.z = z;
+            this.hasNormal = true;
             return this;
         }
 
         public Vertex build() {
-            return new Vertex(x, y, z, r, g, b, a, u, v);
+            Vertex vertex = new Vertex(x, y, z, r, g, b, a, u, v);
+            vertex.hasNormal = this.hasNormal;
+            vertex.hasUV = this.hasUV;
+            return vertex;
         }
     }
 }

@@ -2,6 +2,7 @@ package com.qwaecd.paramagic.core.render.buffer;
 
 import com.qwaecd.paramagic.core.render.context.RenderContext;
 import com.qwaecd.paramagic.core.render.shader.Shader;
+import com.qwaecd.paramagic.core.render.vertex.Vertex;
 import org.apache.commons.lang3.ArrayUtils;
 import org.joml.Matrix4f;
 import org.joml.Vector3d;

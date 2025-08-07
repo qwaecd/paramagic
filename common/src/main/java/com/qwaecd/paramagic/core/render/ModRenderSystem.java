@@ -7,7 +7,6 @@ import com.qwaecd.paramagic.core.render.shader.ShaderManager;
 public class ModRenderSystem extends AbstractRenderSystem{
 
 
-
     public static void init() {
     }
 

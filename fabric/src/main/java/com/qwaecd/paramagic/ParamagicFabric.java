@@ -1,6 +1,7 @@
 package com.qwaecd.paramagic;
 
 import com.qwaecd.paramagic.client.render.impl.FabricRenderContext;
+import com.qwaecd.paramagic.core.render.ModRenderSystem;
 import com.qwaecd.paramagic.core.render.context.RenderContextManager;
 import com.qwaecd.paramagic.core.render.buffer.WorldBuffer;
 import com.qwaecd.paramagic.core.render.RenderHelper;
