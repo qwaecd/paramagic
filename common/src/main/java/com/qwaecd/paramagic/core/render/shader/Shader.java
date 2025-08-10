@@ -29,19 +29,31 @@ public class Shader {
         glUseProgram(0);
     }
 
-    public void uniformMatrix4f(String name, FloatBuffer matrix) {
-        bind();
+    public void setUniformMatrix4f(String name, FloatBuffer matrix) {
         glUniformMatrix4fv(glGetUniformLocation(programId, name), false, matrix);
-        unbind();
     }
 
-    public void uniformMatrix4f(String name, Matrix4f matrix) {
-        uniformMatrix4f(name, matrix.get(BufferUtils.createFloatBuffer(16)));
+    public void setUniformMatrix4f(String name, Matrix4f matrix) {
+        setUniformMatrix4f(name, matrix.get(BufferUtils.createFloatBuffer(16)));
     }
 
-    public void uniformValue2f(String name, float v0, float v1) {
-        bind();
+    public void setUniformValue3f(String name, float v0, float v1, float v2) {
+        glUniform3f(glGetUniformLocation(programId, name), v0, v1, v2);
+    }
+
+    public void setUniformValue4f(String name, float v0, float v1, float v2, float v3) {
+        glUniform4f(glGetUniformLocation(programId, name), v0, v1, v2, v3);
+    }
+
+    public void setUniformValue2f(String name, float v0, float v1) {
         glUniform2f(glGetUniformLocation(programId, name), v0, v1);
-        unbind();
+    }
+
+    public void setUniformValue1f(String name, float value) {
+        glUniform1f(glGetUniformLocation(programId, name), value);
+    }
+
+    public void setUniformValue1i(String name, int value) {
+        glUniform1i(glGetUniformLocation(programId, name), value);
     }
 }

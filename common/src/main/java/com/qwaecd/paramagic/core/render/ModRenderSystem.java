@@ -3,6 +3,7 @@ package com.qwaecd.paramagic.core.render;
 import com.qwaecd.paramagic.Constants;
 import com.qwaecd.paramagic.core.render.buffer.BufferManager;
 import com.qwaecd.paramagic.core.render.context.RenderContext;
+import com.qwaecd.paramagic.core.render.context.RenderContextManager;
 import com.qwaecd.paramagic.core.render.shader.Shader;
 import com.qwaecd.paramagic.core.render.shader.ShaderManager;
 import com.qwaecd.paramagic.core.render.texture.Material;
@@ -14,7 +15,7 @@ import com.qwaecd.paramagic.core.render.vertex.VertexAttribute;
 import com.qwaecd.paramagic.core.render.vertex.VertexLayout;
 import com.qwaecd.paramagic.debug.TestObj;
 import org.joml.Matrix4f;
-import org.joml.Quaternionf;
+import org.joml.Vector3d;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
@@ -56,18 +57,25 @@ public class ModRenderSystem extends AbstractRenderSystem{
         IPoseStack poseStack = context.getPoseStack();
         for (IRenderable renderable : scene) {
 
+            Vector3d cameraPos = context.getCamera().position();
+            Matrix4f worldModelMatrix = renderable.getTransform().getModelMatrix();
+            Matrix4f relativeModelMatrix = new Matrix4f(worldModelMatrix);
+            float relativeX = (float) (worldModelMatrix.m30() -  cameraPos.x);
+            float relativeY = (float) (worldModelMatrix.m31() -  cameraPos.y);
+            float relativeZ = (float) (worldModelMatrix.m32() -  cameraPos.z);
+            relativeModelMatrix.setTranslation(relativeX, relativeY, relativeZ);
+
+            Matrix4f projectionMatrix = context.getProjectionMatrix();
+            Matrix4f view = poseStack.getLastPose().pose();
 
             Material material = renderable.getMaterial();
 
             material.apply();
 
             Shader shader = material.getShader();
-            Matrix4f projectionMatrix = context.getProjectionMatrix();
-            Matrix4f view = poseStack.getLastPose().pose();
-            Matrix4f modelMatrix = renderable.getTransform().getModelMatrix();
-            shader.uniformMatrix4f("u_projection", projectionMatrix);
-            shader.uniformMatrix4f("u_view", view);
-            shader.uniformMatrix4f("u_model", modelMatrix);
+            shader.setUniformMatrix4f("u_projection", projectionMatrix);
+            shader.setUniformMatrix4f("u_view", view);
+            shader.setUniformMatrix4f("u_model", relativeModelMatrix);
             renderable.getMesh().draw();
             material.unbind();
 
@@ -80,6 +88,12 @@ public class ModRenderSystem extends AbstractRenderSystem{
 
     public void removeRenderable(IRenderable renderable) {
         this.pendingRemove.add(renderable);
+    }
+
+    public void clearAllScene() {
+        this.scene.clear();
+        this.pendingAdd.clear();
+        this.pendingRemove.clear();
     }
 
     public static void initAfterClientStarted() {
@@ -103,6 +117,12 @@ public class ModRenderSystem extends AbstractRenderSystem{
     }
 
     private void addTestObj() {
+
+        this.addRenderable(add());
+
+    }
+
+    public static TestObj add() {
         MeshBuilder meshBuilder = new MeshBuilder();
         Mesh mesh = new Mesh(GL_TRIANGLES);
 
@@ -111,17 +131,17 @@ public class ModRenderSystem extends AbstractRenderSystem{
         layout.addAttribute(new VertexAttribute(1, 4, GL_UNSIGNED_BYTE, true));
 
         ByteBuffer data = meshBuilder
-                .pos(-0.2f, 0.0f, -0.2f).color(1.0f, 0.0f, 0.0f, 1.0f).endVertex()
-                .pos( 0.2f, 0.0f, -0.2f).color(0.0f, 1.0f, 0.0f, 1.0f).endVertex()
-                .pos( 0.0f, 0.2f,  0.0f).color(0.0f, 0.0f, 1.0f, 1.0f).endVertex()
+                .pos(-0.5f, 0.0f,  0.0f).color(1.0f, 0.0f, 0.0f, 1.0f).endVertex()
+                .pos( 0.5f, 0.0f,  0.0f).color(0.0f, 1.0f, 0.0f, 1.0f).endVertex()
+                .pos( 0.0f, 1.0f,  0.0f).color(0.0f, 0.0f, 1.0f, 1.0f).endVertex()
                 .buildBuffer(layout);
         mesh.uploadAndConfigure(data, layout, GL_STATIC_DRAW);
 
         Material material = new Material(ShaderManager.getPositionColorShader());
 
         TestObj testObj = new TestObj(mesh, material);
-        testObj.getTransform().setPosition(10, 100, 10);
-        this.addRenderable(testObj);
-
+        testObj.getTransform()
+                .setPosition(0, 0, 0);
+        return testObj;
     }
 }

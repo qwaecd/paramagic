@@ -85,10 +85,10 @@ public class MeshBuilder {
                 break;
             case 1: // 颜色
                 if (attribute.type() == GL_UNSIGNED_BYTE && attribute.size() == 4 && attribute.normalized()) {
-                    buffer.put((byte) (v.getR() * 255));
-                    buffer.put((byte) (v.getG() * 255));
-                    buffer.put((byte) (v.getB() * 255));
-                    buffer.put((byte) (v.getA() * 255));
+                    buffer.put((byte) (Math.round(Math.min(1.0f, Math.max(0.0f, v.getR())) * 255.0f) & 0xFF));
+                    buffer.put((byte) (Math.round(Math.min(1.0f, Math.max(0.0f, v.getG())) * 255.0f) & 0xFF));
+                    buffer.put((byte) (Math.round(Math.min(1.0f, Math.max(0.0f, v.getB())) * 255.0f) & 0xFF));
+                    buffer.put((byte) (Math.round(Math.min(1.0f, Math.max(0.0f, v.getA())) * 255.0f) & 0xFF));
                 } else {
                     throw new IllegalArgumentException("Layout attribute at location 1 must be a normalized vec4 of unsigned bytes.");
                 }

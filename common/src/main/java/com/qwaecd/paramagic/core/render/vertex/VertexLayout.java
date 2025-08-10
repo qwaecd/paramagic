@@ -18,10 +18,6 @@ public class VertexLayout {
         stride += attribute.size() * attribute.getTypeSize();
     }
 
-/*    public void addAttribute(int location, int size, int type) {
-        boolean normalized = (type != GL_FLOAT);
-        addAttribute(new VertexAttribute(location, size, type, normalized));
-    }*/
 
     public void apply() {
         long offset = 0L;

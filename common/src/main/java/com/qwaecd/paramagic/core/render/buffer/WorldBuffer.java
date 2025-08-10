@@ -83,9 +83,9 @@ public class WorldBuffer {
         Matrix4f modelViewProjectionMatrix = new Matrix4f(projectionMatrix).mul(viewMatrix);
         this.projectionMatrix = modelViewProjectionMatrix.get(BufferUtils.createFloatBuffer(16));
 
-        shader.uniformMatrix4f("u_projection", projectionMatrix);
-        shader.uniformMatrix4f("u_view", viewMatrix);
-        shader.uniformMatrix4f("u_model", new Matrix4f().identity());
+        shader.setUniformMatrix4f("u_projection", projectionMatrix);
+        shader.setUniformMatrix4f("u_view", viewMatrix);
+        shader.setUniformMatrix4f("u_model", new Matrix4f().identity());
     }
 
     private void applyProjectionMatrix() {

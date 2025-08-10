@@ -43,7 +43,7 @@ public class Mesh implements AutoCloseable{
     public void draw() {
         if (vertexCount == 0) return;
         glBindVertexArray(this.vao);
-        glDrawArrays(drawMode, 0, vertexCount);
+        glDrawArrays(this.drawMode, 0, this.vertexCount);
         glBindVertexArray(0);
     }
 

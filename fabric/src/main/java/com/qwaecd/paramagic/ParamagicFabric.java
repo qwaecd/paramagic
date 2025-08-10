@@ -3,8 +3,6 @@ package com.qwaecd.paramagic;
 import com.qwaecd.paramagic.client.render.impl.FabricRenderContext;
 import com.qwaecd.paramagic.core.render.ModRenderSystem;
 import com.qwaecd.paramagic.core.render.context.RenderContextManager;
-import com.qwaecd.paramagic.core.render.buffer.WorldBuffer;
-import com.qwaecd.paramagic.core.render.RenderHelper;
 import com.qwaecd.paramagic.platform.Services;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandManager;
@@ -12,7 +10,6 @@ import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallba
 import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderEvents;
 import net.minecraft.network.chat.Component;
 
-import java.awt.*;
 
 public class ParamagicFabric implements ModInitializer {
 
@@ -29,13 +26,13 @@ public class ParamagicFabric implements ModInitializer {
 
             RenderContextManager.withContext(fabricContext, () -> {
 
-                WorldBuffer buffer = RenderHelper.startLines();
-                RenderHelper.drawLine(buffer, 0, 100, 0, 0, 101, 0, Color.RED);
-                RenderHelper.endLines(buffer);
-
-                WorldBuffer buffer1 = RenderHelper.startLines();
-                RenderHelper.drawLine(buffer1, 0, 2, 0, 0, 0, 0, Color.GREEN);
-                RenderHelper.endLines(buffer1);
+//                WorldBuffer buffer = RenderHelper.startLines();
+//                RenderHelper.drawLine(buffer, 0, 100, 0, 0, 101, 0, Color.RED);
+//                RenderHelper.endLines(buffer);
+//
+//                WorldBuffer buffer1 = RenderHelper.startLines();
+//                RenderHelper.drawLine(buffer1, 0, 2, 0, 0, 0, 0, Color.GREEN);
+//                RenderHelper.endLines(buffer1);
 
                 /*for (int j = 0; j < 128; j++) {
                     for (int i = 0; i < 128; i++) {
@@ -56,10 +53,18 @@ public class ParamagicFabric implements ModInitializer {
         ClientCommandRegistrationCallback.EVENT.register(
                 (dispatcher, registryAccess) -> {
                     dispatcher.register(
-                            ClientCommandManager.literal("parashow")
+                            ClientCommandManager.literal("para_show")
                                     .executes(context -> {
                                         ModRenderSystem.getInstance().test();
                                         context.getSource().sendFeedback(Component.literal("show!"));
+                                        return 1;
+                                    })
+                    );
+                    dispatcher.register(
+                            ClientCommandManager.literal("para_remove")
+                                    .executes(context -> {
+                                        ModRenderSystem.getInstance().clearAllScene();
+                                        context.getSource().sendFeedback(Component.literal("cleared!"));
                                         return 1;
                                     })
                     );
