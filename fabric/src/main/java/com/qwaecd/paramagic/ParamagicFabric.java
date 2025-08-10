@@ -7,26 +7,37 @@ import com.qwaecd.paramagic.core.render.buffer.WorldBuffer;
 import com.qwaecd.paramagic.core.render.RenderHelper;
 import com.qwaecd.paramagic.platform.Services;
 import net.fabricmc.api.ModInitializer;
+import net.fabricmc.fabric.api.client.command.v2.ClientCommandManager;
+import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
 import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderEvents;
+import net.minecraft.network.chat.Component;
 
 import java.awt.*;
 
 public class ParamagicFabric implements ModInitializer {
-    
+
     @Override
     public void onInitialize() {
         Constants.LOG.info("Hello Fabric world!");
         CommonClass.init();
         Services.PLATFORM.initializeOpenGL();
+        registerClientCommands();
+
         WorldRenderEvents.LAST.register(context -> {
             FabricRenderContext fabricContext = new FabricRenderContext(context);
+            ModRenderSystem.getInstance().renderScene(fabricContext);
 
             RenderContextManager.withContext(fabricContext, () -> {
+
                 WorldBuffer buffer = RenderHelper.startLines();
                 RenderHelper.drawLine(buffer, 0, 100, 0, 0, 101, 0, Color.RED);
                 RenderHelper.endLines(buffer);
 
-                for (int j = 0; j < 128; j++) {
+                WorldBuffer buffer1 = RenderHelper.startLines();
+                RenderHelper.drawLine(buffer1, 0, 2, 0, 0, 0, 0, Color.GREEN);
+                RenderHelper.endLines(buffer1);
+
+                /*for (int j = 0; j < 128; j++) {
                     for (int i = 0; i < 128; i++) {
                         WorldBuffer buffer2 = RenderHelper.startTri();
                         RenderHelper.drawTri(buffer2,
@@ -36,8 +47,23 @@ public class ParamagicFabric implements ModInitializer {
                                 Color.GREEN);
                         RenderHelper.endTri(buffer2);
                     }
-                }
+                }*/
             });
         });
+    }
+
+    private static void registerClientCommands() {
+        ClientCommandRegistrationCallback.EVENT.register(
+                (dispatcher, registryAccess) -> {
+                    dispatcher.register(
+                            ClientCommandManager.literal("parashow")
+                                    .executes(context -> {
+                                        ModRenderSystem.getInstance().test();
+                                        context.getSource().sendFeedback(Component.literal("show!"));
+                                        return 1;
+                                    })
+                    );
+                }
+        );
     }
 }

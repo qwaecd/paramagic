@@ -15,7 +15,6 @@ public class MeshBuilder {
     private final List<Vertex> vertices = new ArrayList<>();
     private Vertex.Builder currentVertex = new Vertex.Builder();
 
-    // 使用链式调用来构建一个顶点
     public MeshBuilder pos(float x, float y, float z) {
         currentVertex.pos(x, y, z);
         return this;

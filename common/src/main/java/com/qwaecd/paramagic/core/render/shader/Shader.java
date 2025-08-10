@@ -1,6 +1,8 @@
 package com.qwaecd.paramagic.core.render.shader;
 
 import lombok.Getter;
+import org.joml.Matrix4f;
+import org.lwjgl.BufferUtils;
 
 import java.nio.FloatBuffer;
 
@@ -31,6 +33,10 @@ public class Shader {
         bind();
         glUniformMatrix4fv(glGetUniformLocation(programId, name), false, matrix);
         unbind();
+    }
+
+    public void uniformMatrix4f(String name, Matrix4f matrix) {
+        uniformMatrix4f(name, matrix.get(BufferUtils.createFloatBuffer(16)));
     }
 
     public void uniformValue2f(String name, float v0, float v1) {

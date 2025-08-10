@@ -18,14 +18,15 @@ public class VertexLayout {
         stride += attribute.size() * attribute.getTypeSize();
     }
 
-    public void addAttribute(int location, int size, int type) {
+/*    public void addAttribute(int location, int size, int type) {
         boolean normalized = (type != GL_FLOAT);
         addAttribute(new VertexAttribute(location, size, type, normalized));
-    }
+    }*/
 
     public void apply() {
         long offset = 0L;
         for (VertexAttribute attribute : attributes) {
+            glEnableVertexAttribArray(attribute.location());
             glVertexAttribPointer(
                     attribute.location(),
                     attribute.size(),
@@ -34,7 +35,6 @@ public class VertexLayout {
                     this.stride,
                     offset
             );
-            glEnableVertexAttribArray(attribute.location());
             offset += (long) attribute.size() * attribute.getTypeSize();
         }
     }
