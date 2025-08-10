@@ -20,6 +20,8 @@ import static org.lwjgl.opengl.GL33.*;
 public class ShaderManager {
     @Getter
     private Shader positionColorShader;
+    @Getter
+    private Shader magicRingShader;
 
     public void init() {
         loadShader();
@@ -27,6 +29,7 @@ public class ShaderManager {
 
     private void loadShader() {
         positionColorShader = new Shader("position_color");
+        magicRingShader = new Shader("magic_ring");
     }
 
     public int loadShaderProgram(String name, ShaderType type) {

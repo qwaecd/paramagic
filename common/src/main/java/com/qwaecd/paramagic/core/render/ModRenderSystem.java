@@ -55,6 +55,7 @@ public class ModRenderSystem extends AbstractRenderSystem{
     public void renderScene(RenderContext context) {
         updateScene();
         IPoseStack poseStack = context.getPoseStack();
+        float timeSeconds = (System.currentTimeMillis() & 0x3fffffff) / 1000.0f;
         for (IRenderable renderable : scene) {
 
             Vector3d cameraPos = context.getCamera().position();
@@ -76,6 +77,7 @@ public class ModRenderSystem extends AbstractRenderSystem{
             shader.setUniformMatrix4f("u_projection", projectionMatrix);
             shader.setUniformMatrix4f("u_view", view);
             shader.setUniformMatrix4f("u_model", relativeModelMatrix);
+            shader.setUniformValue1f("u_time", timeSeconds);
 
             glDisable(GL_CULL_FACE);
 
@@ -185,5 +187,32 @@ public class ModRenderSystem extends AbstractRenderSystem{
         testObj.getTransform()
                 .setPosition(0, 0, 0);
         return testObj;
+    }
+
+    public void addMagicRingTest() {
+        MeshBuilder builder = new MeshBuilder();
+        Mesh mesh = new Mesh(GL_TRIANGLES);
+
+        // 只用位置属性（location = 0）
+        VertexLayout layout = new VertexLayout();
+        layout.addAttribute(new VertexAttribute(0, 3, GL_FLOAT, false));
+
+        // 简单平面（XZ），两三角构成一个 4x4 的方形
+        ByteBuffer data = builder
+                .pos(-2.0f, 0.0f, -2.0f).endVertex()
+                .pos( 2.0f, 0.0f, -2.0f).endVertex()
+                .pos( 2.0f, 0.0f,  2.0f).endVertex()
+                .pos( 2.0f, 0.0f,  2.0f).endVertex()
+                .pos(-2.0f, 0.0f,  2.0f).endVertex()
+                .pos(-2.0f, 0.0f, -2.0f).endVertex()
+                .buildBuffer(layout);
+
+        mesh.uploadAndConfigure(data, layout, GL_STATIC_DRAW);
+
+        Material material = new Material(ShaderManager.getMagicRingShader());
+
+        TestObj obj = new TestObj(mesh, material);
+        obj.getTransform().setPosition(0, 0, 0);
+        this.addRenderable(obj);
     }
 }
