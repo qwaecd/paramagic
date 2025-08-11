@@ -6,6 +6,8 @@ import org.lwjgl.BufferUtils;
 import java.awt.*;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.nio.IntBuffer;
+import java.nio.ShortBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -13,6 +15,7 @@ import static org.lwjgl.opengl.GL33.*;
 
 public class MeshBuilder {
     private final List<Vertex> vertices = new ArrayList<>();
+    private final List<Integer> indices = new ArrayList<>();
     private Vertex.Builder currentVertex = new Vertex.Builder();
 
     public MeshBuilder pos(float x, float y, float z) {
@@ -71,6 +74,51 @@ public class MeshBuilder {
 
         return buffer.flip();
     }
+
+    /**
+     * GL_TRIANGLES
+     */
+    public MeshBuilder addTriangle(int i0, int i1, int i2) {
+        indices.add(i0);
+        indices.add(i1);
+        indices.add(i2);
+        return this;
+    }
+
+    /**
+     * 添加一个四边形（两个三角）：(base, base+1, base+2, base, base+2, base+3)
+     */
+    public MeshBuilder addQuadIndices(int base) {
+        indices.add(base);
+        indices.add(base + 1);
+        indices.add(base + 2);
+        indices.add(base);
+        indices.add(base + 2);
+        indices.add(base + 3);
+        return this;
+    }
+
+    public ShortBuffer buildIndexBufferU16() {
+        for (int idx : indices) {
+            if (idx < 0 || idx > 0xFFFF) {
+                throw new IllegalStateException("Index " + idx + " exceeds 16-bit range. Use U32 buffer instead.");
+            }
+        }
+        ShortBuffer buf = BufferUtils.createShortBuffer(indices.size());
+        for (int idx : indices) buf.put((short) (idx & 0xFFFF));
+        return buf.flip();
+    }
+
+    public IntBuffer buildIndexBufferU32() {
+        IntBuffer buf = BufferUtils.createIntBuffer(indices.size());
+        for (int idx : indices) buf.put(idx);
+        return buf.flip();
+    }
+
+    public int getVertexCount() {
+        return vertices.size();
+    }
+
 
     private void writeBytes(ByteBuffer buffer ,Vertex v, VertexAttribute attribute) {
         switch (attribute.location()) {

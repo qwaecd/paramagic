@@ -1,6 +1,7 @@
 package com.qwaecd.paramagic.core.render;
 
 import com.qwaecd.paramagic.Constants;
+import com.qwaecd.paramagic.client.renderbase.BaseObjectManager;
 import com.qwaecd.paramagic.core.render.context.RenderContext;
 import com.qwaecd.paramagic.core.render.shader.Shader;
 import com.qwaecd.paramagic.core.render.shader.ShaderManager;
@@ -13,8 +14,10 @@ import com.qwaecd.paramagic.core.render.vertex.VertexLayout;
 import com.qwaecd.paramagic.debug.TestObj;
 import org.joml.Matrix4f;
 import org.joml.Vector3d;
+import org.lwjgl.BufferUtils;
 
 import java.nio.ByteBuffer;
+import java.nio.ShortBuffer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -79,10 +82,16 @@ public class ModRenderSystem extends AbstractRenderSystem{
             shader.setUniformMatrix4f("u_model", relativeModelMatrix);
             shader.setUniformValue1f("u_time", timeSeconds);
 
-            glDisable(GL_CULL_FACE);
-
+            renderable.getTransform()
+                    .translate(
+                            (float) Math.sin(timeSeconds),
+                            (float) Math.cos(timeSeconds),
+                            0.0f
+                    )
+                    .setScale((float) Math.sin(timeSeconds)*20.0f + 25.0f, (float) Math.sin(timeSeconds)*20.0f + 25.0f, (float) Math.sin(timeSeconds)*20.0f + 25.0f);
+//            glDisable(GL_CULL_FACE);
             renderable.getMesh().draw();
-            glEnable(GL_CULL_FACE);
+//            glEnable(GL_CULL_FACE);
             material.unbind();
 
         }
@@ -104,6 +113,7 @@ public class ModRenderSystem extends AbstractRenderSystem{
 
     public static void initAfterClientStarted() {
         ShaderManager.init();
+        BaseObjectManager.init();
         Constants.LOG.info("Render system initialized.");
     }
 
@@ -118,15 +128,16 @@ public class ModRenderSystem extends AbstractRenderSystem{
     }
 
     public void test() {
-        addTestObj();
+//        addTestObj();
+//        addMagicRingIndexedTest();
+        addRenderable(BaseObjectManager.getBASE_BALL());
     }
 
     private void addTestObj() {
 
         this.addRenderable(add());
-
     }
-
+    // 使用顶点数组构建一个立方体，包含六个面，每个面由两个三角形组成
     public static TestObj add() {
         MeshBuilder meshBuilder = new MeshBuilder();
         Mesh mesh = new Mesh(GL_TRIANGLES);
@@ -188,7 +199,7 @@ public class ModRenderSystem extends AbstractRenderSystem{
                 .setPosition(0, 0, 0);
         return testObj;
     }
-
+    // 使用顶点数组 vbo 构建方形
     public void addMagicRingTest() {
         MeshBuilder builder = new MeshBuilder();
         Mesh mesh = new Mesh(GL_TRIANGLES);
@@ -213,6 +224,36 @@ public class ModRenderSystem extends AbstractRenderSystem{
 
         TestObj obj = new TestObj(mesh, material);
         obj.getTransform().setPosition(0, 0, 0);
+        this.addRenderable(obj);
+    }
+    // 使用顶点索引数组 ebo 构建方形
+    public void addMagicRingIndexedTest() {
+        MeshBuilder builder = new MeshBuilder();
+        Mesh mesh = new Mesh(GL_TRIANGLES);
+
+        // 只用位置属性（location = 0）
+        VertexLayout layout = new VertexLayout();
+        layout.addAttribute(new VertexAttribute(0, 3, GL_FLOAT, false));
+
+        // 顶点：XZ 平面上的 2x2 方形（与之前 arrays 版本一致）
+        ByteBuffer vertices = builder
+                .pos(-2.0f, 0.0f, -2.0f).endVertex() // 0
+                .pos( 2.0f, 0.0f, -2.0f).endVertex() // 1
+                .pos( 2.0f, 0.0f,  2.0f).endVertex() // 2
+                .pos(-2.0f, 0.0f,  2.0f).endVertex() // 3
+                .buildBuffer(layout);
+
+        // 索引：两个三角形组成一个四边形
+        ShortBuffer indices = BufferUtils.createShortBuffer(6)
+                .put(new short[]{0, 1, 2, 2, 3, 0});
+        indices.flip();
+
+        mesh.uploadAndConfigure(vertices, layout, GL_STATIC_DRAW, indices, GL_STATIC_DRAW);
+
+        Material material = new Material(ShaderManager.getMagicRingShader());
+        TestObj obj = new TestObj(mesh, material);
+        obj.getTransform().setPosition(0, 0, 0);
+
         this.addRenderable(obj);
     }
 }

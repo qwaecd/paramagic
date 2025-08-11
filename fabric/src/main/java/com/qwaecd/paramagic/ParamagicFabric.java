@@ -33,7 +33,8 @@ public class ParamagicFabric implements ModInitializer {
                     dispatcher.register(
                             ClientCommandManager.literal("para_show")
                                     .executes(context -> {
-                                        ModRenderSystem.getInstance().addMagicRingTest();
+//                                        ModRenderSystem.getInstance().addMagicRingTest();
+                                        ModRenderSystem.getInstance().test();
                                         context.getSource().sendFeedback(Component.literal("show!"));
                                         return 1;
                                     })

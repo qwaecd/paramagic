@@ -6,6 +6,7 @@ layout(location = 1) in vec4 i_color;
 uniform mat4 u_projection;
 uniform mat4 u_view;
 uniform mat4 u_model;
+uniform float u_time;
 out vec4 vertex_color;
 
 void main() {

@@ -18,6 +18,12 @@ public class VertexLayout {
         stride += attribute.size() * attribute.getTypeSize();
     }
 
+    public VertexLayout addNextAttribute(VertexAttribute attribute) {
+        attributes.add(attribute);
+        stride += attribute.size() * attribute.getTypeSize();
+        return this;
+    }
+
 
     public void apply() {
         long offset = 0L;
