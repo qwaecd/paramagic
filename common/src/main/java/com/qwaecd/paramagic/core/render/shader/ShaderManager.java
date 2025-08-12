@@ -22,6 +22,12 @@ public class ShaderManager {
     private Shader positionColorShader;
     @Getter
     private Shader magicRingShader;
+    @Getter
+    private Shader baseBallInShader;
+    @Getter
+    private Shader baseBallOutShader;
+    @Getter
+    private Shader MagicCircleShader;
 
     public void init() {
         loadShader();
@@ -30,6 +36,9 @@ public class ShaderManager {
     private void loadShader() {
         positionColorShader = new Shader("position_color");
         magicRingShader = new Shader("magic_ring");
+        baseBallInShader = new Shader("debug/base_ball_in");
+        baseBallOutShader = new Shader("debug/base_ball_out");
+        MagicCircleShader = new Shader("debug/magic_circle");
     }
 
     public int loadShaderProgram(String name, ShaderType type) {

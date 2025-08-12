@@ -11,9 +11,13 @@ import com.qwaecd.paramagic.core.render.vertex.Mesh;
 import com.qwaecd.paramagic.core.render.vertex.MeshBuilder;
 import com.qwaecd.paramagic.core.render.vertex.VertexAttribute;
 import com.qwaecd.paramagic.core.render.vertex.VertexLayout;
+import com.qwaecd.paramagic.debug.MagicCircleFactory;
+import com.qwaecd.paramagic.debug.MagicCircleMaterial;
 import com.qwaecd.paramagic.debug.TestObj;
+import net.minecraft.resources.ResourceLocation;
 import org.joml.Matrix4f;
 import org.joml.Vector3d;
+import org.joml.Vector3f;
 import org.lwjgl.BufferUtils;
 
 import java.nio.ByteBuffer;
@@ -76,22 +80,30 @@ public class ModRenderSystem extends AbstractRenderSystem{
 
             material.apply();
 
+            renderable.getTransform()
+                    .setScale((float) Math.sin(timeSeconds)*3.0f + 10.0f, (float) Math.sin(timeSeconds)*3.0f + 10.0f, (float) Math.sin(timeSeconds)*3.0f + 10.0f)
+                    .setRotation(90.0f, new Vector3f(1.0f, 0.0f, 0.0f));
+
             Shader shader = material.getShader();
             shader.setUniformMatrix4f("u_projection", projectionMatrix);
             shader.setUniformMatrix4f("u_view", view);
             shader.setUniformMatrix4f("u_model", relativeModelMatrix);
             shader.setUniformValue1f("u_time", timeSeconds);
 
-            renderable.getTransform()
-                    .translate(
-                            (float) Math.sin(timeSeconds),
-                            (float) Math.cos(timeSeconds),
-                            0.0f
-                    )
-                    .setScale((float) Math.sin(timeSeconds)*20.0f + 25.0f, (float) Math.sin(timeSeconds)*20.0f + 25.0f, (float) Math.sin(timeSeconds)*20.0f + 25.0f);
-//            glDisable(GL_CULL_FACE);
+            if (renderable.getMaterial() instanceof MagicCircleMaterial magicCircleMaterial) {
+                magicCircleMaterial.setTime(timeSeconds);
+                magicCircleMaterial.apply();
+            }
+
+            glDisable(GL_CULL_FACE);
+            glDepthMask(false);
+            glEnable(GL_BLEND);
             renderable.getMesh().draw();
-//            glEnable(GL_CULL_FACE);
+            glEnable(GL_CULL_FACE);
+            glDepthMask(true);
+            glDisable(GL_BLEND);
+
+
             material.unbind();
 
         }
@@ -130,7 +142,9 @@ public class ModRenderSystem extends AbstractRenderSystem{
     public void test() {
 //        addTestObj();
 //        addMagicRingIndexedTest();
-        addRenderable(BaseObjectManager.getBASE_BALL());
+//        addRenderable(BaseObjectManager.getBASE_BALL_IN());
+//        addRenderable(BaseObjectManager.getBASE_BALL_OUT());
+        addRenderable(MagicCircleFactory.create(new ResourceLocation(Constants.MOD_ID, "textures/magic/circle_01.png")));
     }
 
     private void addTestObj() {

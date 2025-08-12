@@ -2,6 +2,7 @@ package com.qwaecd.paramagic.client.renderbase;
 
 import com.qwaecd.paramagic.core.render.IRenderable;
 import com.qwaecd.paramagic.core.render.Transform;
+import com.qwaecd.paramagic.core.render.shader.Shader;
 import com.qwaecd.paramagic.core.render.shader.ShaderManager;
 import com.qwaecd.paramagic.core.render.texture.Material;
 import com.qwaecd.paramagic.core.render.vertex.Mesh;
@@ -39,6 +40,22 @@ public class BaseBall implements IRenderable {
                 .addNextAttribute(new VertexAttribute(3, 3, GL_BYTE, true));
         this.mesh = new Mesh(GL_TRIANGLES);
         this.material = new Material(ShaderManager.getPositionColorShader());
+        this.transform = new Transform();
+
+
+        this.genMesh(layout);
+    }
+
+    public BaseBall(int stacks, int slices, Shader shader) {
+        this.stacks = stacks;
+        this.slices = slices;
+        VertexLayout layout = new VertexLayout();
+        layout
+                .addNextAttribute(new VertexAttribute(0, 3, GL_FLOAT, false))
+                .addNextAttribute(new VertexAttribute(1, 4, GL_UNSIGNED_BYTE, true))
+                .addNextAttribute(new VertexAttribute(3, 3, GL_BYTE, true));
+        this.mesh = new Mesh(GL_TRIANGLES);
+        this.material = new Material(shader);
         this.transform = new Transform();
 
 
