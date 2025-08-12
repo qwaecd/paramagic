@@ -11,13 +11,16 @@ import net.minecraft.server.packs.resources.ResourceManager;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import static org.lwjgl.opengl.GL33.*;
 
 @UtilityClass
 public class ShaderManager {
+    private static final Map<String, Shader> SHADER_REGISTRY = new HashMap<>();
     @Getter
     private Shader positionColorShader;
     @Getter
@@ -30,23 +33,40 @@ public class ShaderManager {
     private Shader MagicCircleShader;
 
     public void init() {
-        loadShader();
+        loadShaders();
     }
 
-    private void loadShader() {
-        positionColorShader = new Shader("position_color");
-        magicRingShader = new Shader("magic_ring");
-        baseBallInShader = new Shader("debug/base_ball_in");
-        baseBallOutShader = new Shader("debug/base_ball_out");
-        MagicCircleShader = new Shader("debug/magic_circle");
+    private void loadShaders() {
+        positionColorShader = new Shader("", "position_color");
+        magicRingShader = new Shader("", "magic_ring");
+        baseBallInShader = new Shader("debug/","base_ball_in");
+        baseBallOutShader = new Shader("debug/","base_ball_out");
+        MagicCircleShader = new Shader("debug/","magic_circle");
+        register("position_color", positionColorShader);
+        register("magic_ring", magicRingShader);
+        register("base_ball_in", baseBallInShader);
+        register("base_ball_out", baseBallOutShader);
+        register("magic_circle", MagicCircleShader);
     }
 
-    public int loadShaderProgram(String name, ShaderType type) {
+    private void register(String name, Shader shader) {
+        SHADER_REGISTRY.put(name, shader);
+    }
+
+    public static Shader getShader(String name) {
+        if (SHADER_REGISTRY.containsKey(name)) {
+            return SHADER_REGISTRY.get(name);
+        }
+        Constants.LOG.warn("Shader {} not found, returning default position color shader", name);
+        return positionColorShader;
+    }
+
+    public int loadShaderProgram(String path, String name, ShaderType type) {
         ResourceManager resourceManager = Minecraft.getInstance().getResourceManager();
         ResourceLocation location =
                 new ResourceLocation(
                         Constants.MOD_ID,
-                        "shader/" + name + type.extension
+                        "shader/" + path + name + type.extension
                 );
         Optional<Resource> resource = resourceManager.getResource(location);
         int shaderId = glCreateShader(type.glType);

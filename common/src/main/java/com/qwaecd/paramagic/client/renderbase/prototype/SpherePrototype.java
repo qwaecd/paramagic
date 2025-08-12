@@ -1,11 +1,5 @@
-package com.qwaecd.paramagic.client.renderbase;
+package com.qwaecd.paramagic.client.renderbase.prototype;
 
-import com.qwaecd.paramagic.core.render.IRenderable;
-import com.qwaecd.paramagic.core.render.Transform;
-import com.qwaecd.paramagic.core.render.shader.Shader;
-import com.qwaecd.paramagic.core.render.shader.ShaderManager;
-import com.qwaecd.paramagic.core.render.texture.BaseMaterial;
-import com.qwaecd.paramagic.core.render.texture.Material;
 import com.qwaecd.paramagic.core.render.vertex.Mesh;
 import com.qwaecd.paramagic.core.render.vertex.MeshBuilder;
 import com.qwaecd.paramagic.core.render.vertex.VertexAttribute;
@@ -17,53 +11,38 @@ import java.nio.ShortBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL11C.GL_TRIANGLES;
-import static org.lwjgl.opengl.GL33.*;
-@Deprecated
-public class BaseBall implements IRenderable {
+import static org.lwjgl.opengl.GL15.GL_STATIC_DRAW;
+
+public class SpherePrototype implements IShapePrototype {
     public static final int RADIUS = 1;
     @Getter
-    private final int stacks;   // 纬线
+    private int stacks;   // 纬线
     @Getter
-    private final int slices;   // 经线
+    private int slices;   // 经线
     private final Mesh mesh;
-    private final Material material;
-    private final Transform transform;
     private final List<Integer> indices = new ArrayList<>();
-
-    public BaseBall(int stacks, int slices) {
-        this.stacks = stacks;
-        this.slices = slices;
-        VertexLayout layout = new VertexLayout();
-        layout
-                .addNextAttribute(new VertexAttribute(0, 3, GL_FLOAT, false))
-                .addNextAttribute(new VertexAttribute(1, 4, GL_UNSIGNED_BYTE, true))
-                .addNextAttribute(new VertexAttribute(3, 3, GL_BYTE, true));
+    @Getter
+    private static final SpherePrototype INSTANCE = new SpherePrototype();
+    public SpherePrototype() {
         this.mesh = new Mesh(GL_TRIANGLES);
-        this.material = new BaseMaterial(ShaderManager.getPositionColorShader());
-        this.transform = new Transform();
-
-
-        this.genMesh(layout);
+        this.stacks = 32;
+        this.slices = 64;
+        buildSphereMesh();
     }
 
-    public BaseBall(int stacks, int slices, Shader shader) {
-        this.stacks = stacks;
-        this.slices = slices;
-        VertexLayout layout = new VertexLayout();
-        layout
-                .addNextAttribute(new VertexAttribute(0, 3, GL_FLOAT, false))
-                .addNextAttribute(new VertexAttribute(1, 4, GL_UNSIGNED_BYTE, true))
-                .addNextAttribute(new VertexAttribute(3, 3, GL_BYTE, true));
-        this.mesh = new Mesh(GL_TRIANGLES);
-        this.material = new BaseMaterial(shader);
-        this.transform = new Transform();
-
-
-        this.genMesh(layout);
+    public static void init() {
     }
 
-    private void genMesh(VertexLayout layout) {
+    private void buildSphereMesh() {
+        VertexLayout layout = new VertexLayout();
+        layout
+        .addNextAttribute(new VertexAttribute(0, 3, GL_FLOAT, false))
+        .addNextAttribute(new VertexAttribute(1, 4, GL_UNSIGNED_BYTE, true))
+        .addNextAttribute(new VertexAttribute(3, 3, GL_BYTE, true));
+
+
         MeshBuilder builder = new MeshBuilder();
         // 创建顶点
         for (int i = 0; i < this.stacks + 1; i++) {
@@ -102,19 +81,8 @@ public class BaseBall implements IRenderable {
         this.mesh.uploadAndConfigure(vertexData, layout, GL_STATIC_DRAW, indexBuffer, GL_STATIC_DRAW);
     }
 
-
     @Override
     public Mesh getMesh() {
         return this.mesh;
-    }
-
-    @Override
-    public Material getMaterial() {
-        return this.material;
-    }
-
-    @Override
-    public Transform getTransform() {
-        return this.transform;
     }
 }

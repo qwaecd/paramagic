@@ -2,9 +2,10 @@ package com.qwaecd.paramagic.core.render.texture;
 
 import com.qwaecd.paramagic.core.render.shader.Shader;
 import lombok.Getter;
+import org.joml.Matrix4f;
 import org.joml.Vector4f;
 
-public class Material {
+public abstract class Material implements UniformHandler {
     @Getter
     private final Shader shader;
 
@@ -18,9 +19,16 @@ public class Material {
         // this.textures = new HashMap<>();
     }
 
-    public void apply() {
-        shader.bind();
+    public final void applyBaseUniforms(Matrix4f projection, Matrix4f view, Matrix4f model, float timeSeconds) {
+        shader.setUniformMatrix4f("u_projection", projection);
+        shader.setUniformMatrix4f("u_view", view);
+        shader.setUniformMatrix4f("u_model", model);
+        shader.setUniformValue1f("u_time", timeSeconds);
+    }
 
+    public final void apply() {
+        shader.bind();
+        applyCustomUniforms();
         // 设置此材质的通用Uniforms
         // shader.uniformVec4f("u_MaterialColor", baseColor);
 
@@ -41,4 +49,6 @@ public class Material {
         shader.unbind();
     }
 
+    @Override
+    public abstract void applyCustomUniforms();
 }

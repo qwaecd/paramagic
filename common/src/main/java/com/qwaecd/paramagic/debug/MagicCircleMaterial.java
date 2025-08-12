@@ -12,31 +12,79 @@ import java.util.Map;
 public class MagicCircleMaterial extends Material {
     private final Map<Integer, Texture2D> textures = new HashMap<>();
 
-    @Getter private float time = 0f;
-    @Getter private float rotationSpeed = 1.0f;
-    @Getter private float pulseSpeed = 1.0f, pulseAmp = 0.2f;
-    @Getter private float sweepSpeed = 0.2f, sweepWidth = 0.06f;
-    @Getter private float intensity = 1.0f;
-    @Getter private float edgeAA = 0.0f;
-    @Getter private float uvScaleX = 1f, uvScaleY = 1f;
-    @Getter private float uvOffsetX = 0f, uvOffsetY = 0f;
+    @Getter
+    private float time = 0f;
+    @Getter
+    private float rotationSpeed = 1.0f;
+    @Getter
+    private float pulseSpeed = 1.0f, pulseAmp = 0.2f;
+    @Getter
+    private float sweepSpeed = 0.2f, sweepWidth = 0.06f;
+    @Getter
+    private float intensity = 1.0f;
+    @Getter
+    private float edgeAA = 0.0f;
+    @Getter
+    private float uvScaleX = 1f, uvScaleY = 1f;
+    @Getter
+    private float uvOffsetX = 0f, uvOffsetY = 0f;
 
     public MagicCircleMaterial(Shader shader, ResourceLocation maskTex) {
         super(shader);
-        this.baseColor.set(0.0f,1.0f,1.0f,1.0f);
+        this.baseColor.set(0.0f, 1.0f, 1.0f, 1.0f);
         textures.put(0, new Texture2D(maskTex, true));
     }
 
-    public MagicCircleMaterial setTime(float t) { this.time = t; return this; }
-    public MagicCircleMaterial setRotationSpeed(float v){ this.rotationSpeed=v; return this; }
-    public MagicCircleMaterial setPulse(float speed, float amp){ this.pulseSpeed=speed; this.pulseAmp=amp; return this; }
-    public MagicCircleMaterial setSweep(float speed, float width){ this.sweepSpeed=speed; this.sweepWidth=width; return this; }
-    public MagicCircleMaterial setIntensity(float i){ this.intensity=i; return this; }
-    public MagicCircleMaterial setEdgeAA(float aa){ this.edgeAA=aa; return this; }
-    public MagicCircleMaterial setUV(float sx,float sy,float ox,float oy){ this.uvScaleX=sx; this.uvScaleY=sy; this.uvOffsetX=ox; this.uvOffsetY=oy; return this; }
+    public MagicCircleMaterial setTime(float t) {
+        this.time = t;
+        return this;
+    }
+
+    public MagicCircleMaterial setRotationSpeed(float v) {
+        this.rotationSpeed = v;
+        return this;
+    }
+
+    public MagicCircleMaterial setPulse(float speed, float amp) {
+        this.pulseSpeed = speed;
+        this.pulseAmp = amp;
+        return this;
+    }
+
+    public MagicCircleMaterial setSweep(float speed, float width) {
+        this.sweepSpeed = speed;
+        this.sweepWidth = width;
+        return this;
+    }
+
+    public MagicCircleMaterial setIntensity(float i) {
+        this.intensity = i;
+        return this;
+    }
+
+    public MagicCircleMaterial setEdgeAA(float aa) {
+        this.edgeAA = aa;
+        return this;
+    }
+
+    public MagicCircleMaterial setUV(float sx, float sy, float ox, float oy) {
+        this.uvScaleX = sx;
+        this.uvScaleY = sy;
+        this.uvOffsetX = ox;
+        this.uvOffsetY = oy;
+        return this;
+    }
+
 
     @Override
-    public void apply() {
+    public void unbind() {
+        // 如需：解绑纹理或还原状态
+        Shader shader = getShader();
+        shader.unbind();
+    }
+
+    @Override
+    public void applyCustomUniforms() {
         Shader shader = getShader();
         shader.bind();
 
@@ -63,12 +111,5 @@ public class MagicCircleMaterial extends Material {
             shader.setUniformValue1i("uMaskTex", 0);
             shader.setUniformValue2f("uTexelSize", 1.0f / tex0.getWidth(), 1.0f / tex0.getHeight());
         }
-    }
-
-    @Override
-    public void unbind() {
-        // 如需：解绑纹理或还原状态
-        Shader shader = getShader();
-        shader.unbind();
     }
 }

@@ -3,6 +3,7 @@ package com.qwaecd.paramagic;
 import com.qwaecd.paramagic.client.render.impl.FabricRenderContext;
 import com.qwaecd.paramagic.core.render.ModRenderSystem;
 import com.qwaecd.paramagic.core.render.context.RenderContextManager;
+import com.qwaecd.paramagic.debug.DebugTools;
 import com.qwaecd.paramagic.platform.Services;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandManager;
@@ -33,8 +34,7 @@ public class ParamagicFabric implements ModInitializer {
                     dispatcher.register(
                             ClientCommandManager.literal("para_show")
                                     .executes(context -> {
-//                                        ModRenderSystem.getInstance().addMagicRingTest();
-                                        ModRenderSystem.getInstance().test();
+                                        DebugTools.test();
                                         context.getSource().sendFeedback(Component.literal("show!"));
                                         return 1;
                                     })
