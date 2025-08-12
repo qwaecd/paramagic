@@ -65,10 +65,11 @@ public class ModRenderSystem extends AbstractRenderSystem{
             Material material = renderable.getMaterial();
 
             renderable.getTransform()
+                    .translate((float) (Math.cos(timeSeconds)*0.3f), 0.0f, (float) (Math.sin(timeSeconds)*0.3f))
                     .setScale(
-                            (float) Math.sin(timeSeconds)*3.0f + 10.0f,
-                            (float) Math.sin(timeSeconds)*3.0f + 10.0f,
-                            (float) Math.sin(timeSeconds)*3.0f + 10.0f
+                            (float) Math.sin(timeSeconds)*3.0f + 5.0f,
+                            (float) Math.sin(timeSeconds)*3.0f + 5.0f,
+                            (float) Math.sin(timeSeconds)*3.0f + 5.0f
                     )
                     .setRotation((float) Math.toRadians(90.0f), new Vector3f(1.0f, 0.0f, 0.0f));
 

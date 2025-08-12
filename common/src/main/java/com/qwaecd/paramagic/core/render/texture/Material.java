@@ -20,6 +20,7 @@ public abstract class Material implements UniformHandler {
     }
 
     public final void applyBaseUniforms(Matrix4f projection, Matrix4f view, Matrix4f model, float timeSeconds) {
+        shader.bind();
         shader.setUniformMatrix4f("u_projection", projection);
         shader.setUniformMatrix4f("u_view", view);
         shader.setUniformMatrix4f("u_model", model);

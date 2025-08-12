@@ -92,7 +92,7 @@ public class ShaderManager {
         } catch (IOException e){
             Constants.LOG.error("Shader compilation error", e);
         }
-        return 0;
+        throw new RuntimeException("Failed to load shader: " + location);
     }
 
     public enum ShaderType {
