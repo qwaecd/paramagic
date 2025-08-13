@@ -7,20 +7,15 @@ import com.qwaecd.paramagic.core.render.queue.RenderItem;
 import com.qwaecd.paramagic.core.render.queue.RenderQueue;
 import com.qwaecd.paramagic.core.render.shader.ShaderManager;
 import com.qwaecd.paramagic.core.render.state.GLStateCache;
+import com.qwaecd.paramagic.core.render.state.GLStateGuard;
 import com.qwaecd.paramagic.core.render.state.RenderState;
 import com.qwaecd.paramagic.core.render.texture.AbstractMaterial;
 import com.qwaecd.paramagic.core.render.things.IPoseStack;
 import org.joml.Matrix4f;
 import org.joml.Vector3d;
-import org.joml.Vector3f;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentLinkedQueue;
-
-import static org.lwjgl.opengl.GL11.GL_CULL_FACE;
-import static org.lwjgl.opengl.GL11.glDisable;
-import static org.lwjgl.opengl.GL11.glEnable;
-import static org.lwjgl.opengl.GL11C.*;
 
 public class ModRenderSystem extends AbstractRenderSystem{
     private static ModRenderSystem INSTANCE;
@@ -59,28 +54,31 @@ public class ModRenderSystem extends AbstractRenderSystem{
     }
 
     public void renderScene(RenderContext context) {
-        updateScene();
+        try (GLStateGuard ignored = GLStateGuard.capture()) {
+            updateScene();
 
-        renderQueue.gather(scene, context.getCamera().position());
-        renderQueue.sortForDraw();
-        stateCache.apply(RenderState.OPAQUE);
-        // 不透明（含 CUTOUT）
-        for (RenderItem it : renderQueue.opaque) {
-            drawOne(it.renderable, context);
+            renderQueue.gather(scene, context.getCamera().position());
+            renderQueue.sortForDraw();
+            // 不透明（含 CUTOUT）
+            stateCache.apply(RenderState.OPAQUE);
+            for (RenderItem it : renderQueue.opaque) {
+                drawOne(it.renderable, context);
+            }
+
+            // 半透明
+            stateCache.apply(RenderState.ALPHA);
+            for (RenderItem it : renderQueue.transparent) {
+                drawOne(it.renderable, context);
+            }
+
+            // 加色发光
+            stateCache.apply(RenderState.ADDITIVE);
+            for (RenderItem it : renderQueue.additive) {
+                drawOne(it.renderable, context);
+            }
+            stateCache.reset();
         }
 
-        // 半透明
-        stateCache.apply(RenderState.ALPHA);
-        for (RenderItem it : renderQueue.transparent) {
-            drawOne(it.renderable, context);
-        }
-
-        // 加色发光
-        stateCache.apply(RenderState.ADDITIVE);
-        for (RenderItem it : renderQueue.additive) {
-            drawOne(it.renderable, context);
-        }
-        stateCache.reset();
     }
 
     private void drawOne(IRenderable renderable, RenderContext context) {
@@ -100,25 +98,19 @@ public class ModRenderSystem extends AbstractRenderSystem{
 
         AbstractMaterial material = renderable.getMaterial();
 
-        renderable.getTransform()
-                .translate((float) (Math.cos(timeSeconds)*0.3f), 0.0f, (float) (Math.sin(timeSeconds)*0.3f))
-                .setScale(
-                        (float) Math.sin(timeSeconds)*3.0f + 5.0f,
-                        (float) Math.sin(timeSeconds)*3.0f + 5.0f,
-                        (float) Math.sin(timeSeconds)*3.0f + 5.0f
-                )
-                .setRotation((float) Math.toRadians(90.0f), new Vector3f(1.0f, 0.0f, 0.0f));
+//        renderable.getTransform()
+//                .translate((float) (Math.cos(timeSeconds)*0.3f), 0.0f, (float) (Math.sin(timeSeconds)*0.3f))
+//                .setScale(
+//                        (float) Math.sin(timeSeconds)*3.0f + 5.0f,
+//                        (float) Math.sin(timeSeconds)*3.0f + 5.0f,
+//                        (float) Math.sin(timeSeconds)*3.0f + 5.0f
+//                )
+//                .setRotation((float) Math.toRadians(90.0f), new Vector3f(1.0f, 0.0f, 0.0f));
 
         material.applyBaseUniforms(projectionMatrix, view, relativeModelMatrix, timeSeconds);
-        material.apply();
+        material.applyUniforms();
 
-        glDisable(GL_CULL_FACE);
-        glDepthMask(false);
-        glEnable(GL_BLEND);
         renderable.getMesh().draw();
-        glEnable(GL_CULL_FACE);
-        glDepthMask(true);
-        glDisable(GL_BLEND);
 
         material.unbind();
     }

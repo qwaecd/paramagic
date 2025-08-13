@@ -23,7 +23,7 @@ import static org.lwjgl.opengl.GL15C.GL_STATIC_DRAW;
 public class DebugTools {
     public static void test() {
         SphereFactory sphereFactory = new SphereFactory();
-        Material material = new Material(ShaderManager.getPositionColorShader());
+        AbstractMaterial material = new DeBugMaterial(ShaderManager.getBaseBallInShader());
         IRenderable obj = sphereFactory.withMaterial(material).createInstance();
         ModRenderSystem.getInstance().addRenderable(obj);
 

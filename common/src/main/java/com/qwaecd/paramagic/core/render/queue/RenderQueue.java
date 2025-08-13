@@ -33,8 +33,7 @@ public class RenderQueue {
 
     private RenderType getType(IRenderable r) {
         var material = r.getMaterial();
-        if (material instanceof SupportsRenderType srt) return srt.getRenderType();
-        return RenderType.OPAQUE;
+        return material.getRenderType();
     }
 
     public void sortForDraw() {

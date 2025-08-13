@@ -1,11 +1,13 @@
 package com.qwaecd.paramagic.core.render.texture;
 
+import com.qwaecd.paramagic.core.render.queue.RenderType;
+import com.qwaecd.paramagic.core.render.queue.SupportsRenderType;
 import com.qwaecd.paramagic.core.render.shader.Shader;
 import lombok.Getter;
 import org.joml.Matrix4f;
 import org.joml.Vector4f;
 
-public abstract class AbstractMaterial implements UniformHandler {
+public abstract class AbstractMaterial implements UniformHandler, SupportsRenderType {
     @Getter
     private final Shader shader;
 
@@ -27,7 +29,7 @@ public abstract class AbstractMaterial implements UniformHandler {
         shader.setUniformValue1f("u_time", timeSeconds);
     }
 
-    public final void apply() {
+    public final void applyUniforms() {
         shader.bind();
         applyCustomUniforms();
         // 设置此材质的通用Uniforms
@@ -52,4 +54,6 @@ public abstract class AbstractMaterial implements UniformHandler {
 
     @Override
     public abstract void applyCustomUniforms();
+    @Override
+    public abstract RenderType getRenderType();
 }
