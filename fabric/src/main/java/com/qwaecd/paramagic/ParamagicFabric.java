@@ -24,7 +24,6 @@ public class ParamagicFabric implements ModInitializer {
         WorldRenderEvents.LAST.register(context -> {
             FabricRenderContext fabricContext = new FabricRenderContext(context);
             RenderContextManager.setContext(fabricContext);
-            ModRenderSystem.getInstance().renderScene(fabricContext);
         });
     }
 
