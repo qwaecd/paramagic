@@ -4,8 +4,8 @@ import com.qwaecd.paramagic.client.renderbase.factory.SphereFactory;
 import com.qwaecd.paramagic.core.render.IRenderable;
 import com.qwaecd.paramagic.core.render.ModRenderSystem;
 import com.qwaecd.paramagic.core.render.shader.ShaderManager;
-import com.qwaecd.paramagic.core.render.texture.BaseMaterial;
 import com.qwaecd.paramagic.core.render.texture.Material;
+import com.qwaecd.paramagic.core.render.texture.AbstractMaterial;
 import com.qwaecd.paramagic.core.render.vertex.Mesh;
 import com.qwaecd.paramagic.core.render.vertex.MeshBuilder;
 import com.qwaecd.paramagic.core.render.vertex.VertexAttribute;
@@ -23,8 +23,8 @@ import static org.lwjgl.opengl.GL15C.GL_STATIC_DRAW;
 public class DebugTools {
     public static void test() {
         SphereFactory sphereFactory = new SphereFactory();
-        BaseMaterial baseMaterial = new BaseMaterial(ShaderManager.getPositionColorShader());
-        IRenderable obj = sphereFactory.withMaterial(baseMaterial).createInstance();
+        Material material = new Material(ShaderManager.getPositionColorShader());
+        IRenderable obj = sphereFactory.withMaterial(material).createInstance();
         ModRenderSystem.getInstance().addRenderable(obj);
 
 //        addRenderable(MagicCircleFactory.create(new ResourceLocation(Constants.MOD_ID, "textures/magic/circle_01.png")));
@@ -85,7 +85,7 @@ public class DebugTools {
                 .buildBuffer(layout);
         mesh.uploadAndConfigure(data, layout, GL_STATIC_DRAW);
 
-        Material material = new BaseMaterial(ShaderManager.getPositionColorShader());
+        AbstractMaterial material = new Material(ShaderManager.getPositionColorShader());
 
         TestObj testObj = new TestObj(mesh, material);
         testObj.getTransform()
@@ -113,7 +113,7 @@ public class DebugTools {
 
         mesh.uploadAndConfigure(data, layout, GL_STATIC_DRAW);
 
-        Material material = new BaseMaterial(ShaderManager.getMagicRingShader());
+        AbstractMaterial material = new Material(ShaderManager.getMagicRingShader());
 
         TestObj obj = new TestObj(mesh, material);
         obj.getTransform().setPosition(0, 0, 0);
@@ -143,7 +143,7 @@ public class DebugTools {
 
         mesh.uploadAndConfigure(vertices, layout, GL_STATIC_DRAW, indices, GL_STATIC_DRAW);
 
-        Material material = new BaseMaterial(ShaderManager.getMagicRingShader());
+        AbstractMaterial material = new Material(ShaderManager.getMagicRingShader());
         TestObj obj = new TestObj(mesh, material);
         obj.getTransform().setPosition(0, 0, 0);
 

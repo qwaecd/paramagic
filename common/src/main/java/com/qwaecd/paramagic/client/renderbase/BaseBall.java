@@ -4,8 +4,8 @@ import com.qwaecd.paramagic.core.render.IRenderable;
 import com.qwaecd.paramagic.core.render.Transform;
 import com.qwaecd.paramagic.core.render.shader.Shader;
 import com.qwaecd.paramagic.core.render.shader.ShaderManager;
-import com.qwaecd.paramagic.core.render.texture.BaseMaterial;
 import com.qwaecd.paramagic.core.render.texture.Material;
+import com.qwaecd.paramagic.core.render.texture.AbstractMaterial;
 import com.qwaecd.paramagic.core.render.vertex.Mesh;
 import com.qwaecd.paramagic.core.render.vertex.MeshBuilder;
 import com.qwaecd.paramagic.core.render.vertex.VertexAttribute;
@@ -27,7 +27,7 @@ public class BaseBall implements IRenderable {
     @Getter
     private final int slices;   // 经线
     private final Mesh mesh;
-    private final Material material;
+    private final AbstractMaterial material;
     private final Transform transform;
     private final List<Integer> indices = new ArrayList<>();
 
@@ -40,7 +40,7 @@ public class BaseBall implements IRenderable {
                 .addNextAttribute(new VertexAttribute(1, 4, GL_UNSIGNED_BYTE, true))
                 .addNextAttribute(new VertexAttribute(3, 3, GL_BYTE, true));
         this.mesh = new Mesh(GL_TRIANGLES);
-        this.material = new BaseMaterial(ShaderManager.getPositionColorShader());
+        this.material = new Material(ShaderManager.getPositionColorShader());
         this.transform = new Transform();
 
 
@@ -56,7 +56,7 @@ public class BaseBall implements IRenderable {
                 .addNextAttribute(new VertexAttribute(1, 4, GL_UNSIGNED_BYTE, true))
                 .addNextAttribute(new VertexAttribute(3, 3, GL_BYTE, true));
         this.mesh = new Mesh(GL_TRIANGLES);
-        this.material = new BaseMaterial(shader);
+        this.material = new Material(shader);
         this.transform = new Transform();
 
 
@@ -109,7 +109,7 @@ public class BaseBall implements IRenderable {
     }
 
     @Override
-    public Material getMaterial() {
+    public AbstractMaterial getMaterial() {
         return this.material;
     }
 

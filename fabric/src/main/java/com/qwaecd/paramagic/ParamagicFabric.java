@@ -42,7 +42,7 @@ public class ParamagicFabric implements ModInitializer {
                     dispatcher.register(
                             ClientCommandManager.literal("para_remove")
                                     .executes(context -> {
-                                        ModRenderSystem.getInstance().clearAllScene();
+                                        ModRenderSystem.getInstance().clearAll();
                                         context.getSource().sendFeedback(Component.literal("cleared!"));
                                         return 1;
                                     })

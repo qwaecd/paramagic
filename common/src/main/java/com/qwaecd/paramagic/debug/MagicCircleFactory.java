@@ -1,7 +1,7 @@
 package com.qwaecd.paramagic.debug;
 
 import com.qwaecd.paramagic.core.render.shader.ShaderManager;
-import com.qwaecd.paramagic.core.render.texture.Material;
+import com.qwaecd.paramagic.core.render.texture.AbstractMaterial;
 import com.qwaecd.paramagic.core.render.vertex.Mesh;
 import com.qwaecd.paramagic.core.render.vertex.VertexAttribute;
 import com.qwaecd.paramagic.core.render.vertex.VertexLayout;
@@ -41,7 +41,7 @@ public class MagicCircleFactory {
         Mesh mesh = new Mesh(GL_TRIANGLES);
         mesh.uploadAndConfigure(buf, layout, GL_STATIC_DRAW);
 
-        Material mat = new MagicCircleMaterial(ShaderManager.getMagicCircleShader(), maskTexture)
+        AbstractMaterial mat = new MagicCircleMaterial(ShaderManager.getMagicCircleShader(), maskTexture)
                 .setIntensity(1.2f)
                 .setPulse(0.8f, 0.2f)
                 .setSweep(0.2f, 0.06f)

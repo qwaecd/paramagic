@@ -1,7 +1,7 @@
 package com.qwaecd.paramagic.debug;
 
 import com.qwaecd.paramagic.core.render.shader.Shader;
-import com.qwaecd.paramagic.core.render.texture.Material;
+import com.qwaecd.paramagic.core.render.texture.AbstractMaterial;
 import com.qwaecd.paramagic.core.render.texture.Texture2D;
 import lombok.Getter;
 import net.minecraft.resources.ResourceLocation;
@@ -9,7 +9,7 @@ import net.minecraft.resources.ResourceLocation;
 import java.util.HashMap;
 import java.util.Map;
 
-public class MagicCircleMaterial extends Material {
+public class MagicCircleMaterial extends AbstractMaterial {
     private final Map<Integer, Texture2D> textures = new HashMap<>();
 
     @Getter
