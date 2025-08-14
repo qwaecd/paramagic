@@ -1,6 +1,7 @@
 package com.qwaecd.paramagic.debug;
 
-import com.qwaecd.paramagic.client.renderbase.factory.SphereFactory;
+import com.qwaecd.paramagic.client.material.MagicCircleMaterial;
+import com.qwaecd.paramagic.client.renderbase.factory.UnitQuadFactory;
 import com.qwaecd.paramagic.core.render.IRenderable;
 import com.qwaecd.paramagic.core.render.ModRenderSystem;
 import com.qwaecd.paramagic.core.render.shader.ShaderManager;
@@ -22,9 +23,15 @@ import static org.lwjgl.opengl.GL15C.GL_STATIC_DRAW;
 
 public class DebugTools {
     public static void test() {
-        SphereFactory sphereFactory = new SphereFactory();
-        AbstractMaterial material = new DeBugMaterial(ShaderManager.getBaseBallInShader());
-        IRenderable obj = sphereFactory.withMaterial(material).createInstance();
+        IRenderable obj;
+//        SphereFactory sphereFactory = new SphereFactory();
+//        AbstractMaterial material = new DeBugMaterial(ShaderManager.getBaseBallInShader());
+//        IRenderable obj = sphereFactory.withMaterial(material).createInstance();
+        UnitQuadFactory factory = new UnitQuadFactory();
+        obj = factory
+                .withMaterial(new MagicCircleMaterial(ShaderManager.getShader("magic_circle")))
+                .createInstance();
+        obj.getTransform().getModelMatrix().scale(10.0f, 10.0f, 10.0f);
         ModRenderSystem.getInstance().addRenderable(obj);
 
 //        addRenderable(MagicCircleFactory.create(new ResourceLocation(Constants.MOD_ID, "textures/magic/circle_01.png")));

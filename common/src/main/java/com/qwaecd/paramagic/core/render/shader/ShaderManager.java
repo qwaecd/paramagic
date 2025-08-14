@@ -46,7 +46,8 @@ public class ShaderManager {
         register("magic_ring", magicRingShader);
         register("base_ball_in", baseBallInShader);
         register("base_ball_out", baseBallOutShader);
-        register("magic_circle", MagicCircleShader);
+        register("debug_magic_circle", MagicCircleShader);
+        register("magic_circle", new Shader("magic/", "magic_circle"));
     }
 
     private void register(String name, Shader shader) {
