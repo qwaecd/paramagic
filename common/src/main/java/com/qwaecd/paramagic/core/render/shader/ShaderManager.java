@@ -66,7 +66,7 @@ public class ShaderManager {
         ResourceLocation location =
                 new ResourceLocation(
                         Constants.MOD_ID,
-                        "shader/" + path + name + type.extension
+                        "shaders/" + path + name + type.extension
                 );
         Optional<Resource> resource = resourceManager.getResource(location);
         int shaderId = glCreateShader(type.glType);

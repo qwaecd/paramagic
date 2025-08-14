@@ -1,6 +1,7 @@
 package com.qwaecd.paramagic.core.render.texture;
 
 import com.mojang.blaze3d.platform.NativeImage;
+import com.qwaecd.paramagic.Constants;
 import lombok.Getter;
 import net.minecraft.client.Minecraft;
 import net.minecraft.resources.ResourceLocation;
@@ -35,7 +36,7 @@ public class Texture2D {
                 glGenerateMipmap(GL_TEXTURE_2D);
             }
         } catch (IOException e) {
-            throw new RuntimeException("Failed to load texture: " + location, e);
+            Constants.LOG.error("Failed to load texture: {}", location, e);
         }
         unbind();
     }
