@@ -15,6 +15,20 @@ public class MagicCircleMaterial extends AbstractMaterial {
     private final float[] ringW = new float[MAX_RINGS];
     private final float[] ringI = new float[MAX_RINGS];
 
+    // 预计算的uniform名称，避免每帧字符串拼接
+    private static final String[] RING_R_UNIFORMS = new String[MAX_RINGS];
+    private static final String[] RING_W_UNIFORMS = new String[MAX_RINGS];
+    private static final String[] RING_I_UNIFORMS = new String[MAX_RINGS];
+
+    static {
+        // 静态初始化uniform名称
+        for (int i = 0; i < MAX_RINGS; i++) {
+            RING_R_UNIFORMS[i] = "u_ringR[" + i + "]";
+            RING_W_UNIFORMS[i] = "u_ringW[" + i + "]";
+            RING_I_UNIFORMS[i] = "u_ringI[" + i + "]";
+        }
+    }
+
     // 刻度/条纹/扫掠/核心
     private int sectors = 24;
     private float tickWidth = 0.02f;
@@ -88,9 +102,9 @@ public class MagicCircleMaterial extends AbstractMaterial {
         // 环数组
         sh.setUniformValue1i("u_ringCount", ringCount);
         for (int i = 0; i < ringCount; i++) {
-            sh.setUniformValue1f("u_ringR[" + i + "]", ringR[i]);
-            sh.setUniformValue1f("u_ringW[" + i + "]", ringW[i]);
-            sh.setUniformValue1f("u_ringI[" + i + "]", ringI[i]);
+            sh.setUniformValue1f(RING_R_UNIFORMS[i], ringR[i]);
+            sh.setUniformValue1f(RING_W_UNIFORMS[i], ringW[i]);
+            sh.setUniformValue1f(RING_I_UNIFORMS[i], ringI[i]);
         }
 
         // 刻度/条纹/扫掠/核心

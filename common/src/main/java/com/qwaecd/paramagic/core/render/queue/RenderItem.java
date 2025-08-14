@@ -4,12 +4,14 @@ import com.qwaecd.paramagic.core.render.IRenderable;
 import org.joml.Vector3d;
 
 public class RenderItem {
-    public final IRenderable renderable;
-    public final RenderType renderType;
-    public final double distanceSq;
-
+    public IRenderable renderable;
+    public RenderType renderType;
+    public double distanceSq;
 
     public RenderItem(IRenderable renderable, RenderType renderType, Vector3d cameraPos) {
+        update(renderable, renderType, cameraPos);
+    }
+    public void update(IRenderable renderable, RenderType renderType, Vector3d cameraPos) {
         this.renderable = renderable;
         this.renderType = renderType;
         var m = renderable.getTransform().getModelMatrix();

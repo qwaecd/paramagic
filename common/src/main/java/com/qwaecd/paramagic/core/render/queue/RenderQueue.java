@@ -12,7 +12,11 @@ public class RenderQueue {
     public final List<RenderItem> transparent = new ArrayList<>();
     public final List<RenderItem> additive = new ArrayList<>();
 
+    private final List<RenderItem> itemPool = new ArrayList<>();
+    private int poolIndex = 0;
+
     public void clear() {
+        poolIndex = 0;
         opaque.clear();
         transparent.clear();
         additive.clear();
@@ -22,12 +26,25 @@ public class RenderQueue {
         clear();
         for (IRenderable r : scene) {
             RenderType t = getType(r);
-            RenderItem item = new RenderItem(r, t, cameraPos);
+            RenderItem item = getReuseableItem(r, t, cameraPos);
             switch (t) {
                 case OPAQUE, CUTOUT -> opaque.add(item);
                 case TRANSPARENT -> transparent.add(item);
                 case ADDITIVE -> additive.add(item);
             }
+        }
+    }
+
+    private RenderItem getReuseableItem(IRenderable renderable, RenderType renderType, Vector3d cameraPos) {
+        if (poolIndex < itemPool.size()) {
+            RenderItem item = itemPool.get(poolIndex++);
+            item.update(renderable, renderType, cameraPos);
+            return item;
+        } else {
+            RenderItem newItem = new RenderItem(renderable, renderType, cameraPos);
+            itemPool.add(newItem);
+            poolIndex++;
+            return newItem;
         }
     }
 

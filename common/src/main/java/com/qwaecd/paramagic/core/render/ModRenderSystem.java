@@ -27,6 +27,8 @@ public class ModRenderSystem extends AbstractRenderSystem{
     private final ConcurrentLinkedQueue<IRenderable> pendingAdd = new ConcurrentLinkedQueue<>();
     private final ConcurrentLinkedQueue<IRenderable> pendingRemove = new ConcurrentLinkedQueue<>();
 
+    private final Matrix4f reusableMatrix = new Matrix4f();
+
     private ModRenderSystem() {
         Constants.LOG.info("ModRenderSystem instance created.");
     }
@@ -57,37 +59,37 @@ public class ModRenderSystem extends AbstractRenderSystem{
         try (GLStateGuard ignored = GLStateGuard.capture()) {
             updateScene();
 
+            float timeSeconds = (System.currentTimeMillis() & 0x3fffffff) / 1000.0f;
             renderQueue.gather(scene, context.getCamera().position());
             renderQueue.sortForDraw();
             // 不透明（含 CUTOUT）
             stateCache.apply(RenderState.OPAQUE);
             for (RenderItem it : renderQueue.opaque) {
-                drawOne(it.renderable, context);
+                drawOne(it.renderable, context, timeSeconds);
             }
 
             // 半透明
             stateCache.apply(RenderState.ALPHA);
             for (RenderItem it : renderQueue.transparent) {
-                drawOne(it.renderable, context);
+                drawOne(it.renderable, context, timeSeconds);
             }
 
             // 加色发光
             stateCache.apply(RenderState.ADDITIVE);
             for (RenderItem it : renderQueue.additive) {
-                drawOne(it.renderable, context);
+                drawOne(it.renderable, context, timeSeconds);
             }
             stateCache.reset();
         }
 
     }
 
-    private void drawOne(IRenderable renderable, RenderContext context) {
+    private void drawOne(IRenderable renderable, RenderContext context, float timeSeconds) {
         IPoseStack poseStack = context.getPoseStack();
-        float timeSeconds = (System.currentTimeMillis() & 0x3fffffff) / 1000.0f;
 
         Vector3d cameraPos = context.getCamera().position();
         Matrix4f worldModelMatrix = renderable.getTransform().getModelMatrix();
-        Matrix4f relativeModelMatrix = new Matrix4f(worldModelMatrix);
+        Matrix4f relativeModelMatrix = reusableMatrix.set(worldModelMatrix);
         float relativeX = (float) (worldModelMatrix.m30() -  cameraPos.x);
         float relativeY = (float) (worldModelMatrix.m31() -  cameraPos.y);
         float relativeZ = (float) (worldModelMatrix.m32() -  cameraPos.z);

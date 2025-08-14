@@ -24,17 +24,98 @@ import static org.lwjgl.opengl.GL15C.GL_STATIC_DRAW;
 public class DebugTools {
     public static void test() {
         IRenderable obj;
-//        SphereFactory sphereFactory = new SphereFactory();
-//        AbstractMaterial material = new DeBugMaterial(ShaderManager.getBaseBallInShader());
-//        IRenderable obj = sphereFactory.withMaterial(material).createInstance();
         UnitQuadFactory factory = new UnitQuadFactory();
+
+        // 主法阵 - 最大的底层法阵
         obj = factory
                 .withMaterial(new MagicCircleMaterial(ShaderManager.getShader("magic_circle")))
                 .createInstance();
-        obj.getTransform().getModelMatrix().scale(10.0f, 10.0f, 10.0f);
+        obj.getTransform().getModelMatrix().translate(20, 200, 0).scale(20.0f, 20.0f, 20.0f).rotateY((float)Math.toRadians(45));
         ModRenderSystem.getInstance().addRenderable(obj);
 
-//        addRenderable(MagicCircleFactory.create(new ResourceLocation(Constants.MOD_ID, "textures/magic/circle_01.png")));
+        // 中层法阵群 - 围绕主法阵的多个中等大小法阵
+        for (int i = 0; i < 6; i++) {
+            IRenderable midCircle = factory.createInstance();
+            double angle = i * Math.PI / 3; // 每60度一个
+            float x = 20 + (float)(Math.cos(angle) * 25);
+            float z = 0 + (float)(Math.sin(angle) * 25);
+            float scale = 12.0f - i * 0.8f;
+            float rotationY = (float)Math.toRadians(i * 60 + 30);
+            float rotationX = (float)Math.toRadians(15);
+            midCircle.getTransform().getModelMatrix().translate(x, 202, z).scale(scale, scale, scale)
+                    .rotateX(rotationX).rotateY(rotationY);
+            ModRenderSystem.getInstance().addRenderable(midCircle);
+        }
+
+        // 内层法阵群 - 小法阵群，更密集
+        for (int i = 0; i < 8; i++) {
+            IRenderable innerCircle = factory.createInstance();
+            double angle = i * Math.PI / 4; // 每45度一个
+            float x = 20 + (float)(Math.cos(angle) * 12);
+            float z = 0 + (float)(Math.sin(angle) * 12);
+            float scale = 4.0f + i * 0.5f;
+            float rotationY = (float)Math.toRadians(i * 45);
+            float rotationZ = (float)Math.toRadians(10);
+            innerCircle.getTransform().getModelMatrix().translate(x, 204, z).scale(scale, scale, scale)
+                    .rotateY(rotationY).rotateZ(rotationZ);
+            ModRenderSystem.getInstance().addRenderable(innerCircle);
+        }
+
+        // 垂直层叠法阵 - 在Y轴上叠加的不同大小法阵
+        for (int i = 0; i < 7; i++) {
+            IRenderable verticalCircle = factory.createInstance();
+            float y = 200 + i * 6;
+            float scale = 18.0f - i * 2.5f;
+            float rotationY = (float)Math.toRadians(i * 30);
+            float rotationX = (float)Math.toRadians(i * 5);
+            verticalCircle.getTransform().getModelMatrix().translate(20, y, 0).scale(scale, scale, scale)
+                    .rotateX(rotationX).rotateY(rotationY);
+            ModRenderSystem.getInstance().addRenderable(verticalCircle);
+        }
+
+        // 外环大法阵 - 更远距离的大型法阵
+        for (int i = 0; i < 4; i++) {
+            IRenderable outerCircle = factory.createInstance();
+            double angle = i * Math.PI / 2; // 每90度一个
+            float x = 20 + (float)(Math.cos(angle) * 40);
+            float z = 0 + (float)(Math.sin(angle) * 40);
+            float scale = 15.0f + i * 2;
+            float rotationY = (float)Math.toRadians(i * 90 + 45);
+            float rotationX = (float)Math.toRadians(20);
+            outerCircle.getTransform().getModelMatrix().translate(x, 198, z).scale(scale, scale, scale)
+                    .rotateX(rotationX).rotateY(rotationY);
+            ModRenderSystem.getInstance().addRenderable(outerCircle);
+        }
+
+        // 高空法阵层 - 更高的法阵
+        for (int i = 0; i < 5; i++) {
+            IRenderable highCircle = factory.createInstance();
+            double angle = i * Math.PI * 2 / 5; // 每72度一个
+            float x = 20 + (float)(Math.cos(angle) * 30);
+            float z = 0 + (float)(Math.sin(angle) * 30);
+            float y = 220 + i * 8;
+            float scale = 10.0f - i * 1.5f;
+            float rotationY = (float)Math.toRadians(i * 72);
+            float rotationX = (float)Math.toRadians(-25);
+            highCircle.getTransform().getModelMatrix().translate(x, y, z).scale(scale, scale, scale)
+                    .rotateX(rotationX).rotateY(rotationY);
+            ModRenderSystem.getInstance().addRenderable(highCircle);
+        }
+
+        // 随机散布的小法阵 - 增加层次感
+        for (int i = 0; i < 15; i++) {
+            IRenderable randomCircle = factory.createInstance();
+            float x = 20 + (float)(Math.random() * 60 - 30); // -30到30的随机偏移
+            float z = 0 + (float)(Math.random() * 60 - 30);
+            float y = 195 + (float)(Math.random() * 40); // Y轴195-235随机
+            float scale = 3.0f + (float)(Math.random() * 6); // 3-9的随机大小
+            float rotationX = (float)Math.toRadians(Math.random() * 360);
+            float rotationY = (float)Math.toRadians(Math.random() * 360);
+            float rotationZ = (float)Math.toRadians(Math.random() * 360);
+            randomCircle.getTransform().getModelMatrix().translate(x, y, z).scale(scale, scale, scale)
+                    .rotateX(rotationX).rotateY(rotationY).rotateZ(rotationZ);
+            ModRenderSystem.getInstance().addRenderable(randomCircle);
+        }
     }
 
     // 使用顶点数组构建一个立方体，包含六个面，每个面由两个三角形组成
