@@ -8,7 +8,6 @@ import org.joml.Vector4f;
 public class MagicCircleMaterial extends AbstractMaterial {
     private final Vector4f baseColor = new Vector4f(0.3f, 0.8f, 1.0f, 1.0f);
 
-    // 环参数（最多 8 条）
     private static final int MAX_RINGS = 8;
     private int ringCount = 0;
     private final float[] ringR = new float[MAX_RINGS];
@@ -21,7 +20,6 @@ public class MagicCircleMaterial extends AbstractMaterial {
     private static final String[] RING_I_UNIFORMS = new String[MAX_RINGS];
 
     static {
-        // 静态初始化uniform名称
         for (int i = 0; i < MAX_RINGS; i++) {
             RING_R_UNIFORMS[i] = "u_ringR[" + i + "]";
             RING_W_UNIFORMS[i] = "u_ringW[" + i + "]";
@@ -40,12 +38,11 @@ public class MagicCircleMaterial extends AbstractMaterial {
 
     public MagicCircleMaterial(Shader shader) {
         super(shader);
-        // 给两个默认环，开箱即用
         addRing(0.95f, 0.012f, 0.9f);
         addRing(0.70f, 0.010f, 0.7f);
     }
 
-    // 便捷配置 API（测试时写死即可）
+    // 便捷配置 API
     public MagicCircleMaterial setColor(float r, float g, float b, float a) {
         baseColor.set(r, g, b, a);
         return this;
@@ -99,7 +96,6 @@ public class MagicCircleMaterial extends AbstractMaterial {
         // 基色
         sh.setUniformValue4f("u_baseColor", baseColor.x, baseColor.y, baseColor.z, baseColor.w);
 
-        // 环数组
         sh.setUniformValue1i("u_ringCount", ringCount);
         for (int i = 0; i < ringCount; i++) {
             sh.setUniformValue1f(RING_R_UNIFORMS[i], ringR[i]);
@@ -119,7 +115,7 @@ public class MagicCircleMaterial extends AbstractMaterial {
 
     @Override
     public RenderType getRenderType() {
-        // 法阵大多是发光叠加
+        // 法阵大多是发光叠加，默认走加色模式
         return RenderType.ADDITIVE;
     }
 }

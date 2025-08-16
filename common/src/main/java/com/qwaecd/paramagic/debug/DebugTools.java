@@ -1,6 +1,7 @@
 package com.qwaecd.paramagic.debug;
 
 import com.qwaecd.paramagic.client.material.MagicCircleMaterial;
+import com.qwaecd.paramagic.client.renderbase.factory.SphereFactory;
 import com.qwaecd.paramagic.client.renderbase.factory.UnitQuadFactory;
 import com.qwaecd.paramagic.core.render.IRenderable;
 import com.qwaecd.paramagic.core.render.ModRenderSystem;
@@ -11,6 +12,7 @@ import com.qwaecd.paramagic.core.render.vertex.Mesh;
 import com.qwaecd.paramagic.core.render.vertex.MeshBuilder;
 import com.qwaecd.paramagic.core.render.vertex.VertexAttribute;
 import com.qwaecd.paramagic.core.render.vertex.VertexLayout;
+import lombok.experimental.UtilityClass;
 import org.lwjgl.BufferUtils;
 
 import java.nio.ByteBuffer;
@@ -21,8 +23,19 @@ import static org.lwjgl.opengl.GL11C.GL_FLOAT;
 import static org.lwjgl.opengl.GL11C.GL_TRIANGLES;
 import static org.lwjgl.opengl.GL15C.GL_STATIC_DRAW;
 
+@UtilityClass
 public class DebugTools {
     public static void test() {
+        tooManyMagicCircles();
+        IRenderable ball;
+        SphereFactory sphereFactory = new SphereFactory();
+        Material material = new Material(ShaderManager.getBaseBallInShader());
+        ball = sphereFactory.withMaterial(material).createInstance();
+        ball.getTransform().getModelMatrix().translate(0, 100, 0).scale(4.0f, 4.0f, 4.0f);
+        ModRenderSystem.getInstance().addRenderable(ball);
+    }
+
+    private static void tooManyMagicCircles() {
         IRenderable obj;
         UnitQuadFactory factory = new UnitQuadFactory();
 

@@ -11,7 +11,7 @@ public class MagicCircle implements IRenderable {
     private final Transform transform = new Transform();
 
     public MagicCircle(Mesh planeMesh, AbstractMaterial material) {
-        this.mesh = planeMesh;      // 建议传入“单位方形XZ平面”的网格（两三角）
+        this.mesh = planeMesh;
         this.material = material;   // MagicCircleMaterial
     }
     @Override

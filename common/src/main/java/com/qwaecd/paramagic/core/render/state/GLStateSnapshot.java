@@ -19,10 +19,14 @@ public final class GLStateSnapshot {
     public final int cullFaceMode;
     public final int frontFace;
 
+    // Fbo
+    public final int fboId;
+
     private GLStateSnapshot(
             boolean depthTest, boolean depthWrite, int depthFunc,
             boolean blend, int srcRGB, int dstRGB, int srcAlpha, int dstAlpha, int eqRGB, int eqAlpha,
-            boolean cull, int cullFaceMode, int frontFace
+            boolean cull, int cullFaceMode, int frontFace,
+            int fboId
     ) {
         this.depthTest = depthTest;
         this.depthWrite = depthWrite;
@@ -37,6 +41,7 @@ public final class GLStateSnapshot {
         this.cull = cull;
         this.cullFaceMode = cullFaceMode;
         this.frontFace = frontFace;
+        this.fboId = fboId;
     }
 
     public static GLStateSnapshot capture() {
@@ -52,7 +57,9 @@ public final class GLStateSnapshot {
 
                 glIsEnabled(GL_CULL_FACE),
                 glGetInteger(GL_CULL_FACE_MODE),
-                glGetInteger(GL_FRONT_FACE)
+                glGetInteger(GL_FRONT_FACE),
+
+                glGetInteger(GL_DRAW_FRAMEBUFFER_BINDING)
         );
     }
 
@@ -68,6 +75,8 @@ public final class GLStateSnapshot {
         toggle(GL_CULL_FACE, cull);
         glCullFace(cullFaceMode);
         glFrontFace(frontFace);
+
+        glBindFramebuffer(GL_FRAMEBUFFER, this.fboId);
     }
 
     private static void toggle(int cap, boolean on) {

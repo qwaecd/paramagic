@@ -137,8 +137,13 @@ public class MeshBuilder {
                     buffer.put((byte) (Math.round(Math.min(1.0f, Math.max(0.0f, v.getG())) * 255.0f) & 0xFF));
                     buffer.put((byte) (Math.round(Math.min(1.0f, Math.max(0.0f, v.getB())) * 255.0f) & 0xFF));
                     buffer.put((byte) (Math.round(Math.min(1.0f, Math.max(0.0f, v.getA())) * 255.0f) & 0xFF));
+                } else if (attribute.type() == GL_FLOAT && attribute.size() == 4 && !attribute.normalized()) {
+                    buffer.putFloat(v.getR());
+                    buffer.putFloat(v.getG());
+                    buffer.putFloat(v.getB());
+                    buffer.putFloat(v.getA());
                 } else {
-                    throw new IllegalArgumentException("Layout attribute at location 1 must be a normalized vec4 of unsigned bytes.");
+                    throw new IllegalArgumentException("Layout attribute at location 1 must be a normalized vec4 of unsigned bytes, or floats.");
                 }
                 break;
             case 2: // UV

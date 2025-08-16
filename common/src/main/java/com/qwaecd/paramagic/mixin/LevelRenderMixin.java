@@ -18,8 +18,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public abstract class LevelRenderMixin {
     @Inject(
             method = "renderLevel",
-            at = @At("RETURN"),
-            remap = false
+            at = @At("RETURN")
     )
     private void renderLevelMixin(
             PoseStack poseStack,

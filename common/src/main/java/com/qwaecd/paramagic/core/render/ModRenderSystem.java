@@ -1,21 +1,31 @@
 package com.qwaecd.paramagic.core.render;
 
+import com.mojang.blaze3d.pipeline.RenderTarget;
 import com.qwaecd.paramagic.Constants;
 import com.qwaecd.paramagic.client.renderbase.BaseObjectManager;
+import com.qwaecd.paramagic.client.renderbase.factory.FullScreenQuadFactory;
 import com.qwaecd.paramagic.core.render.context.RenderContext;
+import com.qwaecd.paramagic.core.render.post.PostProcessingManager;
+import com.qwaecd.paramagic.core.render.post.buffer.SceneMRTFramebuffer;
 import com.qwaecd.paramagic.core.render.queue.RenderItem;
 import com.qwaecd.paramagic.core.render.queue.RenderQueue;
+import com.qwaecd.paramagic.core.render.shader.Shader;
 import com.qwaecd.paramagic.core.render.shader.ShaderManager;
 import com.qwaecd.paramagic.core.render.state.GLStateCache;
 import com.qwaecd.paramagic.core.render.state.GLStateGuard;
 import com.qwaecd.paramagic.core.render.state.RenderState;
 import com.qwaecd.paramagic.core.render.texture.AbstractMaterial;
 import com.qwaecd.paramagic.core.render.things.IPoseStack;
+import com.qwaecd.paramagic.core.render.vertex.Mesh;
+import net.minecraft.client.Minecraft;
 import org.joml.Matrix4f;
 import org.joml.Vector3d;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentLinkedQueue;
+
+import static org.lwjgl.opengl.GL33.*;
+
 
 public class ModRenderSystem extends AbstractRenderSystem{
     private static ModRenderSystem INSTANCE;
@@ -26,6 +36,10 @@ public class ModRenderSystem extends AbstractRenderSystem{
     private final List<IRenderable> scene = new ArrayList<>();
     private final ConcurrentLinkedQueue<IRenderable> pendingAdd = new ConcurrentLinkedQueue<>();
     private final ConcurrentLinkedQueue<IRenderable> pendingRemove = new ConcurrentLinkedQueue<>();
+
+    private SceneMRTFramebuffer mainFbo;
+    private PostProcessingManager postProcessingManager;
+    private Mesh fullscreenQuad;
 
     private final Matrix4f reusableMatrix = new Matrix4f();
 
@@ -46,20 +60,39 @@ public class ModRenderSystem extends AbstractRenderSystem{
         }
     }
 
-    private void initialize() {
+    public void initialize() {
     }
 
     public static void initAfterClientStarted() {
         ShaderManager.init();
         BaseObjectManager.init();
+        ModRenderSystem.getInstance().initializePostProcessing();
+        ModRenderSystem.getInstance().fullscreenQuad = FullScreenQuadFactory.createFullscreenQuad();
         Constants.LOG.info("Render system initialized.");
     }
 
+    private void initializePostProcessing() {
+        int width = Minecraft.getInstance().getWindow().getWidth();
+        int height = Minecraft.getInstance().getWindow().getHeight();
+
+        this.mainFbo = new SceneMRTFramebuffer(width, height);
+        this.postProcessingManager = new PostProcessingManager();
+        this.postProcessingManager.initialize(width, height);
+    }
+
     public void renderScene(RenderContext context) {
+        Minecraft mc = Minecraft.getInstance();
+        RenderTarget mainRenderTarget = mc.getMainRenderTarget();
         try (GLStateGuard ignored = GLStateGuard.capture()) {
+            mainRenderTarget.bindWrite(false);
             updateScene();
 
             float timeSeconds = (System.currentTimeMillis() & 0x3fffffff) / 1000.0f;
+            mainFbo.bind();
+            glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+
             renderQueue.gather(scene, context.getCamera().position());
             renderQueue.sortForDraw();
             // 不透明（含 CUTOUT）
@@ -79,9 +112,35 @@ public class ModRenderSystem extends AbstractRenderSystem{
             for (RenderItem it : renderQueue.additive) {
                 drawOne(it.renderable, context, timeSeconds);
             }
-            stateCache.reset();
-        }
 
+
+            mainFbo.unbind();
+
+            int finalSceneTexture = postProcessingManager.process(
+                    mainFbo.getSceneTextureId(),
+                    mainFbo.getBloomTextureId()
+            );
+
+            glEnable(GL_BLEND);
+            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+            glDisable(GL_DEPTH_TEST);
+            Shader finalBlitShader = ShaderManager.getShader("final_blit");
+            finalBlitShader.bind();
+            glActiveTexture(GL_TEXTURE0);
+            glBindTexture(GL_TEXTURE_2D, finalSceneTexture);
+            finalBlitShader.setUniformValue1i("u_hdrSceneTexture", 0);
+            finalBlitShader.setUniformValue1f("u_exposure", 1.0f);
+            fullscreenQuad.draw();
+//             显式解绑 + 重置活动纹理单元，避免影响后续原版渲染
+            glBindTexture(GL_TEXTURE_2D, 0);
+
+            glActiveTexture(GL_TEXTURE0);
+            finalBlitShader.unbind();
+
+            stateCache.reset();
+        } finally {
+            mainRenderTarget.bindWrite(true);
+        }
     }
 
     private void drawOne(IRenderable renderable, RenderContext context, float timeSeconds) {
@@ -100,21 +159,21 @@ public class ModRenderSystem extends AbstractRenderSystem{
 
         AbstractMaterial material = renderable.getMaterial();
 
-//        renderable.getTransform()
-//                .translate((float) (Math.cos(timeSeconds)*0.3f), 0.0f, (float) (Math.sin(timeSeconds)*0.3f))
-//                .setScale(
-//                        (float) Math.sin(timeSeconds)*3.0f + 5.0f,
-//                        (float) Math.sin(timeSeconds)*3.0f + 5.0f,
-//                        (float) Math.sin(timeSeconds)*3.0f + 5.0f
-//                )
-//                .setRotation((float) Math.toRadians(90.0f), new Vector3f(1.0f, 0.0f, 0.0f));
-
         material.applyBaseUniforms(projectionMatrix, view, relativeModelMatrix, timeSeconds);
         material.applyUniforms();
-
+        // 深度/混合等由 RenderState 控制，这里不再强制改写
         renderable.getMesh().draw();
 
         material.unbind();
+    }
+
+    public void onWindowResize(int newWidth, int newHeight) {
+        if (mainFbo != null) {
+            mainFbo.resize(newWidth, newHeight);
+        }
+        if (postProcessingManager != null) {
+            postProcessingManager.onResize(newWidth, newHeight);
+        }
     }
 
     public void addRenderable(IRenderable renderable) {

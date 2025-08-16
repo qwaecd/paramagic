@@ -10,6 +10,7 @@ import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceManager;
 import org.apache.commons.lang3.StringUtils;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
@@ -31,6 +32,8 @@ public class ShaderManager {
     private Shader baseBallOutShader;
     @Getter
     private Shader MagicCircleShader;
+    @Getter
+    private Shader compositeShader;
 
     public void init() {
         loadShaders();
@@ -42,12 +45,17 @@ public class ShaderManager {
         baseBallInShader = new Shader("debug/","base_ball_in");
         baseBallOutShader = new Shader("debug/","base_ball_out");
         MagicCircleShader = new Shader("debug/","magic_circle");
+        compositeShader = new Shader("post/", "full_screen");
         register("position_color", positionColorShader);
         register("magic_ring", magicRingShader);
         register("base_ball_in", baseBallInShader);
         register("base_ball_out", baseBallOutShader);
         register("debug_magic_circle", MagicCircleShader);
         register("magic_circle", new Shader("magic/", "magic_circle"));
+        register("composite", compositeShader);
+        register("full_screen", compositeShader);
+        register("blur", new Shader("post/", "blur"));
+        register("final_blit", new Shader("post/", "final_blit"));
     }
 
     private void register(String name, Shader shader) {
@@ -60,6 +68,13 @@ public class ShaderManager {
         }
         Constants.LOG.warn("Shader {} not found, returning default position color shader", name);
         return positionColorShader;
+    }
+
+    public static Shader getShaderThrowIfNotFound(String name) {
+        if (!SHADER_REGISTRY.containsKey(name)) {
+            throw new RuntimeException("Shader " + name + " not found in registry.");
+        }
+        return SHADER_REGISTRY.get(name);
     }
 
     public int loadShaderProgram(String path, String name, ShaderType type) {

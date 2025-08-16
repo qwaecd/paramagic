@@ -4,7 +4,9 @@ in vec2 v_localXZ;
 
 uniform float u_time;
 
-out vec4 o_color;
+layout(location = 0) out vec4 o_color;
+layout(location = 1) out vec4 o_bloomColor;
+
 
 float smoothRing(float r, float center, float width) {
     // 在 r 附近生成一条柔边环
@@ -38,6 +40,12 @@ void main() {
 
     vec3 base = vec3(0.2, 0.8, 1.0); // 青色系
     vec3 color = base * (0.7 + 0.3 * sin(u_time * 3.0)) * intensity;
+
+    float brightness = dot(color.rgb, vec3(0.2126, 0.7152, 0.0722));
+    o_bloomColor = vec4(0.0, 0.0, 0.0, 1.0);
+    if (brightness > 2.0) {
+        o_bloomColor = vec4(color.rgb, 1.0);
+    }
 
     o_color = vec4(color, 1.0);
 }

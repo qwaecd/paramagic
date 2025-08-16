@@ -1,6 +1,8 @@
 #version 330 core
 in vec2 v_localXZ;
-out vec4 FragColor;
+
+layout(location = 0) out vec4 FragColor;
+layout(location = 1) out vec4 BloomColor;
 
 uniform float u_time;
 uniform vec4  u_baseColor;
@@ -82,5 +84,15 @@ void main(){
 
     // 颜色与输出（建议走 ADDITIVE 桶）
     vec3 col = u_baseColor.rgb;
-    FragColor = vec4(col * I, I);
+
+    float brightness = dot((col * I).rgb, vec3(0.2126, 0.7152, 0.0722));
+
+    // Bloom 通道：默认不影响（alpha=0），仅在亮度很高时写入
+    BloomColor = vec4(0.0, 0.0, 0.0, 0.0);
+    if (brightness > 2.0) {
+        BloomColor = vec4((col * I).rgb, 1.0);
+    }
+
+    // 加色混合：直接输出调制后的颜色
+    FragColor = vec4(col * I, 1.0);
 }

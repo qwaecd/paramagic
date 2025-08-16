@@ -23,6 +23,9 @@ public class UnitQuadPrototype implements IShapePrototype {
         buildUniQuadMesh();
     }
 
+    public static void init() {
+    }
+
     private void buildUniQuadMesh() {
         VertexLayout layout = new VertexLayout();
         layout
