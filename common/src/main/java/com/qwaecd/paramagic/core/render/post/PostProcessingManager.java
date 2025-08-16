@@ -1,6 +1,7 @@
 package com.qwaecd.paramagic.core.render.post;
 
 
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.qwaecd.paramagic.core.render.post.buffer.SingleTargetFramebuffer;
 import com.qwaecd.paramagic.core.render.post.effect.BloomEffect;
 import com.qwaecd.paramagic.core.render.post.effect.IPostProcessingEffect;
@@ -48,6 +49,7 @@ public class PostProcessingManager implements AutoCloseable {
         }
 
         pingPongFbos[0].bind();
+        glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         compositePass.combine(sceneTextureId, finalBloomTexture, 1.0f);
         pingPongFbos[0].unbind();

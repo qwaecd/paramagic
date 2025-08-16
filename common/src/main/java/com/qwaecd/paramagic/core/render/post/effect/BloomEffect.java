@@ -44,24 +44,33 @@ public class BloomEffect implements IPostProcessingEffect {
         }
 
 
+        if (pingPongFbo.getWidth() != blurFbos[0].getWidth() || pingPongFbo.getHeight() != blurFbos[0].getHeight()) {
+            pingPongFbo.resize(blurFbos[0].getWidth(), blurFbos[0].getHeight());
+        }
+
+        pingPongFbo.bind();
+        glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+        glClear(GL_COLOR_BUFFER_BIT);
+        blurShader.bind();
+        blurShader.setUniformValue1i("u_texture", 0);
+        blurShader.setUniformValue1i("u_horizontal", 0); // 不重要，只要不是1就行
+        blurShader.setUniformValue2f("u_texelSize", 0.0f, 0.0f);
+
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, blurFbos[0].getColorTextureId());
+        fullscreenQuad.draw();
         glEnable(GL_BLEND);
         glBlendFunc(GL_ONE, GL_ONE);
-        for (int i = blurFbos.length - 1; i > 0; i--) {
-            SingleTargetFramebuffer sourceFbo = blurFbos[i];       // 更小、更模糊的纹理
-            SingleTargetFramebuffer destFbo = blurFbos[i - 1];   // 目标是更大一级的FBO
-            destFbo.bind();
+        for (int i = 1; i < blurFbos.length; i++) {
+            pingPongFbo.bind(); // 确保绘制目标始终是我们的累加器
 
-            blurShader.bind();
-            blurShader.setUniformValue1i("u_texture", 0);
-            // TODO: 这里可以简化，不进行模糊，只做纹理采样，或者用一个专门的upsample shader，用于仅组合绘制纹理
-
-            glActiveTexture(GL_TEXTURE0);
-            glBindTexture(GL_TEXTURE_2D, sourceFbo.getColorTextureId());
+            // 读取原始的、未被污染的 blurFbos[i]
+            glBindTexture(GL_TEXTURE_2D, blurFbos[i].getColorTextureId());
             fullscreenQuad.draw();
         }
 
         glDisable(GL_BLEND);
-        return blurFbos[0].getColorTextureId();
+        return pingPongFbo.getColorTextureId();
     }
 
     /**
@@ -80,12 +89,16 @@ public class BloomEffect implements IPostProcessingEffect {
         glActiveTexture(GL_TEXTURE0);
         // Pass 1: 水平模糊 (Input -> PingPongFBO)
         pingPongFbo.bind();
+        glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+        glClear(GL_COLOR_BUFFER_BIT);
         blurShader.setUniformValue2f("u_texelSize", 1.0f / pingPongFbo.getWidth(), 1.0f / pingPongFbo.getHeight());
         blurShader.setUniformValue1i("u_horizontal", 1);
         glBindTexture(GL_TEXTURE_2D, inputTextureId);
         fullscreenQuad.draw();
         // Pass 2: 垂直模糊 (PingPongFBO -> DestinationFBO)
         destinationFbo.bind();
+        glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+        glClear(GL_COLOR_BUFFER_BIT);
         blurShader.setUniformValue1i("u_horizontal", 0);
         glBindTexture(GL_TEXTURE_2D, pingPongFbo.getColorTextureId());
         fullscreenQuad.draw();

@@ -8,8 +8,9 @@ uniform float u_exposure = 1.0; // 曝光度控制
 
 void main() {
     // 1. 从HDR纹理采样颜色
-    vec3 hdrColor = texture(u_hdrSceneTexture, v_texCoords).rgb;
-
+    vec4 hdrSample = texture(u_hdrSceneTexture, v_texCoords);
+    vec3 hdrColor = hdrSample.rgb;
+    float alpha = hdrSample.a;
     // 2. 曝光控制
     vec3 mappedColor = hdrColor * u_exposure;
 
@@ -20,6 +21,7 @@ void main() {
     // 4. Gamma校正
     // 将线性空间的颜色转换到sRGB空间，以在显示器上正确显示
     float gamma = 2.2;
-    FragColor.rgb = pow(mappedColor, vec3(1.0 / gamma));
-    FragColor.a = 1.0;
+//    FragColor.rgb = pow(mappedColor, vec3(1.0 / gamma));
+    FragColor.rgb = mappedColor;
+    FragColor.a = alpha;
 }

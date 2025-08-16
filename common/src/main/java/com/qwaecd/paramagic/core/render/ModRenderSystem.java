@@ -6,6 +6,7 @@ import com.qwaecd.paramagic.client.renderbase.BaseObjectManager;
 import com.qwaecd.paramagic.client.renderbase.factory.FullScreenQuadFactory;
 import com.qwaecd.paramagic.core.render.context.RenderContext;
 import com.qwaecd.paramagic.core.render.post.PostProcessingManager;
+import com.qwaecd.paramagic.core.render.post.buffer.FramebufferUtils;
 import com.qwaecd.paramagic.core.render.post.buffer.SceneMRTFramebuffer;
 import com.qwaecd.paramagic.core.render.queue.RenderItem;
 import com.qwaecd.paramagic.core.render.queue.RenderQueue;
@@ -87,61 +88,76 @@ public class ModRenderSystem extends AbstractRenderSystem{
             mainRenderTarget.bindWrite(false);
             updateScene();
 
-            float timeSeconds = (System.currentTimeMillis() & 0x3fffffff) / 1000.0f;
-            mainFbo.bind();
-            glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
-            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+            renderObjectsToMainFBO(context);
 
+            int finalSceneTexture = postProcessScene();
 
-            renderQueue.gather(scene, context.getCamera().position());
-            renderQueue.sortForDraw();
-            // 不透明（含 CUTOUT）
-            stateCache.apply(RenderState.OPAQUE);
-            for (RenderItem it : renderQueue.opaque) {
-                drawOne(it.renderable, context, timeSeconds);
-            }
-
-            // 半透明
-            stateCache.apply(RenderState.ALPHA);
-            for (RenderItem it : renderQueue.transparent) {
-                drawOne(it.renderable, context, timeSeconds);
-            }
-
-            // 加色发光
-            stateCache.apply(RenderState.ADDITIVE);
-            for (RenderItem it : renderQueue.additive) {
-                drawOne(it.renderable, context, timeSeconds);
-            }
-
-
-            mainFbo.unbind();
-
-            int finalSceneTexture = postProcessingManager.process(
-                    mainFbo.getSceneTextureId(),
-                    mainFbo.getBloomTextureId()
-            );
-
-            glEnable(GL_BLEND);
-            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-            glDisable(GL_DEPTH_TEST);
-            Shader finalBlitShader = ShaderManager.getShader("final_blit");
-            finalBlitShader.bind();
-            glActiveTexture(GL_TEXTURE0);
-            glBindTexture(GL_TEXTURE_2D, finalSceneTexture);
-            finalBlitShader.setUniformValue1i("u_hdrSceneTexture", 0);
-            finalBlitShader.setUniformValue1f("u_exposure", 1.0f);
-            fullscreenQuad.draw();
-//             显式解绑 + 重置活动纹理单元，避免影响后续原版渲染
-            glBindTexture(GL_TEXTURE_2D, 0);
-
-            glActiveTexture(GL_TEXTURE0);
-            finalBlitShader.unbind();
+            blendFinalResultToMinecraft(mainRenderTarget, finalSceneTexture);
 
             stateCache.reset();
         } finally {
             mainRenderTarget.bindWrite(true);
         }
     }
+
+    private void blendFinalResultToMinecraft(RenderTarget mainRenderTarget, int finalSceneTexture) {
+        mainRenderTarget.bindWrite(true);
+
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        glDisable(GL_DEPTH_TEST);
+        glDepthMask(false);
+
+        Shader finalBlitShader = ShaderManager.getShader("final_blit");
+        finalBlitShader.bind();
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, finalSceneTexture);
+        finalBlitShader.setUniformValue1i("u_hdrSceneTexture", 0);
+        finalBlitShader.setUniformValue1f("u_exposure", 1.0f);
+        fullscreenQuad.draw();
+        finalBlitShader.unbind();
+
+        glDepthMask(true);
+        glDisable(GL_BLEND);
+    }
+
+    private int postProcessScene() {
+        return postProcessingManager.process(
+                mainFbo.getSceneTextureId(),
+                mainFbo.getBloomTextureId()
+        );
+    }
+
+    private void renderObjectsToMainFBO(RenderContext context) {
+        FramebufferUtils.copyDepth(Minecraft.getInstance().getMainRenderTarget(), this.mainFbo);
+        mainFbo.bind();
+        glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+        glClear(GL_COLOR_BUFFER_BIT);
+
+        float timeSeconds = (System.currentTimeMillis() & 0x3fffffff) / 1000.0f;
+        renderQueue.gather(scene, context.getCamera().position());
+        renderQueue.sortForDraw();
+        // 不透明（含 CUTOUT）
+        stateCache.apply(RenderState.OPAQUE);
+        for (RenderItem it : renderQueue.opaque) {
+            drawOne(it.renderable, context, timeSeconds);
+        }
+
+        // 半透明
+        stateCache.apply(RenderState.ALPHA);
+        for (RenderItem it : renderQueue.transparent) {
+            drawOne(it.renderable, context, timeSeconds);
+        }
+
+        // 加色发光
+        stateCache.apply(RenderState.ADDITIVE);
+        for (RenderItem it : renderQueue.additive) {
+            drawOne(it.renderable, context, timeSeconds);
+        }
+
+        mainFbo.unbind();
+    }
+
 
     private void drawOne(IRenderable renderable, RenderContext context, float timeSeconds) {
         IPoseStack poseStack = context.getPoseStack();
@@ -199,5 +215,9 @@ public class ModRenderSystem extends AbstractRenderSystem{
         while ((obj = pendingRemove.poll()) != null) {
             scene.remove(obj);
         }
+    }
+
+    public static boolean isInitialized() {
+        return INSTANCE != null;
     }
 }

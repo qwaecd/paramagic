@@ -14,13 +14,14 @@ uniform float u_bloomStrength = 1.0;
 
 void main() {
     // 从两个纹理中采样颜色
-    vec3 sceneColor = texture(u_sceneTexture, v_texCoords).rgb;
+    vec4 scene = texture(u_sceneTexture, v_texCoords);
+    vec3 sceneColor = scene.rgb;
+    float alpha = scene.a;
     vec3 bloomColor = texture(u_bloomTexture, v_texCoords).rgb;
 
     // 将辉光颜色加到场景颜色上
     // 这是最基础的加法混合
     vec3 finalColor = sceneColor + bloomColor * u_bloomStrength;
 
-    // 输出最终结果
-    FragColor = vec4(finalColor, 1.0);
+    FragColor = vec4(finalColor, alpha);
 }

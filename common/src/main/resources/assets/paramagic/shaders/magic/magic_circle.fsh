@@ -82,6 +82,10 @@ void main(){
     // 5) 中心核心
     I += smoothstep(u_coreInner, 0.0, r) * 0.5;
 
+    if (I < 0.01) {
+        discard;
+    }
+
     // 颜色与输出（建议走 ADDITIVE 桶）
     vec3 col = u_baseColor.rgb;
 
