@@ -1,7 +1,6 @@
 package com.qwaecd.paramagic.core.render.post;
 
 
-import com.mojang.blaze3d.systems.RenderSystem;
 import com.qwaecd.paramagic.core.render.post.buffer.SingleTargetFramebuffer;
 import com.qwaecd.paramagic.core.render.post.effect.BloomEffect;
 import com.qwaecd.paramagic.core.render.post.effect.IPostProcessingEffect;

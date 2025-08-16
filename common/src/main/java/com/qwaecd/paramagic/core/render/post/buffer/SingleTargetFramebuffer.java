@@ -13,7 +13,7 @@ public class SingleTargetFramebuffer extends Framebuffer {
     private int colorTextureId;
     public SingleTargetFramebuffer(int width, int height) {
         super(width, height);
-        // 绑定本 FBO 后再进行附件配置
+
         glBindFramebuffer(GL_FRAMEBUFFER, this.fboId);
 
         this.colorTextureId = glGenTextures();
@@ -32,12 +32,10 @@ public class SingleTargetFramebuffer extends Framebuffer {
         glDrawBuffers(drawBuffers);
         MemoryUtil.memFree(drawBuffers);
 
-        // 完整性检查
         if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
             throw new RuntimeException("SingleTargetFramebuffer is not complete!");
         }
 
-        // 解绑，恢复状态
         glBindTexture(GL_TEXTURE_2D, 0);
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
 

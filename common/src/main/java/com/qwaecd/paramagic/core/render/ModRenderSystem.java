@@ -177,7 +177,6 @@ public class ModRenderSystem extends AbstractRenderSystem{
 
         material.applyBaseUniforms(projectionMatrix, view, relativeModelMatrix, timeSeconds);
         material.applyUniforms();
-        // 深度/混合等由 RenderState 控制，这里不再强制改写
         renderable.getMesh().draw();
 
         material.unbind();

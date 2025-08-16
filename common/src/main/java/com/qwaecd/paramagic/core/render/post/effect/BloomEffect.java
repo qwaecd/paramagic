@@ -53,7 +53,7 @@ public class BloomEffect implements IPostProcessingEffect {
         glClear(GL_COLOR_BUFFER_BIT);
         blurShader.bind();
         blurShader.setUniformValue1i("u_texture", 0);
-        blurShader.setUniformValue1i("u_horizontal", 0); // 不重要，只要不是1就行
+        blurShader.setUniformValue1i("u_horizontal", 0);
         blurShader.setUniformValue2f("u_texelSize", 0.0f, 0.0f);
 
         glActiveTexture(GL_TEXTURE0);
@@ -62,7 +62,7 @@ public class BloomEffect implements IPostProcessingEffect {
         glEnable(GL_BLEND);
         glBlendFunc(GL_ONE, GL_ONE);
         for (int i = 1; i < blurFbos.length; i++) {
-            pingPongFbo.bind(); // 确保绘制目标始终是我们的累加器
+            pingPongFbo.bind();
 
             // 读取原始的、未被污染的 blurFbos[i]
             glBindTexture(GL_TEXTURE_2D, blurFbos[i].getColorTextureId());

@@ -12,7 +12,7 @@ public class MagicCircle implements IRenderable {
 
     public MagicCircle(Mesh planeMesh, AbstractMaterial material) {
         this.mesh = planeMesh;
-        this.material = material;   // MagicCircleMaterial
+        this.material = material;
     }
     @Override
     public Mesh getMesh() {
