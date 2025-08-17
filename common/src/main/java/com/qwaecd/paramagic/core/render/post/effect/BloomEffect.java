@@ -41,16 +41,22 @@ public class BloomEffect implements IPostProcessingEffect {
 
         performBlur(inputTextureId, blurMipChain[0]);
         // 逐级降采样并模糊
+        bloomCompositeShader.bind();
+        bloomCompositeShader.setUniformValue1i("u_texture", 0);
+        glActiveTexture(GL_TEXTURE0);
         for (int i = 1; i < blurPasses; i++) {
             SingleTargetFramebuffer sourceFbo = blurMipChain[i - 1];
             SingleTargetFramebuffer destFbo = blurMipChain[i];
-            performBlur(sourceFbo.getColorTextureId(), destFbo);
+            destFbo.bind();
+            glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+            glClear(GL_COLOR_BUFFER_BIT);
+            glBindTexture(GL_TEXTURE_2D, sourceFbo.getColorTextureId());
+            fullscreenQuad.draw();
         }
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
         // 2. --- 升采样与混合 (Upsampling) ---
         glEnable(GL_BLEND);
         glBlendFunc(GL_ONE, GL_ONE); // 使用加法混合
-        bloomCompositeShader.bind();
-        bloomCompositeShader.setUniformValue1i("u_texture", 0);
         glActiveTexture(GL_TEXTURE0);
         // 从第二小的模糊层级开始，将其混合到下一个更大的层级上
         for (int i = blurPasses - 1; i > 0; i--) {
