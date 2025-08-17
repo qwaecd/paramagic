@@ -12,19 +12,22 @@ import static org.lwjgl.opengl.GL33.*;
 public class BloomEffect implements IPostProcessingEffect {
 
     private Shader blurShader;
+    private Shader bloomCompositeShader;
     private Mesh fullscreenQuad;
-    private SingleTargetFramebuffer[] blurFbos;
-    private SingleTargetFramebuffer pingPongFbo;
+    private SingleTargetFramebuffer[] blurMipChain;
+    private SingleTargetFramebuffer internalPingPongFbo;
     private boolean enabled = true;
+    private final int blurPasses = 4;
     @Override
     public void initialize(int width, int height) {
         this.blurShader = ShaderManager.getShaderThrowIfNotFound("blur");
+        this.bloomCompositeShader = ShaderManager.getShaderThrowIfNotFound("bloom_composite");
         this.fullscreenQuad = FullScreenQuadFactory.createFullscreenQuad();
-        pingPongFbo = new SingleTargetFramebuffer(width / 2, height / 2);
-        blurFbos = new SingleTargetFramebuffer[4];
-        for (int i = 0; i < blurFbos.length; i++) {
+        internalPingPongFbo = new SingleTargetFramebuffer(16, 16);
+        blurMipChain = new SingleTargetFramebuffer[blurPasses];
+        for (int i = 0; i < blurPasses; i++) {
             int scale = 1 << (i + 1); // 2, 4, 8, 16
-            blurFbos[i] = new SingleTargetFramebuffer(width / scale, height / scale);
+            blurMipChain[i] = new SingleTargetFramebuffer(width / scale, height / scale);
         }
     }
 
@@ -36,41 +39,32 @@ public class BloomEffect implements IPostProcessingEffect {
         glDisable(GL_DEPTH_TEST);
         glDisable(GL_BLEND);
 
-        performBlur(inputTextureId, blurFbos[0]);
-        for (int i = 1; i < blurFbos.length; i++) {
-            SingleTargetFramebuffer sourceFbo = blurFbos[i - 1];
-            SingleTargetFramebuffer destFbo = blurFbos[i];
+        performBlur(inputTextureId, blurMipChain[0]);
+        // 逐级降采样并模糊
+        for (int i = 1; i < blurPasses; i++) {
+            SingleTargetFramebuffer sourceFbo = blurMipChain[i - 1];
+            SingleTargetFramebuffer destFbo = blurMipChain[i];
             performBlur(sourceFbo.getColorTextureId(), destFbo);
         }
-
-
-        if (pingPongFbo.getWidth() != blurFbos[0].getWidth() || pingPongFbo.getHeight() != blurFbos[0].getHeight()) {
-            pingPongFbo.resize(blurFbos[0].getWidth(), blurFbos[0].getHeight());
-        }
-
-        pingPongFbo.bind();
-        glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-        glClear(GL_COLOR_BUFFER_BIT);
-        blurShader.bind();
-        blurShader.setUniformValue1i("u_texture", 0);
-        blurShader.setUniformValue1i("u_horizontal", 0);
-        blurShader.setUniformValue2f("u_texelSize", 0.0f, 0.0f);
-
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, blurFbos[0].getColorTextureId());
-        fullscreenQuad.draw();
+        // 2. --- 升采样与混合 (Upsampling) ---
         glEnable(GL_BLEND);
-        glBlendFunc(GL_ONE, GL_ONE);
-        for (int i = 1; i < blurFbos.length; i++) {
-            pingPongFbo.bind();
+        glBlendFunc(GL_ONE, GL_ONE); // 使用加法混合
+        bloomCompositeShader.bind();
+        bloomCompositeShader.setUniformValue1i("u_texture", 0);
+        glActiveTexture(GL_TEXTURE0);
+        // 从第二小的模糊层级开始，将其混合到下一个更大的层级上
+        for (int i = blurPasses - 1; i > 0; i--) {
+            SingleTargetFramebuffer sourceFbo = blurMipChain[i]; // 小的
+            SingleTargetFramebuffer destFbo = blurMipChain[i - 1]; // 大的
+            destFbo.bind();
 
-            // 读取原始的、未被污染的 blurFbos[i]
-            glBindTexture(GL_TEXTURE_2D, blurFbos[i].getColorTextureId());
+            // 绑定小的纹理并绘制，它会被拉伸（升采样）并与destFbo中已有的内容混合
+            glBindTexture(GL_TEXTURE_2D, sourceFbo.getColorTextureId());
             fullscreenQuad.draw();
         }
-
         glDisable(GL_BLEND);
-        return pingPongFbo.getColorTextureId();
+        // 最终结果现在存储在最大的一级模糊FBO中
+        return blurMipChain[0].getColorTextureId();
     }
 
     /**
@@ -80,36 +74,37 @@ public class BloomEffect implements IPostProcessingEffect {
      * @param destinationFbo 存储最终结果的FBO
      */
     private void performBlur(int inputTextureId, SingleTargetFramebuffer destinationFbo) {
-        // 确保我们的乒乓FBO和目标FBO尺寸一致
-        if (pingPongFbo.getWidth() != destinationFbo.getWidth() || pingPongFbo.getHeight() != destinationFbo.getHeight()) {
-            pingPongFbo.resize(destinationFbo.getWidth(), destinationFbo.getHeight());
+        if (internalPingPongFbo.getWidth() != destinationFbo.getWidth() || internalPingPongFbo.getHeight() != destinationFbo.getHeight()) {
+            internalPingPongFbo.resize(destinationFbo.getWidth(), destinationFbo.getHeight());
         }
         blurShader.bind();
         blurShader.setUniformValue1i("u_texture", 0);
         glActiveTexture(GL_TEXTURE0);
-        // Pass 1: 水平模糊 (Input -> PingPongFBO)
-        pingPongFbo.bind();
+        // Pass 1: 水平模糊 (Input -> internalPingPongFbo)
+        internalPingPongFbo.bind();
         glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
         glClear(GL_COLOR_BUFFER_BIT);
-        blurShader.setUniformValue2f("u_texelSize", 1.0f / pingPongFbo.getWidth(), 1.0f / pingPongFbo.getHeight());
-        blurShader.setUniformValue1i("u_horizontal", 1);
+        blurShader.setUniformValue1i("u_horizontal", 1); // 1 for true
+        blurShader.setUniformValue2f("u_texelSize", 1.0f / internalPingPongFbo.getWidth(), 0.0f);
         glBindTexture(GL_TEXTURE_2D, inputTextureId);
         fullscreenQuad.draw();
-        // Pass 2: 垂直模糊 (PingPongFBO -> DestinationFBO)
+        // Pass 2: 垂直模糊 (internalPingPongFbo -> destinationFbo)
         destinationFbo.bind();
         glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
         glClear(GL_COLOR_BUFFER_BIT);
-        blurShader.setUniformValue1i("u_horizontal", 0);
-        glBindTexture(GL_TEXTURE_2D, pingPongFbo.getColorTextureId());
+        blurShader.setUniformValue1i("u_horizontal", 0); // 0 for false
+        blurShader.setUniformValue2f("u_texelSize", 0.0f, 1.0f / destinationFbo.getHeight());
+        // 读取上一步的结果
+        glBindTexture(GL_TEXTURE_2D, internalPingPongFbo.getColorTextureId());
         fullscreenQuad.draw();
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
     }
 
     @Override
     public void onResize(int newWidth, int newHeight) {
-        pingPongFbo.resize(newWidth / 2, newHeight / 2);
-        for (int i = 0; i < blurFbos.length; i++) {
+        for (int i = 0; i < blurPasses; i++) {
             int scale = 1 << (i + 1);
-            blurFbos[i].resize(newWidth / scale, newHeight / scale);
+            blurMipChain[i].resize(newWidth / scale, newHeight / scale);
         }
     }
 
@@ -120,13 +115,10 @@ public class BloomEffect implements IPostProcessingEffect {
 
     @Override
     public void close() throws Exception {
-        if (blurFbos == null) {
-            return;
+        if (internalPingPongFbo != null) {
+            internalPingPongFbo.close();
         }
-        if (pingPongFbo != null) {
-            pingPongFbo.close();
-        }
-        for (SingleTargetFramebuffer fbo : blurFbos) {
+        for (SingleTargetFramebuffer fbo : blurMipChain) {
             if (fbo != null) {
                 fbo.close();
             }

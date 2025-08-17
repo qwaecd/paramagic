@@ -1,4 +1,4 @@
-package com.qwaecd.paramagic.client;
+package com.qwaecd.paramagic.client.obj;
 
 import com.qwaecd.paramagic.core.render.IRenderable;
 import com.qwaecd.paramagic.core.render.Transform;

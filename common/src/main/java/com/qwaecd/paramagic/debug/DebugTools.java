@@ -1,6 +1,7 @@
 package com.qwaecd.paramagic.debug;
 
 import com.qwaecd.paramagic.client.material.MagicCircleMaterial;
+import com.qwaecd.paramagic.client.obj.sun.Sun;
 import com.qwaecd.paramagic.client.renderbase.factory.SphereFactory;
 import com.qwaecd.paramagic.client.renderbase.factory.UnitQuadFactory;
 import com.qwaecd.paramagic.core.render.IRenderable;
@@ -33,6 +34,10 @@ public class DebugTools {
         ball = sphereFactory.withMaterial(material).createInstance();
         ball.getTransform().getModelMatrix().translate(0, 100, 0).scale(4.0f, 4.0f, 4.0f);
         ModRenderSystem.getInstance().addRenderable(ball);
+
+        IRenderable sun = new Sun(ShaderManager.getShader("sun"));
+        sun.getTransform().setPosition(0, 80, 10).setScale(1.0f, 1.0f, 1.0f);
+        ModRenderSystem.getInstance().addRenderable(sun);
     }
 
     private static void tooManyMagicCircles() {

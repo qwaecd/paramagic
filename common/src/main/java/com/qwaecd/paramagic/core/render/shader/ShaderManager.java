@@ -56,6 +56,8 @@ public class ShaderManager {
         register("full_screen", compositeShader);
         register("blur", new Shader("post/", "blur"));
         register("final_blit", new Shader("post/", "final_blit"));
+        register("sun", new Shader("", "sun"));
+        register("bloom_composite", new Shader("post/", "bloom_composite"));
     }
 
     private void register(String name, Shader shader) {
