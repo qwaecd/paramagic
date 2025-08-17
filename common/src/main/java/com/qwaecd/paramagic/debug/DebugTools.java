@@ -36,7 +36,7 @@ public class DebugTools {
         ModRenderSystem.getInstance().addRenderable(ball);
 
         IRenderable sun = new Sun(ShaderManager.getShader("sun"));
-        sun.getTransform().setPosition(0, 80, 10).setScale(1.0f, 1.0f, 1.0f);
+        sun.getTransform().setPosition(0, 80, 10).setScale(5.0f, 5.0f, 5.0f);
         ModRenderSystem.getInstance().addRenderable(sun);
     }
 

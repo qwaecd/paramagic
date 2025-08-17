@@ -38,8 +38,8 @@ public class BloomEffect implements IPostProcessingEffect {
         }
         glDisable(GL_DEPTH_TEST);
         glDisable(GL_BLEND);
-
-        performBlur(inputTextureId, blurMipChain[0]);
+        int initialBlurIterations = 16;
+        performBlur(inputTextureId, blurMipChain[0], initialBlurIterations);
         // 逐级降采样并模糊
         bloomCompositeShader.bind();
         bloomCompositeShader.setUniformValue1i("u_texture", 0);
@@ -74,35 +74,52 @@ public class BloomEffect implements IPostProcessingEffect {
     }
 
     /**
-     * 对输入纹理执行一次完整的二维高斯模糊，并将结果存入目标FBO。
-     * 使用乒乓技术。
+     * 对输入纹理执行指定次数的二维高斯模糊，并将最终结果存入目标FBO。
+     * 使用乒乓技术在 destinationFbo 和 internalPingPongFbo 之间来回绘制。
+     *
      * @param inputTextureId 要模糊的源纹理
      * @param destinationFbo 存储最终结果的FBO
+     * @param iterations     模糊迭代次数。每次迭代包含一次水平和一次垂直模糊。
      */
-    private void performBlur(int inputTextureId, SingleTargetFramebuffer destinationFbo) {
+    private void performBlur(int inputTextureId, SingleTargetFramebuffer destinationFbo, int iterations) {
+        if (iterations <= 0) {
+            // 如果不模糊，直接将输入拷贝到输出并返回
+            destinationFbo.bind();
+            glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+            glClear(GL_COLOR_BUFFER_BIT);
+            bloomCompositeShader.bind();
+            bloomCompositeShader.setUniformValue1i("u_texture", 0);
+            glActiveTexture(GL_TEXTURE0);
+            glBindTexture(GL_TEXTURE_2D, inputTextureId);
+            fullscreenQuad.draw();
+            glBindFramebuffer(GL_FRAMEBUFFER, 0);
+            return;
+        }
         if (internalPingPongFbo.getWidth() != destinationFbo.getWidth() || internalPingPongFbo.getHeight() != destinationFbo.getHeight()) {
             internalPingPongFbo.resize(destinationFbo.getWidth(), destinationFbo.getHeight());
         }
         blurShader.bind();
         blurShader.setUniformValue1i("u_texture", 0);
         glActiveTexture(GL_TEXTURE0);
-        // Pass 1: 水平模糊 (Input -> internalPingPongFbo)
-        internalPingPongFbo.bind();
-        glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-        glClear(GL_COLOR_BUFFER_BIT);
-        blurShader.setUniformValue1i("u_horizontal", 1); // 1 for true
-        blurShader.setUniformValue2f("u_texelSize", 1.0f / internalPingPongFbo.getWidth(), 0.0f);
-        glBindTexture(GL_TEXTURE_2D, inputTextureId);
-        fullscreenQuad.draw();
-        // Pass 2: 垂直模糊 (internalPingPongFbo -> destinationFbo)
-        destinationFbo.bind();
-        glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-        glClear(GL_COLOR_BUFFER_BIT);
-        blurShader.setUniformValue1i("u_horizontal", 0); // 0 for false
-        blurShader.setUniformValue2f("u_texelSize", 0.0f, 1.0f / destinationFbo.getHeight());
-        // 读取上一步的结果
-        glBindTexture(GL_TEXTURE_2D, internalPingPongFbo.getColorTextureId());
-        fullscreenQuad.draw();
+
+        int currentTexture = inputTextureId;
+
+        for (int i = 0; i < iterations; i++) {
+            // 水平模糊
+            destinationFbo.bind();
+            blurShader.setUniformValue1i("u_horizontal", 1);
+            blurShader.setUniformValue2f("u_texelSize", 1.0f / internalPingPongFbo.getWidth(), 0.0f);
+            glBindTexture(GL_TEXTURE_2D, currentTexture);
+            fullscreenQuad.draw();
+
+            currentTexture = destinationFbo.getColorTextureId();
+            // 垂直模糊
+            blurShader.setUniformValue1i("u_horizontal", 0);
+            blurShader.setUniformValue2f("u_texelSize", 0.0f, 1.0f / internalPingPongFbo.getHeight());
+            glBindTexture(GL_TEXTURE_2D, currentTexture);
+            fullscreenQuad.draw();
+            currentTexture = destinationFbo.getColorTextureId();
+        }
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
     }
 
