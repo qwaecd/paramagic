@@ -82,26 +82,23 @@ public class ModRenderSystem extends AbstractRenderSystem{
     }
 
     public void renderScene(RenderContext context) {
-        Minecraft mc = Minecraft.getInstance();
-        RenderTarget mainRenderTarget = mc.getMainRenderTarget();
         try (GLStateGuard ignored = GLStateGuard.capture()) {
-            mainRenderTarget.bindWrite(false);
             updateScene();
 
             renderObjectsToMainFBO(context);
 
             int finalSceneTexture = postProcessScene();
 
-            blendFinalResultToMinecraft(mainRenderTarget, finalSceneTexture);
+            blendFinalResultToMinecraft(finalSceneTexture);
 
             stateCache.reset();
         } finally {
-            mainRenderTarget.bindWrite(true);
+            super.bindWriteMainTarget(true);
         }
     }
 
-    private void blendFinalResultToMinecraft(RenderTarget mainRenderTarget, int finalSceneTexture) {
-        mainRenderTarget.bindWrite(true);
+    private void blendFinalResultToMinecraft(int finalSceneTexture) {
+        super.bindWriteMainTarget(true);
 
         glEnable(GL_BLEND);
         glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);

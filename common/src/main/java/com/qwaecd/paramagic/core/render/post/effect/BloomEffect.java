@@ -40,11 +40,11 @@ public class BloomEffect implements IPostProcessingEffect {
         glDisable(GL_BLEND);
         // Pass 1: 近景辉光 (小半径，产生清晰核心)
         // 结果存储在 blurMipChain[0]
-        performBlur(inputTextureId, blurMipChain[0], 8, 1.0f);
+        performBlur(inputTextureId, blurMipChain[0], 2, 1.0f);
         // Pass 2: 远景辉光 (大半径，产生柔和光晕)
         // 结果存储在 blurMipChain[1]
         // 注意：输入源仍然是原始高光图 inputTextureId
-        performBlur(inputTextureId, blurMipChain[1], 2, 2.0f);
+        performBlur(inputTextureId, blurMipChain[1], 4, 1.5f);
         // --- 2. 混合与降采样 ---
         // 将远景辉光(blurMipChain[1])叠加到近景辉光(blurMipChain[0])上
         blurMipChain[0].bind();

@@ -98,5 +98,5 @@ void main(){
     }
 
     // 加色混合：直接输出调制后的颜色
-    FragColor = vec4(col * I, 1.0);
+    FragColor = vec4(col, I);
 }
