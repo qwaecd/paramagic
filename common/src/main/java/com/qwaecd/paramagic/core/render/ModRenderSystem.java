@@ -1,6 +1,5 @@
 package com.qwaecd.paramagic.core.render;
 
-import com.mojang.blaze3d.pipeline.RenderTarget;
 import com.qwaecd.paramagic.Constants;
 import com.qwaecd.paramagic.client.renderbase.BaseObjectManager;
 import com.qwaecd.paramagic.client.renderbase.factory.FullScreenQuadFactory;
