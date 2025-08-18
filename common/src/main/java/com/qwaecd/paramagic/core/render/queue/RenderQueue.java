@@ -1,6 +1,7 @@
 package com.qwaecd.paramagic.core.render.queue;
 
 import com.qwaecd.paramagic.core.render.IRenderable;
+import com.qwaecd.paramagic.core.render.ModRenderSystem;
 import org.joml.Vector3d;
 
 import java.util.ArrayList;
@@ -27,12 +28,21 @@ public class RenderQueue {
         for (IRenderable r : scene) {
             RenderType t = getType(r);
             RenderItem item = getReuseableItem(r, t, cameraPos);
+            if (shouldBeCutout(item.distanceSq)) {
+                continue;
+            }
             switch (t) {
                 case OPAQUE, CUTOUT -> opaque.add(item);
                 case TRANSPARENT -> transparent.add(item);
                 case ADDITIVE -> additive.add(item);
             }
         }
+    }
+
+    private boolean shouldBeCutout(double itemDistance) {
+        float maxDistance = ModRenderSystem.getInstance().getMaxDistance() * 16;
+        maxDistance *= maxDistance;
+        return itemDistance > maxDistance;
     }
 
     private RenderItem getReuseableItem(IRenderable renderable, RenderType renderType, Vector3d cameraPos) {

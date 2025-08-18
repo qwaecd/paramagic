@@ -5,9 +5,14 @@ import com.qwaecd.paramagic.core.render.shader.Shader;
 import com.qwaecd.paramagic.core.render.texture.AbstractMaterial;
 import org.joml.Vector4f;
 
+import java.awt.*;
+
 public class SunMaterial extends AbstractMaterial {
-    private final Vector4f sunColor = new Vector4f(0.7f, 0.8f, 0.2f, 1.0f);
-    private float intensity = 15.0f;
+    /**
+     * 本体 LDR 颜色，决定本体颜色，分量不应大于 1.0f
+     */
+    private final Vector4f sunColor = new Vector4f(1.0f, 0.4f, 0.3f, 0.4f);
+    private float intensity = 1.921f;
 
     public SunMaterial(Shader shader) {
         super(shader);

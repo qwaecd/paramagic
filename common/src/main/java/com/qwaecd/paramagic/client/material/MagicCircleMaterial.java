@@ -6,7 +6,7 @@ import com.qwaecd.paramagic.core.render.texture.AbstractMaterial;
 import org.joml.Vector4f;
 
 public class MagicCircleMaterial extends AbstractMaterial {
-    private final Vector4f baseColor = new Vector4f(0.3f, 0.8f, 1.0f, 1.0f);
+    private final Vector4f baseColor = new Vector4f(0.2f, 0.3f, 0.5f, 1.0f);
 
     private static final int MAX_RINGS = 8;
     private int ringCount = 0;

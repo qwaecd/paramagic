@@ -82,8 +82,7 @@ public class ModRenderSystem extends AbstractRenderSystem{
     }
 
     public void renderScene(RenderContext context) {
-        Minecraft mc = Minecraft.getInstance();
-        RenderTarget mainRenderTarget = mc.getMainRenderTarget();
+        RenderTarget mainRenderTarget = super.mainTarget();
         try (GLStateGuard ignored = GLStateGuard.capture()) {
             mainRenderTarget.bindWrite(false);
             updateScene();
