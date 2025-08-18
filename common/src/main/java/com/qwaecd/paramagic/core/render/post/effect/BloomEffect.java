@@ -38,11 +38,26 @@ public class BloomEffect implements IPostProcessingEffect {
         }
         glDisable(GL_DEPTH_TEST);
         glDisable(GL_BLEND);
-        int initialBlurIterations = 16;
-        performBlur(inputTextureId, blurMipChain[0], initialBlurIterations);
-        // 逐级降采样并模糊
+        // Pass 1: 近景辉光 (小半径，产生清晰核心)
+        // 结果存储在 blurMipChain[0]
+        performBlur(inputTextureId, blurMipChain[0], 8, 1.0f);
+        // Pass 2: 远景辉光 (大半径，产生柔和光晕)
+        // 结果存储在 blurMipChain[1]
+        // 注意：输入源仍然是原始高光图 inputTextureId
+        performBlur(inputTextureId, blurMipChain[1], 2, 2.0f);
+        // --- 2. 混合与降采样 ---
+        // 将远景辉光(blurMipChain[1])叠加到近景辉光(blurMipChain[0])上
+        blurMipChain[0].bind();
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_ONE, GL_ONE); // 加法混合
+
         bloomCompositeShader.bind();
         bloomCompositeShader.setUniformValue1i("u_texture", 0);
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, blurMipChain[1].getColorTextureId());
+        fullscreenQuad.draw();
+
+        glDisable(GL_BLEND);
         glActiveTexture(GL_TEXTURE0);
         for (int i = 1; i < blurPasses; i++) {
             SingleTargetFramebuffer sourceFbo = blurMipChain[i - 1];
@@ -63,7 +78,6 @@ public class BloomEffect implements IPostProcessingEffect {
             SingleTargetFramebuffer sourceFbo = blurMipChain[i]; // 小的
             SingleTargetFramebuffer destFbo = blurMipChain[i - 1]; // 大的
             destFbo.bind();
-
             // 绑定小的纹理并绘制，它会被拉伸（升采样）并与destFbo中已有的内容混合
             glBindTexture(GL_TEXTURE_2D, sourceFbo.getColorTextureId());
             fullscreenQuad.draw();
@@ -81,7 +95,7 @@ public class BloomEffect implements IPostProcessingEffect {
      * @param destinationFbo 存储最终结果的FBO
      * @param iterations     模糊迭代次数。每次迭代包含一次水平和一次垂直模糊。
      */
-    private void performBlur(int inputTextureId, SingleTargetFramebuffer destinationFbo, int iterations) {
+    private void performBlur(int inputTextureId, SingleTargetFramebuffer destinationFbo, int iterations, float blurRadius) {
         if (iterations <= 0) {
             // 如果不模糊，直接将输入拷贝到输出并返回
             destinationFbo.bind();
@@ -100,25 +114,34 @@ public class BloomEffect implements IPostProcessingEffect {
         }
         blurShader.bind();
         blurShader.setUniformValue1i("u_texture", 0);
+        blurShader.setUniformValue1f("u_blurRadius", blurRadius);
         glActiveTexture(GL_TEXTURE0);
 
-        int currentTexture = inputTextureId;
+        boolean horizontal = true;
+        boolean firstPass = true;
+        int passCount = iterations * 2;
 
-        for (int i = 0; i < iterations; i++) {
-            // 水平模糊
-            destinationFbo.bind();
-            blurShader.setUniformValue1i("u_horizontal", 1);
-            blurShader.setUniformValue2f("u_texelSize", 1.0f / internalPingPongFbo.getWidth(), 0.0f);
-            glBindTexture(GL_TEXTURE_2D, currentTexture);
-            fullscreenQuad.draw();
+        for (int i = 0; i < passCount; i++) {
+            SingleTargetFramebuffer writeFbo = (i % 2 == 0) ? internalPingPongFbo : destinationFbo;
 
-            currentTexture = destinationFbo.getColorTextureId();
-            // 垂直模糊
-            blurShader.setUniformValue1i("u_horizontal", 0);
-            blurShader.setUniformValue2f("u_texelSize", 0.0f, 1.0f / internalPingPongFbo.getHeight());
-            glBindTexture(GL_TEXTURE_2D, currentTexture);
+            writeFbo.bind();
+            glClear(GL_COLOR_BUFFER_BIT);
+            if (firstPass) {
+                glBindTexture(GL_TEXTURE_2D, inputTextureId);
+                firstPass = false;
+            } else {
+                SingleTargetFramebuffer readFbo = (i % 2 == 0) ? destinationFbo : internalPingPongFbo;
+                glBindTexture(GL_TEXTURE_2D, readFbo.getColorTextureId());
+            }
+            blurShader.setUniformValue1i("u_horizontal", horizontal ? 1 : 0);
+            if (horizontal) {
+                blurShader.setUniformValue2f("u_texelSize", 1.0f / writeFbo.getWidth(), 0.0f);
+            } else {
+                blurShader.setUniformValue2f("u_texelSize", 0.0f, 1.0f / writeFbo.getHeight());
+            }
+
             fullscreenQuad.draw();
-            currentTexture = destinationFbo.getColorTextureId();
+            horizontal = !horizontal;
         }
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
     }
