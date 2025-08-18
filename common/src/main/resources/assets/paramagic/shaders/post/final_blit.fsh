@@ -3,25 +3,32 @@
 out vec4 FragColor;
 in vec2 v_texCoords;
 
-uniform sampler2D u_hdrSceneTexture; // 你后期处理完成的最终纹理
-uniform float u_exposure = 1.0; // 曝光度控制
+uniform sampler2D u_hdrSceneTexture;
+uniform float u_exposure = 1.0; // 曝光度
+vec3 reinhardToneMapping(vec3 color) {
+    color *= u_exposure;
+    return color / (color + vec3(1.0));
+}
+// 另一个流行的ACES电影级色调映射近似算子
+vec3 acesFilm(vec3 x) {
+    float a = 2.51;
+    float b = 0.03;
+    float c = 2.43;
+    float d = 0.59;
+    float e = 0.14;
+    return clamp((x*(a*x+b))/(x*(c*x+d)+e), 0.0, 1.0);
+}
 
 void main() {
-    // 1. 从HDR纹理采样颜色
+    const float gamma = 2.2;
     vec4 hdrSample = texture(u_hdrSceneTexture, v_texCoords);
     vec3 hdrColor = hdrSample.rgb;
     float alpha = hdrSample.a;
-    // 2. 曝光控制
-    vec3 mappedColor = hdrColor * u_exposure;
-
-    // 3. 色调映射 (Reinhard Tonemapping)
-    // 将无限的HDR颜色范围映射到[0, 1]的LDR范围
-//    mappedColor = mappedColor / (mappedColor + vec3(1.0));
-    mappedColor = vec3(1.0) - exp(-hdrColor * u_exposure);
-    // 4. Gamma校正
-    // 将线性空间的颜色转换到sRGB空间，以在显示器上正确显示
-    float gamma = 2.2;
-//    FragColor.rgb = pow(mappedColor, vec3(1.0 / gamma));
-    FragColor.rgb = mappedColor;
+    // 色调映射
+    vec3 ldrColor = acesFilm(hdrColor * u_exposure);
+//    vec3 ldrColor = reinhardToneMapping(hdrColor * u_exposure);
+    // 不需要gamma矫正，minecraft会帮你做的
+//    ldrColor = pow(ldrColor, vec3(1.0 / gamma));
+    FragColor.rgb = ldrColor;
     FragColor.a = alpha;
 }

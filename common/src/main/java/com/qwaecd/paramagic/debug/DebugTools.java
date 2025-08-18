@@ -27,7 +27,7 @@ import static org.lwjgl.opengl.GL15C.GL_STATIC_DRAW;
 @UtilityClass
 public class DebugTools {
     public static void test() {
-//        tooManyMagicCircles();
+        tooManyMagicCircles();
         IRenderable ball;
         SphereFactory sphereFactory = new SphereFactory();
         Material material = new Material(ShaderManager.getBaseBallInShader());
