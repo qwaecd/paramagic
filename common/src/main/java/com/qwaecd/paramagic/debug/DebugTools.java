@@ -1,5 +1,6 @@
 package com.qwaecd.paramagic.debug;
 
+import com.qwaecd.paramagic.client.material.EmissiveMagicMaterial;
 import com.qwaecd.paramagic.client.material.MagicCircleMaterial;
 import com.qwaecd.paramagic.client.obj.sun.Sun;
 import com.qwaecd.paramagic.client.renderbase.factory.SphereFactory;
@@ -33,11 +34,11 @@ public class DebugTools {
         Material material = new Material(ShaderManager.getBaseBallInShader());
         ball = sphereFactory.withMaterial(material).createInstance();
         ball.getTransform().getModelMatrix().translate(0, 100, 0).scale(4.0f, 4.0f, 4.0f);
-        ModRenderSystem.getInstance().addRenderable(ball);
+//        ModRenderSystem.getInstance().addRenderable(ball);
 
         IRenderable sun = new Sun(ShaderManager.getShader("sun"));
         sun.getTransform().setPosition(0, 80, 10).setScale(5.0f, 5.0f, 5.0f);
-        ModRenderSystem.getInstance().addRenderable(sun);
+//        ModRenderSystem.getInstance().addRenderable(sun);
     }
 
     private static void tooManyMagicCircles() {
@@ -46,7 +47,7 @@ public class DebugTools {
 
         // 主法阵 - 最大的底层法阵
         obj = factory
-                .withMaterial(new MagicCircleMaterial(ShaderManager.getShader("magic_circle")))
+                .withMaterial(new EmissiveMagicMaterial(ShaderManager.getShaderThrowIfNotFound("emissive_magic")))
                 .createInstance();
         obj.getTransform().getModelMatrix().translate(20, 200, 0).scale(20.0f, 20.0f, 20.0f).rotateY((float)Math.toRadians(45));
         ModRenderSystem.getInstance().addRenderable(obj);

@@ -43,7 +43,7 @@ public class MagicCircleMaterial extends AbstractMaterial {
     }
 
     // 便捷配置 API
-    public MagicCircleMaterial setColor(float r, float g, float b, float a) {
+    public MagicCircleMaterial setBaseColor(float r, float g, float b, float a) {
         baseColor.set(r, g, b, a);
         return this;
     }

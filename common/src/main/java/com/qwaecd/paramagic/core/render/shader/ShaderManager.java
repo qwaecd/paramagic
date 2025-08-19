@@ -34,6 +34,8 @@ public class ShaderManager {
     private Shader MagicCircleShader;
     @Getter
     private Shader compositeShader;
+    @Getter
+    private Shader emissiveMagicShader;
 
     public void init() {
         loadShaders();
@@ -46,6 +48,7 @@ public class ShaderManager {
         baseBallOutShader = new Shader("debug/","base_ball_out");
         MagicCircleShader = new Shader("debug/","magic_circle");
         compositeShader = new Shader("post/", "full_screen");
+        emissiveMagicShader = new Shader("magic/emissive/", "emissive_magic_circle");
         register("position_color", positionColorShader);
         register("magic_ring", magicRingShader);
         register("base_ball_in", baseBallInShader);
@@ -58,6 +61,7 @@ public class ShaderManager {
         register("final_blit", new Shader("post/", "final_blit"));
         register("sun", new Shader("", "sun"));
         register("bloom_composite", new Shader("post/", "bloom_composite"));
+        register("emissive_magic", emissiveMagicShader);
     }
 
     private void register(String name, Shader shader) {
