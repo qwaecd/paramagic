@@ -16,7 +16,7 @@ public class ParamagicFabric implements ModInitializer {
 
     @Override
     public void onInitialize() {
-        Constants.LOG.info("Hello Fabric world!");
+        ParaMagic.LOG.info("Hello Fabric world!");
         CommonClass.init();
         Services.PLATFORM.initializeOpenGL();
         registerClientCommands();

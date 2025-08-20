@@ -1,6 +1,6 @@
 package com.qwaecd.paramagic.core.render;
 
-import com.qwaecd.paramagic.Constants;
+import com.qwaecd.paramagic.ParaMagic;
 import com.qwaecd.paramagic.client.renderbase.BaseObjectManager;
 import com.qwaecd.paramagic.client.renderbase.factory.FullScreenQuadFactory;
 import com.qwaecd.paramagic.core.render.context.RenderContext;
@@ -44,7 +44,7 @@ public class ModRenderSystem extends AbstractRenderSystem{
     private final Matrix4f reusableMatrix = new Matrix4f();
 
     private ModRenderSystem() {
-        Constants.LOG.info("ModRenderSystem instance created.");
+        ParaMagic.LOG.info("ModRenderSystem instance created.");
     }
 
     public static ModRenderSystem getInstance() {
@@ -68,7 +68,7 @@ public class ModRenderSystem extends AbstractRenderSystem{
         BaseObjectManager.init();
         ModRenderSystem.getInstance().initializePostProcessing();
         ModRenderSystem.getInstance().fullscreenQuad = FullScreenQuadFactory.createFullscreenQuad();
-        Constants.LOG.info("Render system initialized.");
+        ParaMagic.LOG.info("Render system initialized.");
     }
 
     private void initializePostProcessing() {
