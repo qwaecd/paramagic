@@ -1,6 +1,6 @@
 package com.qwaecd.paramagic.platform;
 
-import com.qwaecd.paramagic.ParaMagic;
+import com.qwaecd.paramagic.Paramagic;
 import com.qwaecd.paramagic.platform.services.IPlatformHelper;
 
 import java.util.ServiceLoader;
@@ -24,7 +24,7 @@ public class Services {
         final T loadedService = ServiceLoader.load(clazz)
                 .findFirst()
                 .orElseThrow(() -> new NullPointerException("Failed to load service for " + clazz.getName()));
-        ParaMagic.LOG.debug("Loaded {} for service {}", loadedService, clazz);
+        Paramagic.LOG.debug("Loaded {} for service {}", loadedService, clazz);
         return loadedService;
     }
 }

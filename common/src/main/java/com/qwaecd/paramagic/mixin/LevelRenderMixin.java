@@ -31,6 +31,8 @@ public abstract class LevelRenderMixin {
             Matrix4f projectionMatrix,
             CallbackInfo ci
     ) {
-        ModRenderSystem.getInstance().renderScene(RenderContextManager.getContext());
+        ModRenderSystem rs = ModRenderSystem.getInstance();
+        rs.getRendererManager().submitAll();
+        rs.renderScene(RenderContextManager.getContext());
     }
 }

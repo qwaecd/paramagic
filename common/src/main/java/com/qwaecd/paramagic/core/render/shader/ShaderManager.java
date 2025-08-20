@@ -1,7 +1,7 @@
 package com.qwaecd.paramagic.core.render.shader;
 
 import com.mojang.blaze3d.platform.GlStateManager;
-import com.qwaecd.paramagic.ParaMagic;
+import com.qwaecd.paramagic.Paramagic;
 import lombok.Getter;
 import lombok.experimental.UtilityClass;
 import net.minecraft.client.Minecraft;
@@ -71,7 +71,7 @@ public class ShaderManager {
         if (SHADER_REGISTRY.containsKey(name)) {
             return SHADER_REGISTRY.get(name);
         }
-        ParaMagic.LOG.warn("Shader {} not found, returning default position color shader", name);
+        Paramagic.LOG.warn("Shader {} not found, returning default position color shader", name);
         return positionColorShader;
     }
 
@@ -86,7 +86,7 @@ public class ShaderManager {
         ResourceManager resourceManager = Minecraft.getInstance().getResourceManager();
         ResourceLocation location =
                 new ResourceLocation(
-                        ParaMagic.MOD_ID,
+                        Paramagic.MOD_ID,
                         "shaders/" + path + name + type.extension
                 );
         Optional<Resource> resource = resourceManager.getResource(location);
@@ -108,10 +108,10 @@ public class ShaderManager {
                 String msg = StringUtils.trim(glGetShaderInfoLog(shaderId, 32768));
                 throw new IOException("Couldn't compile " + type.name + " program {" + name + "} : " + msg);
             }
-            ParaMagic.LOG.debug("Fuck shader {} compiled successfully", name);
+            Paramagic.LOG.debug("Fuck shader {} compiled successfully", name);
             return shaderId;
         } catch (IOException e){
-            ParaMagic.LOG.error("Shader compilation error", e);
+            Paramagic.LOG.error("Shader compilation error", e);
         }
         throw new RuntimeException("Failed to load shader: " + location);
     }

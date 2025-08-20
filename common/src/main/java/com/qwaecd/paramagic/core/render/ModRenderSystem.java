@@ -1,6 +1,7 @@
 package com.qwaecd.paramagic.core.render;
 
-import com.qwaecd.paramagic.ParaMagic;
+import com.qwaecd.paramagic.Paramagic;
+import com.qwaecd.paramagic.client.render.RendererManager;
 import com.qwaecd.paramagic.client.renderbase.BaseObjectManager;
 import com.qwaecd.paramagic.client.renderbase.factory.FullScreenQuadFactory;
 import com.qwaecd.paramagic.core.render.context.RenderContext;
@@ -17,12 +18,12 @@ import com.qwaecd.paramagic.core.render.state.RenderState;
 import com.qwaecd.paramagic.core.render.texture.AbstractMaterial;
 import com.qwaecd.paramagic.core.render.things.IPoseStack;
 import com.qwaecd.paramagic.core.render.vertex.Mesh;
-import com.qwaecd.paramagic.feature.MagicNode;
+import lombok.Getter;
 import net.minecraft.client.Minecraft;
 import org.joml.Matrix4f;
 import org.joml.Vector3d;
-import java.util.ArrayList;
-import java.util.List;
+
+import java.util.*;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import static org.lwjgl.opengl.GL33.*;
@@ -35,17 +36,22 @@ public class ModRenderSystem extends AbstractRenderSystem{
     private final GLStateCache stateCache = new GLStateCache();
 
     private final List<IRenderable> scene = new ArrayList<>();
+    private final Set<IRenderable> sceneSet = new HashSet<>();
     private final ConcurrentLinkedQueue<IRenderable> pendingAdd = new ConcurrentLinkedQueue<>();
     private final ConcurrentLinkedQueue<IRenderable> pendingRemove = new ConcurrentLinkedQueue<>();
+    private final ConcurrentLinkedQueue<Collection<IRenderable>> pendingBatchRemove = new ConcurrentLinkedQueue<>();
 
     private SceneMRTFramebuffer mainFbo;
     private PostProcessingManager postProcessingManager;
     private Mesh fullscreenQuad;
 
+    @Getter
+    private RendererManager rendererManager;
+
     private final Matrix4f reusableMatrix = new Matrix4f();
 
     private ModRenderSystem() {
-        ParaMagic.LOG.info("ModRenderSystem instance created.");
+        Paramagic.LOG.info("ModRenderSystem instance created.");
     }
 
     public static ModRenderSystem getInstance() {
@@ -67,9 +73,11 @@ public class ModRenderSystem extends AbstractRenderSystem{
     public static void initAfterClientStarted() {
         ShaderManager.init();
         BaseObjectManager.init();
-        ModRenderSystem.getInstance().initializePostProcessing();
-        ModRenderSystem.getInstance().fullscreenQuad = FullScreenQuadFactory.createFullscreenQuad();
-        ParaMagic.LOG.info("Render system initialized.");
+        ModRenderSystem instance = ModRenderSystem.getInstance();
+        instance.initializePostProcessing();
+        instance.fullscreenQuad = FullScreenQuadFactory.createFullscreenQuad();
+        instance.rendererManager = new RendererManager();
+        Paramagic.LOG.info("Render system initialized.");
     }
 
     private void initializePostProcessing() {
@@ -196,22 +204,45 @@ public class ModRenderSystem extends AbstractRenderSystem{
         this.pendingAdd.add(renderable);
     }
 
+    /**
+     * this method is expensive, use with caution.<p>
+     * 该方法开销很大，谨慎使用。
+     * @param renderable the renderable object to remove.
+     * @see #removeRenderables(Collection)
+     * */
+    @Deprecated(forRemoval = false)
     public void removeRenderable(IRenderable renderable) {
         this.pendingRemove.add(renderable);
     }
 
+    public void removeRenderables(Collection<IRenderable> renderables) {
+        if (renderables != null && !renderables.isEmpty()) {
+            this.pendingBatchRemove.add(renderables);
+        }
+    }
+
     public void clearAll() {
         this.scene.clear();
+        this.sceneSet.clear();
         this.pendingAdd.clear();
         this.pendingRemove.clear();
+        this.pendingBatchRemove.clear();
         this.renderQueue.clear();
     }
 
     private void updateScene() {
         IRenderable obj;
         while ((obj = pendingAdd.poll()) != null) {
-            scene.add(obj);
+            if (sceneSet.add(obj)) {
+                scene.add(obj);
+            }
         }
+        Collection<IRenderable> batchToRemove;
+        while ((batchToRemove = pendingBatchRemove.poll()) != null) {
+            sceneSet.removeAll(batchToRemove);
+            scene.removeAll(batchToRemove);
+        }
+
         while ((obj = pendingRemove.poll()) != null) {
             scene.remove(obj);
         }
