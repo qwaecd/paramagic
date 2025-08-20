@@ -17,6 +17,7 @@ import com.qwaecd.paramagic.core.render.state.RenderState;
 import com.qwaecd.paramagic.core.render.texture.AbstractMaterial;
 import com.qwaecd.paramagic.core.render.things.IPoseStack;
 import com.qwaecd.paramagic.core.render.vertex.Mesh;
+import com.qwaecd.paramagic.feature.MagicNode;
 import net.minecraft.client.Minecraft;
 import org.joml.Matrix4f;
 import org.joml.Vector3d;
@@ -159,11 +160,15 @@ public class ModRenderSystem extends AbstractRenderSystem{
         IPoseStack poseStack = context.getPoseStack();
 
         Vector3d cameraPos = context.getCamera().position();
-        Matrix4f worldModelMatrix = renderable.getTransform().getModelMatrix();
+        Matrix4f worldModelMatrix = renderable.getPrecomputedWorldTransform()
+                .orElseGet(
+                () -> renderable.getTransform().getModelMatrix()
+            );
+
         Matrix4f relativeModelMatrix = reusableMatrix.set(worldModelMatrix);
-        float relativeX = (float) (worldModelMatrix.m30() -  cameraPos.x);
-        float relativeY = (float) (worldModelMatrix.m31() -  cameraPos.y);
-        float relativeZ = (float) (worldModelMatrix.m32() -  cameraPos.z);
+        float relativeX = (float) (worldModelMatrix.m30() - cameraPos.x);
+        float relativeY = (float) (worldModelMatrix.m31() - cameraPos.y);
+        float relativeZ = (float) (worldModelMatrix.m32() - cameraPos.z);
         relativeModelMatrix.setTranslation(relativeX, relativeY, relativeZ);
 
         Matrix4f projectionMatrix = context.getProjectionMatrix();
