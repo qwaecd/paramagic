@@ -37,8 +37,9 @@ public class DebugTools {
 //        ModRenderSystem.getInstance().addRenderable(ball);
 
         IRenderable sun = new Sun(ShaderManager.getShader("sun"));
+        sun.getMaterial();
         sun.getTransform().setPosition(0, 80, 10).setScale(5.0f, 5.0f, 5.0f);
-//        ModRenderSystem.getInstance().addRenderable(sun);
+        ModRenderSystem.getInstance().addRenderable(sun);
     }
 
     private static void tooManyMagicCircles() {

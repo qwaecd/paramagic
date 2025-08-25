@@ -183,7 +183,7 @@ public class ModRenderSystem extends AbstractRenderSystem{
         Matrix4f view = poseStack.getLastPose().pose();
 
         AbstractMaterial material = renderable.getMaterial();
-
+        // TODO: 使用 UBO 优化同一帧多次设置相同的投影矩阵和视图矩阵。暂不紧急。
         material.applyBaseUniforms(projectionMatrix, view, relativeModelMatrix, timeSeconds);
         material.applyUniforms();
         renderable.getMesh().draw();

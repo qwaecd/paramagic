@@ -1,14 +1,13 @@
 package com.qwaecd.paramagic.client.material;
 
 import com.qwaecd.paramagic.core.render.EmissiveProvider;
+import com.qwaecd.paramagic.core.render.EmissiveMutable;
 import com.qwaecd.paramagic.core.render.queue.RenderType;
 import com.qwaecd.paramagic.core.render.shader.Shader;
-import lombok.Setter;
 import org.joml.Vector3f;
 
-public class EmissiveMagicMaterial extends MagicCircleMaterial implements EmissiveProvider {
+public class EmissiveMagicMaterial extends MagicCircleMaterial implements EmissiveProvider, EmissiveMutable {
     private final Vector3f emissiveColor = new Vector3f(0.2f, 0.3f, 0.5f);
-    @Setter
     private float emissiveIntensity = 5.0f;
 
     public EmissiveMagicMaterial(Shader shader) {
@@ -25,6 +24,11 @@ public class EmissiveMagicMaterial extends MagicCircleMaterial implements Emissi
 
     public void setEmissiveColor(float r, float g, float b) {
         this.emissiveColor.set(r, g, b);
+    }
+
+    @Override
+    public void setEmissiveIntensity(float intensity) {
+        this.emissiveIntensity = intensity;
     }
 
     @Override
