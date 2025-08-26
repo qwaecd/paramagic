@@ -112,7 +112,7 @@ public class MaterialEffects {
 
     /**
      * Fluent API support: Set emissive color.
-     * 链式调用支持：设置发光���色
+     * 链式调用支持：设置发光颜色
      */
     public MaterialEffects withEmissiveColor(float r, float g, float b) {
         setEmissiveColor(r, g, b);

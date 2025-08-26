@@ -11,6 +11,9 @@ public class MagicCircle extends MagicNode {
 
     @Override
     public void addChild(MagicNode child) {
+        if (child == null) {
+            throw new IllegalArgumentException("MagicNode cannot be null.");
+        }
         if (child instanceof MagicCircle) {
             throw new IllegalArgumentException("Cannot add a MagicCircle as a child to another MagicCircle.");
         }

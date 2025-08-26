@@ -8,10 +8,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Also can be called MagicCircleComponentData.
+ * Also can be called MagicCircleComponentData. Base class for all magic circle element components.
  * <p>
- * 也可以叫 MagicCircleComponentData.
- * */
+ * 也可以叫 MagicCircleComponentData，是所有法阵元素组件的基类.
+ */
 public abstract class ParaComponentData {
     public final String componentId;
     public final List<ParaComponentData> children;
