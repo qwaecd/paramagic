@@ -23,7 +23,7 @@ public class MagicNode implements IRenderable {
     @Getter
     private MagicNode parent = null;
 
-    public MagicNode(Mesh mesh,AbstractMaterial material) {
+    public MagicNode(Mesh mesh, AbstractMaterial material) {
         this.mesh = mesh;
         this.material = material;
         this.children = new ArrayList<>();

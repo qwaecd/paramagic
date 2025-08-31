@@ -13,7 +13,7 @@ import java.util.Optional;
  * ParaConverter注册表，管理ParaComponentData类型与其转换器之间的映射关系。
  */
 public class ParaConverterRegistry {
-    private final Map<Class<? extends ParaComponentData>, ParaConverter<?>> converterRegistry;
+    private final Map<Class<? extends ParaComponentData>, ParaComponentConverter<?>> converterRegistry;
 
     public ParaConverterRegistry() {
         this.converterRegistry = new HashMap<>();
@@ -33,7 +33,7 @@ public class ParaConverterRegistry {
      * @param <T> The type of ParaComponentData handled by the converter.<br> 该转换器处理的ParaComponentData类型。
      * @see ParaComponentData
      */
-    public <T extends ParaComponentData> void register(ParaConverter<T> converter) {
+    public <T extends ParaComponentData> void register(ParaComponentConverter<T> converter) {
         this.converterRegistry.put(converter.getDataType(), converter);
     }
 
@@ -45,9 +45,9 @@ public class ParaConverterRegistry {
      * @return The corresponding converter, or Optional.empty() if not found.<br> 对应的转换器，如果未找到则返回Optional.empty()。
      */
     @SuppressWarnings("unchecked")
-    public <T extends ParaComponentData> Optional<ParaConverter<T>> getConverter(Class<T> dataType) {
-        ParaConverter<?> converter = this.converterRegistry.get(dataType);
-        return Optional.ofNullable((ParaConverter<T>) converter);
+    public <T extends ParaComponentData> Optional<ParaComponentConverter<T>> getConverter(Class<T> dataType) {
+        ParaComponentConverter<?> converter = this.converterRegistry.get(dataType);
+        return Optional.ofNullable((ParaComponentConverter<T>) converter);
     }
 
     /**
@@ -57,7 +57,7 @@ public class ParaConverterRegistry {
      * @param data The ParaComponentData instance.<br> ParaComponentData实例。
      * @return The corresponding converter, or Optional.empty() if not found.<br> 对应的转换器，如果未找到则返回Optional.empty()。
      */
-    public Optional<ParaConverter<? extends ParaComponentData>> getConverter(ParaComponentData data) {
+    public Optional<ParaComponentConverter<? extends ParaComponentData>> getConverter(ParaComponentData data) {
         return Optional.ofNullable(this.converterRegistry.get(data.getClass()));
     }
 

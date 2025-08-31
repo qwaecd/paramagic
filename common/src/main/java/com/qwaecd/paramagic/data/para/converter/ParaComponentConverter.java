@@ -10,7 +10,7 @@ import com.qwaecd.paramagic.feature.MagicNode;
  * @param <T> The specific subtype of ParaComponentData.<br>
  *            具体的ParaComponentData子类型。
  */
-public interface ParaConverter<T extends ParaComponentData> {
+public interface ParaComponentConverter<T extends ParaComponentData> {
 
     /**
      * Converts the specified ParaComponentData to a MagicNode.<br>
