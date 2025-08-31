@@ -1,8 +1,6 @@
 package com.qwaecd.paramagic.data.para.converter;
 
 import com.qwaecd.paramagic.data.para.ParaComponentData;
-import com.qwaecd.paramagic.data.para.converter.impl.RingParaConverter;
-import com.qwaecd.paramagic.data.para.converter.impl.VoidParaConverter;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -17,13 +15,9 @@ public class ParaConverterRegistry {
 
     public ParaConverterRegistry() {
         this.converterRegistry = new HashMap<>();
-        registerDefaultConversions();
     }
 
-    private void registerDefaultConversions() {
-         register(new VoidParaConverter());
-         register(new RingParaConverter());
-    }
+
 
     /**
      * Registers a ParaConverter for a specific ParaComponentData type.<br>

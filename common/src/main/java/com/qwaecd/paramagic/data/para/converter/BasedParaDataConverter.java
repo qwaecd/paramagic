@@ -1,12 +1,11 @@
-package com.qwaecd.paramagic.data.para.converter.impl;
+package com.qwaecd.paramagic.data.para.converter;
 
 import com.qwaecd.paramagic.Paramagic;
 import com.qwaecd.paramagic.data.para.ParaComponentData;
 import com.qwaecd.paramagic.data.para.ParaData;
-import com.qwaecd.paramagic.data.para.converter.ConversionException;
-import com.qwaecd.paramagic.data.para.converter.ParaComponentConverter;
-import com.qwaecd.paramagic.data.para.converter.ParaConverterRegistry;
-import com.qwaecd.paramagic.data.para.converter.ParaDataConverter;
+import com.qwaecd.paramagic.data.para.converter.impl.RingParaConverter;
+import com.qwaecd.paramagic.data.para.converter.impl.VoidParaConverter;
+import com.qwaecd.paramagic.data.para.converter.parafactory.ParaAssetFactory;
 import com.qwaecd.paramagic.feature.MagicCircle;
 import com.qwaecd.paramagic.feature.MagicNode;
 import lombok.Getter;
@@ -18,9 +17,12 @@ import java.util.Optional;
 public class BasedParaDataConverter implements ParaDataConverter {
     @Getter
     private final ParaConverterRegistry converterRegistry;
+    private final ParaAssetFactory assetFactory;
 
     public BasedParaDataConverter() {
         this.converterRegistry = new ParaConverterRegistry();
+        this.assetFactory = new ParaAssetFactory();
+        registerAllConversions();
     }
 
     /**
@@ -29,6 +31,13 @@ public class BasedParaDataConverter implements ParaDataConverter {
      */
     public BasedParaDataConverter(ParaConverterRegistry registry) {
         this.converterRegistry = registry;
+        this.assetFactory = new ParaAssetFactory();
+        registerAllConversions();
+    }
+
+    private void registerAllConversions() {
+        this.converterRegistry.register(new VoidParaConverter(this.assetFactory));
+        this.converterRegistry.register(new RingParaConverter(this.assetFactory));
     }
     @Override
     public MagicCircle convert(ParaData paraData) throws ConversionException {
