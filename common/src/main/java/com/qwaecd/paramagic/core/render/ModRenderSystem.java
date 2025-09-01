@@ -139,6 +139,7 @@ public class ModRenderSystem extends AbstractRenderSystem{
         glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
+        // TODO: 将时间变量重构至动画系统内
         float timeSeconds = (System.currentTimeMillis() & 0x3fffffff) / 1000.0f;
         renderQueue.gather(scene, context.getCamera().position());
         renderQueue.sortForDraw();
