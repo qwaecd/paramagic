@@ -1,4 +1,4 @@
-package com.qwaecd.paramagic.data.para.mesh;
+package com.qwaecd.paramagic.core.para.mesh;
 
 
 public class ParaMeshProvider {

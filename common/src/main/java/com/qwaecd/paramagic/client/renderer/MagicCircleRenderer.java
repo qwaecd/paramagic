@@ -1,4 +1,4 @@
-package com.qwaecd.paramagic.client.render;
+package com.qwaecd.paramagic.client.renderer;
 
 import com.qwaecd.paramagic.core.render.IRenderable;
 import com.qwaecd.paramagic.core.render.ModRenderSystem;

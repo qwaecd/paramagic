@@ -1,6 +1,6 @@
 package com.qwaecd.paramagic.feature;
 
-import com.qwaecd.paramagic.client.render.MagicCircleRenderer;
+import com.qwaecd.paramagic.client.renderer.MagicCircleRenderer;
 import com.qwaecd.paramagic.core.render.IRenderable;
 import com.qwaecd.paramagic.core.render.ModRenderSystem;
 import org.joml.Matrix4f;

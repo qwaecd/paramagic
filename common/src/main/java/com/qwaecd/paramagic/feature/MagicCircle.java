@@ -1,7 +1,7 @@
 package com.qwaecd.paramagic.feature;
 
 
-import com.qwaecd.paramagic.client.render.MagicCircleRenderer;
+import com.qwaecd.paramagic.client.renderer.MagicCircleRenderer;
 import org.joml.Matrix4f;
 
 import java.util.*;
