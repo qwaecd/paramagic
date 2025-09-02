@@ -4,7 +4,7 @@ import com.qwaecd.paramagic.data.para.ParaData;
 import com.qwaecd.paramagic.feature.MagicCircle;
 
 public class ParaConverters {
-    private static final BasedParaDataConverter DEFAULT_CONVERTER = new BasedParaDataConverter();
+    private static final MainParaDataConverter DEFAULT_CONVERTER = new MainParaDataConverter();
     public static ParaConverterRegistry getRegistry() {
         return DEFAULT_CONVERTER.getConverterRegistry();
     }

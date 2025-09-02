@@ -14,12 +14,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-public class BasedParaDataConverter implements ParaDataConverter {
+public class MainParaDataConverter implements ParaDataConverter {
     @Getter
     private final ParaConverterRegistry converterRegistry;
     private final ParaAssetFactory assetFactory;
 
-    public BasedParaDataConverter() {
+    public MainParaDataConverter() {
         this.converterRegistry = new ParaConverterRegistry();
         this.assetFactory = new ParaAssetFactory();
         registerAllConversions();
@@ -29,7 +29,7 @@ public class BasedParaDataConverter implements ParaDataConverter {
      * Constructor with custom registry (for testing or customization).<br>
      * 使用自定义注册表的构造函数（用于测试或定制）。
      */
-    public BasedParaDataConverter(ParaConverterRegistry registry) {
+    public MainParaDataConverter(ParaConverterRegistry registry) {
         this.converterRegistry = registry;
         this.assetFactory = new ParaAssetFactory();
         registerAllConversions();
