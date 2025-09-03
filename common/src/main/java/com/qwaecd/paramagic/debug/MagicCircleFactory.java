@@ -41,7 +41,7 @@ public class MagicCircleFactory {
         Mesh mesh = new Mesh(GL_TRIANGLES);
         mesh.uploadAndConfigure(buf, layout, GL_STATIC_DRAW);
 
-        AbstractMaterial mat = new MagicCircleMaterial(ShaderManager.getInstance().getMagicCircleShader(), maskTexture)
+        AbstractMaterial mat = new MagicCircleMaterial(ShaderManager.getInstance().getDebugMagicCircleShader(), maskTexture)
                 .setIntensity(1.2f)
                 .setPulse(0.8f, 0.2f)
                 .setSweep(0.2f, 0.06f)

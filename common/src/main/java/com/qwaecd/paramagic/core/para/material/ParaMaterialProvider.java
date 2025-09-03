@@ -9,6 +9,6 @@ public class ParaMaterialProvider {
 
     public ParaMaterialProvider() {
         // TODO: 实现具体的Shader
-        this.ringMaterial = new RingMaterial(ShaderManager.getInstance().getShaderThrowIfNotFound(""));
+        this.ringMaterial = new RingMaterial(ShaderManager.getInstance().getShaderThrowIfNotFound("position_color"));
     }
 }

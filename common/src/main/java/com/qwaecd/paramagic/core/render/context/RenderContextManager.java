@@ -25,6 +25,7 @@ public class RenderContextManager {
      * @param context The render context to use.
      * @param code    The code to execute.
      */
+    @Deprecated
     public static void withContext(RenderContext context, Runnable code) {
         try {
             setContext(context);
@@ -42,6 +43,7 @@ public class RenderContextManager {
      * @param code    The code to execute.
      * @return The value returned by the code.
      */
+    @Deprecated
     public static <T> T withContext(RenderContext context, Supplier<T> code) {
         try {
             setContext(context);
