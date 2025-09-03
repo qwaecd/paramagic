@@ -19,25 +19,38 @@ import static org.lwjgl.opengl.GL20.glGetShaderInfoLog;
 
 public class ShaderTools {
     public static int loadShaderProgram(String path, String name, ShaderManager.ShaderType type) {
-        ResourceManager resourceManager = Minecraft.getInstance().getResourceManager();
-        ResourceLocation location =
-                new ResourceLocation(
-                        Paramagic.MOD_ID,
-                        "shaders/" + path + name + type.getExtension()
-                );
-        Optional<Resource> resource = resourceManager.getResource(location);
+        ResourceLocation location = createResourceLocation(path, name, type);
         int shaderId = glCreateShader(type.getGlType());
-        boolean fileIsPresent = true;
+        boolean fileIsPresent = loadShaderSource(location, shaderId);
+        return compileAndValidateShader(shaderId, location, name, type, fileIsPresent);
+    }
+
+    private static ResourceLocation createResourceLocation(String path, String name, ShaderManager.ShaderType type) {
+        return new ResourceLocation(
+                Paramagic.MOD_ID,
+                "shaders/" + path + name + type.getExtension()
+        );
+    }
+
+    private static boolean loadShaderSource(ResourceLocation location, int shaderId) {
+        ResourceManager resourceManager = Minecraft.getInstance().getResourceManager();
+        Optional<Resource> resource = resourceManager.getResource(location);
+
         if (resource.isPresent()) {
             try (var inputStream = resource.get().open()) {
                 String shaderData = new String(inputStream.readAllBytes());
                 GlStateManager.glShaderSource(shaderId, List.of(shaderData));
+                return true;
             } catch (Exception e) {
                 throw new RuntimeException("Failed to load shader: " + location, e);
             }
         } else {
-            fileIsPresent = false;
+            return false;
         }
+    }
+
+    private static int compileAndValidateShader(int shaderId, ResourceLocation location, String name,
+                                              ShaderManager.ShaderType type, boolean fileIsPresent) {
         try {
             glCompileShader(shaderId);
             if (glGetShaderi(shaderId, GL_COMPILE_STATUS) == 0 || !fileIsPresent) {
@@ -46,7 +59,7 @@ public class ShaderTools {
             }
             Paramagic.LOG.debug("Fuck shader {} compiled successfully", name);
             return shaderId;
-        } catch (IOException e){
+        } catch (IOException e) {
             Paramagic.LOG.error("Shader compilation error", e);
         }
         throw new RuntimeException("Failed to load shader: " + location);
