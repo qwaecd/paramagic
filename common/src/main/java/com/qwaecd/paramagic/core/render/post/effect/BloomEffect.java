@@ -20,8 +20,8 @@ public class BloomEffect implements IPostProcessingEffect {
     private final int blurPasses = 4;
     @Override
     public void initialize(int width, int height) {
-        this.blurShader = ShaderManager.getShaderThrowIfNotFound("blur");
-        this.bloomCompositeShader = ShaderManager.getShaderThrowIfNotFound("bloom_composite");
+        this.blurShader = ShaderManager.getInstance().getShaderThrowIfNotFound("blur");
+        this.bloomCompositeShader = ShaderManager.getInstance().getShaderThrowIfNotFound("bloom_composite");
         this.fullscreenQuad = FullScreenQuadFactory.createFullscreenQuad();
         internalPingPongFbo = new SingleTargetFramebuffer(16, 16);
         blurMipChain = new SingleTargetFramebuffer[blurPasses];

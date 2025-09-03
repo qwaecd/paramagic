@@ -12,7 +12,7 @@ public class CompositePass implements AutoCloseable {
     private Shader compositeShader;
     private Mesh fullscreenQuad;
     public void initialize() {
-        this.compositeShader = ShaderManager.getCompositeShader();
+        this.compositeShader = ShaderManager.getInstance().getCompositeShader();
         this.fullscreenQuad = FullScreenQuadFactory.createFullscreenQuad();
     }
 

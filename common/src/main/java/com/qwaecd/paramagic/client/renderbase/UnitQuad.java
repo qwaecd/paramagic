@@ -16,7 +16,7 @@ public class UnitQuad implements IRenderable {
 
     public UnitQuad() {
         this.prototype = UnitQuadPrototype.getINSTANCE();
-        this.material = new Material(ShaderManager.getPositionColorShader());
+        this.material = new Material(ShaderManager.getInstance().getPositionColorShader());
         this.transform = new Transform();
     }
 

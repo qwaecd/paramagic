@@ -113,7 +113,7 @@ public class ModRenderSystem extends AbstractRenderSystem{
         glDisable(GL_DEPTH_TEST);
         glDepthMask(false);
 
-        Shader finalBlitShader = ShaderManager.getShader("final_blit");
+        Shader finalBlitShader = ShaderManager.getInstance().getShader("final_blit");
         finalBlitShader.bind();
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, finalSceneTexture);

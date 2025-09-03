@@ -16,7 +16,7 @@ public class Sphere implements IRenderable {
 
     public Sphere() {
         this.prototype = SpherePrototype.getINSTANCE();
-        this.material = new Material(ShaderManager.getPositionColorShader());
+        this.material = new Material(ShaderManager.getInstance().getPositionColorShader());
         this.transform = new Transform();
     }
 

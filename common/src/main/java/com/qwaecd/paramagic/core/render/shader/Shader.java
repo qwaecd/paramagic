@@ -1,10 +1,12 @@
 package com.qwaecd.paramagic.core.render.shader;
 
+import com.qwaecd.paramagic.tools.ShaderTools;
 import lombok.Getter;
 import org.joml.Matrix4f;
 import org.lwjgl.BufferUtils;
 
 import java.nio.FloatBuffer;
+import java.util.Optional;
 
 import static org.lwjgl.opengl.GL33.*;
 
@@ -22,8 +24,8 @@ public class Shader {
     public Shader(String path, String name) {
         this.name = name;
         this.path = path;
-        int v = ShaderManager.loadShaderProgram(path, name, ShaderManager.ShaderType.VERTEX);
-        int f = ShaderManager.loadShaderProgram(path, name, ShaderManager.ShaderType.FRAGMENT);
+        int v = ShaderTools.loadShaderProgram(path, name, ShaderManager.ShaderType.VERTEX);
+        int f = ShaderTools.loadShaderProgram(path, name, ShaderManager.ShaderType.FRAGMENT);
         this.programId = glCreateProgram();
         glAttachShader(programId, v);
         glAttachShader(programId, f);

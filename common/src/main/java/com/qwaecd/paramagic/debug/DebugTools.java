@@ -31,12 +31,12 @@ public class DebugTools {
         tooManyMagicCircles();
         IRenderable ball;
         SphereFactory sphereFactory = new SphereFactory();
-        Material material = new Material(ShaderManager.getBaseBallInShader());
+        Material material = new Material(ShaderManager.getInstance().getBaseBallInShader());
         ball = sphereFactory.withMaterial(material).createInstance();
         ball.getTransform().getModelMatrix().translate(0, 100, 0).scale(4.0f, 4.0f, 4.0f);
 //        ModRenderSystem.getInstance().addRenderable(ball);
 
-        IRenderable sun = new Sun(ShaderManager.getShader("sun"));
+        IRenderable sun = new Sun(ShaderManager.getInstance().getShader("sun"));
         sun.getTransform().setPosition(0, 80, 10).setScale(5.0f, 5.0f, 5.0f);
         ModRenderSystem.getInstance().addRenderable(sun);
     }
@@ -47,7 +47,7 @@ public class DebugTools {
 
         // 主法阵 - 最大的底层法阵
         obj = factory
-                .withMaterial(new EmissiveMagicMaterial(ShaderManager.getShaderThrowIfNotFound("emissive_magic")))
+                .withMaterial(new EmissiveMagicMaterial(ShaderManager.getInstance().getShaderThrowIfNotFound("emissive_magic")))
                 .createInstance();
         obj.getTransform().getModelMatrix().translate(20, 200, 0).scale(20.0f, 20.0f, 20.0f).rotateY((float)Math.toRadians(45));
         ModRenderSystem.getInstance().addRenderable(obj);
@@ -192,7 +192,7 @@ public class DebugTools {
                 .buildBuffer(layout);
         mesh.uploadAndConfigure(data, layout, GL_STATIC_DRAW);
 
-        AbstractMaterial material = new Material(ShaderManager.getPositionColorShader());
+        AbstractMaterial material = new Material(ShaderManager.getInstance().getPositionColorShader());
 
         TestObj testObj = new TestObj(mesh, material);
         testObj.getTransform()
@@ -220,7 +220,7 @@ public class DebugTools {
 
         mesh.uploadAndConfigure(data, layout, GL_STATIC_DRAW);
 
-        AbstractMaterial material = new Material(ShaderManager.getMagicRingShader());
+        AbstractMaterial material = new Material(ShaderManager.getInstance().getMagicRingShader());
 
         TestObj obj = new TestObj(mesh, material);
         obj.getTransform().setPosition(0, 0, 0);
@@ -250,7 +250,7 @@ public class DebugTools {
 
         mesh.uploadAndConfigure(vertices, layout, GL_STATIC_DRAW, indices, GL_STATIC_DRAW);
 
-        AbstractMaterial material = new Material(ShaderManager.getMagicRingShader());
+        AbstractMaterial material = new Material(ShaderManager.getInstance().getMagicRingShader());
         TestObj obj = new TestObj(mesh, material);
         obj.getTransform().setPosition(0, 0, 0);
 
