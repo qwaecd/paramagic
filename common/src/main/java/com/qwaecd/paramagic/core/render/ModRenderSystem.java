@@ -18,6 +18,7 @@ import com.qwaecd.paramagic.core.render.state.RenderState;
 import com.qwaecd.paramagic.core.render.texture.AbstractMaterial;
 import com.qwaecd.paramagic.core.render.things.IPoseStack;
 import com.qwaecd.paramagic.core.render.vertex.Mesh;
+import com.qwaecd.paramagic.data.para.converter.ParaConverters;
 import lombok.Getter;
 import net.minecraft.client.Minecraft;
 import org.joml.Matrix4f;
@@ -73,6 +74,7 @@ public class ModRenderSystem extends AbstractRenderSystem{
     public static void initAfterClientStarted() {
         ShaderManager.init();
         BaseObjectManager.init();
+        ParaConverters.init();
         ModRenderSystem instance = ModRenderSystem.getInstance();
         instance.initializePostProcessing();
         instance.fullscreenQuad = FullScreenQuadFactory.createFullscreenQuad();

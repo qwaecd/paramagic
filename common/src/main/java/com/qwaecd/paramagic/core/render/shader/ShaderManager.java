@@ -38,6 +38,7 @@ public class ShaderManager {
         }
         INSTANCE = new ShaderManager();
         INSTANCE.loadShaders();
+        INSTANCE.registerAllShaders();
     }
 
     public static ShaderManager getInstance() {
@@ -55,6 +56,8 @@ public class ShaderManager {
         MagicCircleShader = new Shader("debug/","magic_circle");
         compositeShader = new Shader("post/", "full_screen");
         emissiveMagicShader = new Shader("magic/emissive/", "emissive_magic_circle");
+    }
+    private void registerAllShaders() {
         register("position_color", positionColorShader);
         register("magic_ring", magicRingShader);
         register("base_ball_in", baseBallInShader);
@@ -84,7 +87,7 @@ public class ShaderManager {
 
     public Shader getShaderThrowIfNotFound(String name) {
         if (!SHADER_REGISTRY.containsKey(name)) {
-            throw new RuntimeException("Shader " + name + " not found in registry.");
+            throw new RuntimeException("Shader {" + name + "} not found in registry.");
         }
         return SHADER_REGISTRY.get(name);
     }

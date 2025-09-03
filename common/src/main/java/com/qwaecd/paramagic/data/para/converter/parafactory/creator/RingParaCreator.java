@@ -18,7 +18,6 @@ public class RingParaCreator implements NodeCreator<RingParaData> {
     }
     @Override
     public MagicNode create(RingParaData data) {
-        // TODO: 实现环Para的创建逻辑
         Mesh mesh = this.meshProvider.rings().get(data.color, data.innerRadius, data.outerRadius, data.segments);
         AbstractMaterial material = this.materialProvider.getRingMaterial();
         MagicNode magicNode = new MagicNode(mesh, material);
