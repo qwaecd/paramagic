@@ -1,11 +1,11 @@
 package com.qwaecd.paramagic.data.para.converter.parafactory.creator;
 
 import com.qwaecd.paramagic.core.para.material.ParaMaterialProvider;
+import com.qwaecd.paramagic.core.para.mesh.ParaMeshProvider;
 import com.qwaecd.paramagic.core.render.texture.AbstractMaterial;
 import com.qwaecd.paramagic.core.render.vertex.Mesh;
 import com.qwaecd.paramagic.data.para.RingParaData;
 import com.qwaecd.paramagic.data.para.converter.parafactory.NodeCreator;
-import com.qwaecd.paramagic.core.para.mesh.ParaMeshProvider;
 import com.qwaecd.paramagic.feature.MagicNode;
 
 public class RingParaCreator implements NodeCreator<RingParaData> {

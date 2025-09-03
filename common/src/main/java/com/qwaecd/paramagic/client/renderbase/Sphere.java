@@ -5,8 +5,8 @@ import com.qwaecd.paramagic.client.renderbase.prototype.SpherePrototype;
 import com.qwaecd.paramagic.core.render.IRenderable;
 import com.qwaecd.paramagic.core.render.Transform;
 import com.qwaecd.paramagic.core.render.shader.ShaderManager;
-import com.qwaecd.paramagic.core.render.texture.Material;
 import com.qwaecd.paramagic.core.render.texture.AbstractMaterial;
+import com.qwaecd.paramagic.core.render.texture.Material;
 import com.qwaecd.paramagic.core.render.vertex.Mesh;
 
 public class Sphere implements IRenderable {

@@ -1,7 +1,7 @@
 package com.qwaecd.paramagic.core.render.state;
 
-import java.util.Map;
 import java.util.HashMap;
+import java.util.Map;
 
 import static org.lwjgl.opengl.GL33.*;
 

@@ -11,7 +11,7 @@ import java.nio.ShortBuffer;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.lwjgl.opengl.GL33.*;
+import static org.lwjgl.opengl.GL33.GL_STATIC_DRAW;
 
 
 public class RingMeshGenerator {

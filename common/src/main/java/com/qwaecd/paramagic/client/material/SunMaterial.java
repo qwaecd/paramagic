@@ -7,8 +7,6 @@ import com.qwaecd.paramagic.core.render.texture.AbstractMaterial;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
 
-import java.awt.*;
-
 public class SunMaterial extends AbstractMaterial implements EmissiveProvider {
     /**
      * 本体 LDR 颜色，决定本体颜色，分量不应大于 1.0f

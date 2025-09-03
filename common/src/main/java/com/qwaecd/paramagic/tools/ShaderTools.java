@@ -14,8 +14,6 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.lwjgl.opengl.GL20.*;
-import static org.lwjgl.opengl.GL20.GL_COMPILE_STATUS;
-import static org.lwjgl.opengl.GL20.glGetShaderInfoLog;
 
 public class ShaderTools {
     public static int loadShaderProgram(String path, String name, ShaderManager.ShaderType type) {

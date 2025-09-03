@@ -6,6 +6,7 @@ import com.qwaecd.paramagic.core.render.shader.Shader;
 import lombok.Getter;
 import org.joml.Matrix4f;
 import org.joml.Vector4f;
+
 import java.util.Optional;
 
 public abstract class AbstractMaterial implements SupportsRenderType {

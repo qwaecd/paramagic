@@ -6,7 +6,8 @@ import lombok.Getter;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.lwjgl.opengl.GL33.*;
+import static org.lwjgl.opengl.GL33.GL_FRAGMENT_SHADER;
+import static org.lwjgl.opengl.GL33.GL_VERTEX_SHADER;
 
 public class ShaderManager {
     private static ShaderManager INSTANCE;

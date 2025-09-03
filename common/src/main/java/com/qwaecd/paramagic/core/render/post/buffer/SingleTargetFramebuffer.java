@@ -1,9 +1,9 @@
 package com.qwaecd.paramagic.core.render.post.buffer;
 
 import lombok.Getter;
+import org.lwjgl.system.MemoryUtil;
 
 import java.nio.ByteBuffer;
-import org.lwjgl.system.MemoryUtil;
 import java.nio.IntBuffer;
 
 import static org.lwjgl.opengl.GL33.*;

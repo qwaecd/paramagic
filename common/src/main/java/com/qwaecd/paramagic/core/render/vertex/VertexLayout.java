@@ -5,7 +5,8 @@ import lombok.Getter;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.lwjgl.opengl.GL33.*;
+import static org.lwjgl.opengl.GL33.glEnableVertexAttribArray;
+import static org.lwjgl.opengl.GL33.glVertexAttribPointer;
 
 public class VertexLayout {
     @Getter

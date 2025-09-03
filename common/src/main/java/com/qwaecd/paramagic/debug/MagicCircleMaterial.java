@@ -1,7 +1,6 @@
 package com.qwaecd.paramagic.debug;
 
 import com.qwaecd.paramagic.core.render.shader.Shader;
-import com.qwaecd.paramagic.core.render.texture.AbstractMaterial;
 import com.qwaecd.paramagic.core.render.texture.Material;
 import com.qwaecd.paramagic.core.render.texture.Texture2D;
 import lombok.Getter;

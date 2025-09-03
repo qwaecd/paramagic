@@ -9,7 +9,6 @@ import lombok.Getter;
 import java.nio.ByteBuffer;
 
 import static org.lwjgl.opengl.GL11.GL_FLOAT;
-import static org.lwjgl.opengl.GL11.GL_UNSIGNED_BYTE;
 import static org.lwjgl.opengl.GL11C.GL_TRIANGLES;
 import static org.lwjgl.opengl.GL15.GL_STATIC_DRAW;
 

@@ -1,12 +1,12 @@
 package com.qwaecd.paramagic.data.para.converter.parafactory;
 
 import com.qwaecd.paramagic.core.para.material.ParaMaterialProvider;
+import com.qwaecd.paramagic.core.para.mesh.ParaMeshProvider;
 import com.qwaecd.paramagic.data.para.ParaComponentData;
 import com.qwaecd.paramagic.data.para.RingParaData;
 import com.qwaecd.paramagic.data.para.VoidParaData;
 import com.qwaecd.paramagic.data.para.converter.parafactory.creator.RingParaCreator;
 import com.qwaecd.paramagic.data.para.converter.parafactory.creator.VoidParaCreator;
-import com.qwaecd.paramagic.core.para.mesh.ParaMeshProvider;
 import com.qwaecd.paramagic.feature.MagicNode;
 
 import java.util.HashMap;

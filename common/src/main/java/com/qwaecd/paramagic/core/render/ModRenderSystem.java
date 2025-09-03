@@ -1,9 +1,9 @@
 package com.qwaecd.paramagic.core.render;
 
 import com.qwaecd.paramagic.Paramagic;
-import com.qwaecd.paramagic.client.renderer.RendererManager;
 import com.qwaecd.paramagic.client.renderbase.BaseObjectManager;
 import com.qwaecd.paramagic.client.renderbase.factory.FullScreenQuadFactory;
+import com.qwaecd.paramagic.client.renderer.RendererManager;
 import com.qwaecd.paramagic.core.render.context.RenderContext;
 import com.qwaecd.paramagic.core.render.post.PostProcessingManager;
 import com.qwaecd.paramagic.core.render.post.buffer.FramebufferUtils;

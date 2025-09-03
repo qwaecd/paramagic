@@ -2,6 +2,7 @@ package com.qwaecd.paramagic.core.render.post.buffer;
 
 import com.mojang.blaze3d.pipeline.RenderTarget;
 import net.minecraft.client.Minecraft;
+
 import static org.lwjgl.opengl.GL30.*;
 public class FramebufferUtils {
     /**

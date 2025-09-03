@@ -1,15 +1,14 @@
 package com.qwaecd.paramagic.debug;
 
 import com.qwaecd.paramagic.client.material.EmissiveMagicMaterial;
-import com.qwaecd.paramagic.client.material.MagicCircleMaterial;
 import com.qwaecd.paramagic.client.obj.sun.Sun;
 import com.qwaecd.paramagic.client.renderbase.factory.SphereFactory;
 import com.qwaecd.paramagic.client.renderbase.factory.UnitQuadFactory;
 import com.qwaecd.paramagic.core.render.IRenderable;
 import com.qwaecd.paramagic.core.render.ModRenderSystem;
 import com.qwaecd.paramagic.core.render.shader.ShaderManager;
-import com.qwaecd.paramagic.core.render.texture.Material;
 import com.qwaecd.paramagic.core.render.texture.AbstractMaterial;
+import com.qwaecd.paramagic.core.render.texture.Material;
 import com.qwaecd.paramagic.core.render.vertex.Mesh;
 import com.qwaecd.paramagic.core.render.vertex.MeshBuilder;
 import com.qwaecd.paramagic.core.render.vertex.VertexAttribute;
@@ -21,8 +20,6 @@ import java.nio.ByteBuffer;
 import java.nio.ShortBuffer;
 
 import static org.lwjgl.opengl.GL11C.*;
-import static org.lwjgl.opengl.GL11C.GL_FLOAT;
-import static org.lwjgl.opengl.GL11C.GL_TRIANGLES;
 import static org.lwjgl.opengl.GL15C.GL_STATIC_DRAW;
 
 @UtilityClass

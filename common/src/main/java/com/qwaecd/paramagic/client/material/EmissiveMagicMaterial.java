@@ -1,7 +1,7 @@
 package com.qwaecd.paramagic.client.material;
 
-import com.qwaecd.paramagic.core.render.EmissiveProvider;
 import com.qwaecd.paramagic.core.render.EmissiveMutable;
+import com.qwaecd.paramagic.core.render.EmissiveProvider;
 import com.qwaecd.paramagic.core.render.queue.RenderType;
 import com.qwaecd.paramagic.core.render.shader.Shader;
 import org.joml.Vector3f;

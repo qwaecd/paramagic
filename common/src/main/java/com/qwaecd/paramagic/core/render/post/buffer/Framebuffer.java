@@ -3,7 +3,8 @@ package com.qwaecd.paramagic.core.render.post.buffer;
 
 import lombok.Getter;
 
-import static org.lwjgl.opengl.GL33.*;
+import static org.lwjgl.opengl.GL33.glDeleteFramebuffers;
+import static org.lwjgl.opengl.GL33.glGenFramebuffers;
 
 public abstract class Framebuffer implements AutoCloseable {
     @Getter
