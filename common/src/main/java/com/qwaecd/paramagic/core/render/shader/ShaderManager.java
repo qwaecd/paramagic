@@ -1,0 +1,186 @@
+package com.qwaecd.paramagic.core.render.shader;
+
+import com.qwaecd.paramagic.Paramagic;
+import lombok.Getter;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
+import static org.lwjgl.opengl.GL33.GL_FRAGMENT_SHADER;
+import static org.lwjgl.opengl.GL33.GL_VERTEX_SHADER;
+
+public class ShaderManager {
+    private static ShaderManager INSTANCE;
+
+    private static final Map<String, ShaderInfo> SHADER_DEFINITIONS = new ConcurrentHashMap<>();
+
+    private final Map<String, Shader> SHADER_REGISTRY;
+    @Getter
+    private Shader positionColorShader;
+    @Getter
+    private Shader magicRingShader;
+    @Getter
+    private Shader baseBallInShader;
+    @Getter
+    private Shader baseBallOutShader;
+    @Getter
+    private Shader debugMagicCircleShader;
+    @Getter
+    private Shader compositeShader;
+    @Getter
+    private Shader emissiveMagicShader;
+
+    private ShaderManager() {
+        this.SHADER_REGISTRY = new HashMap<>();
+    }
+    public static void init() {
+        if (INSTANCE != null) {
+            Paramagic.LOG.warn("ShaderManager is already initialized.");
+            return;
+        }
+        INSTANCE = new ShaderManager();
+        INSTANCE.loadRegisteredShaders();
+        INSTANCE.initInstanceShaders();
+    }
+
+    /**
+     * Gets the singleton instance of the ShaderManager.
+     * <p>
+     * 获取 ShaderManager 的单例实例。
+     *
+     * @return The singleton instance of ShaderManager. / ShaderManager 的单例实例。
+     * @throws IllegalStateException if the ShaderManager has not been initialized via {@link #init()}. / 如果 ShaderManager 未通过 {@link #init()} 初始化。
+     */
+    public static ShaderManager getInstance() {
+        if (INSTANCE == null) {
+            throw new IllegalStateException("ShaderManager has not been initialized. Please call init() first.");
+        }
+        return INSTANCE;
+    }
+
+    private void initInstanceShaders() {
+        positionColorShader = getShaderThrowIfNotFound("position_color");
+        magicRingShader     = getShaderThrowIfNotFound("magic_ring");
+        baseBallInShader    = getShaderThrowIfNotFound("base_ball_in");
+        baseBallOutShader   = getShaderThrowIfNotFound("base_ball_out");
+        debugMagicCircleShader = getShaderThrowIfNotFound("debug_magic_circle");
+        compositeShader     = getShaderThrowIfNotFound("composite");
+        emissiveMagicShader = getShaderThrowIfNotFound("emissive_magic");
+    }
+
+    /**
+     * Registers a shader definition with a given name. This method is thread-safe.
+     * If a shader with the same name is already registered, a warning will be logged.
+     * <p>
+     * 使用给定名称注册着色器定义。此方法是线程安全的。
+     * 如果已注册同名着色器，将记录一条警告。
+     *
+     * @param registerName The name to register the shader with. / 注册着色器所用的名称。
+     * @param info         The {@link ShaderInfo} object containing details about the shader. / 包含着色器详细信息的 {@link ShaderInfo} 对象。
+     */
+    public static void registerShaderInfo(String registerName, ShaderInfo info) {
+        if (SHADER_DEFINITIONS.containsKey(registerName)) {
+            Paramagic.LOG.warn("Shader definition for '{}' is being overridden. This may be unintentional.", registerName);
+        }
+        SHADER_DEFINITIONS.put(registerName, info);
+    }
+
+    private void loadRegisteredShaders() {
+        Paramagic.LOG.debug("Loading {} registered shaders...", SHADER_DEFINITIONS.size());
+
+        ShaderInfo defaultInfo = new ShaderInfo("", "position_color");
+        registerShaderInfo("position_color", defaultInfo);
+        for (Map.Entry<String, ShaderInfo> entry : SHADER_DEFINITIONS.entrySet()) {
+            String name = entry.getKey();
+            ShaderInfo info = entry.getValue();
+            try {
+                Shader shader = new Shader(info.path(), info.fileName());
+                SHADER_REGISTRY.put(name, shader);
+                Paramagic.LOG.debug("Successfully loaded shader: {}", name);
+            } catch (Exception e) {
+                Paramagic.LOG.error("Failed to load shader '{}' from path: '{}', name: '{}'", name, info.path(), info.fileName(), e);
+            }
+        }
+        this.positionColorShader = SHADER_REGISTRY.get("position_color");
+        if (this.positionColorShader == null) {
+            throw new IllegalStateException("Failed to load the default {" + defaultInfo.fileName() + "} shader.");
+        }
+    }
+/*    private void loadShaders() {
+        positionColorShader = new Shader("", "position_color");
+        magicRingShader = new Shader("", "magic_ring");
+        baseBallInShader = new Shader("debug/","base_ball_in");
+        baseBallOutShader = new Shader("debug/","base_ball_out");
+        MagicCircleShader = new Shader("debug/","magic_circle");
+        compositeShader = new Shader("post/", "full_screen");
+        emissiveMagicShader = new Shader("magic/emissive/", "emissive_magic_circle");
+    }
+    private void registerAllShaders() {
+        register("position_color", positionColorShader);
+        register("magic_ring", magicRingShader);
+        register("base_ball_in", baseBallInShader);
+        register("base_ball_out", baseBallOutShader);
+        register("debug_magic_circle", MagicCircleShader);
+        register("magic_circle", new Shader("magic/", "magic_circle"));
+        register("composite", compositeShader);
+        register("full_screen", compositeShader);
+        register("blur", new Shader("post/", "blur"));
+        register("final_blit", new Shader("post/", "final_blit"));
+        register("sun", new Shader("", "sun"));
+        register("bloom_composite", new Shader("post/", "bloom_composite"));
+        register("emissive_magic", emissiveMagicShader);
+    }*/
+
+    /**
+     * Retrieves a shader by its registered name.
+     * If the shader is not found, a warning is logged and the default position-color shader is returned.
+     * <p>
+     * 根据注册名称检索着色器。
+     * 如果未找到着色器，将记录一条警告并返回默认的着色器。
+     *
+     * @param registerName The name of the shader to retrieve. / 要检索的着色器的名称。
+     * @return The requested {@link Shader}, or the default shader if not found. / 请求的 {@link Shader}，如果未找到则为默认着色器。
+     */
+    public Shader getShader(String registerName) {
+        if (SHADER_REGISTRY.containsKey(registerName)) {
+            return SHADER_REGISTRY.get(registerName);
+        }
+        Paramagic.LOG.warn("Shader {} not found, returning default position color shader", registerName);
+        return positionColorShader;
+    }
+
+    /**
+     * Retrieves a shader by its registered name, throwing an exception if not found.
+     * <p>
+     * 根据注册名称检索着色器，如果未找到则抛出异常。
+     *
+     * @param registerName The name of the shader to retrieve. / 要检索的着色器的名称。
+     * @return The requested {@link Shader}. / 请求的 {@link Shader}。
+     * @throws RuntimeException if the shader with the given name is not found in the registry. / 如果在注册表中找不到具有给定名称的着色器。
+     */
+    public Shader getShaderThrowIfNotFound(String registerName) {
+        if (!SHADER_REGISTRY.containsKey(registerName)) {
+            throw new RuntimeException("Shader {" + registerName + "} not found in registry.");
+        }
+        return SHADER_REGISTRY.get(registerName);
+    }
+
+    public enum ShaderType {
+        VERTEX("vertex", ".vsh", GL_VERTEX_SHADER),
+        FRAGMENT("fragment", ".fsh", GL_FRAGMENT_SHADER),
+        ;
+        @Getter
+        private final String name;
+        @Getter
+        private final String extension;
+        @Getter
+        private final int glType;
+
+        ShaderType(String name, String extension, int glType) {
+            this.name = name;
+            this.extension = extension;
+            this.glType = glType;
+        }
+    }
+}

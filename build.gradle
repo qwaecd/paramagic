@@ -1,0 +1,27 @@
+plugins {
+    // see https://fabricmc.net/develop/ for new versions
+    id 'fabric-loom' version '1.8-SNAPSHOT' apply false
+    // see https://projects.neoforged.net/neoforged/moddevgradle for new versions
+    id 'net.neoforged.moddev' version '2.0.49-beta' apply false
+}
+
+subprojects {
+    apply plugin: 'java'
+
+    dependencies {
+        compileOnly 'org.projectlombok:lombok:1.18.30'
+        annotationProcessor 'org.projectlombok:lombok:1.18.30'
+
+        implementation 'org.joml:joml:1.10.5'
+    }
+
+    tasks.withType(JavaCompile).configureEach {
+        options.encoding = 'UTF-8'
+    }
+    tasks.withType(Javadoc).configureEach {
+        options.encoding = 'UTF-8'       // 源码与注释读取编码
+        options.docEncoding = 'UTF-8'    // 生成文档文件编码
+        options.charSet = 'UTF-8'        // HTML meta charset
+        options.addStringOption('Xdoclint:none', '-quiet')
+    }
+}
