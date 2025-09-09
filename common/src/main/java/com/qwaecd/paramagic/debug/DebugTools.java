@@ -1,5 +1,6 @@
 package com.qwaecd.paramagic.debug;
 
+import com.qwaecd.paramagic.Paramagic;
 import com.qwaecd.paramagic.client.material.EmissiveMagicMaterial;
 import com.qwaecd.paramagic.client.obj.sun.Sun;
 import com.qwaecd.paramagic.client.renderbase.factory.SphereFactory;
@@ -13,6 +14,14 @@ import com.qwaecd.paramagic.core.render.vertex.Mesh;
 import com.qwaecd.paramagic.core.render.vertex.MeshBuilder;
 import com.qwaecd.paramagic.core.render.vertex.VertexAttribute;
 import com.qwaecd.paramagic.core.render.vertex.VertexLayout;
+import com.qwaecd.paramagic.data.para.ParaData;
+import com.qwaecd.paramagic.data.para.RingParaData;
+import com.qwaecd.paramagic.data.para.VoidParaData;
+import com.qwaecd.paramagic.data.para.converter.ConversionException;
+import com.qwaecd.paramagic.data.para.converter.MainParaDataConverter;
+import com.qwaecd.paramagic.data.para.converter.ParaConverters;
+import com.qwaecd.paramagic.feature.MagicCircle;
+import com.qwaecd.paramagic.feature.MagicCircleManager;
 import lombok.experimental.UtilityClass;
 import org.lwjgl.BufferUtils;
 
@@ -36,6 +45,35 @@ public class DebugTools {
         IRenderable sun = new Sun(ShaderManager.getInstance().getShader("sun"));
         sun.getTransform().setPosition(0, 80, 10).setScale(5.0f, 5.0f, 5.0f);
         ModRenderSystem.getInstance().addRenderable(sun);
+        paraTest();
+    }
+
+    private static void paraTest() {
+        VoidParaData voidPara = new VoidParaData("void_1");
+        voidPara.addChild(new RingParaData(
+                "ring_1",
+                5.0f, 5.2f,
+                64
+        ));
+        RingParaData ring2 = new RingParaData(
+                "ring_2",
+                2.0f, 2.3f,
+                64
+        );
+        ring2.position.set(0, 0.5f, 0);
+        ring2.color.set(0.7f, 0.7f, 0.2f);
+        voidPara.addChild(ring2);
+        ParaData rootParaData = new ParaData(voidPara);
+
+        try {
+            MagicCircle magicCircle = ParaConverters.convert(rootParaData);
+            magicCircle.getTransform()
+                    .setPosition(0 , 100.1f , 0)
+                    .setScale(2.0f, 6.0f, 2.0f);
+            MagicCircleManager.getInstance().addCircle(magicCircle);
+        } catch (ConversionException e) {
+            Paramagic.LOG.error("Para conversion error: ", e);
+        }
     }
 
     private static void tooManyMagicCircles() {

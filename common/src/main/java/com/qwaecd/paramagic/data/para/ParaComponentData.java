@@ -1,5 +1,6 @@
 package com.qwaecd.paramagic.data.para;
 
+import lombok.Getter;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 import org.joml.Vector4f;

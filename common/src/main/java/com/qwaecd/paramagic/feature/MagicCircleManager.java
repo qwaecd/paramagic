@@ -31,6 +31,10 @@ public class MagicCircleManager {
         pendingRemove.add(circle);
     }
 
+    public void removeAllCircles() {
+        pendingRemove.addAll(activeCircles);
+    }
+
     public void drawAll(MagicCircleRenderer renderer) {
         for (MagicCircle circle : activeCircles) {
             circle.draw(WORLD_IDENTITY, renderer);

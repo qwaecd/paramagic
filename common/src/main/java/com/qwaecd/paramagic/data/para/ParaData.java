@@ -5,11 +5,13 @@ import java.util.UUID;
 public class ParaData {
     public final UUID circleUUID;
     public final String schemaVersion = "1.0";
-    public ParaComponentData rootComponent;
-    public ParaData() {
+    public final ParaComponentData rootComponent;
+    public ParaData(ParaComponentData rootComponent) {
+        this.rootComponent = rootComponent;
         this.circleUUID = UUID.randomUUID();
     }
-    public ParaData(UUID uuid) {
+    public ParaData(ParaComponentData rootComponent, UUID uuid) {
+        this.rootComponent = rootComponent;
         this.circleUUID = uuid;
     }
 }

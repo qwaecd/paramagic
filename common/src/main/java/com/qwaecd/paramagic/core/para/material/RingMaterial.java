@@ -16,6 +16,6 @@ public class RingMaterial extends AbstractMaterial {
 
     @Override
     public RenderType getRenderType() {
-        return RenderType.TRANSPARENT;
+        return RenderType.ADDITIVE;
     }
 }

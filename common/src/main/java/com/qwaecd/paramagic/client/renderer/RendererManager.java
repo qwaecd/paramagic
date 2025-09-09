@@ -12,6 +12,8 @@ public class RendererManager {
     }
 
     public void submitAll() {
-        MagicCircleManager.getInstance().drawAll(this.magicCircleRenderer);
+        MagicCircleManager cm = MagicCircleManager.getInstance();
+        cm.update(1.0f);
+        cm.drawAll(this.magicCircleRenderer);
     }
 }
