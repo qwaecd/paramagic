@@ -2,7 +2,7 @@ package com.qwaecd.paramagic.client.render.impl;
 
 import com.qwaecd.paramagic.core.render.context.RenderContext;
 import com.qwaecd.paramagic.core.render.things.ICamera;
-import com.qwaecd.paramagic.core.render.things.IPoseStack;
+import com.qwaecd.paramagic.core.render.things.IMatrixStackProvider;
 import org.joml.Matrix4f;
 
 public class ForgeRenderContext implements RenderContext {
@@ -12,7 +12,7 @@ public class ForgeRenderContext implements RenderContext {
     }
 
     @Override
-    public IPoseStack getPoseStack() {
+    public IMatrixStackProvider getMatrixStackProvider() {
         return null;
     }
 

@@ -16,7 +16,7 @@ import com.qwaecd.paramagic.core.render.state.GLStateCache;
 import com.qwaecd.paramagic.core.render.state.GLStateGuard;
 import com.qwaecd.paramagic.core.render.state.RenderState;
 import com.qwaecd.paramagic.core.render.texture.AbstractMaterial;
-import com.qwaecd.paramagic.core.render.things.IPoseStack;
+import com.qwaecd.paramagic.core.render.things.IMatrixStackProvider;
 import com.qwaecd.paramagic.core.render.vertex.Mesh;
 import com.qwaecd.paramagic.data.para.converter.ParaConverters;
 import lombok.Getter;
@@ -168,7 +168,7 @@ public class ModRenderSystem extends AbstractRenderSystem{
 
 
     private void drawOne(IRenderable renderable, RenderContext context, float timeSeconds) {
-        IPoseStack poseStack = context.getPoseStack();
+        IMatrixStackProvider matrixProvider = context.getMatrixStackProvider();
 
         Vector3d cameraPos = context.getCamera().position();
         Matrix4f worldModelMatrix = renderable.getPrecomputedWorldTransform()
@@ -183,7 +183,7 @@ public class ModRenderSystem extends AbstractRenderSystem{
         relativeModelMatrix.setTranslation(relativeX, relativeY, relativeZ);
 
         Matrix4f projectionMatrix = context.getProjectionMatrix();
-        Matrix4f view = poseStack.getLastPose().pose();
+        Matrix4f view = matrixProvider.getViewMatrix();
 
         AbstractMaterial material = renderable.getMaterial();
         // TODO: 使用 UBO 优化同一帧多次设置相同的投影矩阵和视图矩阵。暂不紧急。
