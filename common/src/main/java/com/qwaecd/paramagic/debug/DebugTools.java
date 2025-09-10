@@ -19,7 +19,6 @@ import com.qwaecd.paramagic.data.para.PolygonParaData;
 import com.qwaecd.paramagic.data.para.RingParaData;
 import com.qwaecd.paramagic.data.para.VoidParaData;
 import com.qwaecd.paramagic.data.para.converter.ConversionException;
-import com.qwaecd.paramagic.data.para.converter.MainParaDataConverter;
 import com.qwaecd.paramagic.data.para.converter.ParaConverters;
 import com.qwaecd.paramagic.feature.MagicCircle;
 import com.qwaecd.paramagic.feature.MagicCircleManager;
