@@ -105,7 +105,7 @@ public class Transform {
      * @return This transform instance for chaining.<br> 返回当前变换对象以支持链式调用。
      */
     public Transform setRotationDegrees(float x, float y, float z) {
-        this.rotation.fromAxisAngleDeg(1, 0, 0, x)
+        this.rotation.identity()
                 .rotateYXZ((float)Math.toRadians(y), (float)Math.toRadians(x), (float)Math.toRadians(z));
         this.isDirty = true;
         return this;
@@ -121,7 +121,8 @@ public class Transform {
      * @return This transform instance for chaining.<br> 返回当前变换对象以支持链式调用。
      */
     public Transform setRotationRadians(float x, float y, float z) {
-        this.rotation.rotateYXZ(y, x, z);
+        this.rotation.identity()
+                .rotateYXZ(y, x, z);
         this.isDirty = true;
         return this;
     }

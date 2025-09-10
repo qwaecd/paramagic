@@ -3,6 +3,7 @@ package com.qwaecd.paramagic.data.para.converter;
 import com.qwaecd.paramagic.Paramagic;
 import com.qwaecd.paramagic.data.para.ParaComponentData;
 import com.qwaecd.paramagic.data.para.ParaData;
+import com.qwaecd.paramagic.data.para.converter.impl.PolygonConverter;
 import com.qwaecd.paramagic.data.para.converter.impl.RingParaConverter;
 import com.qwaecd.paramagic.data.para.converter.impl.VoidParaConverter;
 import com.qwaecd.paramagic.data.para.converter.parafactory.ParaAssetFactory;
@@ -38,6 +39,7 @@ public class MainParaDataConverter implements ParaDataConverter {
     private void registerAllConversions() {
         this.converterRegistry.register(new VoidParaConverter(this.assetFactory));
         this.converterRegistry.register(new RingParaConverter(this.assetFactory));
+        this.converterRegistry.register(new PolygonConverter(this.assetFactory));
     }
     @Override
     public MagicCircle convert(ParaData paraData) throws ConversionException {

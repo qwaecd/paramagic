@@ -3,8 +3,10 @@ package com.qwaecd.paramagic.data.para.converter.parafactory;
 import com.qwaecd.paramagic.core.para.material.ParaMaterialProvider;
 import com.qwaecd.paramagic.core.para.mesh.ParaMeshProvider;
 import com.qwaecd.paramagic.data.para.ParaComponentData;
+import com.qwaecd.paramagic.data.para.PolygonParaData;
 import com.qwaecd.paramagic.data.para.RingParaData;
 import com.qwaecd.paramagic.data.para.VoidParaData;
+import com.qwaecd.paramagic.data.para.converter.parafactory.creator.PolygonCreator;
 import com.qwaecd.paramagic.data.para.converter.parafactory.creator.RingParaCreator;
 import com.qwaecd.paramagic.data.para.converter.parafactory.creator.VoidParaCreator;
 import com.qwaecd.paramagic.feature.MagicNode;
@@ -27,6 +29,7 @@ public class ParaAssetFactory {
     private void registerDefaultFactories() {
         registerFactory(VoidParaData.class, new VoidParaCreator());
         registerFactory(RingParaData.class, new RingParaCreator(this.paraMeshProvider, this.paraMaterialProvider));
+        registerFactory(PolygonParaData.class, new PolygonCreator(this.paraMeshProvider, this.paraMaterialProvider));
     }
 
     public <T extends ParaComponentData> void registerFactory(Class<T> type, NodeCreator<T> factory) {

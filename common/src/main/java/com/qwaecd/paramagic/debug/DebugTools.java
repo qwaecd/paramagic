@@ -15,6 +15,7 @@ import com.qwaecd.paramagic.core.render.vertex.MeshBuilder;
 import com.qwaecd.paramagic.core.render.vertex.VertexAttribute;
 import com.qwaecd.paramagic.core.render.vertex.VertexLayout;
 import com.qwaecd.paramagic.data.para.ParaData;
+import com.qwaecd.paramagic.data.para.PolygonParaData;
 import com.qwaecd.paramagic.data.para.RingParaData;
 import com.qwaecd.paramagic.data.para.VoidParaData;
 import com.qwaecd.paramagic.data.para.converter.ConversionException;
@@ -34,7 +35,7 @@ import static org.lwjgl.opengl.GL15C.GL_STATIC_DRAW;
 @UtilityClass
 public class DebugTools {
     public static void test() {
-        tooManyMagicCircles();
+//        tooManyMagicCircles();
         IRenderable ball;
         SphereFactory sphereFactory = new SphereFactory();
         Material material = new Material(ShaderManager.getInstance().getBaseBallInShader());
@@ -49,27 +50,66 @@ public class DebugTools {
     }
 
     private static void paraTest() {
-        VoidParaData voidPara = new VoidParaData("void_1");
-        voidPara.addChild(new RingParaData(
+        VoidParaData rootPara = new VoidParaData("void_1");
+
+        rootPara.addChild(new RingParaData(
                 "ring_1",
-                5.0f, 5.2f,
+                4.0f, 4.2f,
                 64
         ));
+        rootPara.addChild(new RingParaData(
+                "ring_3",
+                3.8f, 3.9f,
+                64
+        ));
+
+
         RingParaData ring2 = new RingParaData(
                 "ring_2",
-                2.0f, 2.3f,
+                2.0f, 2.1f,
                 64
         );
-        ring2.position.set(0, 0.5f, 0);
+        ring2.position.set(0, 0.09f, 0);
         ring2.color.set(0.7f, 0.7f, 0.2f);
-        voidPara.addChild(ring2);
-        ParaData rootParaData = new ParaData(voidPara);
+        rootPara.addChild(ring2);
+
+        {
+            VoidParaData group = new VoidParaData("group_1");
+            group.position.set(0, 0.2f, 0);
+
+            PolygonParaData polygon1 = new PolygonParaData(
+                    "polygon_1",
+                    3.0f,
+                    3,
+                    0.0f,
+                    0.1f
+            );
+            polygon1.position.set(0, 0.1f, 0);
+            polygon1.color.set(0.2f, 0.7f, 0.7f);
+            group.addChild(polygon1);
+
+            PolygonParaData polygon2 = new PolygonParaData(
+                    "polygon_2",
+                    3.0f,
+                    3,
+                    (float) Math.toRadians(60),
+                    0.1f
+            );
+            polygon2.position.set(0, 0.2f, 0);
+            polygon2.color.set(0.6f, 0.1f, 0.3f);
+            group.addChild(polygon2);
+
+            rootPara.addChild(group);
+        }
+
+        ParaData paraData = new ParaData(rootPara);
 
         try {
-            MagicCircle magicCircle = ParaConverters.convert(rootParaData);
+            MagicCircle magicCircle = ParaConverters.convert(paraData);
             magicCircle.getTransform()
-                    .setPosition(0 , 100.1f , 0)
-                    .setScale(2.0f, 6.0f, 2.0f);
+                    .setPosition(0 , 100.01f , 0)
+                    .setRotationDegrees(90.0f, 0, 0)
+                    .setScale(1.0f, 1.0f, 1.0f);
             MagicCircleManager.getInstance().addCircle(magicCircle);
         } catch (ConversionException e) {
             Paramagic.LOG.error("Para conversion error: ", e);

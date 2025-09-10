@@ -39,7 +39,7 @@ public class RingMeshGenerator {
                 "ring:(%.2f-%.2f-%.2f-%.2f)-%.4f-%.4f-%d",
                 color.x, color.y, color.z, color.w,
                 innerRadius, outerRadius, segments);
-        return this.ringCache.computeIfAbsent(key, k-> createRingMesh(color, innerRadius, outerRadius, segments));
+        return this.ringCache.computeIfAbsent(key, k -> createRingMesh(color, innerRadius, outerRadius, segments));
     }
 
     private Mesh createRingMesh(Vector4f color, float innerRadius, float outerRadius, int segments) {
@@ -72,9 +72,7 @@ public class RingMeshGenerator {
             // base + 2  : 下一段的内圈顶点
             // base + 3  : 下一段的外圈顶点
 
-            // 使用你的 addQuadIndices 方法可以简化，它会生成两个三角形
             // (base, base + 1, base + 3) 和 (base, base + 3, base + 2)
-            // 注意：为了正确的绕序（逆时针），我们需要调整一下
             // 三角形1: (base, base + 1, base + 3) -> (内, 外, 下一外)
             // 三角形2: (base, base + 3, base + 2) -> (内, 下一外, 下一内)
             builder.addTriangle(base, base + 1, base + 3);
