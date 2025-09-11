@@ -49,22 +49,19 @@ public class DebugTools {
     }
 
     private static void paraTest() {
-        VoidParaData rootPara = new VoidParaData("void_1");
+        VoidParaData rootPara = new VoidParaData();
 
         rootPara.addChild(new RingParaData(
-                "ring_1",
                 4.0f, 4.2f,
                 64
         ));
         rootPara.addChild(new RingParaData(
-                "ring_3",
                 3.8f, 3.9f,
                 64
         ));
 
 
         RingParaData ring2 = new RingParaData(
-                "ring_2",
                 2.0f, 2.1f,
                 64
         );
@@ -73,11 +70,12 @@ public class DebugTools {
         rootPara.addChild(ring2);
 
         {
-            VoidParaData group = new VoidParaData("group_1");
+            VoidParaData group = new VoidParaData();
+            rootPara.addChild(group);
+
             group.position.set(0, 0.2f, 0);
 
             PolygonParaData polygon1 = new PolygonParaData(
-                    "polygon_1",
                     3.0f,
                     3,
                     0.0f,
@@ -88,7 +86,6 @@ public class DebugTools {
             group.addChild(polygon1);
 
             PolygonParaData polygon2 = new PolygonParaData(
-                    "polygon_2",
                     3.0f,
                     3,
                     (float) Math.toRadians(60),
@@ -98,7 +95,6 @@ public class DebugTools {
             polygon2.color.set(0.6f, 0.1f, 0.3f);
             group.addChild(polygon2);
 
-            rootPara.addChild(group);
         }
 
         ParaData paraData = new ParaData(rootPara);

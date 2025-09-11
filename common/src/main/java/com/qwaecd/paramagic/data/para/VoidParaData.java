@@ -5,7 +5,7 @@ package com.qwaecd.paramagic.data.para;
  * 没有几何形状的组件数据，仅用于组织结构。
  * */
 public class VoidParaData extends ParaComponentData {
-    public VoidParaData(String componentId) {
-        super(componentId);
+    public VoidParaData() {
+        super();
     }
 }

@@ -114,34 +114,33 @@ public class MainParaDataConverter implements ParaDataConverter {
             throws ConversionException
     {
 
-        Paramagic.LOG.trace("Converting component: {} (type: {})", data.componentId, data.getClass().getSimpleName());
+        Paramagic.LOG.trace("Converting component: {} (type: {})", data.getComponentId(), data.getClass().getSimpleName());
 
         Optional<ParaComponentConverter<? extends ParaComponentData>> converterOpt =
                 converterRegistry.getConverter(data);
 
         if (converterOpt.isEmpty()) {
-            throw new ConversionException(data.componentId, data.getClass());
+            throw new ConversionException(data.getComponentId(), data.getClass());
         }
 
         MagicNode node;
         try {
             node = convertUnchecked(converterOpt.get(), data);
         } catch (Exception e) {
-            throw new ConversionException(data.componentId, data.getClass(), e);
+            throw new ConversionException(data.getComponentId(), data.getClass(), e);
         }
 
         if (node == null) {
             Paramagic.LOG.warn("Converter returned null for component: {} (type: {})",
-                    data.componentId, data.getClass().getSimpleName());
+                    data.getComponentId(), data.getClass().getSimpleName());
             return null;
         }
 
         // Register the node if it has an ID
-        if (parentCircle != null && data.componentId != null && !data.componentId.isEmpty()) {
-            parentCircle.registerNode(data.componentId, node);
-            Paramagic.LOG.trace("Registered node with ID: {}", data.componentId);
+        if (parentCircle != null && data.getComponentId() != null && !data.getComponentId().isEmpty()) {
+            parentCircle.registerNode(data.getComponentId(), node);
+            Paramagic.LOG.trace("Registered node with ID: {}", data.getComponentId());
         }
-
         // Recursively convert and add children
         for (ParaComponentData childData : data.children) {
             MagicNode childNode = convertComponentRecursive(childData, parentCircle);

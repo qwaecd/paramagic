@@ -1,5 +1,6 @@
 package com.qwaecd.paramagic.data.para;
 
+import lombok.Getter;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
@@ -13,7 +14,8 @@ import java.util.List;
  * 也可以叫 MagicCircleComponentData，是所有法阵元素组件的基类.
  */
 public abstract class ParaComponentData {
-    public final String componentId;
+    @Getter
+    protected String componentId;
     public final List<ParaComponentData> children;
     public Vector3f position;
     public Quaternionf rotation;
@@ -21,8 +23,7 @@ public abstract class ParaComponentData {
 
     public Vector4f color;
 
-    protected ParaComponentData(String componentId) {
-        this.componentId = componentId;
+    protected ParaComponentData() {
         this.children = new ArrayList<>();
 
         this.position = new Vector3f(0.0f, 0.0f, 0.0f);

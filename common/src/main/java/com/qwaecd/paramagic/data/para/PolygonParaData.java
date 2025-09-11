@@ -40,16 +40,16 @@ public class PolygonParaData extends ParaComponentData {
      * 如果想要实现 1.0 个方块的边厚度，你需要将 {@code lineWidth} 设置为 2.0。
      */
     public final float lineWidth;
-    public PolygonParaData(String componentId, float radius, int sides, float startAngle, float lineWidth) {
-        super(componentId);
+    public PolygonParaData(float radius, int sides, float startAngle, float lineWidth) {
+        super();
         this.radius = radius;
         this.sides = Math.max(sides, 3);
         this.startAngle = startAngle;
         this.lineWidth = lineWidth;
     }
 
-    public PolygonParaData(String componentId, float radius, int sides) {
-        super(componentId);
+    public PolygonParaData(float radius, int sides) {
+        super();
         this.radius = radius;
         this.sides = Math.max(sides, 3);
         this.startAngle = 0.0f;
