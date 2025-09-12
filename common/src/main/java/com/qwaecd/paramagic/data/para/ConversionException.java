@@ -1,8 +1,8 @@
-package com.qwaecd.paramagic.data.para.converter;
+package com.qwaecd.paramagic.data.para;
 
 /**
- * Exception thrown when ParaData conversion fails.<br>
- * ParaData转换失败时抛出的异常。
+ * Exception thrown when conversion fails.<br>
+ * 转换失败时抛出的异常。
  */
 public class ConversionException extends Exception {
 

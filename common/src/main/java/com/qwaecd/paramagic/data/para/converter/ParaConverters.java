@@ -1,6 +1,7 @@
 package com.qwaecd.paramagic.data.para.converter;
 
 import com.qwaecd.paramagic.Paramagic;
+import com.qwaecd.paramagic.data.para.ConversionException;
 import com.qwaecd.paramagic.data.para.ParaData;
 import com.qwaecd.paramagic.feature.MagicCircle;
 

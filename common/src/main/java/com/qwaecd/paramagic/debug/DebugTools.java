@@ -18,7 +18,7 @@ import com.qwaecd.paramagic.data.para.ParaData;
 import com.qwaecd.paramagic.data.para.PolygonParaData;
 import com.qwaecd.paramagic.data.para.RingParaData;
 import com.qwaecd.paramagic.data.para.VoidParaData;
-import com.qwaecd.paramagic.data.para.converter.ConversionException;
+import com.qwaecd.paramagic.data.para.ConversionException;
 import com.qwaecd.paramagic.data.para.converter.ParaConverters;
 import com.qwaecd.paramagic.feature.MagicCircle;
 import com.qwaecd.paramagic.feature.MagicCircleManager;
@@ -71,7 +71,6 @@ public class DebugTools {
 
         {
             VoidParaData group = new VoidParaData();
-            rootPara.addChild(group);
 
             group.position.set(0, 0.2f, 0);
 
@@ -95,6 +94,7 @@ public class DebugTools {
             polygon2.color.set(0.6f, 0.1f, 0.3f);
             group.addChild(polygon2);
 
+            rootPara.addChild(group);
         }
 
         ParaData paraData = new ParaData(rootPara);

@@ -1,11 +1,13 @@
 package com.qwaecd.paramagic.feature;
 
+import com.qwaecd.paramagic.client.animation.Animator;
 import com.qwaecd.paramagic.client.renderer.MagicCircleRenderer;
 import com.qwaecd.paramagic.core.render.IRenderable;
 import com.qwaecd.paramagic.core.render.Transform;
 import com.qwaecd.paramagic.core.render.texture.AbstractMaterial;
 import com.qwaecd.paramagic.core.render.vertex.Mesh;
 import lombok.Getter;
+import lombok.Setter;
 import org.joml.Matrix4f;
 
 import java.util.ArrayList;
@@ -22,6 +24,8 @@ public class MagicNode implements IRenderable {
     private Matrix4f worldTransform;
     @Getter
     private MagicNode parent = null;
+    @Setter
+    private Animator animator = null;
 
     public MagicNode(Mesh mesh, AbstractMaterial material) {
         this.mesh = mesh;
@@ -50,6 +54,10 @@ public class MagicNode implements IRenderable {
         for (MagicNode child : this.children) {
             child.draw(this.worldTransform, renderer);
         }
+    }
+
+    public Animator getOrCreateAnimator() {
+        return this.animator == null ? new Animator() : this.animator;
     }
 
     @Override
