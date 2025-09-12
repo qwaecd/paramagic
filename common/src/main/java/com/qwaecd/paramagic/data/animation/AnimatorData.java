@@ -11,14 +11,11 @@ import java.util.List;
  * <p>
  * 对需要被动画的 Para 组件的动画数据，包含多条轨道。
  */
-public class AnimationComponentData {
-    @Getter
-    private final String targetComponentId;
+public class AnimatorData {
     @Getter
     private final List<TrackData> tracks;
 
-    public AnimationComponentData(String targetComponentId, List<TrackData> tracks) {
-        this.targetComponentId = targetComponentId;
+    public AnimatorData(List<TrackData> tracks) {
         this.tracks = tracks;
     }
 }

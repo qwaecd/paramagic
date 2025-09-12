@@ -1,6 +1,7 @@
 package com.qwaecd.paramagic.assembler;
 
-import com.qwaecd.paramagic.data.animation.AnimationData;
+import com.qwaecd.paramagic.data.animation.AnimationBindingData;
+import com.qwaecd.paramagic.data.animation.AnimatorLibraryData;
 import com.qwaecd.paramagic.data.animation.converter.AnimationFactory;
 import com.qwaecd.paramagic.data.para.ConversionException;
 import com.qwaecd.paramagic.data.para.ParaData;
@@ -15,22 +16,35 @@ public class ParaComposer {
         this.animationFactory = new AnimationFactory();
     }
 
-    public MagicCircle assemble(ParaData skeletonData, AnimationData animationData) throws AssemblyException {
+    public MagicCircle assemble(ParaData skeletonData,
+                                AnimationBindingData animationBindingData,
+                                AnimatorLibraryData animLib)
+            throws AssemblyException
+    {
+        MagicCircle circle = genMagicCircle(skeletonData);
+
+        injectAnimationsToCircle(circle, animationBindingData, animLib);
+
+        return circle;
+    }
+
+    private MagicCircle genMagicCircle(ParaData skeletonData) throws AssemblyException {
         MagicCircle circle;
         try {
             circle = ParaConverters.convert(skeletonData);
         } catch (ConversionException e) {
             throw new AssemblyException("Failed to build magic circle skeleton.", e);
         }
+        return circle;
+    }
 
-        if (animationData != null) {
+    private void injectAnimationsToCircle(MagicCircle circle, AnimationBindingData animationBindingData, AnimatorLibraryData animLib) throws AssemblyException {
+        if (animationBindingData != null) {
             try {
-                animationFactory.injectAnimations(circle, animationData);
+                animationFactory.injectAnimations(circle, animationBindingData, animLib);
             } catch (ConversionException e) {
                 throw new AssemblyException("Failed to inject animations into magic circle.", e);
             }
         }
-
-        return circle;
     }
 }

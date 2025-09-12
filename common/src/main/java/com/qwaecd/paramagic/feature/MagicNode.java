@@ -24,6 +24,7 @@ public class MagicNode implements IRenderable {
     private Matrix4f worldTransform;
     @Getter
     private MagicNode parent = null;
+    @Getter
     @Setter
     private Animator animator = null;
 
@@ -41,6 +42,9 @@ public class MagicNode implements IRenderable {
     }
 
     public void update(float deltaTime) {
+        if (this.animator != null) {
+            this.animator.update(deltaTime);
+        }
         for (MagicNode child : this.children) {
             child.update(deltaTime);
         }
@@ -56,9 +60,6 @@ public class MagicNode implements IRenderable {
         }
     }
 
-    public Animator getOrCreateAnimator() {
-        return this.animator == null ? new Animator() : this.animator;
-    }
 
     @Override
     public Mesh getMesh() {
