@@ -13,7 +13,11 @@ public class RendererManager {
 
     public void submitAll() {
         MagicCircleManager cm = MagicCircleManager.getInstance();
-        cm.update(1.0f);
         cm.drawAll(this.magicCircleRenderer);
+    }
+
+    public void update(float deltaTime) {
+        MagicCircleManager cm = MagicCircleManager.getInstance();
+        cm.update(deltaTime);
     }
 }

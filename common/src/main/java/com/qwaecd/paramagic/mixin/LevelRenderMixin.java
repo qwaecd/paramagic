@@ -2,9 +2,11 @@ package com.qwaecd.paramagic.mixin;
 
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.qwaecd.paramagic.client.renderer.RendererManager;
 import com.qwaecd.paramagic.core.render.ModRenderSystem;
 import com.qwaecd.paramagic.core.render.context.RenderContextManager;
 import net.minecraft.client.Camera;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.LightTexture;
@@ -31,8 +33,12 @@ public abstract class LevelRenderMixin {
             Matrix4f projectionMatrix,
             CallbackInfo ci
     ) {
+        float deltaTime = Minecraft.getInstance().getDeltaFrameTime();
+
         ModRenderSystem rs = ModRenderSystem.getInstance();
-        rs.getRendererManager().submitAll();
+        RendererManager rendererManager = rs.getRendererManager();
+        rendererManager.update(deltaTime);
+        rendererManager.submitAll();
         rs.renderScene(RenderContextManager.getContext());
     }
 }

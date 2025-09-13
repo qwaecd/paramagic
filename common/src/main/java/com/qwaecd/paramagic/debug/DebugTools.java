@@ -1,6 +1,7 @@
 package com.qwaecd.paramagic.debug;
 
 import com.qwaecd.paramagic.Paramagic;
+import com.qwaecd.paramagic.assembler.AssemblyException;
 import com.qwaecd.paramagic.client.material.EmissiveMagicMaterial;
 import com.qwaecd.paramagic.client.obj.sun.Sun;
 import com.qwaecd.paramagic.client.renderbase.factory.SphereFactory;
@@ -49,6 +50,33 @@ public class DebugTools {
     }
 
     private static void paraTest() {
+        ParaData paraData = genParaData();
+        try {
+
+            MagicCircle circle = ParaConverters.convert(paraData);
+
+            testInjectAnimation(circle);
+
+            MagicCircleManager.getInstance().addCircle(circle);
+        } catch (ConversionException e) {
+            Paramagic.LOG.error("Para conversion error: ", e);
+        } catch (AssemblyException e) {
+            Paramagic.LOG.error("Assembly error: ", e);
+        }
+    }
+
+    private void testInjectAnimation(MagicCircle circle) throws AssemblyException {
+
+    }
+
+    private void modifyMagicCircle(MagicCircle circle) throws ConversionException {
+        circle.getTransform()
+                .setPosition(0 , 100.01f , 0)
+                .setRotationDegrees(90.0f, 0, 0)
+                .setScale(1.0f, 1.0f, 1.0f);
+    }
+
+    private ParaData genParaData() {
         VoidParaData rootPara = new VoidParaData();
 
         rootPara.addChild(new RingParaData(
@@ -98,17 +126,7 @@ public class DebugTools {
         }
 
         ParaData paraData = new ParaData(rootPara);
-
-        try {
-            MagicCircle magicCircle = ParaConverters.convert(paraData);
-            magicCircle.getTransform()
-                    .setPosition(0 , 100.01f , 0)
-                    .setRotationDegrees(90.0f, 0, 0)
-                    .setScale(1.0f, 1.0f, 1.0f);
-            MagicCircleManager.getInstance().addCircle(magicCircle);
-        } catch (ConversionException e) {
-            Paramagic.LOG.error("Para conversion error: ", e);
-        }
+        return paraData;
     }
 
     private static void tooManyMagicCircles() {
