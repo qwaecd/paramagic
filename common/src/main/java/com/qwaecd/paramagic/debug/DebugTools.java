@@ -2,6 +2,7 @@ package com.qwaecd.paramagic.debug;
 
 import com.qwaecd.paramagic.Paramagic;
 import com.qwaecd.paramagic.assembler.AssemblyException;
+import com.qwaecd.paramagic.assembler.ParaComposer;
 import com.qwaecd.paramagic.client.material.EmissiveMagicMaterial;
 import com.qwaecd.paramagic.client.obj.sun.Sun;
 import com.qwaecd.paramagic.client.renderbase.factory.SphereFactory;
@@ -15,19 +16,27 @@ import com.qwaecd.paramagic.core.render.vertex.Mesh;
 import com.qwaecd.paramagic.core.render.vertex.MeshBuilder;
 import com.qwaecd.paramagic.core.render.vertex.VertexAttribute;
 import com.qwaecd.paramagic.core.render.vertex.VertexLayout;
+import com.qwaecd.paramagic.data.animation.AnimationBindingData;
+import com.qwaecd.paramagic.data.animation.AnimatorData;
+import com.qwaecd.paramagic.data.animation.BindingData;
+import com.qwaecd.paramagic.data.animation.track.KeyframeData;
+import com.qwaecd.paramagic.data.animation.track.KeyframeTrackData;
+import com.qwaecd.paramagic.data.animation.track.TrackData;
 import com.qwaecd.paramagic.data.para.ParaData;
 import com.qwaecd.paramagic.data.para.PolygonParaData;
 import com.qwaecd.paramagic.data.para.RingParaData;
 import com.qwaecd.paramagic.data.para.VoidParaData;
 import com.qwaecd.paramagic.data.para.ConversionException;
-import com.qwaecd.paramagic.data.para.converter.ParaConverters;
 import com.qwaecd.paramagic.feature.MagicCircle;
 import com.qwaecd.paramagic.feature.MagicCircleManager;
 import lombok.experimental.UtilityClass;
+import org.joml.Quaternionf;
 import org.lwjgl.BufferUtils;
 
 import java.nio.ByteBuffer;
 import java.nio.ShortBuffer;
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.lwjgl.opengl.GL11C.*;
 import static org.lwjgl.opengl.GL15C.GL_STATIC_DRAW;
@@ -53,9 +62,9 @@ public class DebugTools {
         ParaData paraData = genParaData();
         try {
 
-            MagicCircle circle = ParaConverters.convert(paraData);
+            MagicCircle circle = testInjectAnimation(paraData);
 
-            testInjectAnimation(circle);
+            modifyMagicCircle(circle);
 
             MagicCircleManager.getInstance().addCircle(circle);
         } catch (ConversionException e) {
@@ -65,13 +74,43 @@ public class DebugTools {
         }
     }
 
-    private void testInjectAnimation(MagicCircle circle) throws AssemblyException {
+    private MagicCircle testInjectAnimation(ParaData paraData) throws AssemblyException, ConversionException {
+        ParaComposer composer = ParaComposer.getINSTANCE();
+        MagicCircle circle = composer.assemble(paraData, genAnimationBindingData(), null);
 
+        return circle;
+    }
+
+    private AnimationBindingData genAnimationBindingData() {
+        List<BindingData> bindingDataList = new ArrayList<>();
+
+        AnimatorData animatorData;
+        {
+            TrackData rotationTrack = new KeyframeTrackData<>(
+                    "rotation",
+                    List.of(
+                            new KeyframeData<>(0f, new Quaternionf().rotateY((float)Math.toRadians(0))),
+                            new KeyframeData<>(200.0f, new Quaternionf().rotateY((float)Math.toRadians(180)))
+                    ),
+                    true
+            );
+
+            animatorData = new AnimatorData(List.of(rotationTrack));
+        }
+
+        BindingData data1 = new BindingData(
+                "root.3",
+                null,
+                animatorData
+        );
+        bindingDataList.add(data1);
+
+        return new AnimationBindingData(bindingDataList);
     }
 
     private void modifyMagicCircle(MagicCircle circle) throws ConversionException {
         circle.getTransform()
-                .setPosition(0 , 100.01f , 0)
+                .setPosition(0 , 110.01f , 0)
                 .setRotationDegrees(90.0f, 0, 0)
                 .setScale(1.0f, 1.0f, 1.0f);
     }

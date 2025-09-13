@@ -7,9 +7,12 @@ import com.qwaecd.paramagic.data.para.ConversionException;
 import com.qwaecd.paramagic.data.para.ParaData;
 import com.qwaecd.paramagic.data.para.converter.ParaConverters;
 import com.qwaecd.paramagic.feature.MagicCircle;
+import lombok.Getter;
 
 
 public class ParaComposer {
+    @Getter
+    private static final ParaComposer INSTANCE = new ParaComposer();
     private final AnimationFactory animationFactory;
 
     private ParaComposer() {

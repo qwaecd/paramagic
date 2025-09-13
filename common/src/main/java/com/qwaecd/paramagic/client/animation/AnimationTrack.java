@@ -106,7 +106,7 @@ public class AnimationTrack {
 
     @SuppressWarnings("InnerClassMayBeStatic")
     private class TempValue {
-        Vector3f vct;
-        Quaternionf quat;
+        Vector3f vct = new Vector3f();
+        Quaternionf quat = new Quaternionf();
     }
 }
