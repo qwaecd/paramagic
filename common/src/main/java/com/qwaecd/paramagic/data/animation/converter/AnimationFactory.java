@@ -13,9 +13,9 @@ import com.qwaecd.paramagic.data.animation.track.TrackData;
 import com.qwaecd.paramagic.data.para.ConversionException;
 import com.qwaecd.paramagic.feature.MagicCircle;
 import com.qwaecd.paramagic.feature.MagicNode;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -37,7 +37,7 @@ public class AnimationFactory {
     }
 
     public void injectAnimations(MagicCircle circle,
-                                 @NotNull AnimationBindingData bindingData,
+                                 @Nonnull AnimationBindingData bindingData,
                                  @Nullable AnimatorLibraryData animLib)
             throws ConversionException
     {

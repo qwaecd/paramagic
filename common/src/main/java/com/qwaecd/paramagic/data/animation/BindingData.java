@@ -1,12 +1,13 @@
 package com.qwaecd.paramagic.data.animation;
 
 import lombok.Getter;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public class BindingData {
     @Getter
-    @NotNull
+    @Nonnull
     private final String targetComponentId;
     /**
      * The name of an external animator template name, cannot coexist with an inline animator definition.<p>
@@ -18,7 +19,7 @@ public class BindingData {
     @Getter
     @Nullable
     private final AnimatorData animatorData;
-    public BindingData(@NotNull String targetComponentId, @Nullable String animatorTemplateName, @Nullable AnimatorData animatorData) {
+    public BindingData(@Nonnull String targetComponentId, @Nullable String animatorTemplateName, @Nullable AnimatorData animatorData) {
         if (animatorTemplateName != null && animatorData != null) {
             throw new IllegalArgumentException("Binding cannot have both 'animatorName' and an inline 'animator' definition.");
         }

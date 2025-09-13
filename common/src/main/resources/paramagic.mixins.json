@@ -8,7 +8,9 @@
   ],
   "client": [
     "LevelRenderMixin",
-    "RenderTargetMixin"
+    "MinecraftMixin",
+    "RenderTargetMixin",
+    "TimerMixin"
   ],
   "server": [
   ],

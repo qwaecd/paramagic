@@ -31,6 +31,7 @@ import com.qwaecd.paramagic.feature.MagicCircle;
 import com.qwaecd.paramagic.feature.MagicCircleManager;
 import lombok.experimental.UtilityClass;
 import org.joml.Quaternionf;
+import org.joml.Vector3f;
 import org.lwjgl.BufferUtils;
 
 import java.nio.ByteBuffer;
@@ -90,12 +91,24 @@ public class DebugTools {
                     "rotation",
                     List.of(
                             new KeyframeData<>(0f, new Quaternionf().rotateY((float)Math.toRadians(0))),
-                            new KeyframeData<>(200.0f, new Quaternionf().rotateY((float)Math.toRadians(180)))
+                            new KeyframeData<>(1.0f, new Quaternionf().rotateY((float)Math.toRadians(180))),
+                            new KeyframeData<>(2.0f, new Quaternionf().rotateY((float)Math.toRadians(359)))
                     ),
                     true
             );
 
-            animatorData = new AnimatorData(List.of(rotationTrack));
+            TrackData scaleTrack = new KeyframeTrackData<>(
+                    "scale",
+                    List.of(
+                            new KeyframeData<>(0f, new Vector3f(0.0f, 0.0f, 0.0f)),
+                            new KeyframeData<>(3.0f, new Vector3f(0.5f)),
+                            new KeyframeData<>(6.0f, new Vector3f(1)),
+                            new KeyframeData<>(24.0f, new Vector3f(2))
+                    ),
+                    true
+            );
+
+            animatorData = new AnimatorData(List.of(rotationTrack, scaleTrack));
         }
 
         BindingData data1 = new BindingData(
@@ -111,7 +124,7 @@ public class DebugTools {
     private void modifyMagicCircle(MagicCircle circle) throws ConversionException {
         circle.getTransform()
                 .setPosition(0 , 110.01f , 0)
-                .setRotationDegrees(90.0f, 0, 0)
+                .setRotationDegrees(0.0f, 0, 0)
                 .setScale(1.0f, 1.0f, 1.0f);
     }
 
