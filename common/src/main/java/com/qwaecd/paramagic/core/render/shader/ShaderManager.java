@@ -19,8 +19,6 @@ public class ShaderManager {
     @Getter
     private Shader positionColorShader;
     @Getter
-    private Shader magicRingShader;
-    @Getter
     private Shader baseBallInShader;
     @Getter
     private Shader baseBallOutShader;
@@ -28,8 +26,6 @@ public class ShaderManager {
     private Shader debugMagicCircleShader;
     @Getter
     private Shader compositeShader;
-    @Getter
-    private Shader emissiveMagicShader;
 
     private ShaderManager() {
         this.SHADER_REGISTRY = new HashMap<>();
@@ -61,12 +57,10 @@ public class ShaderManager {
 
     private void initInstanceShaders() {
         positionColorShader = getShaderThrowIfNotFound("position_color");
-        magicRingShader     = getShaderThrowIfNotFound("magic_ring");
         baseBallInShader    = getShaderThrowIfNotFound("base_ball_in");
         baseBallOutShader   = getShaderThrowIfNotFound("base_ball_out");
         debugMagicCircleShader = getShaderThrowIfNotFound("debug_magic_circle");
         compositeShader     = getShaderThrowIfNotFound("composite");
-        emissiveMagicShader = getShaderThrowIfNotFound("emissive_magic");
     }
 
     /**

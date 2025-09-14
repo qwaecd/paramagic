@@ -40,15 +40,18 @@ public abstract class LevelRenderMixin {
             Matrix4f projectionMatrix,
             CallbackInfo ci
     ) {
-        Timer timer = ((MinecraftMixin) minecraft).getTimer();
-        // 距离上一帧的时间，单位是游戏刻
-        float deltaFrameTime = minecraft.getDeltaFrameTime();
-        float secondsPerTick = ((TimerMixin) timer).getMsPerTick() / 1000.0f;
-        float deltaTimeInSeconds = deltaFrameTime * secondsPerTick;
-
         ModRenderSystem rs = ModRenderSystem.getInstance();
         RendererManager rendererManager = rs.getRendererManager();
-        rendererManager.update(deltaTimeInSeconds);
+
+        if (!minecraft.isPaused()) {
+            Timer timer = ((MinecraftMixin) minecraft).getTimer();
+            // 距离上一帧的时间，单位是游戏刻
+            float deltaFrameTime = minecraft.getDeltaFrameTime();
+            float secondsPerTick = ((TimerMixin) timer).getMsPerTick() / 1000.0f;
+            float deltaTimeInSeconds = deltaFrameTime * secondsPerTick;
+            rendererManager.update(deltaTimeInSeconds);
+        }
+
         rendererManager.submitAll();
         rs.renderScene(RenderContextManager.getContext());
     }
