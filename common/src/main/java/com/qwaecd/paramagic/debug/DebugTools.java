@@ -19,6 +19,7 @@ import com.qwaecd.paramagic.core.render.vertex.VertexLayout;
 import com.qwaecd.paramagic.data.animation.AnimationBindingData;
 import com.qwaecd.paramagic.data.animation.AnimatorData;
 import com.qwaecd.paramagic.data.animation.BindingData;
+import com.qwaecd.paramagic.data.animation.Properties;
 import com.qwaecd.paramagic.data.animation.track.KeyframeData;
 import com.qwaecd.paramagic.data.animation.track.KeyframeTrackData;
 import com.qwaecd.paramagic.data.animation.track.TrackData;
@@ -88,7 +89,7 @@ public class DebugTools {
         AnimatorData animatorData;
         {
             TrackData rotationTrack = new KeyframeTrackData<>(
-                    "rotation",
+                    Properties.ROTATION.type(),
                     List.of(
                             new KeyframeData<>(0f, new Quaternionf().rotateY((float)Math.toRadians(0))),
                             new KeyframeData<>(1.0f, new Quaternionf().rotateY((float)Math.toRadians(180))),
@@ -98,7 +99,7 @@ public class DebugTools {
             );
 
             TrackData scaleTrack = new KeyframeTrackData<>(
-                    "scale",
+                    Properties.SCALE.type(),
                     List.of(
                             new KeyframeData<>(0f, new Vector3f(0.0f, 0.0f, 0.0f)),
                             new KeyframeData<>(3.0f, new Vector3f(0.5f)),
