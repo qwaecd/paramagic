@@ -3,15 +3,13 @@ package com.qwaecd.paramagic.core.render.texture;
 import com.qwaecd.paramagic.core.render.queue.RenderType;
 import com.qwaecd.paramagic.core.render.queue.SupportsRenderType;
 import com.qwaecd.paramagic.core.render.shader.Shader;
-import lombok.Getter;
 import org.joml.Matrix4f;
 import org.joml.Vector4f;
 
 import java.util.Optional;
 
 public abstract class AbstractMaterial implements SupportsRenderType {
-    @Getter
-    private final Shader shader;
+    protected final Shader shader;
 
     public final Vector4f baseColor;
 

@@ -116,11 +116,12 @@ public class DebugTools {
             TrackData colorTrack = new KeyframeTrackData<>(
                     KeyframeProperties.COLOR.type(),
                     List.of(
-                            new KeyframeData<>(0f, new Vector4f(1.0f, 0.0f, 0.0f, 0.2f)),
-                            new KeyframeData<>(1.0f, new Vector4f(0.0f, 1.0f, 0.0f, 0.5f)),
-                            new KeyframeData<>(2.0f, new Vector4f(0.0f, 0.0f, 1.0f, 1.0f))
+                            new KeyframeData<>(1.0f, new Vector4f(1.0f, 0.0f, 0.0f, 0.5f)), // Red
+                            new KeyframeData<>(2.0f, new Vector4f(1.0f, 1.0f, 0.0f, 0.75f)),// Yellow
+                            new KeyframeData<>(3.0f, new Vector4f(0.0f, 1.0f, 1.0f, 1.0f)), // Cyan
+                            new KeyframeData<>(4.0f, new Vector4f(1.0f, 0.0f, 0.0f, 0.5f))  // Red
                     ),
-                    true
+                    false
             );
             animatingColor = new AnimatorData(List.of(colorTrack));
         }

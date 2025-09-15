@@ -4,6 +4,7 @@ import com.qwaecd.paramagic.tools.Interpolation;
 import lombok.Getter;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
+import org.joml.Vector4f;
 
 import java.util.List;
 
@@ -83,9 +84,11 @@ public class AnimationTrack {
         if (startValue instanceof Float f1 && endValue instanceof Float f2) {
             targetProperty.setValue(Interpolation.lerp(f1, f2, alpha));
         } else if (startValue instanceof Vector3f v1 && endValue instanceof Vector3f v2) {
-            targetProperty.setValue(Interpolation.lerp(v1, v2, alpha, this.tempValue.vct));
+            targetProperty.setValue(Interpolation.lerp(v1, v2, alpha, this.tempValue.vct3));
         } else if (startValue instanceof Quaternionf q1 && endValue instanceof Quaternionf q2) {
             targetProperty.setValue(Interpolation.slerp(q1, q2, alpha, this.tempValue.quat));
+        } else if (startValue instanceof Vector4f v1 && endValue instanceof Vector4f v2) {
+            targetProperty.setValue(Interpolation.lerp(v1, v2, alpha, this.tempValue.vct4));
         } else {
             // 对于不支持插值的类型（如布尔值、整数），或者 "step" 插值，直接使用前一个关键帧的值
             targetProperty.setValue(startValue);
@@ -106,7 +109,8 @@ public class AnimationTrack {
 
     @SuppressWarnings("InnerClassMayBeStatic")
     private class TempValue {
-        Vector3f vct = new Vector3f();
+        Vector3f vct3 = new Vector3f();
+        Vector4f vct4 = new Vector4f();
         Quaternionf quat = new Quaternionf();
     }
 }

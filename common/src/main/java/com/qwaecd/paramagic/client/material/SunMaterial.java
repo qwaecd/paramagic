@@ -23,8 +23,8 @@ public class SunMaterial extends AbstractMaterial implements EmissiveProvider {
 
     @Override
     public void applyCustomUniforms() {
-        this.getShader().setUniformValue4f("u_sunColor", sunColor.x, sunColor.y, sunColor.z, sunColor.w);
-        this.getShader().setUniformValue1f("u_intensity", intensity);
+        this.shader.setUniformValue4f("u_sunColor", sunColor.x, sunColor.y, sunColor.z, sunColor.w);
+        this.shader.setUniformValue1f("u_intensity", intensity);
     }
 
     @Override

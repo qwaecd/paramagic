@@ -14,7 +14,7 @@ public abstract class ParaMaterial extends AbstractMaterial {
 
     @Override
     public void applyCustomUniforms() {
-        Shader shader = this.getShader();
+        Shader shader = this.shader;
         if (this.hasColorAnimation) {
             shader.setUniformValue1i("u_hasColorAnimation", 1);
             shader.setUniformValue4f("u_animationColor", this.animationColor.x, this.animationColor.y, this.animationColor.z, this.animationColor.w);

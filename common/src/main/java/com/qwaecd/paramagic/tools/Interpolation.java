@@ -3,6 +3,7 @@ package com.qwaecd.paramagic.tools;
 import lombok.experimental.UtilityClass;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
+import org.joml.Vector4f;
 
 @UtilityClass
 public final class Interpolation {
@@ -17,6 +18,13 @@ public final class Interpolation {
      * Performs linear interpolation (lerp) between two Vector3f values.
      */
     public static Vector3f lerp(Vector3f start, Vector3f end, float alpha, Vector3f dest) {
+        return start.lerp(end, alpha, dest);
+    }
+
+    /**
+     * Performs linear interpolation (lerp) between two Vector4f values.
+     */
+    public static Vector4f lerp(Vector4f start, Vector4f end, float alpha, Vector4f dest) {
         return start.lerp(end, alpha, dest);
     }
 
