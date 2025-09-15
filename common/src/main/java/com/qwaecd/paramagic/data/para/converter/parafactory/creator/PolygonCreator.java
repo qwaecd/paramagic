@@ -1,8 +1,8 @@
 package com.qwaecd.paramagic.data.para.converter.parafactory.creator;
 
+import com.qwaecd.paramagic.core.para.material.ParaMaterial;
 import com.qwaecd.paramagic.core.para.material.ParaMaterialProvider;
 import com.qwaecd.paramagic.core.para.mesh.ParaMeshProvider;
-import com.qwaecd.paramagic.core.render.texture.AbstractMaterial;
 import com.qwaecd.paramagic.core.render.vertex.Mesh;
 import com.qwaecd.paramagic.data.para.PolygonParaData;
 import com.qwaecd.paramagic.data.para.converter.parafactory.NodeCreator;
@@ -19,7 +19,7 @@ public class PolygonCreator implements NodeCreator<PolygonParaData> {
     @Override
     public MagicNode create(PolygonParaData data) {
         Mesh mesh = this.meshProvider.polygons().get(data.color, data.radius, data.sides, data.startAngle, data.lineWidth);
-        AbstractMaterial material = this.materialProvider.getRingMaterial();
+        ParaMaterial material = this.materialProvider.createPolygonMaterial();
         MagicNode magicNode = new MagicNode(mesh, material);
 
         magicNode.transform.set(data.position, data.rotation, data.scale);

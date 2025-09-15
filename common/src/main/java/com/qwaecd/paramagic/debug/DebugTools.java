@@ -21,16 +21,13 @@ import com.qwaecd.paramagic.data.animation.KeyframeProperties;
 import com.qwaecd.paramagic.data.animation.track.KeyframeData;
 import com.qwaecd.paramagic.data.animation.track.KeyframeTrackData;
 import com.qwaecd.paramagic.data.animation.track.TrackData;
-import com.qwaecd.paramagic.data.para.ParaData;
-import com.qwaecd.paramagic.data.para.PolygonParaData;
-import com.qwaecd.paramagic.data.para.RingParaData;
-import com.qwaecd.paramagic.data.para.VoidParaData;
-import com.qwaecd.paramagic.data.para.ConversionException;
+import com.qwaecd.paramagic.data.para.*;
 import com.qwaecd.paramagic.feature.MagicCircle;
 import com.qwaecd.paramagic.feature.MagicCircleManager;
 import lombok.experimental.UtilityClass;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
+import org.joml.Vector4f;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
@@ -81,7 +78,7 @@ public class DebugTools {
     private AnimationBindingData genAnimationBindingData() {
         List<BindingData> bindingDataList = new ArrayList<>();
 
-        AnimatorData animatorData;
+        AnimatorData animatingCenter;
         {
             TrackData rotationTrack = new KeyframeTrackData<>(
                     KeyframeProperties.ROTATION.type(),
@@ -104,15 +101,35 @@ public class DebugTools {
                     true
             );
 
-            animatorData = new AnimatorData(List.of(rotationTrack, scaleTrack));
+            animatingCenter = new AnimatorData(List.of(rotationTrack, scaleTrack));
         }
 
         BindingData data1 = new BindingData(
                 "root.3",
                 null,
-                animatorData
+                animatingCenter
         );
         bindingDataList.add(data1);
+        // --------------------------------------------
+        AnimatorData animatingColor;
+        {
+            TrackData colorTrack = new KeyframeTrackData<>(
+                    KeyframeProperties.COLOR.type(),
+                    List.of(
+                            new KeyframeData<>(0f, new Vector4f(1.0f, 0.0f, 0.0f, 0.2f)),
+                            new KeyframeData<>(1.0f, new Vector4f(0.0f, 1.0f, 0.0f, 0.5f)),
+                            new KeyframeData<>(2.0f, new Vector4f(0.0f, 0.0f, 1.0f, 1.0f))
+                    ),
+                    true
+            );
+            animatingColor = new AnimatorData(List.of(colorTrack));
+        }
+        BindingData data2 = new BindingData(
+                "root.0",
+                null,
+                animatingColor
+        );
+        bindingDataList.add(data2);
 
         return new AnimationBindingData(bindingDataList);
     }

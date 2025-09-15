@@ -1,6 +1,6 @@
 {
     "schemaVersion": 1,
-    "id": "mod_id",
+    "id": "paramagic",
     "version": "${version}",
     "name": "${mod_name}",
     "description": "${description}",
@@ -17,6 +17,9 @@
     "entrypoints": {
         "main": [
             "com.qwaecd.paramagic.ParamagicFabric"
+        ],
+        "client": [
+              "com.qwaecd.paramagic.FabricClient"
         ]
     },
     "mixins": [

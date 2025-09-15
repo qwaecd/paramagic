@@ -1,6 +1,7 @@
 package com.qwaecd.paramagic.data.animation.converter;
 
 import com.qwaecd.paramagic.client.animation.AnimationTrack;
+import com.qwaecd.paramagic.core.para.material.ParaMaterial;
 import com.qwaecd.paramagic.core.render.Transform;
 import com.qwaecd.paramagic.data.animation.track.TrackData;
 import com.qwaecd.paramagic.data.para.ConversionException;
@@ -24,5 +25,5 @@ public interface TrackConverter<T extends TrackData> {
      * @return A configured AnimationTrack instance ready for runtime playback.<br>
      *         一个配置好的、准备在运行时播放的 AnimationTrack 实例。
      */
-    AnimationTrack convert(T trackData, Transform targetTransform) throws ConversionException;
+    AnimationTrack convert(T trackData, Transform targetTransform, ParaMaterial material) throws ConversionException;
 }

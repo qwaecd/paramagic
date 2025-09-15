@@ -5,8 +5,10 @@ package com.qwaecd.paramagic.data.animation.track;
  */
 public abstract class TrackData {
     public final String property;
+    public final boolean isColorTrack;
 
     protected TrackData(String property) {
         this.property = property;
+        this.isColorTrack = property.equals("color");
     }
 }

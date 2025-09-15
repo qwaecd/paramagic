@@ -26,6 +26,9 @@ public class CommonClass {
 
             Paramagic.LOG.debug("Hello to paramagic");
         }
+    }
+
+    public static void initOnClient() {
         AllShaders.registerAllShaders();
         ModRenderSystem.init();
     }

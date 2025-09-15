@@ -2,9 +2,10 @@ package com.qwaecd.paramagic.data.animation.converter;
 
 import com.qwaecd.paramagic.client.animation.AnimationTrack;
 import com.qwaecd.paramagic.client.animation.Animator;
+import com.qwaecd.paramagic.core.para.material.ParaMaterial;
 import com.qwaecd.paramagic.core.render.Transform;
-import com.qwaecd.paramagic.data.animation.AnimatorData;
 import com.qwaecd.paramagic.data.animation.AnimationBindingData;
+import com.qwaecd.paramagic.data.animation.AnimatorData;
 import com.qwaecd.paramagic.data.animation.AnimatorLibraryData;
 import com.qwaecd.paramagic.data.animation.BindingData;
 import com.qwaecd.paramagic.data.animation.converter.impl.KeyframeTrackConverter;
@@ -99,7 +100,14 @@ public class AnimationFactory {
 
     private void attachTracksToAnimator(AnimatorData animatorData, MagicNode targetNode, Animator animatorInstance) throws ConversionException {
         for (TrackData track : animatorData.getTracks()) {
-            attachAnimatorTrack(track, targetNode.getTransform(), animatorInstance);
+            ParaMaterial material = (ParaMaterial) targetNode.getMaterial();
+            if (track.isColorTrack) {
+                if (material == null){
+                    throw new ConversionException("Material is required, you may be animating a VoidPara.");
+                }
+                material.setHasColorAnimation(true);
+            }
+            convertAndAddTrack(track, targetNode.getTransform(), material, animatorInstance);
         }
     }
 
@@ -109,18 +117,14 @@ public class AnimationFactory {
         }
     }
 
-    private void attachAnimatorTrack(TrackData trackData, Transform transform, Animator animator) throws ConversionException {
-        convertAndAddTrack(trackData, transform, animator);
-    }
-
     @SuppressWarnings("unchecked")
-    private <T extends TrackData> void convertAndAddTrack(T trackData, Transform targetTransform, Animator animator)
+    private <T extends TrackData> void convertAndAddTrack(T trackData, Transform targetTransform, ParaMaterial material, Animator animator)
             throws ConversionException
     {
         TrackConverter<T> converter = (TrackConverter<T>) converterRegistry.get(trackData.getClass());
 
         if (converter != null) {
-            AnimationTrack runtimeTrack = converter.convert(trackData, targetTransform);
+            AnimationTrack runtimeTrack = converter.convert(trackData, targetTransform, material);
             animator.addTrack(runtimeTrack);
         } else {
             throw new ConversionException("No converter found for " + trackData.getClass().getSimpleName());
