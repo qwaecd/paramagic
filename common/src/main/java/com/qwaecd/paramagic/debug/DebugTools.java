@@ -114,16 +114,24 @@ public class DebugTools {
         AnimatorData animatingColor;
         {
             TrackData colorTrack = new KeyframeTrackData<>(
-                    KeyframeProperties.COLOR.type(),
+                    KeyframeProperties.EMISSIVE_COLOR.type(),
                     List.of(
-                            new KeyframeData<>(1.0f, new Vector4f(1.0f, 0.0f, 0.0f, 0.5f)), // Red
-                            new KeyframeData<>(2.0f, new Vector4f(1.0f, 1.0f, 0.0f, 0.75f)),// Yellow
-                            new KeyframeData<>(3.0f, new Vector4f(0.0f, 1.0f, 1.0f, 1.0f)), // Cyan
-                            new KeyframeData<>(4.0f, new Vector4f(1.0f, 0.0f, 0.0f, 0.5f))  // Red
+                            new KeyframeData<>(0.0f, new Vector3f(1.0f, 1.0f, 0.0f)),
+                            new KeyframeData<>(20.0f, new Vector3f(1.0f, 0.0f, 1.0f)),
+                            new KeyframeData<>(30.0f, new Vector3f(1.0f, 1.0f, 1.0f)),
+                            new KeyframeData<>(40.0f, new Vector3f(1.0f, 0.0f, 0.0f))
+                    ),
+                    true
+            );
+
+            TrackData intensity = new KeyframeTrackData<>(
+                    KeyframeProperties.EMISSIVE_INTENSITY.type(),
+                    List.of(
+                            new KeyframeData<>(0.0f, 2.0f)
                     ),
                     false
             );
-            animatingColor = new AnimatorData(List.of(colorTrack));
+            animatingColor = new AnimatorData(List.of(colorTrack, intensity));
         }
         BindingData data2 = new BindingData(
                 "root.0",

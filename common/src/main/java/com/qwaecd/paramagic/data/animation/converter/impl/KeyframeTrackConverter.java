@@ -33,6 +33,8 @@ public class KeyframeTrackConverter implements TrackConverter<KeyframeTrackData<
             case "rotation" -> (PropertyAccessor<Quaternionf>) transform::setRotation;
             case "scale" -> (PropertyAccessor<Vector3f>) transform::setScale;
             case "color" -> (PropertyAccessor<Vector4f>) material.animationColor::set;
+            case "emissiveColor" -> (PropertyAccessor<Vector3f>) material::setEmissiveColor;
+            case "emissiveIntensity" -> (PropertyAccessor<Float>) material::setEmissiveIntensity;
             default -> throw new ConversionException("Unknown property: " + propertyName);
         };
     }

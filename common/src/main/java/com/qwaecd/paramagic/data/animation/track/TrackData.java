@@ -9,6 +9,6 @@ public abstract class TrackData {
 
     protected TrackData(String property) {
         this.property = property;
-        this.isColorTrack = property.equals("color");
+        this.isColorTrack = property.equals("color") || property.equals("emissiveColor") || property.equals("emissiveIntensity");
     }
 }
