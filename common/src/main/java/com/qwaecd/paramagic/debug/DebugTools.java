@@ -17,7 +17,7 @@ import com.qwaecd.paramagic.core.render.vertex.VertexLayout;
 import com.qwaecd.paramagic.data.animation.AnimationBindingData;
 import com.qwaecd.paramagic.data.animation.AnimatorData;
 import com.qwaecd.paramagic.data.animation.BindingData;
-import com.qwaecd.paramagic.data.animation.KeyframeProperties;
+import com.qwaecd.paramagic.data.animation.PropertyType;
 import com.qwaecd.paramagic.data.animation.track.KeyframeData;
 import com.qwaecd.paramagic.data.animation.track.KeyframeTrackData;
 import com.qwaecd.paramagic.data.animation.track.TrackData;
@@ -27,7 +27,6 @@ import com.qwaecd.paramagic.feature.MagicCircleManager;
 import lombok.experimental.UtilityClass;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
-import org.joml.Vector4f;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
@@ -80,8 +79,8 @@ public class DebugTools {
 
         AnimatorData animatingCenter;
         {
-            TrackData rotationTrack = new KeyframeTrackData<>(
-                    KeyframeProperties.ROTATION.type(),
+            TrackData<?> rotationTrack = new KeyframeTrackData<>(
+                    PropertyType.ROTATION,
                     List.of(
                             new KeyframeData<>(0f, new Quaternionf().rotateY((float)Math.toRadians(0))),
                             new KeyframeData<>(1.0f, new Quaternionf().rotateY((float)Math.toRadians(180))),
@@ -90,8 +89,8 @@ public class DebugTools {
                     true
             );
 
-            TrackData scaleTrack = new KeyframeTrackData<>(
-                    KeyframeProperties.SCALE.type(),
+            TrackData<?> scaleTrack = new KeyframeTrackData<>(
+                    PropertyType.SCALE,
                     List.of(
                             new KeyframeData<>(0f, new Vector3f(0.0f, 0.0f, 0.0f)),
                             new KeyframeData<>(3.0f, new Vector3f(0.5f)),
@@ -113,8 +112,8 @@ public class DebugTools {
         // --------------------------------------------
         AnimatorData animatingColor;
         {
-            TrackData colorTrack = new KeyframeTrackData<>(
-                    KeyframeProperties.EMISSIVE_COLOR.type(),
+            TrackData<?> colorTrack = new KeyframeTrackData<>(
+                    PropertyType.EMISSIVE_COLOR,
                     List.of(
                             new KeyframeData<>(0.0f, new Vector3f(1.0f, 1.0f, 0.0f)),
                             new KeyframeData<>(20.0f, new Vector3f(1.0f, 0.0f, 1.0f)),
@@ -124,8 +123,8 @@ public class DebugTools {
                     true
             );
 
-            TrackData intensity = new KeyframeTrackData<>(
-                    KeyframeProperties.EMISSIVE_INTENSITY.type(),
+            TrackData<?> intensity = new KeyframeTrackData<>(
+                    PropertyType.EMISSIVE_INTENSITY,
                     List.of(
                             new KeyframeData<>(0.0f, 2.0f)
                     ),

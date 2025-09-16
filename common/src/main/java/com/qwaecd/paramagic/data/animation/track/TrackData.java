@@ -1,14 +1,17 @@
 package com.qwaecd.paramagic.data.animation.track;
 
+import com.qwaecd.paramagic.data.animation.PropertyType;
+
 /**
  * 一条动画轨道的数据。
  */
-public abstract class TrackData {
-    public final String property;
+public abstract class TrackData<T> {
+    public final PropertyType<T> property;
     public final boolean isColorTrack;
 
-    protected TrackData(String property) {
+    protected TrackData(PropertyType<T> property) {
         this.property = property;
-        this.isColorTrack = property.equals("color") || property.equals("emissiveColor") || property.equals("emissiveIntensity");
+        String name = property.getName();
+        this.isColorTrack = name.equals("color") || name.equals("emissiveColor") || name.equals("emissiveIntensity");
     }
 }

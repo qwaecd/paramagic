@@ -23,7 +23,7 @@ import java.util.NoSuchElementException;
 import java.util.Optional;
 
 public class AnimationFactory {
-    private final Map<Class<? extends TrackData>, TrackConverter<?>> converterRegistry;
+    private final Map<Class<? extends TrackData<?>>, TrackConverter<?>> converterRegistry;
 
     public AnimationFactory() {
         this.converterRegistry = new HashMap<>();
@@ -33,7 +33,7 @@ public class AnimationFactory {
     private void registerDefaultConverters() {
         register(KeyframeTrackData.class, new KeyframeTrackConverter());
     }
-    private void register(Class<? extends TrackData> dataClass, TrackConverter<?> converter) {
+    private <T extends TrackData<?>> void register(Class<T> dataClass, TrackConverter<?> converter) {
         converterRegistry.put(dataClass, converter);
     }
 
@@ -99,7 +99,7 @@ public class AnimationFactory {
     }
 
     private void attachTracksToAnimator(AnimatorData animatorData, MagicNode targetNode, Animator animatorInstance) throws ConversionException {
-        for (TrackData track : animatorData.getTracks()) {
+        for (TrackData<?> track : animatorData.getTracks()) {
             ParaMaterial material = (ParaMaterial) targetNode.getMaterial();
             if (track.isColorTrack) {
                 if (material == null){
@@ -118,7 +118,7 @@ public class AnimationFactory {
     }
 
     @SuppressWarnings("unchecked")
-    private <T extends TrackData> void convertAndAddTrack(T trackData, Transform targetTransform, ParaMaterial material, Animator animator)
+    private <T extends TrackData<?>> void convertAndAddTrack(T trackData, Transform targetTransform, ParaMaterial material, Animator animator)
             throws ConversionException
     {
         TrackConverter<T> converter = (TrackConverter<T>) converterRegistry.get(trackData.getClass());
