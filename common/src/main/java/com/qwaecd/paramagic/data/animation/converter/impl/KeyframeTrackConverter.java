@@ -9,9 +9,6 @@ import com.qwaecd.paramagic.data.animation.PropertyType;
 import com.qwaecd.paramagic.data.animation.converter.TrackConverter;
 import com.qwaecd.paramagic.data.animation.track.KeyframeTrackData;
 import com.qwaecd.paramagic.data.para.ConversionException;
-import org.joml.Quaternionf;
-import org.joml.Vector3f;
-import org.joml.Vector4f;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -19,7 +16,7 @@ import java.util.stream.Collectors;
 public class KeyframeTrackConverter implements TrackConverter<KeyframeTrackData<?>> {
     @Override
     public AnimationTrack convert(KeyframeTrackData<?> trackData, Transform targetTransform, ParaMaterial material) throws ConversionException {
-        PropertyAccessor<?> accessor = createAccessor(targetTransform, material, trackData.property.getName());
+        PropertyAccessor<?> accessor = createAccessor(targetTransform, material, trackData.property);
 
         List<Keyframe<?>> runtimeKeyframes = trackData.keyframes.stream()
                 .map(kd -> new Keyframe<>(kd.time(), kd.value(), kd.interpolation()))
@@ -28,15 +25,7 @@ public class KeyframeTrackConverter implements TrackConverter<KeyframeTrackData<
         return new AnimationTrack(accessor, runtimeKeyframes, trackData.loop);
     }
 
-    private PropertyAccessor<?> createAccessor(Transform transform, ParaMaterial material, String propertyType) throws ConversionException {
-        return switch (propertyType) {
-            case "position" -> (PropertyAccessor<Vector3f>) transform::setPosition;
-            case "rotation" -> (PropertyAccessor<Quaternionf>) transform::setRotation;
-            case "scale" -> (PropertyAccessor<Vector3f>) transform::setScale;
-            case "color" -> (PropertyAccessor<Vector4f>) material.animationColor::set;
-            case "emissiveColor" -> (PropertyAccessor<Vector3f>) material::setEmissiveColor;
-            case "emissiveIntensity" -> (PropertyAccessor<Float>) material::setEmissiveIntensity;
-            default -> throw new ConversionException("Unknown property: " + propertyType);
-        };
+    private <T> PropertyAccessor<T> createAccessor(Transform transform, ParaMaterial material, PropertyType<T> propertyType) {
+        return propertyType.getAccessorFactory().getAccessor(transform, material);
     }
 }
