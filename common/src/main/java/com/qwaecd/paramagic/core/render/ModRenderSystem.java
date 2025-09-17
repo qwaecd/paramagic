@@ -3,7 +3,7 @@ package com.qwaecd.paramagic.core.render;
 import com.qwaecd.paramagic.Paramagic;
 import com.qwaecd.paramagic.client.renderbase.BaseObjectManager;
 import com.qwaecd.paramagic.client.renderbase.factory.FullScreenQuadFactory;
-import com.qwaecd.paramagic.client.renderer.RendererManager;
+import com.qwaecd.paramagic.core.particle.ParticleManager;
 import com.qwaecd.paramagic.core.render.context.RenderContext;
 import com.qwaecd.paramagic.core.render.post.PostProcessingManager;
 import com.qwaecd.paramagic.core.render.post.buffer.FramebufferUtils;
@@ -74,6 +74,7 @@ public class ModRenderSystem extends AbstractRenderSystem{
     public static void initAfterClientStarted() {
         ShaderManager.init();
         BaseObjectManager.init();
+        ParticleManager.init();
         ParaConverters.init();
         ModRenderSystem instance = ModRenderSystem.getInstance();
         instance.initializePostProcessing();
@@ -162,6 +163,8 @@ public class ModRenderSystem extends AbstractRenderSystem{
         for (RenderItem it : renderQueue.additive) {
             drawOne(it.renderable, context, timeSeconds);
         }
+
+        this.rendererManager.renderParticles(context, stateCache);
 
         mainFbo.unbind();
     }

@@ -7,7 +7,7 @@ import java.nio.ShortBuffer;
 
 import static org.lwjgl.opengl.GL33.*;
 
-public class Mesh implements AutoCloseable{
+public class Mesh implements AutoCloseable {
     private final int vao;
     private final int vbo;
     private int ebo;
