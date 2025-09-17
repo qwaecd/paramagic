@@ -13,9 +13,9 @@ import java.util.List;
  */
 public class AnimatorData {
     @Getter
-    private final List<TrackData> tracks;
+    private final List<TrackData<?>> tracks;
 
-    public AnimatorData(List<TrackData> tracks) {
+    public AnimatorData(List<TrackData<?>> tracks) {
         this.tracks = tracks;
     }
 }
