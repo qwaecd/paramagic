@@ -82,8 +82,8 @@ public class DebugTools {
             TrackData<?> rotationTrack = new KeyframeTrackData<>(
                     PropertyType.ROTATION,
                     List.of(
-                            new KeyframeData<>(0f, new Quaternionf().rotateY((float)Math.toRadians(0))),
                             new KeyframeData<>(1.0f, new Quaternionf().rotateY((float)Math.toRadians(180))),
+                            new KeyframeData<>(0f, new Quaternionf().rotateY((float)Math.toRadians(0))),
                             new KeyframeData<>(2.0f, new Quaternionf().rotateY((float)Math.toRadians(359)))
                     ),
                     true
@@ -92,9 +92,9 @@ public class DebugTools {
             TrackData<?> scaleTrack = new KeyframeTrackData<>(
                     PropertyType.SCALE,
                     List.of(
+                            new KeyframeData<>(6.0f, new Vector3f(1)),
                             new KeyframeData<>(0f, new Vector3f(0.0f, 0.0f, 0.0f)),
                             new KeyframeData<>(3.0f, new Vector3f(0.5f)),
-                            new KeyframeData<>(6.0f, new Vector3f(1)),
                             new KeyframeData<>(24.0f, new Vector3f(2))
                     ),
                     true
@@ -118,7 +118,7 @@ public class DebugTools {
                             new KeyframeData<>(0.0f, new Vector3f(1.0f, 1.0f, 0.0f)),
                             new KeyframeData<>(20.0f, new Vector3f(1.0f, 0.0f, 1.0f)),
                             new KeyframeData<>(30.0f, new Vector3f(1.0f, 1.0f, 1.0f)),
-                            new KeyframeData<>(40.0f, new Vector3f(1.0f, 0.0f, 0.0f))
+                            new KeyframeData<>(40.0f, new Vector3f(0.0f, 0.0f, 1.0f))
                     ),
                     true
             );
@@ -126,9 +126,13 @@ public class DebugTools {
             TrackData<?> intensity = new KeyframeTrackData<>(
                     PropertyType.EMISSIVE_INTENSITY,
                     List.of(
-                            new KeyframeData<>(0.0f, 2.0f)
+                            new KeyframeData<>(0.0f, 0.1f),
+                            new KeyframeData<>(5.0f, 1.0f),
+                            new KeyframeData<>(10.0f, 3.0f),
+                            new KeyframeData<>(15.0f, 2.0f),
+                            new KeyframeData<>(20.0f, 0.1f)
                     ),
-                    false
+                    true
             );
             animatingColor = new AnimatorData(List.of(colorTrack, intensity));
         }

@@ -10,6 +10,11 @@ public abstract class ParaMaterial extends AbstractMaterial implements EmissiveM
     protected boolean hasColorAnimation;
     public final Vector4f animationColor = new Vector4f(1.0f, 1.0f, 1.0f, 1.0f);
     protected final Vector3f emissiveColor = new Vector3f(0.1f, 0.1f, 0.1f);
+    /**
+     * The threshold below which emissive calculations are not performed, hardcoded in ring_para.fsh<br>
+     * 发光强度阈值，低于该值时不进行发光计算，硬编码至 ring_para.fsh
+     */
+    public static final float threshold = 0.1f;
     protected float emissiveIntensity = 0.0f;
     public ParaMaterial(Shader shader) {
         super(shader);

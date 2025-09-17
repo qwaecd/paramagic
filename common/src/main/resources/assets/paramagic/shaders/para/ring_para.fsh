@@ -10,10 +10,12 @@ uniform float u_emissiveIntensity;
 
 void main(){
     vec3 growHDRColor = u_emissiveColor.rgb * u_emissiveIntensity;
-    float brightness = dot(growHDRColor, vec3(0.2126, 0.7152, 0.0722));
+    // 黑魔法不需要符合物理规律，fuck you dot.
+//    float brightness = dot(growHDRColor, vec3(0.2126, 0.7152, 0.0722));
     o_bloomColor = vec4(0.0, 0.0, 0.0, 1.0);
-    if (u_emissiveIntensity > 1.0) {
-        o_bloomColor = vec4(growHDRColor - 1.0, 1.0);
+    const float threshold = 0.1;
+    if (u_emissiveIntensity > threshold) {
+        o_bloomColor = vec4(growHDRColor - threshold, 1.0);
     }
     o_color = vertex_color;
 }
