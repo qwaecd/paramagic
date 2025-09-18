@@ -5,7 +5,13 @@ import com.qwaecd.paramagic.Paramagic;
 public class ParticleManager {
     private static ParticleManager INSTANCE;
 
-    private ParticleManager() {}
+    private final GPUParticleSimulator particleSimulator;
+    public final int maxParticles = Short.MAX_VALUE;
+
+
+    private ParticleManager() {
+        this.particleSimulator = new GPUParticleSimulator(this.maxParticles);
+    }
 
     public static ParticleManager getInstance() {
         if (INSTANCE == null) {

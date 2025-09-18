@@ -72,15 +72,39 @@ public class ModRenderSystem extends AbstractRenderSystem{
     }
 
     public static void initAfterClientStarted() {
+        checkGLVersion();
+
         ShaderManager.init();
         BaseObjectManager.init();
         ParticleManager.init();
         ParaConverters.init();
+
+
         ModRenderSystem instance = ModRenderSystem.getInstance();
         instance.initializePostProcessing();
         instance.fullscreenQuad = FullScreenQuadFactory.createFullscreenQuad();
         instance.rendererManager = new RendererManager();
         Paramagic.LOG.info("Render system initialized.");
+    }
+
+    private static void checkGLVersion() {
+        String s = glGetString(GL_VERSION);
+        Paramagic.LOG.info("OpenGL version: {}", s);
+        if (s == null || s.isEmpty()) {
+            return;
+        }
+        String[] parts = s.split(" ");
+        String versionPart = parts[0];
+        String[] versionNumbers = versionPart.split("\\.");
+        try {
+            int major = Integer.parseInt(versionNumbers[0]);
+            int minor = Integer.parseInt(versionNumbers[1]);
+            float version = major + minor / 10.0f;
+            if (version < 3.2f) {
+                Paramagic.LOG.warn("OpenGL version is lower than 3.2. Some features may not work correctly.");
+            }
+        } catch (Exception ignored) {
+        }
     }
 
     private void initializePostProcessing() {
@@ -164,6 +188,7 @@ public class ModRenderSystem extends AbstractRenderSystem{
             drawOne(it.renderable, context, timeSeconds);
         }
 
+        // 渲染GPU粒子
         this.rendererManager.renderParticles(context, stateCache);
 
         mainFbo.unbind();

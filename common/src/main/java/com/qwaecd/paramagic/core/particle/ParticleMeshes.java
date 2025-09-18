@@ -23,7 +23,7 @@ public class ParticleMeshes {
         }
 
         VertexLayout particleVertexLayout = new VertexLayout();
-        particleVertexLayout.addAttribute(new VertexAttribute(0, 2, GL_FLOAT, false));
+        particleVertexLayout.addAttribute(new VertexAttribute(2, 2, GL_FLOAT, false));
         buildQuad(particleVertexLayout);
         buildTriangle(particleVertexLayout);
 

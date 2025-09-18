@@ -10,6 +10,7 @@ public class AllShaders {
         postShaders();
         debugShaders();
         paraShaders();
+        particleShaders();
     }
     private static void postShaders() {
         ShaderInfo compositeShader = new ShaderInfo("post/", "full_screen");
@@ -28,5 +29,10 @@ public class AllShaders {
 
     private static void paraShaders() {
         ShaderManager.registerShaderInfo("ring_para", new ShaderInfo("para/", "ring_para"));
+    }
+
+    private static void particleShaders() {
+        ShaderManager.registerShaderInfo("particle_update", new ShaderInfo("particle/", "particle_update"));
+        ShaderManager.registerShaderInfo("particle_render", new ShaderInfo("particle/", "particle_render"));
     }
 }
