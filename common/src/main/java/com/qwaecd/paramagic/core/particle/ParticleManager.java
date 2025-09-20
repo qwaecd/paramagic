@@ -5,6 +5,7 @@ import com.qwaecd.paramagic.core.particle.memory.GPUMemoryManager;
 import com.qwaecd.paramagic.core.particle.memory.ParticleBufferSlice;
 import com.qwaecd.paramagic.core.particle.renderer.AdditiveGPUParticleRenderer;
 import com.qwaecd.paramagic.core.particle.renderer.ParticleRenderer;
+import com.qwaecd.paramagic.core.particle.renderer.ParticleRendererType;
 import com.qwaecd.paramagic.core.render.context.RenderContext;
 import com.qwaecd.paramagic.core.render.state.GLStateCache;
 
@@ -21,7 +22,7 @@ public class ParticleManager {
     private final GPUMemoryManager gpuMemoryManager;
 
     private final ParticleVAO particleVAO;
-    private final List<ParticleBufferSlice> activeSlices;
+    private final List<GPUParticleEffect> activeEffects;
     private int readIndex = 0;
     private int writeIndex = 1;
     /**
@@ -37,7 +38,7 @@ public class ParticleManager {
         this.particleRenderers = new ArrayList<>(1);
         particleRenderers.add(new AdditiveGPUParticleRenderer());
 
-        this.activeSlices = new ArrayList<>();
+        this.activeEffects = new ArrayList<>();
         this.particleVAO = new ParticleVAO();
     }
 
@@ -58,7 +59,7 @@ public class ParticleManager {
     }
 
     public void renderParticles(RenderContext context, GLStateCache stateCache) {
-        if (this.activeSlices.isEmpty()){
+        if (this.activeEffects.isEmpty()){
             return;
         }
         for (ParticleRenderer renderer : particleRenderers) {
@@ -67,11 +68,25 @@ public class ParticleManager {
     }
 
     public void update(float deltaTime) {
-        if (this.activeSlices.isEmpty()){
+        if (this.activeEffects.isEmpty()){
             return;
         }
-        particleSimulator.update(deltaTime, this.particleVAO, this.activeSlices, this.gpuMemoryManager.getVBOId(readIndex), this.gpuMemoryManager.getVBOId(writeIndex));
+        particleSimulator.update(deltaTime, this.particleVAO, this.activeEffects, this.gpuMemoryManager.getVBOId(readIndex), this.gpuMemoryManager.getVBOId(writeIndex));
         swapBuffers();
+    }
+
+    public GPUParticleEffect spawnEffect(int particleCount, ParticleRendererType rendererType) {
+        ParticleBufferSlice slice = gpuMemoryManager.allocate(particleCount);
+        if (slice == null) {
+            return null;
+        }
+
+        GPUParticleEffect effect = new GPUParticleEffect(slice, rendererType);
+
+        activeEffects.add(effect);
+        // TODO: 在这里需要初始化新分配的粒子数据 (glBufferSubData)
+
+        return effect;
     }
 
     public int getCurrentReadVBO() {

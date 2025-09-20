@@ -11,8 +11,6 @@ layout (location = 7) in float in_angle;
 layout (location = 8) in float in_angularVelocity;
 layout (location = 9) in int in_type;
 
-uniform float u_deltaTime;
-
 out vec3 out_position;
 out vec3 out_velocity;
 out float out_age;
@@ -24,9 +22,34 @@ out float out_angle;
 out float out_angularVelocity;
 out int out_type;
 
+uniform float u_deltaTime;
+// not center force
+uniform vec3 u_gravity;
+uniform float u_drag;
+// center force = A * pow(r, B) + C
+uniform vec3 u_attractorPosition;
+uniform float u_constantA;
+uniform float u_exponentB;
+uniform float u_constantC;
+
+vec3 applyForces() {
+    vec3 notCenterForce = u_gravity - in_velocity * u_drag;
+
+    vec3 centerForce = vec3(0.0);
+    vec3 toAttractor = u_attractorPosition - in_position;
+    float distance = length(toAttractor);
+
+    if (u_constantA != 0.0 && distance > 0.001) {
+        vec3 direction = toAttractor / distance;
+        float magnitude = u_constantA * pow(distance, u_exponentB) + u_constantC;
+        centerForce = direction * magnitude;
+    }
+    return notCenterForce + centerForce;
+}
+
 void update() {
     float new_age = in_age + u_deltaTime;
-    vec3 newVelocity = in_velocity;
+    vec3 newVelocity = in_velocity + applyForces() * u_deltaTime;
     vec3 newPosition = in_position + newVelocity * u_deltaTime;
     float newAngle = in_angle + in_angularVelocity * u_deltaTime;
 
@@ -42,18 +65,22 @@ void update() {
     out_type = in_type;
 }
 
+void death() {
+    out_position = in_position;
+    out_velocity = in_velocity;
+    out_age = in_age;
+    out_lifetime = in_lifetime;
+    out_color = in_color;
+    out_intensity = in_intensity;
+    out_size = in_size;
+    out_angle = in_angle;
+    out_angularVelocity = in_angularVelocity;
+    out_type = in_type;
+}
+
 void main() {
     if (in_age >= in_lifetime) {
-        out_position = in_position;
-        out_velocity = in_velocity;
-        out_age = in_age;
-        out_lifetime = in_lifetime;
-        out_color = in_color;
-        out_intensity = in_intensity;
-        out_size = in_size;
-        out_angle = in_angle;
-        out_angularVelocity = in_angularVelocity;
-        out_type = in_type;
+        death();
         return;
     }
     update();

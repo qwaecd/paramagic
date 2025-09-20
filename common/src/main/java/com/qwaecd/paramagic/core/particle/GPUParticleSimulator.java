@@ -18,11 +18,10 @@ public class GPUParticleSimulator {
     public void update(
             float deltaTime,
             ParticleVAO vao,
-            List<ParticleBufferSlice> activeSlices,
+            List<GPUParticleEffect> effects,
             int readVBO,
             int writeVBO
     ) {
-        applyUniforms(deltaTime);
         glEnable(GL_RASTERIZER_DISCARD);
 
         vao.bindAndConfigure(readVBO);
@@ -30,11 +29,16 @@ public class GPUParticleSimulator {
 
 
         glBeginTransformFeedback(GL_POINTS);
-        for (ParticleBufferSlice slice : activeSlices) {
+        this.updateShader.bind();
+        applyUniforms(deltaTime);
+        for (GPUParticleEffect effect : effects) {
+            effect.applyCustomUniforms(this.updateShader);
+            ParticleBufferSlice slice = effect.getSlice();
             glDrawArrays(GL_POINTS, slice.getOffset(), slice.getParticleCount());
         }
-        glEndTransformFeedback();
 
+
+        glEndTransformFeedback();
         glDisable(GL_RASTERIZER_DISCARD);
 
         glBindBufferBase(GL_TRANSFORM_FEEDBACK_BUFFER, 0, 0);
@@ -43,7 +47,6 @@ public class GPUParticleSimulator {
     }
 
     private void applyUniforms(float deltaTime) {
-        this.updateShader.bind();
         this.updateShader.setUniformValue1f("u_deltaTime", deltaTime);
     }
 }
