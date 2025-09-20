@@ -2,6 +2,7 @@ package com.qwaecd.paramagic.mixin;
 
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.qwaecd.paramagic.core.particle.ParticleManager;
 import com.qwaecd.paramagic.core.render.RendererManager;
 import com.qwaecd.paramagic.core.render.ModRenderSystem;
 import com.qwaecd.paramagic.core.render.context.RenderContextManager;
@@ -42,7 +43,7 @@ public abstract class LevelRenderMixin {
     ) {
         ModRenderSystem rs = ModRenderSystem.getInstance();
         RendererManager rendererManager = rs.getRendererManager();
-
+        ParticleManager particleManager = rs.getParticleManager();
         if (!minecraft.isPaused()) {
             Timer timer = ((MinecraftMixin) minecraft).getTimer();
             // 距离上一帧的时间，单位是游戏刻
@@ -50,6 +51,7 @@ public abstract class LevelRenderMixin {
             float secondsPerTick = ((TimerMixin) timer).getMsPerTick() / 1000.0f;
             float deltaTimeInSeconds = deltaFrameTime * secondsPerTick;
             rendererManager.update(deltaTimeInSeconds);
+            particleManager.update(deltaTimeInSeconds);
         }
 
         rendererManager.submitAll();

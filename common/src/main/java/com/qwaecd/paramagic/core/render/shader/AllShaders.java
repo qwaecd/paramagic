@@ -32,7 +32,20 @@ public class AllShaders {
     }
 
     private static void particleShaders() {
-        ShaderManager.registerShaderInfo("particle_update", new ShaderInfo("particle/", "particle_update"));
+        ShaderManager.registerShaderInfo("particle_update", new ShaderInfo("particle/", "particle_update", feedbackVaryings));
         ShaderManager.registerShaderInfo("particle_render", new ShaderInfo("particle/", "particle_render"));
     }
+
+    public static final String[] feedbackVaryings = {
+            "out_position",
+            "out_velocity",
+            "out_age",
+            "out_lifetime",
+            "out_color",
+            "out_intensity",
+            "out_size",
+            "out_angle",
+            "out_angularVelocity",
+            "out_type"
+    };
 }

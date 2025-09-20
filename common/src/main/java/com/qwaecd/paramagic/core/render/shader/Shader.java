@@ -21,6 +21,10 @@ public class Shader {
      * @param name 着色器名称，文件名（不带扩展名）
      */
     public Shader(String path, String name) {
+        this(path, name, null);
+    }
+
+    public Shader(String path, String name, String[] feedbackVaryings) {
         this.name = name;
         this.path = path;
         int v = ShaderTools.loadShaderProgram(path, name, ShaderManager.ShaderType.VERTEX);
@@ -28,6 +32,9 @@ public class Shader {
         this.programId = glCreateProgram();
         glAttachShader(programId, v);
         glAttachShader(programId, f);
+        if (feedbackVaryings != null && feedbackVaryings.length > 0) {
+            glTransformFeedbackVaryings(programId, feedbackVaryings, GL_INTERLEAVED_ATTRIBS);
+        }
         glLinkProgram(programId);
     }
 

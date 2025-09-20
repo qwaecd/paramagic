@@ -48,6 +48,8 @@ public class ModRenderSystem extends AbstractRenderSystem{
 
     @Getter
     private RendererManager rendererManager;
+    @Getter
+    private ParticleManager particleManager;
 
     private final Matrix4f reusableMatrix = new Matrix4f();
 
@@ -84,6 +86,7 @@ public class ModRenderSystem extends AbstractRenderSystem{
         instance.initializePostProcessing();
         instance.fullscreenQuad = FullScreenQuadFactory.createFullscreenQuad();
         instance.rendererManager = new RendererManager();
+        instance.particleManager = ParticleManager.getInstance();
         Paramagic.LOG.info("Render system initialized.");
     }
 
@@ -189,7 +192,7 @@ public class ModRenderSystem extends AbstractRenderSystem{
         }
 
         // 渲染GPU粒子
-        this.rendererManager.renderParticles(context, stateCache);
+        this.particleManager.renderParticles(context, stateCache);
 
         mainFbo.unbind();
     }

@@ -1,6 +1,7 @@
 package com.qwaecd.paramagic.core.particle.memory;
 
 import com.qwaecd.paramagic.Paramagic;
+import com.qwaecd.paramagic.core.particle.GPUParticle;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
@@ -8,7 +9,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.lwjgl.opengl.GL15C.glDeleteBuffers;
+import static org.lwjgl.opengl.GL33.*;
 
 public class GPUMemoryManager implements AutoCloseable {
     private final int[] mainVBOs = new int[2];
@@ -41,7 +42,30 @@ public class GPUMemoryManager implements AutoCloseable {
 
         this.allocatedSlices = new HashMap<>();
 
-        // TODO: 初始化OpenGL VBO
+        initVBO();
+    }
+
+    public int getVBOId(int idx) {
+        return mainVBOs[idx];
+    }
+
+    public long getPoolByteSize() {
+        return (long) totalCapacity * GPUParticle.SIZE_IN_BYTES;
+    }
+
+    private void initVBO() {
+        long totalBytes = (long) totalCapacity * GPUParticle.SIZE_IN_BYTES;
+        glGenBuffers(mainVBOs);
+
+        for (int vbo : mainVBOs) {
+            glBindBuffer(GL_ARRAY_BUFFER, vbo);
+            glBufferData(GL_ARRAY_BUFFER, totalBytes, GL_DYNAMIC_DRAW);
+        }
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+        Paramagic.LOG.debug(
+                "GPUMemoryManager initialized. Particle capacity: {}, Particle size: {} bytes, Total VBO size: {} MB",
+                totalCapacity, GPUParticle.SIZE_IN_BYTES, String.format("%.2f", totalBytes / (1024.0 * 1024.0)));
     }
 
     /**
@@ -101,7 +125,6 @@ public class GPUMemoryManager implements AutoCloseable {
         int blockSize = slice.getAllocatedBlockSize();
         int order = (int) (Math.log(blockSize) / Math.log(2));
 
-        System.out.printf("Freeing block at offset %d (size %d, order %d)\n", address, blockSize, order);
 
         // 3. 循环向上尝试与伙伴合并
         while (order < maxOrder) {
@@ -111,6 +134,7 @@ public class GPUMemoryManager implements AutoCloseable {
 
             // 3.2 检查伙伴是否空闲
             // "空闲"意味着它必须存在于对应阶数的空闲列表中
+            // TODO: 如果查找出现瓶颈，考虑换成HashSet
             List<Integer> buddyFreeList = freeLists[order];
             if (buddyFreeList.contains(buddyAddress)) {
                 // 3.3 伙伴是空闲的，执行合并！
