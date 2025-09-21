@@ -1,4 +1,6 @@
 #version 330 core
+//#extension GL_EXT_transform_feedback : enable
+#extension GL_EXT_transform_feedback : require
 
 layout (location = 0) in vec3 in_position;
 layout (location = 1) in vec3 in_velocity;

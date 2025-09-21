@@ -179,6 +179,10 @@ public class Mesh implements AutoCloseable {
         }
     }
 
+    public int getVBO() {
+        return this.vbo;
+    }
+
     @Override
     public void close() throws Exception {
         if (ebo != 0) glDeleteBuffers(ebo);

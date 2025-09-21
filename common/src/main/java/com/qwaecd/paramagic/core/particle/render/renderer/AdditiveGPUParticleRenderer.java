@@ -31,9 +31,4 @@ public class AdditiveGPUParticleRenderer extends ParticleRenderer {
     public ParticleRendererType getType() {
         return ParticleRendererType.ADDITIVE;
     }
-
-    @Override
-    public void close() throws Exception {
-
-    }
 }

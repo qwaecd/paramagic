@@ -1,7 +1,7 @@
 package com.qwaecd.paramagic.core.particle.simulation;
 
 import com.qwaecd.paramagic.core.particle.GPUParticleEffect;
-import com.qwaecd.paramagic.core.particle.data.ParticleVAO;
+import com.qwaecd.paramagic.core.particle.data.SimulationParticleVAO;
 import com.qwaecd.paramagic.core.particle.memory.ParticleBufferSlice;
 import com.qwaecd.paramagic.core.particle.simulation.emitter.Emitter;
 import com.qwaecd.paramagic.core.render.shader.Shader;
@@ -20,7 +20,7 @@ public class GPUParticleSimulator {
 
     public void update(
             float deltaTime,
-            ParticleVAO vao,
+            SimulationParticleVAO vao,
             List<GPUParticleEffect> effects,
             int readVBO,
             int writeVBO

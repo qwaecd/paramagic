@@ -4,11 +4,11 @@ package com.qwaecd.paramagic.core.particle.data;
 import static org.lwjgl.opengl.GL33.*;
 
 
-public class ParticleVAO implements AutoCloseable {
+public class SimulationParticleVAO implements AutoCloseable {
     private final int vao;
     private int configuredVboId = -1;
 
-    public ParticleVAO() {
+    public SimulationParticleVAO() {
         this.vao = glGenVertexArrays();
     }
 
@@ -16,12 +16,12 @@ public class ParticleVAO implements AutoCloseable {
         glBindVertexArray(vao);
         if (configuredVboId != vboId) {
             glBindBuffer(GL_ARRAY_BUFFER, vboId);
-            configureAttributes();
+            configSimulationAttributes();
             configuredVboId = vboId;
         }
     }
 
-    private void configureAttributes() {
+    private static void configSimulationAttributes() {
         final int stride = GPUParticle.SIZE_IN_BYTES;
 
         long offset = 0;

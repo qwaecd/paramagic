@@ -2,8 +2,9 @@ package com.qwaecd.paramagic.core.particle;
 
 import com.qwaecd.paramagic.Paramagic;
 import com.qwaecd.paramagic.core.particle.data.GPUParticle;
+import com.qwaecd.paramagic.core.particle.data.InstancedParticleVAO;
 import com.qwaecd.paramagic.core.particle.data.ParticleMeshes;
-import com.qwaecd.paramagic.core.particle.data.ParticleVAO;
+import com.qwaecd.paramagic.core.particle.data.SimulationParticleVAO;
 import com.qwaecd.paramagic.core.particle.simulation.GPUParticleSimulator;
 import com.qwaecd.paramagic.core.particle.simulation.emitter.Emitter;
 import com.qwaecd.paramagic.core.particle.memory.GPUMemoryManager;
@@ -18,7 +19,9 @@ import org.lwjgl.system.MemoryUtil;
 import javax.annotation.Nullable;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import static org.lwjgl.opengl.GL33.*;
@@ -26,13 +29,14 @@ import static org.lwjgl.opengl.GL33.*;
 public class ParticleManager {
     private static ParticleManager INSTANCE;
 
-    private final List<ParticleRenderer> particleRenderers;
+    private final Map<ParticleRendererType, ParticleRenderer> particleRenderers;
 
 
     private final GPUParticleSimulator particleSimulator;
     private final GPUMemoryManager gpuMemoryManager;
 
-    private final ParticleVAO particleVAO;
+    private final SimulationParticleVAO simulationParticleVAO;
+    private final InstancedParticleVAO instancedParticleVAO;
     private final List<GPUParticleEffect> activeEffects;
     private final ConcurrentLinkedQueue<GPUParticleEffect> pendingAdd = new ConcurrentLinkedQueue<>();
     private final ConcurrentLinkedQueue<GPUParticleEffect> pendingRemove = new ConcurrentLinkedQueue<>();
@@ -47,12 +51,13 @@ public class ParticleManager {
     private ParticleManager() {
         this.gpuMemoryManager = new GPUMemoryManager(this.maxParticles);
         this.particleSimulator = new GPUParticleSimulator();
+        this.instancedParticleVAO = new InstancedParticleVAO();
 
-        this.particleRenderers = new ArrayList<>(1);
-        particleRenderers.add(new AdditiveGPUParticleRenderer());
+        this.particleRenderers = new HashMap<>(1);
+        particleRenderers.put(ParticleRendererType.ADDITIVE, new AdditiveGPUParticleRenderer());
 
         this.activeEffects = new ArrayList<>();
-        this.particleVAO = new ParticleVAO();
+        this.simulationParticleVAO = new SimulationParticleVAO();
     }
 
     public static ParticleManager getInstance() {
@@ -75,8 +80,13 @@ public class ParticleManager {
         if (this.activeEffects.isEmpty()){
             return;
         }
-        for (ParticleRenderer renderer : particleRenderers) {
-            renderer.render(context, stateCache);
+        for (GPUParticleEffect effect : this.activeEffects) {
+            ParticleRendererType rendererType = effect.getRendererType();
+            ParticleRenderer renderer = this.particleRenderers.get(rendererType);
+            if (renderer != null) {
+                // TODO: 需要进一步实现实例化渲染粒子
+                renderer.render(context, stateCache);
+            }
         }
     }
 
@@ -85,7 +95,7 @@ public class ParticleManager {
         if (this.activeEffects.isEmpty()){
             return;
         }
-        particleSimulator.update(deltaTime, this.particleVAO, this.activeEffects, this.gpuMemoryManager.getVBOId(readIndex), this.gpuMemoryManager.getVBOId(writeIndex));
+        particleSimulator.update(deltaTime, this.simulationParticleVAO, this.activeEffects, this.gpuMemoryManager.getVBOId(readIndex), this.gpuMemoryManager.getVBOId(writeIndex));
         swapBuffers();
     }
 
