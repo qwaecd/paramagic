@@ -37,6 +37,7 @@ public class PointEmitter extends EmitterBase implements Emitter {
         buffer.putFloat(random.nextFloat()); // angle
         buffer.putFloat(0.0f); // angularVelocity
         buffer.putInt(0); // type
+
     }
 
     @Override
