@@ -3,6 +3,8 @@ package com.qwaecd.paramagic.core.render.shader;
 import com.qwaecd.paramagic.tools.ShaderTools;
 import lombok.Getter;
 import org.joml.Matrix4f;
+import org.joml.Vector3f;
+import org.joml.Vector4f;
 import org.lwjgl.BufferUtils;
 
 import java.nio.FloatBuffer;
@@ -58,8 +60,16 @@ public class Shader {
         glUniform3f(glGetUniformLocation(programId, name), v0, v1, v2);
     }
 
+    public void setUniformValue3f(String name, Vector3f v) {
+        glUniform3f(glGetUniformLocation(programId, name), v.x, v.y, v.z);
+    }
+
     public void setUniformValue4f(String name, float v0, float v1, float v2, float v3) {
         glUniform4f(glGetUniformLocation(programId, name), v0, v1, v2, v3);
+    }
+
+    public void setUniformValue4f(String name, Vector4f v) {
+        glUniform4f(glGetUniformLocation(programId, name), v.x, v.y, v.z, v.w);
     }
 
     public void setUniformValue2f(String name, float v0, float v1) {

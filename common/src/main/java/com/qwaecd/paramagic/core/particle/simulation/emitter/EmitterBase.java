@@ -1,5 +1,7 @@
 package com.qwaecd.paramagic.core.particle.simulation.emitter;
 
+import com.qwaecd.paramagic.core.render.shader.Shader;
+import lombok.Getter;
 import org.joml.Vector3f;
 
 public abstract class EmitterBase implements Emitter {
@@ -43,5 +45,13 @@ public abstract class EmitterBase implements Emitter {
         this.particlesPerSecond = particlesPerSecond;
         this.position = position;
         this.baseVelocity = new Vector3f(0.0f, 1.0f, 0.0f);
+    }
+
+    protected final void applyUpdateUniforms(Shader shader) {
+        shader.setUniformValue3f("u_emitterPosition", this.position);
+        shader.setUniformValue3f("u_baseVelocity", this.baseVelocity);
+        shader.setUniformValue1f("u_velocitySpread", this.velocitySpread);
+        shader.setUniformValue1f("u_minLifetime", this.minLifetime);
+        shader.setUniformValue1f("u_maxLifetime", this.maxLifetime);
     }
 }

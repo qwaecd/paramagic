@@ -22,4 +22,12 @@ public interface Emitter {
      * 从粒子发射器完成到现在的时间，单位为秒。
      */
     float getTimeSinceFinished();
+
+    /**
+     * The number of particles emitted per second. For one-time emissions, this value is 0.
+     * <p>
+     * 每秒发射的粒子数，对于一次性发射，其值为 0。
+     * @return particles per second.
+     */
+    float getParticlesPerSecond();
 }

@@ -16,6 +16,10 @@ public class GPUParticleEffect {
     private final ParticleRendererType rendererType;
     @Getter
     private final Emitter emitter;
+    @Getter
+    @Setter
+    public int activationCounter = 0;
+    public float emissionDebt = 0.0f;
     /**
      * 所有粒子的最大生命周期，单位秒
      */

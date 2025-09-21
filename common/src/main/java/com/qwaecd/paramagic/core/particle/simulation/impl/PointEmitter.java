@@ -6,7 +6,6 @@ import com.qwaecd.paramagic.core.render.shader.Shader;
 import org.joml.Vector3f;
 
 import java.nio.ByteBuffer;
-import java.util.Random;
 
 public class PointEmitter extends EmitterBase implements Emitter {
     public PointEmitter(
@@ -25,19 +24,25 @@ public class PointEmitter extends EmitterBase implements Emitter {
     }
     @Override
     public void initialize(final ByteBuffer buffer, final int particleCount) {
-        Random random = new Random();
-        float randomLifetime = random.nextFloat(this.minLifetime, this.maxLifetime);
-        buffer.putFloat(this.position.x).putFloat(this.position.y).putFloat(this.position.z); // position
-        buffer.putFloat(this.baseVelocity.x).putFloat(this.baseVelocity.y).putFloat(this.baseVelocity.z); // velocity
-        buffer.putFloat(1.0f + randomLifetime); // age
-        buffer.putFloat(randomLifetime); // lifetime
-        buffer.putFloat(1.0f).putFloat(1.0f).putFloat(1.0f).putFloat(1.0f); // color rgba
-        buffer.putFloat(0.0f); // intensity
-        buffer.putFloat(1.0f); // size
-        buffer.putFloat(random.nextFloat()); // angle
-        buffer.putFloat(0.0f); // angularVelocity
-        buffer.putInt(0); // type
+        float initialLifetime = 1.0f;
+        float initialAge = initialLifetime + 1.0f;
+        for (int i = 0; i < particleCount; i++) {
+            buffer.putFloat(this.position.x).putFloat(this.position.y).putFloat(this.position.z); // position
+            buffer.putFloat(this.baseVelocity.x).putFloat(this.baseVelocity.y).putFloat(this.baseVelocity.z); // velocity
 
+            buffer.putFloat(initialAge); // age
+            buffer.putFloat(initialLifetime); // lifetime
+
+            buffer.putFloat(1.0f).putFloat(0.5f).putFloat(1.0f).putFloat(1.0f); // color rgba
+            buffer.putFloat(0.0f); // intensity
+
+            buffer.putFloat(1.0f); // size
+
+            buffer.putFloat(0.0f); // angle
+            buffer.putFloat(0.0f); // angularVelocity
+
+            buffer.putInt(0); // index
+        }
     }
 
     @Override
@@ -46,6 +51,7 @@ public class PointEmitter extends EmitterBase implements Emitter {
             this.timeSinceFinished += deltaTime;
             return;
         }
+        super.applyUpdateUniforms(shader);
     }
 
     @Override
@@ -56,6 +62,11 @@ public class PointEmitter extends EmitterBase implements Emitter {
     @Override
     public float getTimeSinceFinished() {
         return this.timeSinceFinished;
+    }
+
+    @Override
+    public float getParticlesPerSecond() {
+        return this.particlesPerSecond;
     }
 
     public void stop() {

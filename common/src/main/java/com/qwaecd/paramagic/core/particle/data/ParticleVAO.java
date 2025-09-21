@@ -71,9 +71,8 @@ public class ParticleVAO implements AutoCloseable {
         glVertexAttribPointer(8, 1, GL_FLOAT, false, stride, offset);
         offset += 4; // 4 bytes
 
-        // 属性9: int type
+        // 属性9: int index
         glEnableVertexAttribArray(9);
-        // 注意：对于整型属性，必须使用 glVertexAttribIPointer
         glVertexAttribIPointer(9, 1, GL_INT, stride, offset);
     }
 
