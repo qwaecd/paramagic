@@ -1,7 +1,8 @@
 package com.qwaecd.paramagic.core.particle;
 
+import com.qwaecd.paramagic.core.particle.simulation.emitter.Emitter;
 import com.qwaecd.paramagic.core.particle.memory.ParticleBufferSlice;
-import com.qwaecd.paramagic.core.particle.renderer.ParticleRendererType;
+import com.qwaecd.paramagic.core.particle.render.renderer.ParticleRendererType;
 import com.qwaecd.paramagic.core.render.shader.Shader;
 import lombok.Getter;
 import lombok.Setter;
@@ -13,6 +14,10 @@ public class GPUParticleEffect {
     private final ParticleBufferSlice slice;
     @Getter
     private final ParticleRendererType rendererType;
+    @Getter
+    private final Emitter emitter;
+    @Getter
+    private final float maxLifetime;
 
     // --------------非有心力部分--------------
     /**
@@ -40,9 +45,16 @@ public class GPUParticleEffect {
     private float constantC = 0.0f;
 
 
-    public GPUParticleEffect(ParticleBufferSlice slice, ParticleRendererType rendererType) {
+    public GPUParticleEffect(
+            ParticleBufferSlice slice,
+            Emitter emitter,
+            float maxLifetime,
+            ParticleRendererType rendererType
+    ) {
         this.rendererType = rendererType;
         this.slice = slice;
+        this.emitter = emitter;
+        this.maxLifetime = maxLifetime;
         this.gravity = new Vector3f(0.0f, -0.05f, 0.0f);
         this.attractorPosition = new Vector3f(0.0f, 0.0f, 0.0f);
         this.drag = 0.05f;
@@ -61,5 +73,9 @@ public class GPUParticleEffect {
         shader.setUniformValue1f("u_constantA", this.constantA);
         shader.setUniformValue1f("u_exponentB", this.exponentB);
         shader.setUniformValue1f("u_constantC", this.constantC);
+    }
+
+    public boolean isFinished() {
+        return this.emitter.isFinished() && this.emitter.getTimeSinceFinished() >= this.maxLifetime;
     }
 }

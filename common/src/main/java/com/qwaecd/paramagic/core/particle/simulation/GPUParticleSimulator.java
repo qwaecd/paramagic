@@ -1,5 +1,7 @@
-package com.qwaecd.paramagic.core.particle;
+package com.qwaecd.paramagic.core.particle.simulation;
 
+import com.qwaecd.paramagic.core.particle.GPUParticleEffect;
+import com.qwaecd.paramagic.core.particle.render.ParticleVAO;
 import com.qwaecd.paramagic.core.particle.memory.ParticleBufferSlice;
 import com.qwaecd.paramagic.core.render.shader.Shader;
 import com.qwaecd.paramagic.core.render.shader.ShaderManager;

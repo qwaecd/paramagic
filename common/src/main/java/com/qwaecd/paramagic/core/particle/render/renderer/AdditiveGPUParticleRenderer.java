@@ -1,4 +1,4 @@
-package com.qwaecd.paramagic.core.particle.renderer;
+package com.qwaecd.paramagic.core.particle.render.renderer;
 
 import com.qwaecd.paramagic.core.render.context.RenderContext;
 import com.qwaecd.paramagic.core.render.shader.Shader;

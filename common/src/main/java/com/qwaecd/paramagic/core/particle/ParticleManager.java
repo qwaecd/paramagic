@@ -1,16 +1,25 @@
 package com.qwaecd.paramagic.core.particle;
 
 import com.qwaecd.paramagic.Paramagic;
+import com.qwaecd.paramagic.core.particle.data.GPUParticle;
+import com.qwaecd.paramagic.core.particle.render.ParticleMeshes;
+import com.qwaecd.paramagic.core.particle.render.ParticleVAO;
+import com.qwaecd.paramagic.core.particle.simulation.GPUParticleSimulator;
+import com.qwaecd.paramagic.core.particle.simulation.emitter.Emitter;
 import com.qwaecd.paramagic.core.particle.memory.GPUMemoryManager;
 import com.qwaecd.paramagic.core.particle.memory.ParticleBufferSlice;
-import com.qwaecd.paramagic.core.particle.renderer.AdditiveGPUParticleRenderer;
-import com.qwaecd.paramagic.core.particle.renderer.ParticleRenderer;
-import com.qwaecd.paramagic.core.particle.renderer.ParticleRendererType;
+import com.qwaecd.paramagic.core.particle.render.renderer.AdditiveGPUParticleRenderer;
+import com.qwaecd.paramagic.core.particle.render.renderer.ParticleRenderer;
+import com.qwaecd.paramagic.core.particle.render.renderer.ParticleRendererType;
 import com.qwaecd.paramagic.core.render.context.RenderContext;
 import com.qwaecd.paramagic.core.render.state.GLStateCache;
+import org.lwjgl.system.MemoryUtil;
 
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
+
+import static org.lwjgl.opengl.GL33.*;
 
 public class ParticleManager {
     private static ParticleManager INSTANCE;
@@ -75,18 +84,44 @@ public class ParticleManager {
         swapBuffers();
     }
 
-    public GPUParticleEffect spawnEffect(int particleCount, ParticleRendererType rendererType) {
+    public GPUParticleEffect spawnEffect(
+            int particleCount,
+            Emitter emitter,
+            float maxLifetime,
+            ParticleRendererType rendererType
+    ) {
         ParticleBufferSlice slice = gpuMemoryManager.allocate(particleCount);
         if (slice == null) {
             return null;
         }
 
-        GPUParticleEffect effect = new GPUParticleEffect(slice, rendererType);
+        GPUParticleEffect effect = new GPUParticleEffect(slice, emitter, maxLifetime, rendererType);
 
+        initializeParticleData(effect);
         activeEffects.add(effect);
-        // TODO: 在这里需要初始化新分配的粒子数据 (glBufferSubData)
 
         return effect;
+    }
+
+    private void initializeParticleData(GPUParticleEffect effect) {
+        ParticleBufferSlice slice = effect.getSlice();
+        int particleCount = slice.getParticleCount();
+
+        int totalSizeInBytes = particleCount * GPUParticle.SIZE_IN_BYTES;
+        ByteBuffer dataBuffer = MemoryUtil.memAlloc(totalSizeInBytes);
+
+        effect.getEmitter().initialize(dataBuffer, particleCount);
+
+        dataBuffer.flip();
+
+        int vboId = gpuMemoryManager.getVBOId(writeIndex);
+        long offsetInBytes = (long)slice.getOffset() * GPUParticle.SIZE_IN_BYTES;
+
+        glBindBuffer(GL_ARRAY_BUFFER, vboId);
+        glBufferSubData(GL_ARRAY_BUFFER, offsetInBytes, dataBuffer);
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+        MemoryUtil.memFree(dataBuffer);
     }
 
     public int getCurrentReadVBO() {

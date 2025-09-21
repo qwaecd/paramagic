@@ -1,7 +1,7 @@
 package com.qwaecd.paramagic.core.particle.memory;
 
 import com.qwaecd.paramagic.Paramagic;
-import com.qwaecd.paramagic.core.particle.GPUParticle;
+import com.qwaecd.paramagic.core.particle.data.GPUParticle;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;

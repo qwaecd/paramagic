@@ -1,4 +1,4 @@
-package com.qwaecd.paramagic.core.particle;
+package com.qwaecd.paramagic.core.particle.data;
 
 import org.joml.Vector3f;
 import org.joml.Vector4f;
