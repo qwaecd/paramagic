@@ -1,4 +1,4 @@
-package com.qwaecd.paramagic.core.particle.render;
+package com.qwaecd.paramagic.core.particle.data;
 
 import com.qwaecd.paramagic.Paramagic;
 import com.qwaecd.paramagic.core.render.vertex.Mesh;

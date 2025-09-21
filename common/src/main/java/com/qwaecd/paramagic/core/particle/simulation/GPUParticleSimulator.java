@@ -1,7 +1,7 @@
 package com.qwaecd.paramagic.core.particle.simulation;
 
 import com.qwaecd.paramagic.core.particle.GPUParticleEffect;
-import com.qwaecd.paramagic.core.particle.render.ParticleVAO;
+import com.qwaecd.paramagic.core.particle.data.ParticleVAO;
 import com.qwaecd.paramagic.core.particle.memory.ParticleBufferSlice;
 import com.qwaecd.paramagic.core.render.shader.Shader;
 import com.qwaecd.paramagic.core.render.shader.ShaderManager;
@@ -34,6 +34,7 @@ public class GPUParticleSimulator {
         this.updateShader.bind();
         applyUniforms(deltaTime);
         for (GPUParticleEffect effect : effects) {
+            effect.getEmitter().update(deltaTime, this.updateShader);
             effect.applyCustomUniforms(this.updateShader);
             ParticleBufferSlice slice = effect.getSlice();
             glDrawArrays(GL_POINTS, slice.getOffset(), slice.getParticleCount());

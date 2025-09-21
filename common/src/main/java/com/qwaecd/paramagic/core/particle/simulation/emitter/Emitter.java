@@ -1,5 +1,7 @@
 package com.qwaecd.paramagic.core.particle.simulation.emitter;
 
+import com.qwaecd.paramagic.core.render.shader.Shader;
+
 import java.nio.ByteBuffer;
 
 public interface Emitter {
@@ -11,8 +13,13 @@ public interface Emitter {
      * @param particleCount The total number of particles for the entire effect. <br> 整个effect的粒子数量。
      */
     void initialize(final ByteBuffer buffer, final int particleCount);
-    void update(float deltaTime);
+    void update(float deltaTime, Shader updateShader);
     boolean isFinished();
 
+    /**
+     * @return in seconds since the emitter finished.
+     * <p>
+     * 从粒子发射器完成到现在的时间，单位为秒。
+     */
     float getTimeSinceFinished();
 }

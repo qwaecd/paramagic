@@ -2,8 +2,8 @@ package com.qwaecd.paramagic.core.particle;
 
 import com.qwaecd.paramagic.Paramagic;
 import com.qwaecd.paramagic.core.particle.data.GPUParticle;
-import com.qwaecd.paramagic.core.particle.render.ParticleMeshes;
-import com.qwaecd.paramagic.core.particle.render.ParticleVAO;
+import com.qwaecd.paramagic.core.particle.data.ParticleMeshes;
+import com.qwaecd.paramagic.core.particle.data.ParticleVAO;
 import com.qwaecd.paramagic.core.particle.simulation.GPUParticleSimulator;
 import com.qwaecd.paramagic.core.particle.simulation.emitter.Emitter;
 import com.qwaecd.paramagic.core.particle.memory.GPUMemoryManager;
@@ -15,9 +15,11 @@ import com.qwaecd.paramagic.core.render.context.RenderContext;
 import com.qwaecd.paramagic.core.render.state.GLStateCache;
 import org.lwjgl.system.MemoryUtil;
 
+import javax.annotation.Nullable;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 import static org.lwjgl.opengl.GL33.*;
 
@@ -32,6 +34,8 @@ public class ParticleManager {
 
     private final ParticleVAO particleVAO;
     private final List<GPUParticleEffect> activeEffects;
+    private final ConcurrentLinkedQueue<GPUParticleEffect> pendingAdd = new ConcurrentLinkedQueue<>();
+    private final ConcurrentLinkedQueue<GPUParticleEffect> pendingRemove = new ConcurrentLinkedQueue<>();
     private int readIndex = 0;
     private int writeIndex = 1;
     /**
@@ -77,6 +81,7 @@ public class ParticleManager {
     }
 
     public void update(float deltaTime) {
+        flushEffects();
         if (this.activeEffects.isEmpty()){
             return;
         }
@@ -84,6 +89,8 @@ public class ParticleManager {
         swapBuffers();
     }
 
+    @SuppressWarnings("unused")
+    @Nullable
     public GPUParticleEffect spawnEffect(
             int particleCount,
             Emitter emitter,
@@ -98,7 +105,7 @@ public class ParticleManager {
         GPUParticleEffect effect = new GPUParticleEffect(slice, emitter, maxLifetime, rendererType);
 
         initializeParticleData(effect);
-        activeEffects.add(effect);
+        pendingAdd.add(effect);
 
         return effect;
     }
@@ -131,5 +138,17 @@ public class ParticleManager {
     private void swapBuffers() {
         readIndex = 1 - readIndex;
         writeIndex = 1 - writeIndex;
+    }
+
+    private void flushEffects() {
+        GPUParticleEffect effect;
+        while ((effect = pendingAdd.poll()) != null) {
+            activeEffects.add(effect);
+        }
+
+        while ((effect = pendingRemove.poll()) != null) {
+            activeEffects.remove(effect);
+            gpuMemoryManager.free(effect.getSlice());
+        }
     }
 }

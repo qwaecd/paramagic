@@ -1,7 +1,5 @@
-package com.qwaecd.paramagic.core.particle.render;
+package com.qwaecd.paramagic.core.particle.data;
 
-
-import com.qwaecd.paramagic.core.particle.data.GPUParticle;
 
 import static org.lwjgl.opengl.GL33.*;
 
