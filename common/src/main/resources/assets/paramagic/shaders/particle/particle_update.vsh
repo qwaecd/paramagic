@@ -1,4 +1,4 @@
-#version 460 core
+#version 330 core
 //#extension GL_ARB_shader_objects : require
 //#extension GL_EXT_transform_feedback : enable
 //#extension GL_EXT_transform_feedback2 : require

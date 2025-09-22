@@ -89,7 +89,10 @@ public class ShaderManager {
             String name = entry.getKey();
             ShaderInfo info = entry.getValue();
             try {
-                Shader shader = new Shader(info.path(), info.fileName());
+                // Use feedback varyings if provided, so TF varyings are registered before linking
+                Shader shader = (info.feedbackVaryings() != null && info.feedbackVaryings().length > 0)
+                        ? new Shader(info.path(), info.fileName(), info.feedbackVaryings())
+                        : new Shader(info.path(), info.fileName());
                 SHADER_REGISTRY.put(name, shader);
                 Paramagic.LOG.debug("Successfully loaded shader: {}", name);
             } catch (Exception e) {
@@ -101,30 +104,6 @@ public class ShaderManager {
             throw new IllegalStateException("Failed to load the default {" + defaultInfo.fileName() + "} shader.");
         }
     }
-/*    private void loadShaders() {
-        positionColorShader = new Shader("", "position_color");
-        magicRingShader = new Shader("", "magic_ring");
-        baseBallInShader = new Shader("debug/","base_ball_in");
-        baseBallOutShader = new Shader("debug/","base_ball_out");
-        MagicCircleShader = new Shader("debug/","magic_circle");
-        compositeShader = new Shader("post/", "full_screen");
-        emissiveMagicShader = new Shader("magic/emissive/", "emissive_magic_circle");
-    }
-    private void registerAllShaders() {
-        register("position_color", positionColorShader);
-        register("magic_ring", magicRingShader);
-        register("base_ball_in", baseBallInShader);
-        register("base_ball_out", baseBallOutShader);
-        register("debug_magic_circle", MagicCircleShader);
-        register("magic_circle", new Shader("magic/", "magic_circle"));
-        register("composite", compositeShader);
-        register("full_screen", compositeShader);
-        register("blur", new Shader("post/", "blur"));
-        register("final_blit", new Shader("post/", "final_blit"));
-        register("sun", new Shader("", "sun"));
-        register("bloom_composite", new Shader("post/", "bloom_composite"));
-        register("emissive_magic", emissiveMagicShader);
-    }*/
 
     /**
      * Retrieves a shader by its registered name.

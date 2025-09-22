@@ -30,7 +30,7 @@ public class AdditiveGPUParticleRenderer extends ParticleRenderer {
         instancedParticleVAO.bindAndConfigure(readVBO);
         ParticleMesh mesh = ParticleMeshes.get(ParticleMesh.ParticleMeshType.QUAD);
 
-        int indexCount = mesh.getVertexCount();
+        int indexCount = mesh.getIndexCount();
         int particleCount = effect.getSlice().getParticleCount();
         long indexOffset = 0L;
 

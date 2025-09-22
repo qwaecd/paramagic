@@ -28,16 +28,15 @@ public class GPUParticleSimulator {
         glEnable(GL_RASTERIZER_DISCARD);
 
         vao.bindAndConfigure(readVBO);
-        glBindBufferBase(GL_TRANSFORM_FEEDBACK_BUFFER, 0, writeVBO);
-
 
         this.updateShader.bind();
+        // Bind transform feedback buffer BEFORE beginning transform feedback
+        glBindBufferBase(GL_TRANSFORM_FEEDBACK_BUFFER, 0, writeVBO);
         glBeginTransformFeedback(GL_POINTS);
         applyUniforms(deltaTime);
         for (GPUParticleEffect effect : effects) {
             updateEffect(deltaTime, effect);
         }
-
 
         glEndTransformFeedback();
         glDisable(GL_RASTERIZER_DISCARD);

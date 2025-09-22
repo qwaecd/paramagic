@@ -19,10 +19,11 @@ public class ParticleMesh extends Mesh {
         TRIANGLE
     }
 
-    public int getVertexCount() {
+    public int getIndexCount() {
+        // Return the element (index) count for GL_TRIANGLES
         return switch (this.type) {
-            case QUAD -> 4;
-            case TRIANGLE -> 3;
+            case QUAD -> 6;      // two triangles: 0,1,2, 0,2,3
+            case TRIANGLE -> 3;  // one triangle: 0,1,2
         };
     }
 }
