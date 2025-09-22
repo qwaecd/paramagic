@@ -1,7 +1,6 @@
 package com.qwaecd.paramagic.core.particle.data;
 
 import com.qwaecd.paramagic.Paramagic;
-import com.qwaecd.paramagic.core.render.vertex.Mesh;
 import com.qwaecd.paramagic.core.render.vertex.MeshBuilder;
 import com.qwaecd.paramagic.core.render.vertex.VertexAttribute;
 import com.qwaecd.paramagic.core.render.vertex.VertexLayout;
@@ -11,8 +10,8 @@ import java.nio.ByteBuffer;
 import static org.lwjgl.opengl.GL33.*;
 
 public class ParticleMeshes {
-    private static Mesh UNIT_QUAD;
-    private static Mesh UNIT_TRIANGLE;
+    private static ParticleMesh UNIT_QUAD;
+    private static ParticleMesh UNIT_TRIANGLE;
 
     private static boolean isInitialized = false;
 
@@ -34,7 +33,7 @@ public class ParticleMeshes {
      * @param type The desired mesh shape.
      * @return The requested shared Mesh object.
      */
-    public static Mesh get(ParticleMeshType type) {
+    public static ParticleMesh get(ParticleMesh.ParticleMeshType type) {
         if (!isInitialized) {
             throw new IllegalStateException("ParticleMeshes has not been initialized. Call ParticleManager.init() first.");
         }
@@ -47,7 +46,7 @@ public class ParticleMeshes {
     private static void buildQuad(VertexLayout particleVertexLayout) {
 
 
-        UNIT_QUAD = new Mesh(GL_TRIANGLES);
+        UNIT_QUAD = new ParticleMesh(GL_TRIANGLES, ParticleMesh.ParticleMeshType.QUAD);
         MeshBuilder quadBuilder = new MeshBuilder();
         ByteBuffer quadBuffer = quadBuilder
                 .pos(-0.5f, -0.5f, 0).endVertex()
@@ -60,7 +59,7 @@ public class ParticleMeshes {
     }
 
     private static void buildTriangle(VertexLayout particleVertexLayout) {
-        UNIT_TRIANGLE = new Mesh(GL_TRIANGLES);
+        UNIT_TRIANGLE = new ParticleMesh(GL_TRIANGLES, ParticleMesh.ParticleMeshType.TRIANGLE);
         MeshBuilder triangleBuilder = new MeshBuilder();
         float height = (float) (Math.sqrt(3.0) / 2.0);
         float halfHeight = height / 2.0f;
@@ -71,10 +70,5 @@ public class ParticleMeshes {
                 .addTriangle(0, 1, 2)
                 .buildBuffer(particleVertexLayout);
         UNIT_TRIANGLE.uploadAndConfigure(triangleBuffer, particleVertexLayout, GL_STATIC_DRAW);
-    }
-
-    public enum ParticleMeshType {
-        QUAD,
-        TRIANGLE
     }
 }

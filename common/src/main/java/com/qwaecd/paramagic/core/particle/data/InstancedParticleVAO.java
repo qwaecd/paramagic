@@ -1,6 +1,5 @@
 package com.qwaecd.paramagic.core.particle.data;
 
-import com.qwaecd.paramagic.core.render.vertex.Mesh;
 
 import static org.lwjgl.opengl.GL33.*;
 
@@ -21,6 +20,10 @@ public class InstancedParticleVAO {
             configMeshAttributes();
             configuredVboId = simulationVBO;
         }
+    }
+
+    public void unbind() {
+        glBindVertexArray(0);
     }
 
     private static void configSimulationAttributes() {
@@ -89,10 +92,11 @@ public class InstancedParticleVAO {
     }
 
     private static void configMeshAttributes() {
-        final int meshStride = 3 * 4;   // 一个vec3顶点的大小
+        final int meshStride = 3 * Float.BYTES;   // 一个vec3顶点的大小
         final long meshOffset = 0;
 
-        Mesh mesh = ParticleMeshes.get(ParticleMeshes.ParticleMeshType.QUAD);
+        // TODO: 目前只支持QUAD，后续可以扩展
+        ParticleMesh mesh = ParticleMeshes.get(ParticleMesh.ParticleMeshType.QUAD);
         int meshVBO = mesh.getVBO();
         glBindBuffer(GL_ARRAY_BUFFER, meshVBO);
         glEnableVertexAttribArray(10);

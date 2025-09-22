@@ -24,6 +24,7 @@ uniform mat4 u_projectionMatrix;
 
 out vec4 v_color;
 out vec2 v_texCoord;
+out float v_intensity;
 
 void main() {
      if (in_age >= in_lifetime) {
@@ -62,4 +63,5 @@ void main() {
     vec3 vertex_position_worldspace = in_position + vertex_offset;
 
     gl_Position = u_projectionMatrix * u_viewMatrix * vec4(vertex_position_worldspace, 1.0);
+    v_intensity = in_intensity;
 }

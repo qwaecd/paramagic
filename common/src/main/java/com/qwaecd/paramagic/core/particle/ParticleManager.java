@@ -85,7 +85,7 @@ public class ParticleManager {
             ParticleRenderer renderer = this.particleRenderers.get(rendererType);
             if (renderer != null) {
                 // TODO: 需要进一步实现实例化渲染粒子
-                renderer.render(context, stateCache);
+                renderer.render(context, effect, stateCache, this.instancedParticleVAO);
             }
         }
     }

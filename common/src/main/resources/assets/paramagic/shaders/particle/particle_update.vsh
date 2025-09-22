@@ -1,6 +1,7 @@
-#version 330 core
+#version 460 core
+//#extension GL_ARB_shader_objects : require
 //#extension GL_EXT_transform_feedback : enable
-#extension GL_EXT_transform_feedback : require
+//#extension GL_EXT_transform_feedback2 : require
 
 layout (location = 0) in vec3 in_position;
 layout (location = 1) in vec3 in_velocity;
@@ -127,7 +128,7 @@ void respawn() {
 }
 
 void main() {
-    int circularIndex = (in_type - u_activationBaseIndex + u_particleCountInSlice) % u_particleCountInSlice;
+    int circularIndex = (in_index - u_activationBaseIndex + u_particleCountInSlice) % u_particleCountInSlice;
     bool shouldActivate = (u_emitCount > 0) && (circularIndex < u_emitCount);
     if (in_age >= in_lifetime && shouldActivate) {
         respawn();

@@ -5,6 +5,9 @@ import com.qwaecd.paramagic.assembler.AssemblyException;
 import com.qwaecd.paramagic.assembler.ParaComposer;
 import com.qwaecd.paramagic.client.obj.sun.Sun;
 import com.qwaecd.paramagic.client.renderbase.factory.SphereFactory;
+import com.qwaecd.paramagic.core.particle.ParticleManager;
+import com.qwaecd.paramagic.core.particle.render.renderer.ParticleRendererType;
+import com.qwaecd.paramagic.core.particle.simulation.impl.PointEmitter;
 import com.qwaecd.paramagic.core.render.IRenderable;
 import com.qwaecd.paramagic.core.render.ModRenderSystem;
 import com.qwaecd.paramagic.core.render.shader.ShaderManager;
@@ -49,6 +52,25 @@ public class DebugTools {
         sun.getTransform().setPosition(0, 80, 10).setScale(5.0f, 5.0f, 5.0f);
         ModRenderSystem.getInstance().addRenderable(sun);
         paraTest();
+        particleTest();
+    }
+
+    private static void particleTest() {
+        PointEmitter pointEmitter = new PointEmitter(
+                new Vector3f(0, 100, 0),
+                50.0f,
+                new Vector3f(0, 1, 0),
+                (float) Math.toRadians(10),
+                3.0f,
+                10.0f
+        );
+
+        ParticleManager.getInstance().spawnEffect(
+                10000,
+                pointEmitter,
+                10.0f,
+                ParticleRendererType.ADDITIVE
+        );
     }
 
     private static void paraTest() {

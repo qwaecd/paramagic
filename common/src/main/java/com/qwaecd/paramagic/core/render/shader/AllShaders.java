@@ -46,6 +46,6 @@ public class AllShaders {
             "out_size",
             "out_angle",
             "out_angularVelocity",
-            "out_type"
+            "out_index"
     };
 }
