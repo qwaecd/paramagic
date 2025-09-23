@@ -33,7 +33,7 @@ public class AdditiveGPUParticleRenderer extends ParticleRenderer {
         int indexCount = mesh.getIndexCount();
         int particleCount = effect.getSlice().getParticleCount();
         long indexOffset = 0L;
-
+        glDisable(GL_CULL_FACE);
         glDrawElementsInstanced(
                 GL_TRIANGLES,
                 indexCount,
@@ -41,7 +41,7 @@ public class AdditiveGPUParticleRenderer extends ParticleRenderer {
                 indexOffset,
                 particleCount
         );
-
+        glEnable(GL_CULL_FACE);
         instancedParticleVAO.unbind();
     }
 
@@ -50,6 +50,7 @@ public class AdditiveGPUParticleRenderer extends ParticleRenderer {
         Matrix4f viewMatrix = context.getMatrixStackProvider().getViewMatrix();
         this.renderShader.setUniformMatrix4f("u_projectionMatrix", projectionMatrix);
         this.renderShader.setUniformMatrix4f("u_viewMatrix", viewMatrix);
+        this.renderShader.setUniformValue3f("u_cameraPosition", (float) context.getCamera().position().x, (float) context.getCamera().position().y, (float) context.getCamera().position().z);
     }
 
     @Override

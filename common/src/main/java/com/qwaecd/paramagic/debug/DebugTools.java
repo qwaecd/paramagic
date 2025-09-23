@@ -57,18 +57,18 @@ public class DebugTools {
 
     private static void particleTest() {
         PointEmitter pointEmitter = new PointEmitter(
-                new Vector3f(0, 100, 0),
+                new Vector3f(0, 110, 0),
                 50.0f,
                 new Vector3f(0, 1, 0),
                 (float) Math.toRadians(10),
-                3.0f,
-                10.0f
+                300.0f,
+                10000.0f
         );
 
         ParticleManager.getInstance().spawnEffect(
                 10000,
                 pointEmitter,
-                10.0f,
+                10000.0f,
                 ParticleRendererType.ADDITIVE
         );
     }

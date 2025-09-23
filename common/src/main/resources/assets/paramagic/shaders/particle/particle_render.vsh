@@ -21,6 +21,7 @@ layout (location = 10) in vec3 in_meshPosition;
 
 uniform mat4 u_viewMatrix;
 uniform mat4 u_projectionMatrix;
+uniform vec3 u_cameraPosition;
 
 out vec4 v_color;
 out vec2 v_texCoord;
@@ -62,6 +63,8 @@ void main() {
     // 4. 计算最终的世界空间位置
     vec3 vertex_position_worldspace = in_position + vertex_offset;
 
-    gl_Position = u_projectionMatrix * u_viewMatrix * vec4(vertex_position_worldspace, 1.0);
+    vec3 vertex_position_relative = vertex_position_worldspace - u_cameraPosition;
+
+    gl_Position = u_projectionMatrix * u_viewMatrix * vec4(vertex_position_relative, 1.0);
     v_intensity = in_intensity;
 }
