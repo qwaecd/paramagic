@@ -18,19 +18,41 @@ public class Shader {
     private final String path;
     @Getter
     private final int programId;
+    private final boolean isComputeShader;
     /**
      * @param path 着色器文件路径，相对于 resources 下的 shaders 目录，shaders下的传空字符串
      * @param name 着色器名称，文件名（不带扩展名）
      */
     public Shader(String path, String name) {
-        this(path, name, null);
+        this(path, name, null, false);
+    }
+
+    public Shader(String path, String name, String[] feedbackVaryings, boolean isComputeShader) {
+        this.isComputeShader = isComputeShader;
+        this.name = name;
+        this.path = path;
+        this.programId = glCreateProgram();
+        if (isComputeShader) {
+            int cs = ShaderTools.loadShaderProgram(path, name, ShaderType.COMPUTE);
+            glAttachShader(programId, cs);
+        } else {
+            int v = ShaderTools.loadShaderProgram(path, name, ShaderType.VERTEX);
+            int f = ShaderTools.loadShaderProgram(path, name, ShaderType.FRAGMENT);
+            glAttachShader(programId, v);
+            glAttachShader(programId, f);
+            if (feedbackVaryings != null && feedbackVaryings.length > 0) {
+                glTransformFeedbackVaryings(programId, feedbackVaryings, GL_INTERLEAVED_ATTRIBS);
+            }
+        }
+        glLinkProgram(programId);
     }
 
     public Shader(String path, String name, String[] feedbackVaryings) {
+        this.isComputeShader = false;
         this.name = name;
         this.path = path;
-        int v = ShaderTools.loadShaderProgram(path, name, ShaderManager.ShaderType.VERTEX);
-        int f = ShaderTools.loadShaderProgram(path, name, ShaderManager.ShaderType.FRAGMENT);
+        int v = ShaderTools.loadShaderProgram(path, name, ShaderType.VERTEX);
+        int f = ShaderTools.loadShaderProgram(path, name, ShaderType.FRAGMENT);
         this.programId = glCreateProgram();
         glAttachShader(programId, v);
         glAttachShader(programId, f);

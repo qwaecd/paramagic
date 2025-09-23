@@ -50,6 +50,7 @@ public class ModRenderSystem extends AbstractRenderSystem{
     private RendererManager rendererManager;
     @Getter
     private ParticleManager particleManager;
+    private boolean canUseComputerShader = false;
 
     private final Matrix4f reusableMatrix = new Matrix4f();
 
@@ -74,15 +75,15 @@ public class ModRenderSystem extends AbstractRenderSystem{
     }
 
     public static void initAfterClientStarted() {
-        checkGLVersion();
+        ModRenderSystem instance = ModRenderSystem.getInstance();
+        instance.checkGLVersion();
 
         ShaderManager.init();
         BaseObjectManager.init();
-        ParticleManager.init();
+        ParticleManager.init(instance.canUseComputerShader);
         ParaConverters.init();
 
 
-        ModRenderSystem instance = ModRenderSystem.getInstance();
         instance.initializePostProcessing();
         instance.fullscreenQuad = FullScreenQuadFactory.createFullscreenQuad();
         instance.rendererManager = new RendererManager();
@@ -90,7 +91,7 @@ public class ModRenderSystem extends AbstractRenderSystem{
         Paramagic.LOG.info("Render system initialized.");
     }
 
-    private static void checkGLVersion() {
+    private void checkGLVersion() {
         String s = glGetString(GL_VERSION);
         Paramagic.LOG.info("OpenGL version: {}", s);
         if (s == null || s.isEmpty()) {
@@ -105,6 +106,10 @@ public class ModRenderSystem extends AbstractRenderSystem{
             float version = major + minor / 10.0f;
             if (version < 3.2f) {
                 Paramagic.LOG.warn("OpenGL version is lower than 3.2. Some features may not work correctly.");
+            }
+            if (version >= 4.3) {
+                this.canUseComputerShader = true;
+                Paramagic.LOG.info("OpenGL version supports compute shaders, enjoy better performance!");
             }
         } catch (Exception ignored) {
         }
@@ -191,7 +196,6 @@ public class ModRenderSystem extends AbstractRenderSystem{
             drawOne(it.renderable, context, timeSeconds);
         }
 
-        // 渲染GPU粒子
         this.particleManager.renderParticles(context, stateCache);
 
         mainFbo.unbind();
@@ -280,6 +284,11 @@ public class ModRenderSystem extends AbstractRenderSystem{
         while ((obj = pendingRemove.poll()) != null) {
             scene.remove(obj);
         }
+    }
+
+    @SuppressWarnings("all")
+    public boolean isCanUseComputerShader() {
+        return this.canUseComputerShader;
     }
 
     public static boolean isInitialized() {

@@ -51,7 +51,9 @@ public abstract class LevelRenderMixin {
             float secondsPerTick = ((TimerMixin) timer).getMsPerTick() / 1000.0f;
             float deltaTimeInSeconds = deltaFrameTime * secondsPerTick;
             rendererManager.update(deltaTimeInSeconds);
-            particleManager.update(deltaTimeInSeconds);
+            if (rs.isCanUseComputerShader()) {
+                particleManager.update(deltaTimeInSeconds);
+            }
         }
 
         rendererManager.submitAll();

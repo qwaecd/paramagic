@@ -7,9 +7,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import static org.lwjgl.opengl.GL33.GL_FRAGMENT_SHADER;
-import static org.lwjgl.opengl.GL33.GL_VERTEX_SHADER;
-
 public class ShaderManager {
     private static ShaderManager INSTANCE;
 
@@ -90,9 +87,15 @@ public class ShaderManager {
             ShaderInfo info = entry.getValue();
             try {
                 // Use feedback varyings if provided, so TF varyings are registered before linking
-                Shader shader = (info.feedbackVaryings() != null && info.feedbackVaryings().length > 0)
-                        ? new Shader(info.path(), info.fileName(), info.feedbackVaryings())
-                        : new Shader(info.path(), info.fileName());
+                Shader shader;
+                // TODO: 处理4.3版本以下不编译compute shader的情况
+                if (info.isComputeShader()) {
+                    shader = new Shader(info.path(), info.fileName(), null, true);
+                } else {
+                    shader = (info.feedbackVaryings() != null && info.feedbackVaryings().length > 0)
+                            ? new Shader(info.path(), info.fileName(), info.feedbackVaryings())
+                            : new Shader(info.path(), info.fileName());
+                }
                 SHADER_REGISTRY.put(name, shader);
                 Paramagic.LOG.debug("Successfully loaded shader: {}", name);
             } catch (Exception e) {
@@ -139,21 +142,4 @@ public class ShaderManager {
         return SHADER_REGISTRY.get(registerName);
     }
 
-    public enum ShaderType {
-        VERTEX("vertex", ".vsh", GL_VERTEX_SHADER),
-        FRAGMENT("fragment", ".fsh", GL_FRAGMENT_SHADER),
-        ;
-        @Getter
-        private final String name;
-        @Getter
-        private final String extension;
-        @Getter
-        private final int glType;
-
-        ShaderType(String name, String extension, int glType) {
-            this.name = name;
-            this.extension = extension;
-            this.glType = glType;
-        }
-    }
 }

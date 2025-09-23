@@ -2,7 +2,7 @@ package com.qwaecd.paramagic.tools;
 
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.qwaecd.paramagic.Paramagic;
-import com.qwaecd.paramagic.core.render.shader.ShaderManager;
+import com.qwaecd.paramagic.core.render.shader.ShaderType;
 import net.minecraft.client.Minecraft;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.Resource;
@@ -16,14 +16,14 @@ import java.util.Optional;
 import static org.lwjgl.opengl.GL20.*;
 
 public class ShaderTools {
-    public static int loadShaderProgram(String path, String name, ShaderManager.ShaderType type) {
+    public static int loadShaderProgram(String path, String name, ShaderType type) {
         ResourceLocation location = createResourceLocation(path, name, type);
         int shaderId = glCreateShader(type.getGlType());
         boolean fileIsPresent = loadShaderSource(location, shaderId);
         return compileAndValidateShader(shaderId, location, name, type, fileIsPresent);
     }
 
-    private static ResourceLocation createResourceLocation(String path, String name, ShaderManager.ShaderType type) {
+    private static ResourceLocation createResourceLocation(String path, String name, ShaderType type) {
         return new ResourceLocation(
                 Paramagic.MOD_ID,
                 "shaders/" + path + name + type.getExtension()
@@ -48,7 +48,7 @@ public class ShaderTools {
     }
 
     private static int compileAndValidateShader(int shaderId, ResourceLocation location, String name,
-                                              ShaderManager.ShaderType type, boolean fileIsPresent) {
+                                                ShaderType type, boolean fileIsPresent) {
         try {
             glCompileShader(shaderId);
             if (glGetShaderi(shaderId, GL_COMPILE_STATUS) == 0 || !fileIsPresent) {

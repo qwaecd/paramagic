@@ -42,14 +42,16 @@ public class ParticleManager {
     private final ConcurrentLinkedQueue<GPUParticleEffect> pendingRemove = new ConcurrentLinkedQueue<>();
     private int readIndex = 0;
     private int writeIndex = 1;
+    private final boolean canUseComputeShader;
     /**
      * 期望的粒子数量最大值，大小最终会被向上调整为2的幂次方，以适应内存管理器的分配策略。
      */
     public final int maxParticles = (int) Math.pow(2,18);   // 2^18 = 262144
 
 
-    private ParticleManager() {
-        this.gpuMemoryManager = new GPUMemoryManager(this.maxParticles);
+    private ParticleManager(boolean canUseComputeShader) {
+        this.canUseComputeShader = canUseComputeShader;
+        this.gpuMemoryManager = new GPUMemoryManager(canUseComputeShader ? this.maxParticles : 2);
         this.particleSimulator = new GPUParticleSimulator();
         this.instancedParticleVAO = new InstancedParticleVAO();
 
@@ -67,17 +69,17 @@ public class ParticleManager {
         return INSTANCE;
     }
 
-    public static void init() {
+    public static void init(boolean canUseComputeShader) {
         if (INSTANCE != null) {
             Paramagic.LOG.warn("ParticleManager is already initialized.");
             return;
         }
-        INSTANCE = new ParticleManager();
+        INSTANCE = new ParticleManager(canUseComputeShader);
         ParticleMeshes.init();
     }
 
     public void renderParticles(RenderContext context, GLStateCache stateCache) {
-        if (this.activeEffects.isEmpty()){
+        if (this.activeEffects.isEmpty() || !this.canUseComputeShader){
             return;
         }
         for (GPUParticleEffect effect : this.activeEffects) {
@@ -91,6 +93,9 @@ public class ParticleManager {
     }
 
     public void update(float deltaTime) {
+        if (!this.canUseComputeShader) {
+            return;
+        }
         flushEffects();
         if (this.activeEffects.isEmpty()){
             return;
@@ -99,7 +104,7 @@ public class ParticleManager {
         swapBuffers();
     }
 
-    @SuppressWarnings("unused")
+    @SuppressWarnings({"unused", "UnusedReturnValue"})
     @Nullable
     public GPUParticleEffect spawnEffect(
             int particleCount,

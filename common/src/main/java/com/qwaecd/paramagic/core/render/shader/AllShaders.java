@@ -11,6 +11,7 @@ public class AllShaders {
         debugShaders();
         paraShaders();
         particleShaders();
+        computeShaders();
     }
     private static void postShaders() {
         ShaderInfo compositeShader = new ShaderInfo("post/", "full_screen");
@@ -34,6 +35,10 @@ public class AllShaders {
     private static void particleShaders() {
         ShaderManager.registerShaderInfo("particle_update", new ShaderInfo("particle/", "particle_update", feedbackVaryings));
         ShaderManager.registerShaderInfo("particle_render", new ShaderInfo("particle/", "particle_render"));
+    }
+
+    private static void computeShaders() {
+        ShaderManager.registerShaderInfo("compute_demo", new ShaderInfo("compute/", "compute_demo", null, true));
     }
 
     public static final String[] feedbackVaryings = {
