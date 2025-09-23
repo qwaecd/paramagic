@@ -287,7 +287,7 @@ public class ModRenderSystem extends AbstractRenderSystem{
     }
 
     @SuppressWarnings("all")
-    public boolean isCanUseComputerShader() {
+    public boolean canUseComputerShader() {
         return this.canUseComputerShader;
     }
 

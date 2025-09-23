@@ -1,8 +1,10 @@
 package com.qwaecd.paramagic.core.render.shader;
 
 import com.qwaecd.paramagic.Paramagic;
+import com.qwaecd.paramagic.core.render.ModRenderSystem;
 import lombok.Getter;
 
+import javax.annotation.Nullable;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -82,22 +84,18 @@ public class ShaderManager {
 
         ShaderInfo defaultInfo = new ShaderInfo("", "position_color");
         registerShaderInfo("position_color", defaultInfo);
+        boolean canUseComputerShader = ModRenderSystem.getInstance().canUseComputerShader();
         for (Map.Entry<String, ShaderInfo> entry : SHADER_DEFINITIONS.entrySet()) {
             String name = entry.getKey();
             ShaderInfo info = entry.getValue();
             try {
-                // Use feedback varyings if provided, so TF varyings are registered before linking
-                Shader shader;
-                // TODO: 处理4.3版本以下不编译compute shader的情况
-                if (info.isComputeShader()) {
-                    shader = new Shader(info.path(), info.fileName(), null, true);
+                Shader shader = getShader(info, canUseComputerShader);
+                if (shader != null) {
+                    SHADER_REGISTRY.put(name, shader);
+                    Paramagic.LOG.debug("Successfully loaded shader: {}", name);
                 } else {
-                    shader = (info.feedbackVaryings() != null && info.feedbackVaryings().length > 0)
-                            ? new Shader(info.path(), info.fileName(), info.feedbackVaryings())
-                            : new Shader(info.path(), info.fileName());
+                    Paramagic.LOG.warn("Shader '{}' could not be loaded. It may be a compute shader and the system does not support it.", name);
                 }
-                SHADER_REGISTRY.put(name, shader);
-                Paramagic.LOG.debug("Successfully loaded shader: {}", name);
             } catch (Exception e) {
                 Paramagic.LOG.error("Failed to load shader '{}' from path: '{}', name: '{}'", name, info.path(), info.fileName(), e);
             }
@@ -106,6 +104,21 @@ public class ShaderManager {
         if (this.positionColorShader == null) {
             throw new IllegalStateException("Failed to load the default {" + defaultInfo.fileName() + "} shader.");
         }
+    }
+
+    private static @Nullable Shader getShader(ShaderInfo info, boolean canUseComputerShader) {
+        Shader shader;
+        if (info.isComputeShader()) {
+            if (!canUseComputerShader) {
+                return null;
+            }
+            shader = new Shader(info.path(), info.fileName(), null, true);
+        } else {
+            shader = (info.feedbackVaryings() != null && info.feedbackVaryings().length > 0)
+                    ? new Shader(info.path(), info.fileName(), info.feedbackVaryings())
+                    : new Shader(info.path(), info.fileName());
+        }
+        return shader;
     }
 
     /**
