@@ -3,6 +3,7 @@ package com.qwaecd.paramagic.mixin;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.qwaecd.paramagic.core.particle.ParticleManager;
+import com.qwaecd.paramagic.core.particle.compute.ComputeParticleDemo;
 import com.qwaecd.paramagic.core.render.RendererManager;
 import com.qwaecd.paramagic.core.render.ModRenderSystem;
 import com.qwaecd.paramagic.core.render.context.RenderContextManager;
@@ -44,19 +45,21 @@ public abstract class LevelRenderMixin {
         ModRenderSystem rs = ModRenderSystem.getInstance();
         RendererManager rendererManager = rs.getRendererManager();
         ParticleManager particleManager = rs.getParticleManager();
+        float deltaFrameTime = 0;
         if (!minecraft.isPaused()) {
             Timer timer = ((MinecraftMixin) minecraft).getTimer();
             // 距离上一帧的时间，单位是游戏刻
-            float deltaFrameTime = minecraft.getDeltaFrameTime();
+            deltaFrameTime = minecraft.getDeltaFrameTime();
             float secondsPerTick = ((TimerMixin) timer).getMsPerTick() / 1000.0f;
             float deltaTimeInSeconds = deltaFrameTime * secondsPerTick;
             rendererManager.update(deltaTimeInSeconds);
             if (rs.canUseComputerShader()) {
-                particleManager.update(deltaTimeInSeconds);
+//                particleManager.update(deltaTimeInSeconds);
+//                ComputeParticleDemo.getInstance().updateAndRender(deltaFrameTime, RenderContextManager.getContext());
             }
         }
 
         rendererManager.submitAll();
-        rs.renderScene(RenderContextManager.getContext());
+        rs.renderScene(RenderContextManager.getContext(), deltaFrameTime);
     }
 }

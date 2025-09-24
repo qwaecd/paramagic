@@ -4,7 +4,9 @@ import com.qwaecd.paramagic.Paramagic;
 import com.qwaecd.paramagic.client.renderbase.BaseObjectManager;
 import com.qwaecd.paramagic.client.renderbase.factory.FullScreenQuadFactory;
 import com.qwaecd.paramagic.core.particle.ParticleManager;
+import com.qwaecd.paramagic.core.particle.compute.ComputeParticleDemo;
 import com.qwaecd.paramagic.core.render.context.RenderContext;
+import com.qwaecd.paramagic.core.render.context.RenderContextManager;
 import com.qwaecd.paramagic.core.render.post.PostProcessingManager;
 import com.qwaecd.paramagic.core.render.post.buffer.FramebufferUtils;
 import com.qwaecd.paramagic.core.render.post.buffer.SceneMRTFramebuffer;
@@ -124,11 +126,11 @@ public class ModRenderSystem extends AbstractRenderSystem{
         this.postProcessingManager.initialize(width, height);
     }
 
-    public void renderScene(RenderContext context) {
+    public void renderScene(RenderContext context, float deltaFrameTime) {
         try (GLStateGuard ignored = GLStateGuard.capture()) {
             updateScene();
 
-            renderObjectsToMainFBO(context);
+            renderObjectsToMainFBO(context, deltaFrameTime);
 
             int finalSceneTexture = postProcessScene();
 
@@ -168,7 +170,8 @@ public class ModRenderSystem extends AbstractRenderSystem{
         );
     }
 
-    private void renderObjectsToMainFBO(RenderContext context) {
+    // TODO: 在将 compute shader demo 改为正式功能之前先保留形参 deltaFrameTime
+    private void renderObjectsToMainFBO(RenderContext context, float deltaFrameTime) {
         FramebufferUtils.copyDepth(Minecraft.getInstance().getMainRenderTarget(), this.mainFbo);
         mainFbo.bind();
         glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
@@ -196,7 +199,10 @@ public class ModRenderSystem extends AbstractRenderSystem{
             drawOne(it.renderable, context, timeSeconds);
         }
 
-        this.particleManager.renderParticles(context, stateCache);
+        if (this.canUseComputerShader()) {
+            ComputeParticleDemo.getInstance().updateAndRender(deltaFrameTime, context);
+        }
+//        this.particleManager.renderParticles(context, stateCache);
 
         mainFbo.unbind();
     }

@@ -39,6 +39,7 @@ public class AllShaders {
 
     private static void computeShaders() {
         ShaderManager.registerShaderInfo("compute_demo", new ShaderInfo("compute/", "compute_demo", null, true));
+        ShaderManager.registerShaderInfo("compute_render", new ShaderInfo("compute/", "compute_render"));
     }
 
     public static final String[] feedbackVaryings = {

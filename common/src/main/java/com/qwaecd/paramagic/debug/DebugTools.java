@@ -52,7 +52,7 @@ public class DebugTools {
         sun.getTransform().setPosition(0, 80, 10).setScale(5.0f, 5.0f, 5.0f);
         ModRenderSystem.getInstance().addRenderable(sun);
         paraTest();
-        particleTest();
+//        particleTest();
     }
 
     private static void particleTest() {
