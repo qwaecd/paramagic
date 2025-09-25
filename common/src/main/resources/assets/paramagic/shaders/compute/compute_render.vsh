@@ -14,5 +14,5 @@ void main() {
     // Engine pattern: view matrix likely lacks translation, so subtract cameraPos manually
     vec3 relative = worldPos - u_cameraPos;
     gl_Position = u_projection * u_view * vec4(relative, 1.0);
-    gl_PointSize = 1.0; // sized via GL_PROGRAM_POINT_SIZE
+    gl_PointSize = 2.0; // sized via GL_PROGRAM_POINT_SIZE
 }

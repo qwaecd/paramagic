@@ -1,8 +1,6 @@
 package com.qwaecd.paramagic.core.particle;
 
 import com.qwaecd.paramagic.core.particle.simulation.emitter.Emitter;
-import com.qwaecd.paramagic.core.particle.memory.ParticleBufferSlice;
-import com.qwaecd.paramagic.core.particle.render.renderer.ParticleRendererType;
 import com.qwaecd.paramagic.core.render.shader.Shader;
 import lombok.Getter;
 import lombok.Setter;
@@ -10,10 +8,6 @@ import org.joml.Vector3f;
 
 
 public class GPUParticleEffect {
-    @Getter
-    private final ParticleBufferSlice slice;
-    @Getter
-    private final ParticleRendererType rendererType;
     @Getter
     private final Emitter emitter;
     @Getter
@@ -53,13 +47,9 @@ public class GPUParticleEffect {
 
 
     public GPUParticleEffect(
-            ParticleBufferSlice slice,
             Emitter emitter,
-            float maxLifetime,
-            ParticleRendererType rendererType
+            float maxLifetime
     ) {
-        this.rendererType = rendererType;
-        this.slice = slice;
         this.emitter = emitter;
         this.maxLifetime = maxLifetime;
         this.gravity = new Vector3f(0.0f, -0.05f, 0.0f);
