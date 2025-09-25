@@ -3,7 +3,7 @@ package com.qwaecd.paramagic.core.particle.data;
 
 import static org.lwjgl.opengl.GL33.*;
 
-
+@Deprecated
 public class SimulationParticleVAO implements AutoCloseable {
     private final int vao;
     private int configuredVboId = -1;

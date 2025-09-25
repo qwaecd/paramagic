@@ -26,7 +26,7 @@ public class ComputeParticleDemo {
     private int ssboVelocities;
     private int vao;
     public ComputeParticleDemo() {
-        this.NUM_PARTICLES = 32767;
+        this.NUM_PARTICLES = 10_000;
         this.computeShader = ShaderManager.getInstance().getShaderThrowIfNotFound("compute_demo");
         this.renderShader = ShaderManager.getInstance().getShaderThrowIfNotFound("compute_render");
     }
@@ -93,9 +93,9 @@ public class ComputeParticleDemo {
         FloatBuffer posBuffer = MemoryUtil.memAllocFloat(NUM_PARTICLES * floatsPerParticle);
         Random rand = new Random(12345);
         for (int i = 0; i < NUM_PARTICLES; i++) {
-            float x = rand.nextFloat() * 2;
-            float y = rand.nextFloat() * 2 + 10.0f;
-            float z = rand.nextFloat() * 2;
+            float x = rand.nextFloat() * 500;
+            float y = rand.nextFloat() * 300;
+            float z = rand.nextFloat() * 500;
             posBuffer.put(x).put(y).put(z).put(1.0f); // w = 1.0 (unused)
         }
         posBuffer.flip();
