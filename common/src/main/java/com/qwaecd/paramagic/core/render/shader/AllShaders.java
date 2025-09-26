@@ -2,15 +2,14 @@ package com.qwaecd.paramagic.core.render.shader;
 
 public class AllShaders {
     public static void registerAllShaders() {
-        ShaderManager.registerShaderInfo("position_color", new ShaderInfo("", "position_color"));
+        // default shader 在 ShaderManager 里注册
+//        ShaderManager.registerShaderInfo("position_color", new ShaderInfo("", "position_color"));
 
         ShaderManager.registerShaderInfo("sun", new ShaderInfo("", "sun"));
-
 
         postShaders();
         debugShaders();
         paraShaders();
-        particleShaders();
         computeShaders();
     }
     private static void postShaders() {
@@ -32,26 +31,8 @@ public class AllShaders {
         ShaderManager.registerShaderInfo("ring_para", new ShaderInfo("para/", "ring_para"));
     }
 
-    private static void particleShaders() {
-        ShaderManager.registerShaderInfo("particle_update", new ShaderInfo("particle/", "particle_update", feedbackVaryings));
-        ShaderManager.registerShaderInfo("particle_render", new ShaderInfo("particle/", "particle_render"));
-    }
-
     private static void computeShaders() {
-        ShaderManager.registerShaderInfo("compute_demo", new ShaderInfo("compute/", "compute_demo", null, true));
+        ShaderManager.registerShaderInfo("compute_demo", new ShaderInfo("compute/", "compute_demo", ShaderType.COMPUTE));
         ShaderManager.registerShaderInfo("compute_render", new ShaderInfo("compute/", "compute_render"));
     }
-
-    public static final String[] feedbackVaryings = {
-            "out_position",
-            "out_velocity",
-            "out_age",
-            "out_lifetime",
-            "out_color",
-            "out_intensity",
-            "out_size",
-            "out_angle",
-            "out_angularVelocity",
-            "out_index"
-    };
 }

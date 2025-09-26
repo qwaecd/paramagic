@@ -32,7 +32,7 @@ public class ComputeParticleDemo {
     private int ssboVelocities;
     private int vao;
     public ComputeParticleDemo() {
-        this.NUM_PARTICLES = 100_000;
+        this.NUM_PARTICLES = 500_000;
         this.computeShader = ShaderManager.getInstance().getShaderThrowIfNotFound("compute_demo");
         this.renderShader = ShaderManager.getInstance().getShaderThrowIfNotFound("compute_render");
     }
@@ -140,7 +140,7 @@ public class ComputeParticleDemo {
 //            // 速度模长：让更小速度概率更大（cbrt）
 //            float speed = MAX_INIT_SPEED * (float) Math.cbrt(rand.nextFloat());
 //            velBuffer.put(dirX * speed).put(dirY * speed).put(dirZ * speed).put(0.0f);
-            velBuffer.put(-0.03f).put(0.0f).put(0.0f).put(0.0f);
+            velBuffer.put(-0.05f).put(0.0f).put(0.01f).put(0.0f);
         }
         velBuffer.flip();
         glBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, velBuffer);

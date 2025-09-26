@@ -89,36 +89,29 @@ public class ShaderManager {
             String name = entry.getKey();
             ShaderInfo info = entry.getValue();
             try {
-                Shader shader = getShader(info, canUseComputerShader);
+                Shader shader = createShader(info, canUseComputerShader);
                 if (shader != null) {
                     SHADER_REGISTRY.put(name, shader);
-                    Paramagic.LOG.debug("Successfully loaded shader: {}", name);
-                } else {
-                    Paramagic.LOG.warn("Shader '{}' could not be loaded. It may be a compute shader and the system does not support it.", name);
+                    Paramagic.LOG.debug("Successfully loaded shader: {} (compute? {})", name, info.isComputeShader());
+                } else if (info.isComputeShader()) {
+                    Paramagic.LOG.warn("Skipping compute shader '{}' (system unsupported).", name);
                 }
             } catch (Exception e) {
-                Paramagic.LOG.error("Failed to load shader '{}' from path: '{}', name: '{}'", name, info.path(), info.fileName(), e);
+                Paramagic.LOG.error("Failed to load shader '{}' from path: '{}', fileName: '{}'", name, info.getPath(), info.getFileName(), e);
+                throw new IllegalStateException("Shader load failure (fast-fail): " + name, e);
             }
         }
         this.positionColorShader = SHADER_REGISTRY.get("position_color");
         if (this.positionColorShader == null) {
-            throw new IllegalStateException("Failed to load the default {" + defaultInfo.fileName() + "} shader.");
+            throw new IllegalStateException("Failed to load the default {" + defaultInfo.getFileName() + "} shader.");
         }
     }
 
-    private static @Nullable Shader getShader(ShaderInfo info, boolean canUseComputerShader) {
-        Shader shader;
-        if (info.isComputeShader()) {
-            if (!canUseComputerShader) {
-                return null;
-            }
-            shader = new Shader(info.path(), info.fileName(), null, true);
-        } else {
-            shader = (info.feedbackVaryings() != null && info.feedbackVaryings().length > 0)
-                    ? new Shader(info.path(), info.fileName(), info.feedbackVaryings())
-                    : new Shader(info.path(), info.fileName());
+    private static @Nullable Shader createShader(ShaderInfo info, boolean canUseComputerShader) {
+        if (info.isComputeShader() && !canUseComputerShader) {
+            return null;
         }
-        return shader;
+        return ShaderProgramBuilder.buildFromInfo(info);
     }
 
     /**
@@ -152,6 +145,15 @@ public class ShaderManager {
         if (!SHADER_REGISTRY.containsKey(registerName)) {
             throw new RuntimeException("Shader {" + registerName + "} not found in registry.");
         }
+        return SHADER_REGISTRY.get(registerName);
+    }
+
+    /**
+     * 获取可能不存在的 shader，通常是 compute shader。
+     * @param registerName shader 注册名。
+     * @return 找不到时返回 null。
+     */
+    public @Nullable Shader getShaderNullable(String registerName) {
         return SHADER_REGISTRY.get(registerName);
     }
 

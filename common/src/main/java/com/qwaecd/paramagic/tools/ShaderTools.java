@@ -7,20 +7,18 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceManager;
-import org.apache.commons.lang3.StringUtils;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 
 import static org.lwjgl.opengl.GL20.*;
 
 public class ShaderTools {
-    public static int loadShaderProgram(String path, String name, ShaderType type) {
+    public static int loadSingleShaderObject(String path, String name, ShaderType type) {
         ResourceLocation location = createResourceLocation(path, name, type);
         int shaderId = glCreateShader(type.getGlType());
-        boolean fileIsPresent = loadShaderSource(location, shaderId);
-        return compileAndValidateShader(shaderId, location, name, type, fileIsPresent);
+        loadShaderSource(location, shaderId);
+        return compile(shaderId, location, type);
     }
 
     private static ResourceLocation createResourceLocation(String path, String name, ShaderType type) {
@@ -30,36 +28,38 @@ public class ShaderTools {
         );
     }
 
-    private static boolean loadShaderSource(ResourceLocation location, int shaderId) {
+    private static void loadShaderSource(ResourceLocation location, int shaderId) {
         ResourceManager resourceManager = Minecraft.getInstance().getResourceManager();
         Optional<Resource> resource = resourceManager.getResource(location);
 
-        if (resource.isPresent()) {
-            try (var inputStream = resource.get().open()) {
-                String shaderData = new String(inputStream.readAllBytes());
-                GlStateManager.glShaderSource(shaderId, List.of(shaderData));
-                return true;
-            } catch (Exception e) {
-                throw new RuntimeException("Failed to load shader: " + location, e);
-            }
-        } else {
-            return false;
+        if (resource.isEmpty()) {
+            throw new RuntimeException("Shader file not found: " + location);
+        }
+
+        try (var inputStream = resource.get().open()) {
+            String shaderData = new String(inputStream.readAllBytes());
+            GlStateManager.glShaderSource(shaderId, List.of(shaderData));
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to load shader: " + location, e);
         }
     }
 
-    private static int compileAndValidateShader(int shaderId, ResourceLocation location, String name,
-                                                ShaderType type, boolean fileIsPresent) {
-        try {
-            glCompileShader(shaderId);
-            if (glGetShaderi(shaderId, GL_COMPILE_STATUS) == 0 || !fileIsPresent) {
-                String msg = StringUtils.trim(glGetShaderInfoLog(shaderId, 32768));
-                throw new IOException("Couldn't compile " + type.getName() + " program {" + name + "} : " + msg);
-            }
-            Paramagic.LOG.debug("Fuck shader {} compiled successfully", name);
-            return shaderId;
-        } catch (IOException e) {
-            Paramagic.LOG.error("Shader compilation error", e);
+    private static int compile(int shaderId) {
+        glCompileShader(shaderId);
+        return shaderId;
+    }
+
+    private static int compile(int shaderId, ResourceLocation location, ShaderType type) {
+        glCompileShader(shaderId);
+        int status = glGetShaderi(shaderId, GL_COMPILE_STATUS);
+        if (status == GL_FALSE) {
+            String log = glGetShaderInfoLog(shaderId, 8192);
+            glDeleteShader(shaderId);
+            throw new RuntimeException("Failed to compile " + type.getName() + " shader: " + location + "\n" + log);
         }
-        throw new RuntimeException("Failed to load shader: " + location);
+        if (Paramagic.LOG.isDebugEnabled()) {
+            Paramagic.LOG.debug("Compiled {} shader: {} (id={})", type.getName(), location, shaderId);
+        }
+        return shaderId;
     }
 }
