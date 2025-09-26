@@ -1,22 +1,29 @@
 package com.qwaecd.paramagic.core.particle.data;
 
-import org.joml.Vector3f;
 import org.joml.Vector4f;
 
+/**
+ * <pre>
+ * struct Particle {
+ *   // 物理属性 (16 bytes)
+ *   vec4 position;    // x, y, z, mass
+ *   // 物理属性 (16 bytes)
+ *   vec4 velocity;    // vx, vy, vz, (unused)
+ *   // 动画与生命周期属性 (16 bytes)
+ *   vec4 attributes;  // x: age, y: lifetime, z: current_anim_frame, w: anim_speed
+ *   // 渲染属性 (16 bytes)
+ *   vec4 render_attribs;  // x: size, y: angle, z: angular_velocity, w: bloom_intensity
+ *   // 颜色 (16 bytes)
+ *   vec4 color;
+ * };
+ * </pre>
+ */
 public final class GPUParticle {
-    public Vector3f position;
-    public Vector3f velocity;
+    private Vector4f position;
+    private Vector4f velocity;
+    private Vector4f attributes;
+    private Vector4f renderAttribs;
+    private Vector4f color;
 
-    public float age;
-    public float lifetime;
-
-    public Vector4f color;
-    public float intensity;
-    public float size;
-    public float angle;
-    public float angularVelocity;
-
-    public int type;
-
-    public static final int SIZE_IN_BYTES = 68; // 3*4 + 3*4 + 4 + 4 + 4*4 + 4*4 + 4 = 68 bytes
+    public static final int SIZE_IN_BYTES = 64;
 }

@@ -84,7 +84,7 @@ public class ModRenderSystem extends AbstractRenderSystem{
 
         ShaderManager.init();
         BaseObjectManager.init();
-        ParticleManager.init(instance.canUseComputeShader);
+        ParticleManager.init(instance.canUseComputeShader, instance.canUseGeometryShader);
         ParaConverters.init();
 
 
