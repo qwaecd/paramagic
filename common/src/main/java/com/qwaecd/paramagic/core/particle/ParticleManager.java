@@ -10,8 +10,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
-import static org.lwjgl.opengl.GL33.*;
-
 public class ParticleManager {
     private static ParticleManager INSTANCE;
 

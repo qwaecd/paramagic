@@ -6,8 +6,6 @@ import com.qwaecd.paramagic.core.render.shader.ShaderManager;
 
 import java.util.List;
 
-import static org.lwjgl.opengl.GL33.*;
-
 public class GPUParticleSimulator {
     private final Shader updateShader;
 

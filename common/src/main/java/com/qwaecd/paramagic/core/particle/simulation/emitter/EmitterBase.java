@@ -1,7 +1,6 @@
 package com.qwaecd.paramagic.core.particle.simulation.emitter;
 
 import com.qwaecd.paramagic.core.render.shader.Shader;
-import lombok.Getter;
 import org.joml.Vector3f;
 
 public abstract class EmitterBase implements Emitter {

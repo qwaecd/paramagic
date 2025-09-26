@@ -1,13 +1,14 @@
 package com.qwaecd.paramagic.core.render.shader;
 
 import com.qwaecd.paramagic.Paramagic;
+import com.qwaecd.paramagic.core.exception.ShaderException;
 import com.qwaecd.paramagic.core.render.ModRenderSystem;
 import lombok.Getter;
+
 import javax.annotation.Nullable;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import com.qwaecd.paramagic.core.exception.ShaderException;
 
 public class ShaderManager {
     private static ShaderManager INSTANCE;

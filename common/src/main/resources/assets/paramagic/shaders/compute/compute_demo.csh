@@ -11,7 +11,7 @@ uniform float u_deltaTime;
 uniform vec3 u_gravity;
 
 const vec3 CF_CENTER = vec3(10.0, 120.0, 0.0);
-const float CF_A = 0.07;   // 力系数 A
+const float CF_A = 0.09;   // 力系数 A
 const float CF_B = -2.0;        // 幂指数 B: 力大小 = A * r^B
 const float CF_EPS = 1e-6;     // 避免 r=0 数值问题
 

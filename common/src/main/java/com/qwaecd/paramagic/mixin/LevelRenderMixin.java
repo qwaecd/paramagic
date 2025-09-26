@@ -3,9 +3,8 @@ package com.qwaecd.paramagic.mixin;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.qwaecd.paramagic.core.particle.ParticleManager;
-import com.qwaecd.paramagic.core.particle.compute.ComputeParticleDemo;
-import com.qwaecd.paramagic.core.render.RendererManager;
 import com.qwaecd.paramagic.core.render.ModRenderSystem;
+import com.qwaecd.paramagic.core.render.RendererManager;
 import com.qwaecd.paramagic.core.render.context.RenderContextManager;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
