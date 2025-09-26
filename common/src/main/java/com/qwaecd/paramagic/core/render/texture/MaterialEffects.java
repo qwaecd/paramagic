@@ -1,7 +1,7 @@
 package com.qwaecd.paramagic.core.render.texture;
 
-import com.qwaecd.paramagic.core.render.EmissiveMutable;
-import com.qwaecd.paramagic.core.render.EmissiveProvider;
+import com.qwaecd.paramagic.core.render.api.EmissiveMutable;
+import com.qwaecd.paramagic.core.render.api.EmissiveProvider;
 import org.joml.Vector3f;
 
 import java.util.Optional;

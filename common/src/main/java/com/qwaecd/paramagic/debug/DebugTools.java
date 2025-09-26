@@ -5,7 +5,7 @@ import com.qwaecd.paramagic.assembler.AssemblyException;
 import com.qwaecd.paramagic.assembler.ParaComposer;
 import com.qwaecd.paramagic.client.obj.sun.Sun;
 import com.qwaecd.paramagic.client.renderbase.factory.SphereFactory;
-import com.qwaecd.paramagic.core.render.IRenderable;
+import com.qwaecd.paramagic.core.render.api.IRenderable;
 import com.qwaecd.paramagic.core.render.ModRenderSystem;
 import com.qwaecd.paramagic.core.render.shader.ShaderManager;
 import com.qwaecd.paramagic.core.render.texture.AbstractMaterial;

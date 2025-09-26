@@ -2,7 +2,7 @@ package com.qwaecd.paramagic.client.renderbase;
 
 import com.qwaecd.paramagic.client.renderbase.prototype.IShapePrototype;
 import com.qwaecd.paramagic.client.renderbase.prototype.SpherePrototype;
-import com.qwaecd.paramagic.core.render.IRenderable;
+import com.qwaecd.paramagic.core.render.api.IRenderable;
 import com.qwaecd.paramagic.core.render.Transform;
 import com.qwaecd.paramagic.core.render.shader.ShaderManager;
 import com.qwaecd.paramagic.core.render.texture.AbstractMaterial;

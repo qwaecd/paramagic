@@ -1,6 +1,6 @@
 package com.qwaecd.paramagic.client.renderer;
 
-import com.qwaecd.paramagic.core.render.IRenderable;
+import com.qwaecd.paramagic.core.render.api.IRenderable;
 import com.qwaecd.paramagic.core.render.ModRenderSystem;
 
 public class MagicCircleRenderer {

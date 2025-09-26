@@ -1,6 +1,6 @@
 package com.qwaecd.paramagic.client.material;
 
-import com.qwaecd.paramagic.core.render.EmissiveProvider;
+import com.qwaecd.paramagic.core.render.api.EmissiveProvider;
 import com.qwaecd.paramagic.core.render.queue.RenderType;
 import com.qwaecd.paramagic.core.render.shader.Shader;
 import com.qwaecd.paramagic.core.render.texture.AbstractMaterial;

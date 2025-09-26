@@ -2,7 +2,7 @@ package com.qwaecd.paramagic.client.obj.sun;
 
 import com.qwaecd.paramagic.client.material.SunMaterial;
 import com.qwaecd.paramagic.client.renderbase.prototype.SpherePrototype;
-import com.qwaecd.paramagic.core.render.IRenderable;
+import com.qwaecd.paramagic.core.render.api.IRenderable;
 import com.qwaecd.paramagic.core.render.Transform;
 import com.qwaecd.paramagic.core.render.shader.Shader;
 import com.qwaecd.paramagic.core.render.texture.AbstractMaterial;

@@ -2,7 +2,7 @@ package com.qwaecd.paramagic.feature;
 
 import com.qwaecd.paramagic.client.animation.Animator;
 import com.qwaecd.paramagic.client.renderer.MagicCircleRenderer;
-import com.qwaecd.paramagic.core.render.IRenderable;
+import com.qwaecd.paramagic.core.render.api.IRenderable;
 import com.qwaecd.paramagic.core.render.Transform;
 import com.qwaecd.paramagic.core.render.texture.AbstractMaterial;
 import com.qwaecd.paramagic.core.render.vertex.Mesh;

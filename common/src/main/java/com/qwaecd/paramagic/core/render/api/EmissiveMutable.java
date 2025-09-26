@@ -1,4 +1,4 @@
-package com.qwaecd.paramagic.core.render;
+package com.qwaecd.paramagic.core.render.api;
 
 /**
  * Interface for materials that support modifying emissive effect parameters.

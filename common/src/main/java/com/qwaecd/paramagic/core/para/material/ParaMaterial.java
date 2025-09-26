@@ -1,6 +1,6 @@
 package com.qwaecd.paramagic.core.para.material;
 
-import com.qwaecd.paramagic.core.render.EmissiveMutable;
+import com.qwaecd.paramagic.core.render.api.EmissiveMutable;
 import com.qwaecd.paramagic.core.render.shader.Shader;
 import com.qwaecd.paramagic.core.render.texture.AbstractMaterial;
 import org.joml.Vector3f;

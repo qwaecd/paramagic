@@ -5,6 +5,7 @@ import com.qwaecd.paramagic.client.renderbase.BaseObjectManager;
 import com.qwaecd.paramagic.client.renderbase.factory.FullScreenQuadFactory;
 import com.qwaecd.paramagic.core.particle.ParticleManager;
 import com.qwaecd.paramagic.core.particle.compute.ComputeParticleDemo;
+import com.qwaecd.paramagic.core.render.api.IRenderable;
 import com.qwaecd.paramagic.core.render.context.RenderContext;
 import com.qwaecd.paramagic.core.render.post.PostProcessingManager;
 import com.qwaecd.paramagic.core.render.post.buffer.FramebufferUtils;

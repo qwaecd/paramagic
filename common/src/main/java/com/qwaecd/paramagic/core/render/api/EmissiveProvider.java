@@ -1,4 +1,4 @@
-package com.qwaecd.paramagic.core.render;
+package com.qwaecd.paramagic.core.render.api;
 
 import org.joml.Vector3f;
 

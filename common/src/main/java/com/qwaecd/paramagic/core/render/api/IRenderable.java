@@ -1,5 +1,6 @@
-package com.qwaecd.paramagic.core.render;
+package com.qwaecd.paramagic.core.render.api;
 
+import com.qwaecd.paramagic.core.render.Transform;
 import com.qwaecd.paramagic.core.render.texture.AbstractMaterial;
 import com.qwaecd.paramagic.core.render.vertex.Mesh;
 import org.joml.Matrix4f;

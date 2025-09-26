@@ -1,6 +1,6 @@
 package com.qwaecd.paramagic.client.renderbase.factory;
 
-import com.qwaecd.paramagic.core.render.IRenderable;
+import com.qwaecd.paramagic.core.render.api.IRenderable;
 
 public abstract class ShapeFactory {
 

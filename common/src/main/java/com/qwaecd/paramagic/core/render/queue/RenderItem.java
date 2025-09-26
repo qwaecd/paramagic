@@ -1,6 +1,6 @@
 package com.qwaecd.paramagic.core.render.queue;
 
-import com.qwaecd.paramagic.core.render.IRenderable;
+import com.qwaecd.paramagic.core.render.api.IRenderable;
 import org.joml.Vector3d;
 
 public class RenderItem {
