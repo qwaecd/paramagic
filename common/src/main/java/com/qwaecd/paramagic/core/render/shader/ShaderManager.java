@@ -3,11 +3,11 @@ package com.qwaecd.paramagic.core.render.shader;
 import com.qwaecd.paramagic.Paramagic;
 import com.qwaecd.paramagic.core.render.ModRenderSystem;
 import lombok.Getter;
-
 import javax.annotation.Nullable;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import com.qwaecd.paramagic.core.exception.ShaderException;
 
 public class ShaderManager {
     private static ShaderManager INSTANCE;
@@ -85,30 +85,39 @@ public class ShaderManager {
         ShaderInfo defaultInfo = new ShaderInfo("", "position_color");
         registerShaderInfo("position_color", defaultInfo);
         boolean canUseComputerShader = ModRenderSystem.getInstance().canUseComputerShader();
+        boolean canUseGeometryShader = ModRenderSystem.getInstance().canUseGeometryShader();
         for (Map.Entry<String, ShaderInfo> entry : SHADER_DEFINITIONS.entrySet()) {
             String name = entry.getKey();
             ShaderInfo info = entry.getValue();
             try {
-                Shader shader = createShader(info, canUseComputerShader);
+                Shader shader = createShader(info, canUseComputerShader, canUseGeometryShader);
                 if (shader != null) {
                     SHADER_REGISTRY.put(name, shader);
-                    Paramagic.LOG.debug("Successfully loaded shader: {} (compute? {})", name, info.isComputeShader());
-                } else if (info.isComputeShader()) {
-                    Paramagic.LOG.warn("Skipping compute shader '{}' (system unsupported).", name);
+                    Paramagic.LOG.debug("Successfully loaded shader: {} (compute? {}, geometry? {})", name, info.isComputeShader(), info.hasGeometryShader());
+                } else if (info.isComputeShader() || info.hasGeometryShader()) {
+                    // 针对不支持的可选阶段分别打印更准确的日志
+                    if (info.isComputeShader()) {
+                        Paramagic.LOG.warn("Skipping compute shader '{}' (system unsupported).", name);
+                    } else if (info.hasGeometryShader()) {
+                        Paramagic.LOG.warn("Skipping geometry shader '{}' (system unsupported).", name);
+                    }
                 }
             } catch (Exception e) {
                 Paramagic.LOG.error("Failed to load shader '{}' from path: '{}', fileName: '{}'", name, info.getPath(), info.getFileName(), e);
-                throw new IllegalStateException("Shader load failure (fast-fail): " + name, e);
+                throw new ShaderException("Shader load failure (fast-fail): " + name, e);
             }
         }
         this.positionColorShader = SHADER_REGISTRY.get("position_color");
         if (this.positionColorShader == null) {
-            throw new IllegalStateException("Failed to load the default {" + defaultInfo.getFileName() + "} shader.");
+            throw new ShaderException("Failed to load the default {" + defaultInfo.getFileName() + "} shader.");
         }
     }
 
-    private static @Nullable Shader createShader(ShaderInfo info, boolean canUseComputerShader) {
+    private static @Nullable Shader createShader(ShaderInfo info, boolean canUseComputerShader, boolean canUseGeometryShader) {
         if (info.isComputeShader() && !canUseComputerShader) {
+            return null;
+        }
+        if (info.hasGeometryShader() && !canUseGeometryShader) {
             return null;
         }
         return ShaderProgramBuilder.buildFromInfo(info);
@@ -143,13 +152,13 @@ public class ShaderManager {
      */
     public Shader getShaderThrowIfNotFound(String registerName) {
         if (!SHADER_REGISTRY.containsKey(registerName)) {
-            throw new RuntimeException("Shader {" + registerName + "} not found in registry.");
+            throw new ShaderException("Shader {" + registerName + "} not found in registry.");
         }
         return SHADER_REGISTRY.get(registerName);
     }
 
     /**
-     * 获取可能不存在的 shader，通常是 compute shader。
+     * 获取可能不存在的 shader，通常是 compute shader 或含有 geometry shader。
      * @param registerName shader 注册名。
      * @return 找不到时返回 null。
      */

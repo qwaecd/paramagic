@@ -14,14 +14,14 @@ public enum ShaderType {
     COMPUTE("compute", ".csh", GL_COMPUTE_SHADER),
     GEOMETRY("geometry", ".gsh", GL_GEOMETRY_SHADER);
     @Getter
-    private final String name;
+    private final String typeName;
     @Getter
     private final String extension;
     @Getter
     private final int glType;
 
-    ShaderType(String name, String extension, int glType) {
-        this.name = name;
+    ShaderType(String typeName, String extension, int glType) {
+        this.typeName = typeName;
         this.extension = extension;
         this.glType = glType;
     }

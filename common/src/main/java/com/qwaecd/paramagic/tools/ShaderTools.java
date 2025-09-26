@@ -2,6 +2,7 @@ package com.qwaecd.paramagic.tools;
 
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.qwaecd.paramagic.Paramagic;
+import com.qwaecd.paramagic.core.exception.ShaderException;
 import com.qwaecd.paramagic.core.render.shader.ShaderType;
 import net.minecraft.client.Minecraft;
 import net.minecraft.resources.ResourceLocation;
@@ -33,14 +34,14 @@ public class ShaderTools {
         Optional<Resource> resource = resourceManager.getResource(location);
 
         if (resource.isEmpty()) {
-            throw new RuntimeException("Shader file not found: " + location);
+            throw new ShaderException("Shader file not found: " + location);
         }
 
         try (var inputStream = resource.get().open()) {
             String shaderData = new String(inputStream.readAllBytes());
             GlStateManager.glShaderSource(shaderId, List.of(shaderData));
         } catch (Exception e) {
-            throw new RuntimeException("Failed to load shader: " + location, e);
+            throw new ShaderException("Failed to load shader: " + location, e);
         }
     }
 
@@ -55,10 +56,10 @@ public class ShaderTools {
         if (status == GL_FALSE) {
             String log = glGetShaderInfoLog(shaderId, 8192);
             glDeleteShader(shaderId);
-            throw new RuntimeException("Failed to compile " + type.getName() + " shader: " + location + "\n" + log);
+            throw new ShaderException("Failed to compile " + type.getTypeName() + " shader: " + location + "\n" + log);
         }
         if (Paramagic.LOG.isDebugEnabled()) {
-            Paramagic.LOG.debug("Compiled {} shader: {} (id={})", type.getName(), location, shaderId);
+            Paramagic.LOG.debug("Compiled {} shader: {} (id={})", type.getTypeName(), location, shaderId);
         }
         return shaderId;
     }

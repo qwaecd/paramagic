@@ -1,5 +1,6 @@
 package com.qwaecd.paramagic.core.render.shader;
 
+import com.qwaecd.paramagic.core.exception.ShaderException;
 import com.qwaecd.paramagic.tools.ShaderTools;
 
 import java.util.ArrayList;
@@ -39,7 +40,7 @@ public class ShaderProgramBuilder {
     private Shader build() {
         if (shaderIds.isEmpty()) {
             glDeleteProgram(programId);
-            throw new RuntimeException("No shader stages attached for program {" + name + "}. Did the source files fail to load?");
+            throw new ShaderException("No shader stages attached for program {" + name + "}. Did the source files fail to load?");
         }
 
         glLinkProgram(programId);
@@ -52,7 +53,7 @@ public class ShaderProgramBuilder {
                 glDeleteShader(id);
             });
             glDeleteProgram(programId);
-            throw new RuntimeException("Failed to link shader program {" + name + "}: " + log);
+            throw new ShaderException("Failed to link shader program {" + name + "}: " + log);
         }
 
         shaderIds.forEach(shaderId -> {

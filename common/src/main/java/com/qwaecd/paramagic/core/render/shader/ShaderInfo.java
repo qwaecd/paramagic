@@ -50,4 +50,11 @@ public class ShaderInfo {
     public boolean isComputeShader() {
         return shaderTypes.size() == 1 && shaderTypes.contains(ShaderType.COMPUTE);
     }
+
+    /**
+     * 检查是否有几何着色器。
+     */
+    public boolean hasGeometryShader() {
+        return shaderTypes.contains(ShaderType.GEOMETRY);
+    }
 }

@@ -12,7 +12,7 @@ public class GPUParticleSimulator {
     private final Shader updateShader;
 
     public GPUParticleSimulator() {
-        this.updateShader = ShaderManager.getInstance().getShaderThrowIfNotFound("particle_update");
+        this.updateShader = ShaderManager.getInstance().getShaderNullable("particle_update");
     }
 
     public void update(

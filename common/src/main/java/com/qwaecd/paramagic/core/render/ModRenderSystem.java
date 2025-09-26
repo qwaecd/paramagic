@@ -6,7 +6,6 @@ import com.qwaecd.paramagic.client.renderbase.factory.FullScreenQuadFactory;
 import com.qwaecd.paramagic.core.particle.ParticleManager;
 import com.qwaecd.paramagic.core.particle.compute.ComputeParticleDemo;
 import com.qwaecd.paramagic.core.render.context.RenderContext;
-import com.qwaecd.paramagic.core.render.context.RenderContextManager;
 import com.qwaecd.paramagic.core.render.post.PostProcessingManager;
 import com.qwaecd.paramagic.core.render.post.buffer.FramebufferUtils;
 import com.qwaecd.paramagic.core.render.post.buffer.SceneMRTFramebuffer;
@@ -21,6 +20,7 @@ import com.qwaecd.paramagic.core.render.texture.AbstractMaterial;
 import com.qwaecd.paramagic.core.render.things.IMatrixStackProvider;
 import com.qwaecd.paramagic.core.render.vertex.Mesh;
 import com.qwaecd.paramagic.data.para.converter.ParaConverters;
+import com.qwaecd.paramagic.tools.ShaderCapabilityChecker;
 import lombok.Getter;
 import net.minecraft.client.Minecraft;
 import org.joml.Matrix4f;
@@ -52,7 +52,8 @@ public class ModRenderSystem extends AbstractRenderSystem{
     private RendererManager rendererManager;
     @Getter
     private ParticleManager particleManager;
-    private boolean canUseComputerShader = false;
+    private boolean canUseComputeShader = false;
+    private boolean canUseGeometryShader = false;
 
     private final Matrix4f reusableMatrix = new Matrix4f();
 
@@ -82,7 +83,7 @@ public class ModRenderSystem extends AbstractRenderSystem{
 
         ShaderManager.init();
         BaseObjectManager.init();
-        ParticleManager.init(instance.canUseComputerShader);
+        ParticleManager.init(instance.canUseComputeShader);
         ParaConverters.init();
 
 
@@ -96,24 +97,41 @@ public class ModRenderSystem extends AbstractRenderSystem{
     private void checkGLVersion() {
         String s = glGetString(GL_VERSION);
         Paramagic.LOG.info("OpenGL version: {}", s);
-        if (s == null || s.isEmpty()) {
-            return;
+        if (s != null && !s.isEmpty()) {
+            String[] parts = s.split(" ");
+            String versionPart = parts[0];
+            String[] versionNumbers = versionPart.split("\\.");
+            try {
+                int major = Integer.parseInt(versionNumbers[0]);
+                int minor = Integer.parseInt(versionNumbers[1]);
+                float version = major + minor / 10.0f;
+                if (version < 3.2f) {
+                    Paramagic.LOG.warn("OpenGL version is lower than 3.2. Some features may not work correctly.");
+                }
+                if (version >= 3.2f) {
+                    this.canUseGeometryShader = true; // provisional, will be validated by capability checker
+                }
+                if (version >= 4.3f) {
+                    this.canUseComputeShader = true; // provisional
+                }
+            } catch (Exception ignored) {
+            }
         }
-        String[] parts = s.split(" ");
-        String versionPart = parts[0];
-        String[] versionNumbers = versionPart.split("\\.");
-        try {
-            int major = Integer.parseInt(versionNumbers[0]);
-            int minor = Integer.parseInt(versionNumbers[1]);
-            float version = major + minor / 10.0f;
-            if (version < 3.2f) {
-                Paramagic.LOG.warn("OpenGL version is lower than 3.2. Some features may not work correctly.");
-            }
-            if (version >= 4.3) {
-                this.canUseComputerShader = true;
-                Paramagic.LOG.info("OpenGL version supports compute shaders, enjoy better performance!");
-            }
-        } catch (Exception ignored) {
+        // 使用真实硬件能力校验（覆盖版本启发式），避免驱动虚报或版本不代表扩展支持
+        ShaderCapabilityChecker.CapabilityReport report = ShaderCapabilityChecker.detect();
+        boolean oldGeom = this.canUseGeometryShader;
+        boolean oldComp = this.canUseComputeShader;
+        this.canUseGeometryShader = report.geometrySupported;
+        this.canUseComputeShader = report.computeSupported;
+        if (oldGeom != this.canUseGeometryShader) {
+            Paramagic.LOG.info("Geometry shader capability adjusted: versionHeuristic={} -> realCapability={} ({})", oldGeom, this.canUseGeometryShader, report.geometryReason);
+        } else {
+            Paramagic.LOG.info("Geometry shader capability confirmed: {} ({})", this.canUseGeometryShader, report.geometryReason);
+        }
+        if (oldComp != this.canUseComputeShader) {
+            Paramagic.LOG.info("Compute shader capability adjusted: versionHeuristic={} -> realCapability={} ({})", oldComp, this.canUseComputeShader, report.computeReason);
+        } else {
+            Paramagic.LOG.info("Compute shader capability confirmed: {} ({})", this.canUseComputeShader, report.computeReason);
         }
     }
 
@@ -294,7 +312,12 @@ public class ModRenderSystem extends AbstractRenderSystem{
 
     @SuppressWarnings("all")
     public boolean canUseComputerShader() {
-        return this.canUseComputerShader;
+        return this.canUseComputeShader;
+    }
+
+    @SuppressWarnings("all")
+    public boolean canUseGeometryShader() {
+        return this.canUseGeometryShader;
     }
 
     public static boolean isInitialized() {
