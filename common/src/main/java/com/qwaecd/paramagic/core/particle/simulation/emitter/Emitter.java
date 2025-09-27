@@ -1,33 +1,15 @@
 package com.qwaecd.paramagic.core.particle.simulation.emitter;
 
+import com.qwaecd.paramagic.core.particle.data.EmissionRequest;
 import com.qwaecd.paramagic.core.render.shader.Shader;
 
-import java.nio.ByteBuffer;
+import javax.annotation.Nullable;
 
 public interface Emitter {
-    /**
-     * Initializes the particle data.
-     * <p>
-     * 初始化粒子数据。
-     * @param buffer The ByteBuffer for storing particle data. No need to call flip() after filling. <br> 用于存储粒子数据的ByteBuffer，在填充完数据之后无需flip()。
-     * @param particleCount The total number of particles for the entire effect. <br> 整个effect的粒子数量。
-     */
-    void initialize(final ByteBuffer buffer, final int particleCount);
     void update(float deltaTime, Shader updateShader);
-    boolean isFinished();
-
     /**
-     * @return in seconds since the emitter finished.
-     * <p>
-     * 从粒子发射器完成到现在的时间，单位为秒。
+     * @return If particles need to be emitted this frame, returns an EmissionRequest object; otherwise returns null.<br>
+     * 如果在这一帧需要发射粒子，则返回一个EmissionRequest对象；否则返回null。
      */
-    float getTimeSinceFinished();
-
-    /**
-     * The number of particles emitted per second. For one-time emissions, this value is 0.
-     * <p>
-     * 每秒发射的粒子数，对于一次性发射，其值为 0。
-     * @return particles per second.
-     */
-    float getParticlesPerSecond();
+    @Nullable EmissionRequest getEmissionRequest();
 }

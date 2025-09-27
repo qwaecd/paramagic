@@ -18,8 +18,41 @@ public class ShaderTools {
     public static int loadSingleShaderObject(String path, String name, ShaderType type) {
         ResourceLocation location = createResourceLocation(path, name, type);
         int shaderId = glCreateShader(type.getGlType());
-        loadShaderSource(location, shaderId);
+
+        String shaderSource = loadShaderSource(location);
+        attachSourceData(shaderId, shaderSource);
+
         return compile(shaderId, location, type);
+    }
+
+    public static int loadComputeShaderWithExtraSources(String path, String name, ShaderType type, String additionalSource) {
+        ResourceLocation location = createResourceLocation(path, name, type);
+        int shaderId = glCreateShader(type.getGlType());
+
+        String shaderSource = loadShaderSource(location) + "\n" + additionalSource;
+        attachSourceData(shaderId, shaderSource);
+
+        return compile(shaderId, location, type);
+    }
+
+    public static String loadShaderSource(String path, String name, ShaderType type) {
+        ResourceLocation location = createResourceLocation(path, name, type);
+        return loadShaderSource(location);
+    }
+
+    public static String loadShaderSource(ResourceLocation location) {
+        ResourceManager resourceManager = Minecraft.getInstance().getResourceManager();
+        Optional<Resource> resource = resourceManager.getResource(location);
+
+        if (resource.isEmpty()) {
+            throw new ShaderException("Shader file not found: " + location);
+        }
+
+        try (var inputStream = resource.get().open()) {
+            return new String(inputStream.readAllBytes());
+        } catch (Exception e) {
+            throw new ShaderException("Failed to load shader: " + location, e);
+        }
     }
 
     private static ResourceLocation createResourceLocation(String path, String name, ShaderType type) {
@@ -29,25 +62,8 @@ public class ShaderTools {
         );
     }
 
-    private static void loadShaderSource(ResourceLocation location, int shaderId) {
-        ResourceManager resourceManager = Minecraft.getInstance().getResourceManager();
-        Optional<Resource> resource = resourceManager.getResource(location);
-
-        if (resource.isEmpty()) {
-            throw new ShaderException("Shader file not found: " + location);
-        }
-
-        try (var inputStream = resource.get().open()) {
-            String shaderData = new String(inputStream.readAllBytes());
-            GlStateManager.glShaderSource(shaderId, List.of(shaderData));
-        } catch (Exception e) {
-            throw new ShaderException("Failed to load shader: " + location, e);
-        }
-    }
-
-    private static int compile(int shaderId) {
-        glCompileShader(shaderId);
-        return shaderId;
+    private static void attachSourceData(int shaderId, String shaderData) {
+        GlStateManager.glShaderSource(shaderId, List.of(shaderData));
     }
 
     private static int compile(int shaderId, ResourceLocation location, ShaderType type) {

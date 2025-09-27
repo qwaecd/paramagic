@@ -12,7 +12,8 @@ public enum ShaderType {
     VERTEX("vertex", ".vsh", GL_VERTEX_SHADER),
     FRAGMENT("fragment", ".fsh", GL_FRAGMENT_SHADER),
     COMPUTE("compute", ".csh", GL_COMPUTE_SHADER),
-    GEOMETRY("geometry", ".gsh", GL_GEOMETRY_SHADER);
+    GEOMETRY("geometry", ".gsh", GL_GEOMETRY_SHADER),
+    Subroutine("subroutine", ".sub", -1); // Subroutine shaders don't have a specific GL type
     @Getter
     private final String typeName;
     @Getter

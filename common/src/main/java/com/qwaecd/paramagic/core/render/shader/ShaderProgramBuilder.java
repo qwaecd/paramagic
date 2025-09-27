@@ -25,7 +25,23 @@ public class ShaderProgramBuilder {
         ShaderProgramBuilder builder = new ShaderProgramBuilder(info.getPath(), info.getFileName());
 
         for (ShaderType type : info.getShaderTypes()) {
-            builder.addShader(type);
+            List<SubroutineInfo> subroutineInfoList = info.getSubroutineInfoList();
+            if (subroutineInfoList != null && info.isComputeShader() && !subroutineInfoList.isEmpty()) {
+                StringBuilder subroutineSource = new StringBuilder();
+                for (SubroutineInfo subInfo : subroutineInfoList) {
+                    subroutineSource
+                            .append("// ---- begin subroutine: ")
+                            .append(subInfo.getPath()).append(subInfo.getFileName()).append(subInfo.getShaderType().getExtension())
+                            .append(" ----\n")
+                            .append(ShaderTools.loadShaderSource(subInfo.getPath(), subInfo.getFileName(), subInfo.getShaderType()))
+                            .append("\n");
+                }
+                builder.addShader(type, subroutineSource.toString());
+            } else if (subroutineInfoList != null && type != ShaderType.COMPUTE) {
+                throw new ShaderException("Subroutine list present but current shader stage is " + type);
+            } else {
+                builder.addShader(type);
+            }
         }
 
         return builder.build();
@@ -33,6 +49,12 @@ public class ShaderProgramBuilder {
 
     private void addShader(ShaderType type) {
         int shaderId = ShaderTools.loadSingleShaderObject(path, name, type); // 若失败会抛异常 -> 直接外层崩溃
+        glAttachShader(programId, shaderId);
+        shaderIds.add(shaderId);
+    }
+
+    private void addShader(ShaderType type, String additionalSource) {
+        int shaderId = ShaderTools.loadComputeShaderWithExtraSources(path, name, type, additionalSource); // 若失败会抛异常 -> 直接外层崩溃
         glAttachShader(programId, shaderId);
         shaderIds.add(shaderId);
     }

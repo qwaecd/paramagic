@@ -1,11 +1,10 @@
 package com.qwaecd.paramagic.core.render.shader;
 
+import com.qwaecd.paramagic.core.exception.ShaderException;
 import lombok.Getter;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
+import javax.annotation.Nullable;
+import java.util.*;
 
 public class ShaderInfo {
     @Getter
@@ -14,6 +13,13 @@ public class ShaderInfo {
     private final String fileName;
     @Getter
     private final Set<ShaderType> shaderTypes;
+    /**
+     * List of subroutine information, can only be used for compute shaders.<br>
+     * 着色器子程序信息列表，只能给 compute shader 使用。
+     */
+    @Getter
+    @Nullable
+    private List<SubroutineInfo> subroutineInfoList = null;
 
     /**
      * @param path        着色器文件相对于 "shaders/" 目录的路径。
@@ -42,6 +48,14 @@ public class ShaderInfo {
      */
     public ShaderInfo(String path, String fileName) {
         this(path, fileName, ShaderType.VERTEX, ShaderType.FRAGMENT);
+    }
+
+    public ShaderInfo addSubroutineInfo(SubroutineInfo... subroutineInfos) {
+        if (!this.isComputeShader()) {
+            throw new ShaderException("SubroutineInfo can only be added to compute shaders.");
+        }
+        this.subroutineInfoList = List.of(subroutineInfos);
+        return this;
     }
 
     /**

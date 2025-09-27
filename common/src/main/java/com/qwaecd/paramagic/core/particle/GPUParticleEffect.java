@@ -6,10 +6,11 @@ import lombok.Getter;
 import lombok.Setter;
 import org.joml.Vector3f;
 
+import java.util.List;
+
 
 public class GPUParticleEffect {
-    @Getter
-    private final Emitter emitter;
+    private final List<Emitter> emitter;
     @Getter
     @Setter
     public int activationCounter = 0;
@@ -47,7 +48,7 @@ public class GPUParticleEffect {
 
 
     public GPUParticleEffect(
-            Emitter emitter,
+            List<Emitter> emitter,
             float maxLifetime
     ) {
         this.emitter = emitter;
@@ -70,9 +71,5 @@ public class GPUParticleEffect {
         shader.setUniformValue1f("u_constantA", this.constantA);
         shader.setUniformValue1f("u_exponentB", this.exponentB);
         shader.setUniformValue1f("u_constantC", this.constantC);
-    }
-
-    public boolean isFinished() {
-        return this.emitter.isFinished() && this.emitter.getTimeSinceFinished() >= this.maxLifetime;
     }
 }

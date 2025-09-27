@@ -12,11 +12,11 @@ import static org.lwjgl.opengl.GL33.*;
 
 public class Shader {
     @Getter
-    private final String name;
+    protected final String name;
     @Getter
-    private final String path;
+    protected final String path;
     @Getter
-    private final int programId;
+    protected final int programId;
     /**
      * @param path 着色器文件路径，相对于 resources 下的 shaders 目录，shaders下的传空字符串
      * @param name 着色器名称，文件名（不带扩展名）

@@ -12,7 +12,7 @@ import org.joml.Vector4f;
  *   // 动画与生命周期属性 (16 bytes)
  *   vec4 attributes;  // x: age, y: lifetime, z: current_anim_frame, w: anim_speed
  *   // 渲染属性 (16 bytes)
- *   vec4 render_attribs;  // x: size, y: angle, z: angular_velocity, w: bloom_intensity
+ *   vec4 renderAttribs;  // x: size, y: angle, z: angular_velocity, w: bloom_intensity
  *   // 颜色 (16 bytes)
  *   vec4 color;
  * };
