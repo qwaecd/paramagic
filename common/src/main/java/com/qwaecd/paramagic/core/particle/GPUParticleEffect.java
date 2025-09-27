@@ -1,6 +1,6 @@
 package com.qwaecd.paramagic.core.particle;
 
-import com.qwaecd.paramagic.core.particle.simulation.emitter.Emitter;
+import com.qwaecd.paramagic.core.particle.emitter.Emitter;
 import com.qwaecd.paramagic.core.render.shader.Shader;
 import lombok.Getter;
 import lombok.Setter;

@@ -1,4 +1,4 @@
-package com.qwaecd.paramagic.core.particle.simulation.emitter;
+package com.qwaecd.paramagic.core.particle.emitter;
 
 import com.qwaecd.paramagic.core.particle.data.EmissionRequest;
 import com.qwaecd.paramagic.core.render.shader.Shader;

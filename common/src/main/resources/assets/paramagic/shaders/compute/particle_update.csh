@@ -64,7 +64,7 @@ void main() {
 
     if (particles[idx].attributes.x >= lifetime) {
         // just died
-        uint deadIdx = atomicCounterIncrement(deadListCounter, 1);
+        uint deadIdx = atomicCounterAdd(deadListCounter, 1);
         deadList[deadIdx] = idx;
         return;
     }

@@ -23,6 +23,7 @@ public class ComputeShader extends Shader {
 
     private void loadSubroutines() {
         // TODO: 加载所有的子函数缓存
+        // glGetSubroutineIndex(int program, int shadertype(GL_COMPUTE_SHADER), String name)
     }
 
     public int getSubroutineIndex(String subroutineName) {

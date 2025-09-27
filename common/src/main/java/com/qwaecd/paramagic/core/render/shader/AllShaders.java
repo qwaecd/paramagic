@@ -33,11 +33,6 @@ public class AllShaders {
 
     private static void computeShaders() {
         ShaderManager.registerShaderInfo("compute_demo", new ShaderInfo("compute/", "compute_demo", ShaderType.COMPUTE));
-        ShaderManager.registerShaderInfo("compute_test",
-                new ShaderInfo("compute/", "compute_test", ShaderType.COMPUTE)
-                        .addSubroutineInfo(
-                                new SubroutineInfo("compute/", "sub1")
-                        ));
         ShaderManager.registerShaderInfo("compute_render", new ShaderInfo("compute/", "compute_render"));
     }
 }
