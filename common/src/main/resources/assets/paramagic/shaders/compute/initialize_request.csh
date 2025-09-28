@@ -21,6 +21,7 @@ struct EmissionRequest {
 };
 
 struct Particle {
+    vec4 meta;        // x: effectId, y: unused, z: unused, w: unused
     vec4 position;    // x, y, z, mass(unused)
     vec4 velocity;    // vx, vy, vz, (unused)
     vec4 attributes;  // x: age, y: lifetime, z: current_anim_frame, w: anim_speed
@@ -51,6 +52,35 @@ layout(std430, binding = BINDING_DISPATCH_ARGS) readonly buffer IndirectDispatch
 subroutine void EmitterInitializer(uint particleIndex, EmissionRequest req);
 subroutine uniform EmitterInitializer u_emitterInitializerFunc;
 
+// --- Random utilities ---
+// 32-bit mix hash (variant of Wang/Jenkins style) producing good bit diffusion.
+uint hashUint(uint x) {
+    x ^= x >> 16;
+    x *= 0x7feb352du;
+    x ^= x >> 15;
+    x *= 0x846ca68bu;
+    x ^= x >> 16;
+    return x;
+}
+
+// Convert hashed uint to float strictly inside (0,1) by adding 0.5 then dividing by 2^32.
+float uintToUnitExclusive(uint h) {
+    return (float(h) + 0.5) / 4294967296.0; // 4294967296 = 2^32
+}
+
+// Stateless random in (0,1), exclusive of boundaries, seeded from global + workgroup IDs.
+// return value ~ U(0,1)
+float random() {
+    uint seed = gl_GlobalInvocationID.x
+              ^ (gl_GlobalInvocationID.y << 10)
+              ^ (gl_GlobalInvocationID.z << 20)
+              ^ (gl_WorkGroupID.x * 747796405u)
+              ^ (gl_WorkGroupID.y * 2891336453u)
+              ^ (gl_WorkGroupID.z * 1181783497u);
+    return uintToUnitExclusive(hashUint(seed));
+}
+// --- End random utilities ---
+
 void main() {
     uint invocationID = gl_GlobalInvocationID.x;
 
@@ -66,6 +96,26 @@ void main() {
 }
 
 subroutine(EmitterInitializer)
-void PointEmitterInitializer(uint particleIndex, EmissionRequest req) {
-    // TODO: implement emitter
+void pointEmitterInitializer(uint particleIndex, EmissionRequest req) {
+//struct EmissionRequest {
+//    int count;
+//    int emitterType;
+//    int effectId;
+//    int _padding;
+//
+//    vec4 param1;
+//    vec4 param2;
+//    vec4 param3;
+//    vec4 param4;
+//    vec4 param5;
+//};
+//struct Particle {
+//    vec4 meta;        // x: effectId, y: unused, z: unused, w: unused
+//    vec4 position;    // x, y, z, mass(unused)
+//    vec4 velocity;    // vx, vy, vz, (unused)
+//    vec4 attributes;  // x: age, y: lifetime, z: current_anim_frame, w: anim_speed
+//    vec4 renderAttribs;  // x: size, y: angle, z: angular_velocity, w: bloom_intensity
+//    vec4 color; // rgba
+//};
+        Particle particle = particles[particleIndex];
 }

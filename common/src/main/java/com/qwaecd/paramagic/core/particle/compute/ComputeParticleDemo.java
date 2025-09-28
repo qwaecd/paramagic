@@ -25,7 +25,7 @@ public class ComputeParticleDemo {
     // 位置整体 Y 偏移，便于在场景中观察
     private final float INIT_Y_OFFSET = 100f;
     // 初始最大速度（标量）。速度模长将采样于 [0, MAX_INIT_SPEED]，方向各向同性
-    private final float MAX_INIT_SPEED = 0.1f;
+    private final float MAX_INIT_SPEED = 0.07f;
 
     // GL 对象
     private int ssboPositions;
@@ -140,7 +140,7 @@ public class ComputeParticleDemo {
 //            // 速度模长：让更小速度概率更大（cbrt）
 //            float speed = MAX_INIT_SPEED * (float) Math.cbrt(rand.nextFloat());
 //            velBuffer.put(dirX * speed).put(dirY * speed).put(dirZ * speed).put(0.0f);
-            velBuffer.put(-0.05f).put(0.0f).put(0.01f).put(0.0f);
+            velBuffer.put(-0.05f).put(0.02f).put(0.01f).put(0.0f);
         }
         velBuffer.flip();
         glBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, velBuffer);

@@ -14,7 +14,7 @@ import java.util.Optional;
 
 import static org.lwjgl.opengl.GL20.*;
 
-public class ShaderTools {
+public final class ShaderTools {
     public static int loadSingleShaderObject(String path, String name, ShaderType type) {
         ResourceLocation location = createResourceLocation(path, name, type);
         int shaderId = glCreateShader(type.getGlType());
@@ -56,8 +56,7 @@ public class ShaderTools {
     }
 
     private static ResourceLocation createResourceLocation(String path, String name, ShaderType type) {
-        return new ResourceLocation(
-                Paramagic.MOD_ID,
+        return ModRL.InModSpace(
                 "shaders/" + path + name + type.getExtension()
         );
     }

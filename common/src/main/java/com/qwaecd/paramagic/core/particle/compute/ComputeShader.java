@@ -1,24 +1,35 @@
 package com.qwaecd.paramagic.core.particle.compute;
 
 import com.qwaecd.paramagic.core.render.shader.Shader;
+import org.joml.Matrix4f;
+import org.joml.Vector3f;
+import org.joml.Vector4f;
+import org.lwjgl.BufferUtils;
 
+import java.nio.FloatBuffer;
 import java.util.HashMap;
 import java.util.Map;
 
+import static org.lwjgl.opengl.GL20.*;
+import static org.lwjgl.opengl.GL20.glGetUniformLocation;
+import static org.lwjgl.opengl.GL20.glUniform1f;
+import static org.lwjgl.opengl.GL20.glUniform1i;
+import static org.lwjgl.opengl.GL20.glUniform2f;
+import static org.lwjgl.opengl.GL20.glUniform3f;
+import static org.lwjgl.opengl.GL20.glUniform4f;
 import static org.lwjgl.opengl.GL40.glGetSubroutineIndex;
 import static org.lwjgl.opengl.GL43.GL_COMPUTE_SHADER;
 
-public class ComputeShader extends Shader {
+public class ComputeShader {
+    private final Shader shader;
+    private final int programId;
     private final Map<String, Integer> subroutineMap;
-    /**
-     * @param path      着色器文件路径，相对于 resources 下的 shaders 目录，shaders下的传空字符串
-     * @param name      着色器名称，文件名（不带扩展名）
-     * @param programId 着色器程序ID
-     */
-    public ComputeShader(String path, String name, int programId) {
-        super(path, name, programId);
+
+    public ComputeShader(Shader shader) {
         this.subroutineMap = new HashMap<>();
-        loadSubroutines();
+        this.shader = shader;
+        this.programId = shader.getProgramId()
+;        loadSubroutines();
     }
 
     private void loadSubroutines() {
@@ -28,5 +39,49 @@ public class ComputeShader extends Shader {
 
     public int getSubroutineIndex(String subroutineName) {
         return subroutineMap.getOrDefault(subroutineName, -1);
+    }
+
+    public void bind() {
+        glUseProgram(programId);
+    }
+
+    public void unbind() {
+        glUseProgram(0);
+    }
+
+    public void setUniformMatrix4f(String name, FloatBuffer matrix) {
+        glUniformMatrix4fv(glGetUniformLocation(programId, name), false, matrix);
+    }
+
+    public void setUniformMatrix4f(String name, Matrix4f matrix) {
+        setUniformMatrix4f(name, matrix.get(BufferUtils.createFloatBuffer(16)));
+    }
+
+    public void setUniformValue3f(String name, float v0, float v1, float v2) {
+        glUniform3f(glGetUniformLocation(programId, name), v0, v1, v2);
+    }
+
+    public void setUniformValue3f(String name, Vector3f v) {
+        glUniform3f(glGetUniformLocation(programId, name), v.x, v.y, v.z);
+    }
+
+    public void setUniformValue4f(String name, float v0, float v1, float v2, float v3) {
+        glUniform4f(glGetUniformLocation(programId, name), v0, v1, v2, v3);
+    }
+
+    public void setUniformValue4f(String name, Vector4f v) {
+        glUniform4f(glGetUniformLocation(programId, name), v.x, v.y, v.z, v.w);
+    }
+
+    public void setUniformValue2f(String name, float v0, float v1) {
+        glUniform2f(glGetUniformLocation(programId, name), v0, v1);
+    }
+
+    public void setUniformValue1f(String name, float value) {
+        glUniform1f(glGetUniformLocation(programId, name), value);
+    }
+
+    public void setUniformValue1i(String name, int value) {
+        glUniform1i(glGetUniformLocation(programId, name), value);
     }
 }

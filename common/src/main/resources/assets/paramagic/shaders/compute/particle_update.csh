@@ -2,11 +2,14 @@
 #define BINDING_ATOMIC_COUNTER 0
 #define BINDING_PARTICLE_DATA 1
 #define BINDING_DEAD_LIST 2
+#define BINDING_EFFECT_COUNTERS 5
+
 #define CF_EPS 1e-6
 
 layout(local_size_x = 256, local_size_y = 1, local_size_z = 1) in;
 
 struct Particle {
+    vec4 meta;        // x: effectId, y: unused, z: unused, w: unused
     vec4 position;    // x, y, z, mass(unused)
     vec4 velocity;    // vx, vy, vz, (unused)
     vec4 attributes;  // x: age, y: lifetime, z: current_anim_frame, w: anim_speed
@@ -20,6 +23,9 @@ layout(std430, binding = BINDING_PARTICLE_DATA) buffer ParticleData {
 };
 layout(std430, binding = BINDING_DEAD_LIST) buffer DeadList {
     uint deadList[];
+};
+layout(std430, binding = BINDING_EFFECT_COUNTERS) buffer EffectCounters {
+    atomic_uint effectCounters[];
 };
 uniform int u_maxParticles;
 uniform float u_deltaTime;

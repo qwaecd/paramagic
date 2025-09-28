@@ -1,6 +1,8 @@
 package com.qwaecd.paramagic.core.particle.data;
 
 
+import org.joml.Vector4f;
+
 /**
  * <pre>
  * struct EmissionRequest {
@@ -19,5 +21,18 @@ package com.qwaecd.paramagic.core.particle.data;
  * };
  * <pre/>
  */
+@SuppressWarnings("unused")
 public final class EmissionRequest {
+    private int count;
+    private int emitterType;
+    private int effectId;
+    private int _padding;
+
+    private Vector4f param1;
+    private Vector4f param2;
+    private Vector4f param3;
+    private Vector4f param4;
+    private Vector4f param5;
+
+    public static final int SIZE_IN_BYTES = 96;
 }

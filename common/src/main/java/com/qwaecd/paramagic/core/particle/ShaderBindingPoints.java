@@ -10,4 +10,5 @@ public final class ShaderBindingPoints {
 
     public static final int REQUESTS = 3;
     public static final int DISPATCH_ARGS = 4;
+    public static final int EFFECT_COUNTERS = 5;
 }

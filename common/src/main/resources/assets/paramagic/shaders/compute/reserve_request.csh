@@ -2,6 +2,7 @@
 #define BINDING_ATOMIC_COUNTER 0
 #define BINDING_REQUESTS 3
 #define BINDING_DISPATCH_ARGS 4
+#define BINDING_EFFECT_COUNTERS 5
 
 layout(local_size_x = 1, local_size_y = 1, local_size_z = 1) in;
 
@@ -31,7 +32,9 @@ layout(std430, binding = BINDING_REQUESTS) buffer ParticleRequests {
 layout(std430, binding = BINDING_DISPATCH_ARGS) buffer IndirectDispatchArgs {
     DispatchArgs args;
 };
-
+layout(std430, binding = BINDING_EFFECT_COUNTERS) buffer EffectCounters {
+    atomic_uint effectCounters[];
+};
 
 void main() {
     uint idx = gl_GlobalInvocationID.x;

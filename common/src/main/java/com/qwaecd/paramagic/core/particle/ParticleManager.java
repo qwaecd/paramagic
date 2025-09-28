@@ -1,19 +1,24 @@
 package com.qwaecd.paramagic.core.particle;
 
 import com.qwaecd.paramagic.Paramagic;
+import com.qwaecd.paramagic.core.particle.compute.ComputeShaderProvider;
 import com.qwaecd.paramagic.core.particle.memory.ParticleMemoryManager;
 import com.qwaecd.paramagic.core.render.context.RenderContext;
 import com.qwaecd.paramagic.core.render.state.GLStateCache;
 
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class ParticleManager {
-    public  static final int MAX_PARTICLES = 1_000_000;
+    public  final int MAX_PARTICLES = 1_000_000;
+    public  final int MAX_EFFECT_COUNT = 64;
     private static ParticleManager INSTANCE;
 
     private final ParticleMemoryManager memoryManager;
+    @Nullable
+    private final ComputeShaderProvider shaderProvider;
 
     private final List<GPUParticleEffect> activeEffects;
     private final ConcurrentLinkedQueue<GPUParticleEffect> pendingAdd = new ConcurrentLinkedQueue<>();
@@ -24,8 +29,14 @@ public class ParticleManager {
     private ParticleManager(boolean canUseComputeShader, boolean canUseGeometryShader) {
         this.canUseComputeShader = canUseComputeShader;
         this.canUseGeometryShader = canUseGeometryShader;
-        this.memoryManager = new ParticleMemoryManager(MAX_PARTICLES);
+        this.memoryManager = new ParticleMemoryManager(MAX_PARTICLES, MAX_EFFECT_COUNT);
         this.activeEffects = new ArrayList<>();
+
+        if (canUseComputeShader && canUseGeometryShader) {
+            this.shaderProvider = new ComputeShaderProvider();
+        } else {
+            this.shaderProvider = null;
+        }
     }
 
     public static ParticleManager getInstance() {
@@ -55,9 +66,16 @@ public class ParticleManager {
     }
 
     public void update(float deltaTime) {
-        if (shouldWork()) {
+        if (shouldWork() || this.shaderProvider == null) {
             return;
         }
+        for (GPUParticleEffect effect : this.activeEffects) {
+            effect.update(deltaTime, this.shaderProvider);
+        }
+    }
+
+    private void CollectEmissionRequests() {
+
     }
 
     private boolean shouldWork() {

@@ -5,6 +5,8 @@ import org.joml.Vector4f;
 /**
  * <pre>
  * struct Particle {
+ *   // (16 bytes)
+ *   vec4 meta;     // x: effectId, y: unused, z: unused, w: unused
  *   // 物理属性 (16 bytes)
  *   vec4 position;    // x, y, z, mass
  *   // 物理属性 (16 bytes)
@@ -18,12 +20,14 @@ import org.joml.Vector4f;
  * };
  * </pre>
  */
+@SuppressWarnings("unused")
 public final class GPUParticle {
+    private Vector4f mata;
     private Vector4f position;
     private Vector4f velocity;
     private Vector4f attributes;
     private Vector4f renderAttribs;
     private Vector4f color;
 
-    public static final int SIZE_IN_BYTES = 64;
+    public static final int SIZE_IN_BYTES = 96;
 }
