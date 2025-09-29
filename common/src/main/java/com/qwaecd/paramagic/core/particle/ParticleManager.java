@@ -1,12 +1,14 @@
 package com.qwaecd.paramagic.core.particle;
 
 import com.qwaecd.paramagic.Paramagic;
-import com.qwaecd.paramagic.core.particle.compute.ComputeShaderProvider;
+import com.qwaecd.paramagic.core.particle.compute.CShaderProvider;
+import com.qwaecd.paramagic.core.particle.compute.IComputeShaderProvider;
+import com.qwaecd.paramagic.core.particle.data.EmissionRequest;
 import com.qwaecd.paramagic.core.particle.memory.ParticleMemoryManager;
+import com.qwaecd.paramagic.core.particle.request.ParticleEmissionProcessor;
 import com.qwaecd.paramagic.core.render.context.RenderContext;
 import com.qwaecd.paramagic.core.render.state.GLStateCache;
 
-import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -17,8 +19,8 @@ public class ParticleManager {
     private static ParticleManager INSTANCE;
 
     private final ParticleMemoryManager memoryManager;
-    @Nullable
-    private final ComputeShaderProvider shaderProvider;
+    private final ParticleEmissionProcessor emissionProcessor;
+    private final IComputeShaderProvider shaderProvider;
 
     private final List<GPUParticleEffect> activeEffects;
     private final ConcurrentLinkedQueue<GPUParticleEffect> pendingAdd = new ConcurrentLinkedQueue<>();
@@ -26,17 +28,19 @@ public class ParticleManager {
     private final boolean canUseComputeShader;
     private final boolean canUseGeometryShader;
 
+    // 用于重用的暂存发射请求的列表
+    private final List<EmissionRequest> emissionRequests;
+
     private ParticleManager(boolean canUseComputeShader, boolean canUseGeometryShader) {
         this.canUseComputeShader = canUseComputeShader;
         this.canUseGeometryShader = canUseGeometryShader;
         this.memoryManager = new ParticleMemoryManager(MAX_PARTICLES, MAX_EFFECT_COUNT);
         this.activeEffects = new ArrayList<>();
 
-        if (canUseComputeShader && canUseGeometryShader) {
-            this.shaderProvider = new ComputeShaderProvider();
-        } else {
-            this.shaderProvider = null;
-        }
+        this.shaderProvider = new CShaderProvider(this.canUseComputeShader && this.canUseGeometryShader);
+        this.emissionProcessor = new ParticleEmissionProcessor(shaderProvider);
+
+        this.emissionRequests = new ArrayList<>(MAX_EFFECT_COUNT);
     }
 
     public static ParticleManager getInstance() {
@@ -60,22 +64,40 @@ public class ParticleManager {
     }
 
     public void renderParticles(RenderContext context, GLStateCache stateCache) {
-        if (this.activeEffects.isEmpty() || shouldWork()){
+        if (this.activeEffects.isEmpty() || !shouldWork()){
             return;
         }
     }
 
     public void update(float deltaTime) {
-        if (shouldWork() || this.shaderProvider == null) {
+        if (this.activeEffects.isEmpty() || !shouldWork()) {
             return;
         }
+        // TODO: 还需处理当前帧新增以及移除的effect
+        collectEmissionRequests();
+        processRequests();
+
+        updateActiveEffects(deltaTime);
+    }
+
+    private void updateActiveEffects(float deltaTime) {
         for (GPUParticleEffect effect : this.activeEffects) {
             effect.update(deltaTime, this.shaderProvider);
         }
     }
 
-    private void CollectEmissionRequests() {
+    private void collectEmissionRequests() {
+        this.emissionRequests.clear();
+        for (GPUParticleEffect effect : this.activeEffects) {
+            List<EmissionRequest> requestsFromEffect = effect.getEmissionRequests();
+            if (!requestsFromEffect.isEmpty()) {
+                this.emissionRequests.addAll(requestsFromEffect);
+            }
+        }
+    }
 
+    private void processRequests() {
+        this.emissionProcessor.reserveParticles(this.emissionRequests, this.memoryManager);
     }
 
     private boolean shouldWork() {

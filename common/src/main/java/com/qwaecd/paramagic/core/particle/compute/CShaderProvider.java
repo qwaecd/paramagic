@@ -2,18 +2,16 @@ package com.qwaecd.paramagic.core.particle.compute;
 
 import com.qwaecd.paramagic.core.render.shader.Shader;
 import com.qwaecd.paramagic.core.render.shader.ShaderManager;
-import lombok.Getter;
 
-public class ComputeShaderProvider {
-    @Getter
+public class CShaderProvider implements IComputeShaderProvider {
     private final ComputeShader initializeRequestShader;
-    @Getter
     private final ComputeShader reserveRequestShader;
-    @Getter
     private final ComputeShader particleUpdateShader;
 
-    public ComputeShaderProvider(
-    ) {
+    private final boolean computeShadersSupported;
+
+    public CShaderProvider(boolean computeShadersSupported) {
+        this.computeShadersSupported = computeShadersSupported;
         this.initializeRequestShader = get("initialize_request");
         this.reserveRequestShader = get("reserve_request");
         this.particleUpdateShader = get("particle_update");
@@ -26,5 +24,25 @@ public class ComputeShaderProvider {
             return new ComputeShader(shader);
         }
         return null;
+    }
+
+    @Override
+    public boolean isSupported() {
+        return this.computeShadersSupported;
+    }
+
+    @Override
+    public ComputeShader initializeRequestShader() {
+        return this.initializeRequestShader;
+    }
+
+    @Override
+    public ComputeShader reserveRequestShader() {
+        return this.reserveRequestShader;
+    }
+
+    @Override
+    public ComputeShader particleUpdateShader() {
+        return this.particleUpdateShader;
     }
 }

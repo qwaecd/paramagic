@@ -28,8 +28,8 @@ public class ComputeShader {
     public ComputeShader(Shader shader) {
         this.subroutineMap = new HashMap<>();
         this.shader = shader;
-        this.programId = shader.getProgramId()
-;        loadSubroutines();
+        this.programId = shader.getProgramId();
+        loadSubroutines();
     }
 
     private void loadSubroutines() {
