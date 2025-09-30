@@ -4,11 +4,12 @@ package com.qwaecd.paramagic.core.particle;
 public final class ShaderBindingPoints {
     private ShaderBindingPoints() {}
 
-    public static final int ATOMIC_COUNTER = 0;
-    public static final int PARTICLE_DATA = 1;
-    public static final int DEAD_LIST = 2;
+    public static final int PARTICLE_STACK_TOP = 0; // 全局资源
+    public static final int PARTICLE_DATA = 1;  // 全局资源
+    public static final int DEAD_LIST = 2;  // 全局资源
+    public static final int EFFECT_COUNTERS = 3;
 
-    public static final int REQUESTS = 3;
-    public static final int DISPATCH_ARGS = 4;
-    public static final int EFFECT_COUNTERS = 5;
+    public static final int REQUESTS = 4;
+    public static final int EMITTION_TASKS = 5;
+    public static final int TASK_COUNT = 6;
 }

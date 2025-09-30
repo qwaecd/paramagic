@@ -38,7 +38,7 @@ public class ParticleManager {
         this.activeEffects = new ArrayList<>();
 
         this.shaderProvider = new CShaderProvider(this.canUseComputeShader && this.canUseGeometryShader);
-        this.emissionProcessor = new ParticleEmissionProcessor(shaderProvider);
+        this.emissionProcessor = new ParticleEmissionProcessor(shaderProvider, this.memoryManager.getMAX_REQUESTS_PER_FRAME());
 
         this.emissionRequests = new ArrayList<>(MAX_EFFECT_COUNT);
     }

@@ -1,9 +1,10 @@
 #version 430 core
-#define BINDING_ATOMIC_COUNTER 0
+#define BINDING_PARTICLE_STACK_TOP 0
 #define BINDING_PARTICLE_DATA 1
 #define BINDING_DEAD_LIST 2
 #define BINDING_REQUESTS 3
 #define BINDING_DISPATCH_ARGS 4
+#define BINDING_TASK_META 6
 
 layout(local_size_x = 256, local_size_y = 1, local_size_z = 1) in;
 
@@ -34,8 +35,12 @@ struct DispatchArgs {
     uint indexStackOffset;
     EmissionRequest request;
 };
+struct TaskMeta {
+    uint successfulTaskCount;
+    vec3 _padding;
+};
 
-layout(binding = BINDING_ATOMIC_COUNTER, offset = 0) uniform atomic_uint deadListCounter;
+layout(binding = BINDING_PARTICLE_STACK_TOP, offset = 0) uniform atomic_uint deadListCounter;
 layout(std430, binding = BINDING_REQUESTS) buffer ParticleRequests {
     EmissionRequest requests[];
 };
@@ -47,6 +52,10 @@ layout(std430, binding = BINDING_DEAD_LIST) buffer DeadList {
 };
 layout(std430, binding = BINDING_DISPATCH_ARGS) readonly buffer IndirectDispatchArgs {
     DispatchArgs args;
+};
+
+layout(std430, binding = BINDING_TASK_META) readonly buffer Meta {
+    TaskMeta meta;
 };
 
 subroutine void EmitterInitializer(uint particleIndex, EmissionRequest req);

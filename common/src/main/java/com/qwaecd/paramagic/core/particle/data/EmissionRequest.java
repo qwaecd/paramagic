@@ -3,6 +3,8 @@ package com.qwaecd.paramagic.core.particle.data;
 
 import org.joml.Vector4f;
 
+import java.nio.ByteBuffer;
+
 /**
  * <pre>
  * struct EmissionRequest {
@@ -33,6 +35,38 @@ public final class EmissionRequest {
     private Vector4f param3;
     private Vector4f param4;
     private Vector4f param5;
+
+    public void writeToBuffer(ByteBuffer buffer) {
+        buffer.putInt(count);
+        buffer.putInt(emitterType);
+        buffer.putInt(effectId);
+        buffer.putInt(_padding);
+
+        buffer.putFloat(param1.x);
+        buffer.putFloat(param1.y);
+        buffer.putFloat(param1.z);
+        buffer.putFloat(param1.w);
+
+        buffer.putFloat(param2.x);
+        buffer.putFloat(param2.y);
+        buffer.putFloat(param2.z);
+        buffer.putFloat(param2.w);
+
+        buffer.putFloat(param3.x);
+        buffer.putFloat(param3.y);
+        buffer.putFloat(param3.z);
+        buffer.putFloat(param3.w);
+
+        buffer.putFloat(param4.x);
+        buffer.putFloat(param4.y);
+        buffer.putFloat(param4.z);
+        buffer.putFloat(param4.w);
+
+        buffer.putFloat(param5.x);
+        buffer.putFloat(param5.y);
+        buffer.putFloat(param5.z);
+        buffer.putFloat(param5.w);
+    }
 
     public static final int SIZE_IN_BYTES = 96;
 }

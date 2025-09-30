@@ -1,6 +1,7 @@
 package com.qwaecd.paramagic.core.particle.memory;
 
 import com.qwaecd.paramagic.core.particle.ShaderBindingPoints;
+import com.qwaecd.paramagic.core.particle.data.EmissionRequest;
 import com.qwaecd.paramagic.core.particle.data.GPUParticle;
 import lombok.Getter;
 import org.lwjgl.system.MemoryUtil;
@@ -12,10 +13,17 @@ import static org.lwjgl.opengl.GL43.*;
 public final class ParticleMemoryManager implements AutoCloseable {
     private final int MAX_PARTICLES;
     private final int MAX_EFFECT_COUNT;
+    @Getter
+    private final int MAX_REQUESTS_PER_FRAME;
+
     private final int mainSSBO;
     private final int deadListSSBO;
     private final int atomicCounterBuffer;
     private final int effectCountersListSSBO;
+    private final int requestArraySSBO;
+
+    private final int emittionTasksSSBO;
+    private final int taskCountBuffer;
 
     @Getter
     private static final int LOCAL_SIZE = 256;
@@ -23,17 +31,28 @@ public final class ParticleMemoryManager implements AutoCloseable {
     public ParticleMemoryManager(int maxParticles, int maxEffectCount) {
         this.MAX_PARTICLES = maxParticles;
         this.MAX_EFFECT_COUNT = maxEffectCount;
+        this.MAX_REQUESTS_PER_FRAME = maxEffectCount * 4;
         this.mainSSBO = glGenBuffers();
         this.deadListSSBO = glGenBuffers();
         this.atomicCounterBuffer = glGenBuffers();
         this.effectCountersListSSBO = glGenBuffers();
+        this.requestArraySSBO = glGenBuffers();
+        this.emittionTasksSSBO = glGenBuffers();
+        this.taskCountBuffer = glGenBuffers();
     }
 
-    public void bindBuffers() {
+    public void bindMainBuffers() {
+        glBindBufferBase(GL_ATOMIC_COUNTER_BUFFER, ShaderBindingPoints.PARTICLE_STACK_TOP, this.atomicCounterBuffer);
         glBindBufferBase(GL_SHADER_STORAGE_BUFFER, ShaderBindingPoints.PARTICLE_DATA, this.mainSSBO);
         glBindBufferBase(GL_SHADER_STORAGE_BUFFER, ShaderBindingPoints.DEAD_LIST, this.deadListSSBO);
-        glBindBufferBase(GL_ATOMIC_COUNTER_BUFFER, ShaderBindingPoints.ATOMIC_COUNTER, this.atomicCounterBuffer);
         glBindBufferBase(GL_SHADER_STORAGE_BUFFER, ShaderBindingPoints.EFFECT_COUNTERS, this.effectCountersListSSBO);
+    }
+
+    public void reserveStep() {
+        glBindBufferBase(GL_ATOMIC_COUNTER_BUFFER, ShaderBindingPoints.REQUESTS, this.requestArraySSBO);
+        glBindBufferBase(GL_ATOMIC_COUNTER_BUFFER, ShaderBindingPoints.EMITTION_TASKS, this.emittionTasksSSBO);
+        glBindBufferBase(GL_ATOMIC_COUNTER_BUFFER, ShaderBindingPoints.TASK_COUNT, this.taskCountBuffer);
+        glBindBuffer(GL_SHADER_STORAGE_BUFFER, this.requestArraySSBO);
     }
 
     public void init() {
@@ -41,6 +60,9 @@ public final class ParticleMemoryManager implements AutoCloseable {
         initDeadListBuffer();
         initAtomicCounter();
         initEffectCountersListBuffer();
+        initRequestArrayBuffer();
+        initEmittionTasksBuffer();
+        initTaskMetaBuffer();
         glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
     }
 
@@ -83,11 +105,46 @@ public final class ParticleMemoryManager implements AutoCloseable {
         MemoryUtil.memFree(zeroBuffer);
     }
 
+    private void initRequestArrayBuffer() {
+        long bufferSizeBytes = (long) MAX_REQUESTS_PER_FRAME * EmissionRequest.SIZE_IN_BYTES;
+        glBindBuffer(GL_SHADER_STORAGE_BUFFER, this.requestArraySSBO);
+        glBufferData(GL_SHADER_STORAGE_BUFFER, bufferSizeBytes, GL_DYNAMIC_DRAW);
+    }
+
+    /**
+     * <pre>
+     * struct EmittionTask {
+     *     uint numParticlesToInit;
+     *     uint indexStackOffset;
+     *     uint _padding0;
+     *     uint _padding1;
+     *     EmissionRequest request;
+     * };
+     * <pre/>
+     */
+    private void initEmittionTasksBuffer() {
+        long bufferSizeBytes = (long) MAX_REQUESTS_PER_FRAME * EmissionRequest.SIZE_IN_BYTES + Integer.BYTES * 4;
+        glBindBuffer(GL_SHADER_STORAGE_BUFFER, this.emittionTasksSSBO);
+        glBufferData(GL_SHADER_STORAGE_BUFFER, bufferSizeBytes, GL_DYNAMIC_DRAW);
+        IntBuffer zeroBuffer = MemoryUtil.memCallocInt(1);
+        glBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, zeroBuffer);
+        MemoryUtil.memFree(zeroBuffer);
+    }
+
+    private void initTaskMetaBuffer() {
+        long bufferSizeBytes = Integer.BYTES;
+        glBindBuffer(GL_SHADER_STORAGE_BUFFER, this.taskCountBuffer);
+        glBufferData(GL_SHADER_STORAGE_BUFFER, bufferSizeBytes, GL_DYNAMIC_DRAW);
+    }
+
     @Override
     public void close() {
         glDeleteBuffers(this.mainSSBO);
         glDeleteBuffers(this.deadListSSBO);
         glDeleteBuffers(this.atomicCounterBuffer);
         glDeleteBuffers(this.effectCountersListSSBO);
+        glDeleteBuffers(this.requestArraySSBO);
+        glDeleteBuffers(this.emittionTasksSSBO);
+        glDeleteBuffers(this.taskCountBuffer);
     }
 }

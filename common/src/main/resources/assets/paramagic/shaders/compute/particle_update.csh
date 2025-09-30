@@ -1,5 +1,5 @@
 #version 430 core
-#define BINDING_ATOMIC_COUNTER 0
+#define BINDING_PARTICLE_STACK_TOP 0
 #define BINDING_PARTICLE_DATA 1
 #define BINDING_DEAD_LIST 2
 #define BINDING_EFFECT_COUNTERS 5
@@ -17,7 +17,7 @@ struct Particle {
     vec4 color; // rgba
 };
 
-layout(binding = BINDING_ATOMIC_COUNTER, offset = 0) uniform atomic_uint deadListCounter;
+layout(binding = BINDING_PARTICLE_STACK_TOP, offset = 0) uniform atomic_uint deadListCounter;
 layout(std430, binding = BINDING_PARTICLE_DATA) buffer ParticleData {
     Particle particles[];
 };

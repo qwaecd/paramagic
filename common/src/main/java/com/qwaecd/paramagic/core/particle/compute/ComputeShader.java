@@ -11,14 +11,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static org.lwjgl.opengl.GL20.*;
-import static org.lwjgl.opengl.GL20.glGetUniformLocation;
-import static org.lwjgl.opengl.GL20.glUniform1f;
-import static org.lwjgl.opengl.GL20.glUniform1i;
-import static org.lwjgl.opengl.GL20.glUniform2f;
-import static org.lwjgl.opengl.GL20.glUniform3f;
-import static org.lwjgl.opengl.GL20.glUniform4f;
 import static org.lwjgl.opengl.GL40.glGetSubroutineIndex;
 import static org.lwjgl.opengl.GL43.GL_COMPUTE_SHADER;
+import static org.lwjgl.opengl.GL43.glDispatchCompute;
 
 public class ComputeShader {
     private final Shader shader;
@@ -47,6 +42,10 @@ public class ComputeShader {
 
     public void unbind() {
         glUseProgram(0);
+    }
+
+    public void dispatch(int numGroupsX, int numGroupsY, int numGroupsZ) {
+        glDispatchCompute(numGroupsX, numGroupsY, numGroupsZ);
     }
 
     public void setUniformMatrix4f(String name, FloatBuffer matrix) {
