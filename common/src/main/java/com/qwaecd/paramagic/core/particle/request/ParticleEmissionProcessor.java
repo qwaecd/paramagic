@@ -11,7 +11,9 @@ import java.nio.ByteOrder;
 import java.util.List;
 
 import static org.lwjgl.opengl.GL15.glBufferSubData;
+import static org.lwjgl.opengl.GL42.GL_ATOMIC_COUNTER_BARRIER_BIT;
 import static org.lwjgl.opengl.GL42.glMemoryBarrier;
+import static org.lwjgl.opengl.GL43.GL_SHADER_STORAGE_BARRIER_BIT;
 import static org.lwjgl.opengl.GL43.GL_SHADER_STORAGE_BUFFER;
 
 
@@ -46,7 +48,7 @@ public class ParticleEmissionProcessor {
         glBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, this.stagingBuffer);
 
         reserveRequestShader.dispatch(1, 1, 1);
-        glMemoryBarrier();
+        glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT | GL_ATOMIC_COUNTER_BARRIER_BIT);
         reserveRequestShader.unbind();
     }
 }

@@ -17,6 +17,13 @@ struct Particle {
     vec4 color; // rgba
 };
 
+struct EffectMetaData {
+    uint maxParticles;
+    uint currentCount;
+    uint _padding1;
+    uint _padding2;
+};
+
 layout(binding = BINDING_PARTICLE_STACK_TOP, offset = 0) uniform atomic_uint deadListCounter;
 layout(std430, binding = BINDING_PARTICLE_DATA) buffer ParticleData {
     Particle particles[];
@@ -24,8 +31,8 @@ layout(std430, binding = BINDING_PARTICLE_DATA) buffer ParticleData {
 layout(std430, binding = BINDING_DEAD_LIST) buffer DeadList {
     uint deadList[];
 };
-layout(std430, binding = BINDING_EFFECT_COUNTERS) buffer EffectCounters {
-    atomic_uint effectCounters[];
+layout(std430, binding = BINDING_EFFECT_COUNTERS) buffer EffectData {
+    EffectMetaData effectData[];
 };
 uniform int u_maxParticles;
 uniform float u_deltaTime;

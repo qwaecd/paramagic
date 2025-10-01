@@ -1,6 +1,5 @@
 package com.qwaecd.paramagic.core.particle;
 
-import com.qwaecd.paramagic.core.particle.compute.CShaderProvider;
 import com.qwaecd.paramagic.core.particle.compute.IComputeShaderProvider;
 import com.qwaecd.paramagic.core.particle.data.EmissionRequest;
 import com.qwaecd.paramagic.core.particle.emitter.Emitter;

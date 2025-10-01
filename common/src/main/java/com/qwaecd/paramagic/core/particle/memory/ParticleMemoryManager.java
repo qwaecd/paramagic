@@ -22,7 +22,7 @@ public final class ParticleMemoryManager implements AutoCloseable {
     private final int effectCountersListSSBO;
     private final int requestArraySSBO;
 
-    private final int emittionTasksSSBO;
+    private final int emissionTasksSSBO;
     private final int taskCountBuffer;
 
     @Getter
@@ -37,7 +37,7 @@ public final class ParticleMemoryManager implements AutoCloseable {
         this.atomicCounterBuffer = glGenBuffers();
         this.effectCountersListSSBO = glGenBuffers();
         this.requestArraySSBO = glGenBuffers();
-        this.emittionTasksSSBO = glGenBuffers();
+        this.emissionTasksSSBO = glGenBuffers();
         this.taskCountBuffer = glGenBuffers();
     }
 
@@ -50,7 +50,7 @@ public final class ParticleMemoryManager implements AutoCloseable {
 
     public void reserveStep() {
         glBindBufferBase(GL_ATOMIC_COUNTER_BUFFER, ShaderBindingPoints.REQUESTS, this.requestArraySSBO);
-        glBindBufferBase(GL_ATOMIC_COUNTER_BUFFER, ShaderBindingPoints.EMITTION_TASKS, this.emittionTasksSSBO);
+        glBindBufferBase(GL_ATOMIC_COUNTER_BUFFER, ShaderBindingPoints.EMISSION_TASKS, this.emissionTasksSSBO);
         glBindBufferBase(GL_ATOMIC_COUNTER_BUFFER, ShaderBindingPoints.TASK_COUNT, this.taskCountBuffer);
         glBindBuffer(GL_SHADER_STORAGE_BUFFER, this.requestArraySSBO);
     }
@@ -96,11 +96,21 @@ public final class ParticleMemoryManager implements AutoCloseable {
         MemoryUtil.memFree(intBuffer);
     }
 
+    /**
+     * <pre>
+     * struct EffectMetaData {
+     *     uint maxParticles;
+     *     uint currentCount;
+     *     uint _padding1;
+     *     uint _padding2;
+     * };
+     * </pre>
+     */
     private void initEffectCountersListBuffer() {
-        long bufferSizeBytes = (long) MAX_EFFECT_COUNT * Integer.BYTES;
+        long bufferSizeBytes = (long) MAX_EFFECT_COUNT * Integer.BYTES * 4;
         glBindBuffer(GL_SHADER_STORAGE_BUFFER, this.effectCountersListSSBO);
         glBufferData(GL_SHADER_STORAGE_BUFFER, bufferSizeBytes, GL_DYNAMIC_DRAW);
-        IntBuffer zeroBuffer = MemoryUtil.memCallocInt(MAX_EFFECT_COUNT);
+        IntBuffer zeroBuffer = MemoryUtil.memCallocInt(MAX_EFFECT_COUNT * 4);
         glBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, zeroBuffer);
         MemoryUtil.memFree(zeroBuffer);
     }
@@ -113,18 +123,18 @@ public final class ParticleMemoryManager implements AutoCloseable {
 
     /**
      * <pre>
-     * struct EmittionTask {
+     * struct EmissionTask {
      *     uint numParticlesToInit;
      *     uint indexStackOffset;
      *     uint _padding0;
      *     uint _padding1;
      *     EmissionRequest request;
      * };
-     * <pre/>
+     * </pre>
      */
     private void initEmittionTasksBuffer() {
         long bufferSizeBytes = (long) MAX_REQUESTS_PER_FRAME * EmissionRequest.SIZE_IN_BYTES + Integer.BYTES * 4;
-        glBindBuffer(GL_SHADER_STORAGE_BUFFER, this.emittionTasksSSBO);
+        glBindBuffer(GL_SHADER_STORAGE_BUFFER, this.emissionTasksSSBO);
         glBufferData(GL_SHADER_STORAGE_BUFFER, bufferSizeBytes, GL_DYNAMIC_DRAW);
         IntBuffer zeroBuffer = MemoryUtil.memCallocInt(1);
         glBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, zeroBuffer);
@@ -144,7 +154,7 @@ public final class ParticleMemoryManager implements AutoCloseable {
         glDeleteBuffers(this.atomicCounterBuffer);
         glDeleteBuffers(this.effectCountersListSSBO);
         glDeleteBuffers(this.requestArraySSBO);
-        glDeleteBuffers(this.emittionTasksSSBO);
+        glDeleteBuffers(this.emissionTasksSSBO);
         glDeleteBuffers(this.taskCountBuffer);
     }
 }

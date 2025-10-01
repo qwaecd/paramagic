@@ -1,7 +1,7 @@
 package com.qwaecd.paramagic.core.render.queue;
 
-import com.qwaecd.paramagic.core.render.api.IRenderable;
 import com.qwaecd.paramagic.core.render.ModRenderSystem;
+import com.qwaecd.paramagic.core.render.api.IRenderable;
 import org.joml.Vector3d;
 
 import java.util.ArrayList;
