@@ -1,5 +1,5 @@
 #version 430 core
-#define BINDING_PARTICLE_STACK_TOP 0
+#define BINDING_GLOBAL_DATA 0
 #define BINDING_PARTICLE_DATA 1
 #define BINDING_DEAD_LIST 2
 #define BINDING_EFFECT_COUNTERS 5
@@ -7,6 +7,13 @@
 #define CF_EPS 1e-6
 
 layout(local_size_x = 256, local_size_y = 1, local_size_z = 1) in;
+
+struct GlobalCounters {
+    uint deadListStackTop;  // Number of available (dead) particle slots
+    uint successfulTaskCount;   // Number of tasks written so far
+    uint _padding2;
+    uint _padding3;
+};
 
 struct Particle {
     vec4 meta;        // x: effectId, y: unused, z: unused, w: unused
@@ -24,7 +31,9 @@ struct EffectMetaData {
     uint _padding2;
 };
 
-layout(binding = BINDING_PARTICLE_STACK_TOP, offset = 0) uniform atomic_uint deadListCounter;
+layout(std430, binding = BINDING_GLOBAL_DATA) buffer Globals {
+    GlobalCounters globalData;
+};
 layout(std430, binding = BINDING_PARTICLE_DATA) buffer ParticleData {
     Particle particles[];
 };
@@ -73,13 +82,16 @@ void main() {
         // died
         return;
     }
-    particles[idx].attributes.x += u_deltaTime;
+    float newAge = age + u_deltaTime;
 
-    if (particles[idx].attributes.x >= lifetime) {
+    if (newAge >= lifetime) {
         // just died
-        uint deadIdx = atomicCounterAdd(deadListCounter, 1);
+        particles[idx].attributes.x = lifetime;
+        uint deadIdx = atomicAdd(globalData.deadListStackTop, 1u);
         deadList[deadIdx] = idx;
+        atomicAdd(effectData[uint(particles[idx].meta.x)].currentCount, uint(-1));
         return;
     }
+    particles[idx].attributes.x = newAge;
     update(idx);
 }

@@ -1,9 +1,7 @@
 #version 330 core
 
 in vec4 v_color;
-in vec2 v_texCoord; // ignore it, because not impl
 in float v_intensity;
-
 
 layout(location = 0) out vec4 o_color;
 layout(location = 1) out vec4 o_bloomColor;

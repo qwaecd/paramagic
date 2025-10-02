@@ -10,6 +10,7 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.List;
 
+import static org.lwjgl.opengl.GL15.glBindBuffer;
 import static org.lwjgl.opengl.GL15.glBufferSubData;
 import static org.lwjgl.opengl.GL42.GL_ATOMIC_COUNTER_BARRIER_BIT;
 import static org.lwjgl.opengl.GL42.glMemoryBarrier;
@@ -28,10 +29,8 @@ public class ParticleEmissionProcessor {
         this.stagingBuffer = MemoryUtil.memAlloc(EmissionRequest.SIZE_IN_BYTES * maxRequestsPreFrame).order(ByteOrder.nativeOrder());
     }
 
-    public void reserveParticles(List<EmissionRequest> reqs, ParticleMemoryManager memoryManager) {
+    public void reserveParticles(int requestCount, List<EmissionRequest> reqs, ParticleMemoryManager memoryManager) {
         memoryManager.bindMainBuffers();
-        final int maxRequests = memoryManager.getMAX_REQUESTS_PER_FRAME();
-        final int requestCount = Math.min(reqs.size(), maxRequests);
 
         ComputeShader reserveRequestShader = this.shaderProvider.reserveRequestShader();
         reserveRequestShader.bind();
@@ -47,8 +46,22 @@ public class ParticleEmissionProcessor {
         // 在 memoryManager.reserveStep(); 内已经绑定了对应的 GL_SHADER_STORAGE_BUFFER
         glBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, this.stagingBuffer);
 
+        // 派发数量固定为 1
         reserveRequestShader.dispatch(1, 1, 1);
         glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT | GL_ATOMIC_COUNTER_BARRIER_BIT);
         reserveRequestShader.unbind();
+        glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
+    }
+
+    public void initializeParticles(int requestCount, ParticleMemoryManager memoryManager) {
+        memoryManager.initializeParticleStep();
+        ComputeShader initializeRequestShader = this.shaderProvider.initializeRequestShader();
+
+        initializeRequestShader.bind();
+        initializeRequestShader.dispatch(requestCount, 1, 1);
+
+        glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
+
+        initializeRequestShader.unbind();
     }
 }

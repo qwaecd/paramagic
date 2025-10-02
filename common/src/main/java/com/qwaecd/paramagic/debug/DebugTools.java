@@ -5,6 +5,9 @@ import com.qwaecd.paramagic.assembler.AssemblyException;
 import com.qwaecd.paramagic.assembler.ParaComposer;
 import com.qwaecd.paramagic.client.obj.sun.Sun;
 import com.qwaecd.paramagic.client.renderbase.factory.SphereFactory;
+import com.qwaecd.paramagic.core.particle.GPUParticleEffect;
+import com.qwaecd.paramagic.core.particle.ParticleManager;
+import com.qwaecd.paramagic.core.particle.emitter.impl.PointEmitter;
 import com.qwaecd.paramagic.core.render.api.IRenderable;
 import com.qwaecd.paramagic.core.render.ModRenderSystem;
 import com.qwaecd.paramagic.core.render.shader.ShaderManager;
@@ -49,6 +52,20 @@ public class DebugTools {
         sun.getTransform().setPosition(0, 80, 10).setScale(5.0f, 5.0f, 5.0f);
         ModRenderSystem.getInstance().addRenderable(sun);
         paraTest();
+        effectTest();
+    }
+
+    private static void effectTest() {
+        PointEmitter pointEmitter = new PointEmitter(
+                new Vector3f(0, 120, 0),
+                100.0f
+        );
+        GPUParticleEffect effect = new GPUParticleEffect(
+                List.of(pointEmitter),
+                100000,
+                0
+        );
+        ParticleManager.getInstance().spawnEffect(effect);
     }
 
     private static void paraTest() {

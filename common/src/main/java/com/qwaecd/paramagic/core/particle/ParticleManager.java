@@ -7,11 +7,23 @@ import com.qwaecd.paramagic.core.particle.data.EmissionRequest;
 import com.qwaecd.paramagic.core.particle.memory.ParticleMemoryManager;
 import com.qwaecd.paramagic.core.particle.request.ParticleEmissionProcessor;
 import com.qwaecd.paramagic.core.render.context.RenderContext;
+import com.qwaecd.paramagic.core.render.shader.Shader;
+import com.qwaecd.paramagic.core.render.shader.ShaderManager;
 import com.qwaecd.paramagic.core.render.state.GLStateCache;
+import com.qwaecd.paramagic.core.render.state.RenderState;
+import org.joml.Matrix4f;
+import org.joml.Vector3d;
 
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentLinkedQueue;
+
+import static org.lwjgl.opengl.GL11.*;
+import static org.lwjgl.opengl.GL20.glUseProgram;
+import static org.lwjgl.opengl.GL30.glBindVertexArray;
+import static org.lwjgl.opengl.GL30.glGenVertexArrays;
+import static org.lwjgl.opengl.GL32.GL_PROGRAM_POINT_SIZE;
 
 public class ParticleManager {
     public  final int MAX_PARTICLES = 1_000_000;
@@ -21,6 +33,8 @@ public class ParticleManager {
     private final ParticleMemoryManager memoryManager;
     private final ParticleEmissionProcessor emissionProcessor;
     private final IComputeShaderProvider shaderProvider;
+    @Nullable
+    private final Shader renderShader;
 
     private final List<GPUParticleEffect> activeEffects;
     private final ConcurrentLinkedQueue<GPUParticleEffect> pendingAdd = new ConcurrentLinkedQueue<>();
@@ -30,6 +44,7 @@ public class ParticleManager {
 
     // 用于重用的暂存发射请求的列表
     private final List<EmissionRequest> emissionRequests;
+    private final int emptyVao;
 
     private ParticleManager(boolean canUseComputeShader, boolean canUseGeometryShader) {
         this.canUseComputeShader = canUseComputeShader;
@@ -40,7 +55,11 @@ public class ParticleManager {
         this.shaderProvider = new CShaderProvider(this.canUseComputeShader && this.canUseGeometryShader);
         this.emissionProcessor = new ParticleEmissionProcessor(shaderProvider, this.memoryManager.getMAX_REQUESTS_PER_FRAME());
 
+        this.renderShader = ShaderManager.getInstance().getShaderNullable("particle_render");
+
         this.emissionRequests = new ArrayList<>(MAX_EFFECT_COUNT);
+        this.emptyVao = glGenVertexArrays();
+        glEnable(GL_PROGRAM_POINT_SIZE);
     }
 
     public static ParticleManager getInstance() {
@@ -64,20 +83,58 @@ public class ParticleManager {
     }
 
     public void renderParticles(RenderContext context, GLStateCache stateCache) {
-        if (this.activeEffects.isEmpty() || !shouldWork()){
+        if (this.activeEffects.isEmpty() || !shouldWork() || this.renderShader == null){
             return;
         }
+        stateCache.apply(RenderState.ADDITIVE);
+        Matrix4f projectionMatrix = context.getProjectionMatrix();
+        Matrix4f viewMatrix = context.getMatrixStackProvider().getViewMatrix();
+        Vector3d cameraPos = context.getCamera().position();
+        // Pass uniforms to particle_render.vsh
+        this.memoryManager.renderParticleStep();
+        glBindVertexArray(this.emptyVao);
+        this.renderShader.bind();
+        this.renderShader.setUniformMatrix4f("u_projectionMatrix", projectionMatrix);
+        this.renderShader.setUniformMatrix4f("u_viewMatrix", viewMatrix);
+        this.renderShader.setUniformValue3f("u_cameraPosition", (float) cameraPos.x, (float) cameraPos.y, (float) cameraPos.z);
+
+        glDrawArrays(GL_POINTS, 0, MAX_PARTICLES);
+        glBindVertexArray(0);
+        glUseProgram(0);
     }
 
     public void update(float deltaTime) {
+        flushPendingEffects();
         if (this.activeEffects.isEmpty() || !shouldWork()) {
             return;
         }
-        // TODO: 还需处理当前帧新增以及移除的effect
         collectEmissionRequests();
         processRequests();
 
         updateActiveEffects(deltaTime);
+    }
+
+    @SuppressWarnings("UnusedReturnValue")
+    public boolean spawnEffect(GPUParticleEffect effect) {
+        if (!shouldWork()) {
+            return false;
+        }
+        return this.pendingAdd.offer(effect);
+    }
+
+    public void flushPendingEffects() {
+        GPUParticleEffect effect;
+        while ((effect = this.pendingAdd.poll()) != null) {
+            if (this.activeEffects.size() < MAX_EFFECT_COUNT) {
+                this.activeEffects.add(effect);
+            } else {
+                Paramagic.LOG.warn("Maximum number of active particle effects reached. Cannot add more effects.");
+                break;
+            }
+        }
+        while ((effect = this.pendingRemove.poll()) != null) {
+            this.activeEffects.remove(effect);
+        }
     }
 
     private void updateActiveEffects(float deltaTime) {
@@ -97,7 +154,10 @@ public class ParticleManager {
     }
 
     private void processRequests() {
-        this.emissionProcessor.reserveParticles(this.emissionRequests, this.memoryManager);
+        final int requestCount = Math.min(this.emissionRequests.size(), this.memoryManager.getMAX_REQUESTS_PER_FRAME());
+
+        this.emissionProcessor.reserveParticles(requestCount, this.emissionRequests, this.memoryManager);
+        this.emissionProcessor.initializeParticles(requestCount, this.memoryManager);
     }
 
     private boolean shouldWork() {

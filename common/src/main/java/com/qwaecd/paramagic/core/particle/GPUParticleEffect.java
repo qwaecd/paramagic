@@ -35,7 +35,7 @@ public class GPUParticleEffect {
         }
 
         for (Emitter e : emitters) {
-            e.update(deltaTime, shaderProvider.initializeRequestShader());
+            e.update(deltaTime, shaderProvider.particleUpdateShader());
         }
     }
 
@@ -43,7 +43,7 @@ public class GPUParticleEffect {
         this.emissionRequests.clear();
         for (Emitter e : emitters) {
             EmissionRequest req = e.getEmissionRequest();
-            if (req != null) {
+            if (req != null && req.getCount() > 0) {
                 this.emissionRequests.add(req);
             }
         }

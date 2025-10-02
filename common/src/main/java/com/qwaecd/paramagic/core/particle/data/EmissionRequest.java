@@ -1,6 +1,8 @@
 package com.qwaecd.paramagic.core.particle.data;
 
 
+import lombok.Getter;
+import lombok.Setter;
 import org.joml.Vector4f;
 
 import java.nio.ByteBuffer;
@@ -21,13 +23,15 @@ import java.nio.ByteBuffer;
  *     vec4 param4; // e.g., 粒子生命周期(min, max), 尺寸(min, max)
  *     vec4 param5; // e.g., (for BURST_SPHERE) 速度(min, max), (for POINT) 发射角度
  * };
- * <pre/>
+ * </pre>
  */
 @SuppressWarnings("unused")
+@Getter
 public final class EmissionRequest {
+    @Setter
     private int count;
-    private int emitterType;
-    private int effectId;
+    private final int emitterType;
+    private final int effectId;
     private int _padding;
 
     private Vector4f param1;
@@ -36,6 +40,27 @@ public final class EmissionRequest {
     private Vector4f param4;
     private Vector4f param5;
 
+    public EmissionRequest(
+            int count,
+            int emitterType,
+            int effectId,
+            Vector4f param1,
+            Vector4f param2,
+            Vector4f param3,
+            Vector4f param4,
+            Vector4f param5
+    ) {
+        this.count = count;
+        this.emitterType = emitterType;
+        this.effectId = effectId;
+        this._padding = 0;
+
+        this.param1 = param1;
+        this.param2 = param2;
+        this.param3 = param3;
+        this.param4 = param4;
+        this.param5 = param5;
+    }
     public void writeToBuffer(ByteBuffer buffer) {
         buffer.putInt(count);
         buffer.putInt(emitterType);
