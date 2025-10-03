@@ -11,4 +11,5 @@ public final class ShaderBindingPoints {
 
     public static final int REQUESTS = 4;
     public static final int EMISSION_TASKS = 5;
+    public static final int EFFECT_PHYSICS_PARAMS = 6;
 }

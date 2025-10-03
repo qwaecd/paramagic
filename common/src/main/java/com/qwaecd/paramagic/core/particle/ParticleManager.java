@@ -137,6 +137,10 @@ public class ParticleManager {
         }
     }
 
+    private void uploadPhysicsParams() {
+
+    }
+
     private void updateActiveEffects(float deltaTime) {
         for (GPUParticleEffect effect : this.activeEffects) {
             effect.update(deltaTime, this.shaderProvider);

@@ -1,5 +1,6 @@
 package com.qwaecd.paramagic.core.particle.emitter;
 
+import com.qwaecd.paramagic.core.particle.data.EffectPhysicsParameter;
 import org.joml.Vector3f;
 
 public abstract class EmitterBase implements Emitter {

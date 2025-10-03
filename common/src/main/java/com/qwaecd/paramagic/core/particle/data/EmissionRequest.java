@@ -25,7 +25,7 @@ import java.nio.ByteBuffer;
  * };
  * </pre>
  */
-@SuppressWarnings("unused")
+@SuppressWarnings({"unused", "FieldMayBeFinal"})
 @Getter
 public final class EmissionRequest {
     @Setter

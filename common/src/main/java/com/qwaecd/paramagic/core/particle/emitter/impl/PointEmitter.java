@@ -23,9 +23,9 @@ public class PointEmitter extends EmitterBase implements Emitter {
                 EmitterType.POINT.ID,
                 0,
                 new Vector4f(position.x, position.y, position.z, 0), // param1: 发射源位置 (xyz)
-                new Vector4f(0.0f, 0.7f, 0.0f, 0), // param2: 基础速度或方向 (xyz)
+                new Vector4f(0.0f, 0.5f, 0.0f, 0), // param2: 基础速度或方向 (xyz)
                 new Vector4f(1.0f, 0.6f, 0.3f, 1.0f), // param3: 颜色 (rgba)
-                new Vector4f(30.0f, 240.0f, 1.0f, 2.0f), // param4: 粒子生命周期(min, max), 尺寸(min, max)
+                new Vector4f(30.0f, 300.0f, 1.0f, 1.8f), // param4: 粒子生命周期(min, max), 尺寸(min, max)
                 new Vector4f()  // param5: (for POINT) 发射角度
         );
     }
@@ -37,7 +37,7 @@ public class PointEmitter extends EmitterBase implements Emitter {
         updateShader.bind();
         updateShader.setUniformValue1i("u_maxParticles", 1_000_000);
         updateShader.setUniformValue1f("u_deltaTime", deltaTime);
-        updateShader.setUniformValue1f("CF_A", 10.0f);
+        updateShader.setUniformValue1f("CF_A", 4.0f);
         updateShader.setUniformValue1f("CF_B", -2.0f);
         updateShader.setUniformValue3f("u_centerForcePos", 5, 130, 0);
         updateShader.dispatch(1_000_000, 1, 1);
@@ -52,6 +52,7 @@ public class PointEmitter extends EmitterBase implements Emitter {
             int particlesToEmit = (int) this.particlesToEmitAccumulated;
             this.particlesToEmitAccumulated -= particlesToEmit;
             this.request.setCount(particlesToEmit);
+            this.setRequestPos(this.position);
             return this.request;
         }
         return null;
@@ -60,5 +61,9 @@ public class PointEmitter extends EmitterBase implements Emitter {
     @Override
     public EmitterType getType() {
         return EmitterType.POINT;
+    }
+
+    private void setRequestPos(Vector3f v) {
+        this.request.getParam1().set(v.x, v.y, v.z);
     }
 }
