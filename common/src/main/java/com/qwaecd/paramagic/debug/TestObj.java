@@ -1,7 +1,7 @@
 package com.qwaecd.paramagic.debug;
 
-import com.qwaecd.paramagic.core.render.api.IRenderable;
 import com.qwaecd.paramagic.core.render.Transform;
+import com.qwaecd.paramagic.core.render.api.IRenderable;
 import com.qwaecd.paramagic.core.render.texture.AbstractMaterial;
 import com.qwaecd.paramagic.core.render.vertex.Mesh;
 
