@@ -1,6 +1,5 @@
 package com.qwaecd.paramagic.core.particle.emitter.impl;
 
-import com.qwaecd.paramagic.core.particle.compute.ComputeShader;
 import com.qwaecd.paramagic.core.particle.data.EmissionRequest;
 import com.qwaecd.paramagic.core.particle.emitter.Emitter;
 import com.qwaecd.paramagic.core.particle.emitter.EmitterBase;
@@ -8,9 +7,6 @@ import com.qwaecd.paramagic.core.particle.emitter.EmitterType;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
-
-import static org.lwjgl.opengl.GL42.glMemoryBarrier;
-import static org.lwjgl.opengl.GL43.GL_SHADER_STORAGE_BARRIER_BIT;
 
 public class PointEmitter extends EmitterBase implements Emitter {
     private float particlesToEmitAccumulated = 0.0f;
@@ -31,19 +27,8 @@ public class PointEmitter extends EmitterBase implements Emitter {
     }
 
     @Override
-    public void update(float deltaTime, ComputeShader updateShader) {
+    public void update(float deltaTime) {
         this.particlesToEmitAccumulated += this.particlesPerSecond * deltaTime;
-        // TODO: 暂时直接启动 updateShader 用于调试
-        updateShader.bind();
-        updateShader.setUniformValue1i("u_maxParticles", 1_000_000);
-        updateShader.setUniformValue1f("u_deltaTime", deltaTime);
-        updateShader.setUniformValue1f("CF_A", 4.0f);
-        updateShader.setUniformValue1f("CF_B", -2.0f);
-        updateShader.setUniformValue3f("u_centerForcePos", 5, 130, 0);
-        updateShader.dispatch(1_000_000, 1, 1);
-        glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
-
-        updateShader.unbind();
     }
 
     @Override

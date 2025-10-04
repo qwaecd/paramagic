@@ -5,6 +5,8 @@ import lombok.Setter;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
 
+import java.nio.ByteBuffer;
+
 /**
  * <pre>
  * struct EffectPhysicsParams {
@@ -70,8 +72,26 @@ public final class EffectPhysicsParameter {
         this.modified = true;
     }
 
+    public void setDirty(boolean b) {
+        this.modified = b;
+    }
+
+    public void writePhysicsParamsToBuffer(ByteBuffer buffer) {
+        buffer.putFloat(this.centerForceData.x);
+        buffer.putFloat(this.centerForceData.y);
+        buffer.putFloat(this.centerForceData.z);
+        buffer.putFloat(this.centerForceData.w);
+
+        buffer.putFloat(this.centerForcePos.x);
+        buffer.putFloat(this.centerForcePos.y);
+        buffer.putFloat(this.centerForcePos.z);
+        buffer.putFloat(this.centerForcePos.w);
+
+        buffer.putFloat(this.linearForce.x);
+        buffer.putFloat(this.linearForce.y);
+        buffer.putFloat(this.linearForce.z);
+        buffer.putFloat(this.linearForce.w);
+    }
+
     public static final int SIZE_IN_BYTES = 3 * Float.BYTES * 4;
 }
-
-
-

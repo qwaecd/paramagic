@@ -30,8 +30,6 @@ public class ParticleEmissionProcessor {
     }
 
     public void reserveParticles(int requestCount, List<EmissionRequest> reqs, ParticleMemoryManager memoryManager) {
-        memoryManager.bindMainBuffers();
-
         ComputeShader reserveRequestShader = this.shaderProvider.reserveRequestShader();
         reserveRequestShader.bind();
         reserveRequestShader.setUniformValue1i("u_requestCount", requestCount);

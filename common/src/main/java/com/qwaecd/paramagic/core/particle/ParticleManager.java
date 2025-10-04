@@ -2,28 +2,37 @@ package com.qwaecd.paramagic.core.particle;
 
 import com.qwaecd.paramagic.Paramagic;
 import com.qwaecd.paramagic.core.particle.compute.CShaderProvider;
+import com.qwaecd.paramagic.core.particle.compute.ComputeShader;
 import com.qwaecd.paramagic.core.particle.compute.IComputeShaderProvider;
+import com.qwaecd.paramagic.core.particle.data.EffectPhysicsParameter;
 import com.qwaecd.paramagic.core.particle.data.EmissionRequest;
+import com.qwaecd.paramagic.core.particle.effect.EffectManager;
+import com.qwaecd.paramagic.core.particle.effect.GPUParticleEffect;
 import com.qwaecd.paramagic.core.particle.memory.ParticleMemoryManager;
 import com.qwaecd.paramagic.core.particle.request.ParticleEmissionProcessor;
 import com.qwaecd.paramagic.core.render.context.RenderContext;
 import com.qwaecd.paramagic.core.render.shader.Shader;
 import com.qwaecd.paramagic.core.render.shader.ShaderManager;
-import com.qwaecd.paramagic.core.render.state.GLStateCache;
-import com.qwaecd.paramagic.core.render.state.RenderState;
 import org.joml.Matrix4f;
 import org.joml.Vector3d;
+import org.lwjgl.system.MemoryStack;
 
 import javax.annotation.Nullable;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ConcurrentLinkedQueue;
 
 import static org.lwjgl.opengl.GL11.*;
+import static org.lwjgl.opengl.GL15.glBindBuffer;
+import static org.lwjgl.opengl.GL15.glBufferSubData;
 import static org.lwjgl.opengl.GL20.glUseProgram;
 import static org.lwjgl.opengl.GL30.glBindVertexArray;
 import static org.lwjgl.opengl.GL30.glGenVertexArrays;
 import static org.lwjgl.opengl.GL32.GL_PROGRAM_POINT_SIZE;
+import static org.lwjgl.opengl.GL42.glMemoryBarrier;
+import static org.lwjgl.opengl.GL43.GL_SHADER_STORAGE_BARRIER_BIT;
+import static org.lwjgl.opengl.GL43.GL_SHADER_STORAGE_BUFFER;
 
 public class ParticleManager {
     public  final int MAX_PARTICLES = 1_000_000;
@@ -31,14 +40,12 @@ public class ParticleManager {
     private static ParticleManager INSTANCE;
 
     private final ParticleMemoryManager memoryManager;
+    private final EffectManager effectManager;
     private final ParticleEmissionProcessor emissionProcessor;
-    private final IComputeShaderProvider shaderProvider;
+    private final IComputeShaderProvider computeShaderProvider;
     @Nullable
     private final Shader renderShader;
 
-    private final List<GPUParticleEffect> activeEffects;
-    private final ConcurrentLinkedQueue<GPUParticleEffect> pendingAdd = new ConcurrentLinkedQueue<>();
-    private final ConcurrentLinkedQueue<GPUParticleEffect> pendingRemove = new ConcurrentLinkedQueue<>();
     private final boolean canUseComputeShader;
     private final boolean canUseGeometryShader;
 
@@ -50,10 +57,10 @@ public class ParticleManager {
         this.canUseComputeShader = canUseComputeShader;
         this.canUseGeometryShader = canUseGeometryShader;
         this.memoryManager = new ParticleMemoryManager(MAX_PARTICLES, MAX_EFFECT_COUNT);
-        this.activeEffects = new ArrayList<>();
+        this.effectManager = new EffectManager(MAX_EFFECT_COUNT);
 
-        this.shaderProvider = new CShaderProvider(this.canUseComputeShader && this.canUseGeometryShader);
-        this.emissionProcessor = new ParticleEmissionProcessor(shaderProvider, this.memoryManager.getMAX_REQUESTS_PER_FRAME());
+        this.computeShaderProvider = new CShaderProvider(this.canUseComputeShader && this.canUseGeometryShader);
+        this.emissionProcessor = new ParticleEmissionProcessor(computeShaderProvider, this.memoryManager.getMAX_REQUESTS_PER_FRAME());
 
         this.renderShader = ShaderManager.getInstance().getShaderNullable("particle_render");
 
@@ -82,11 +89,11 @@ public class ParticleManager {
         }
     }
 
-    public void renderParticles(RenderContext context, GLStateCache stateCache) {
-        if (this.activeEffects.isEmpty() || !shouldWork() || this.renderShader == null){
+    public void renderParticles(RenderContext context) {
+        if (this.effectManager.getCurrentEffectCount() == 0 || !shouldWork() || this.renderShader == null){
             return;
         }
-        stateCache.apply(RenderState.ADDITIVE);
+
         Matrix4f projectionMatrix = context.getProjectionMatrix();
         Matrix4f viewMatrix = context.getMatrixStackProvider().getViewMatrix();
         Vector3d cameraPos = context.getCamera().position();
@@ -104,14 +111,26 @@ public class ParticleManager {
     }
 
     public void update(float deltaTime) {
-        flushPendingEffects();
-        if (this.activeEffects.isEmpty() || !shouldWork()) {
+        if (this.effectManager.getCurrentEffectCount() == 0 || !shouldWork()) {
             return;
         }
-        collectEmissionRequests();
-        processRequests();
 
-        updateActiveEffects(deltaTime);
+        this.emissionRequests.clear();
+        try (MemoryStack stack = MemoryStack.stackPush()) {
+            ByteBuffer singleEffectBuffer = stack.malloc(EffectPhysicsParameter.SIZE_IN_BYTES).order(ByteOrder.nativeOrder());
+            this.memoryManager.bindPhysicsParamsBuffer();
+            this.effectManager.forEachActiveEffect(activeEffect -> {
+                // 更新 effect 内部状态
+                activeEffect.update(deltaTime);
+                // 收集发射请求
+                collectEmissionRequests(activeEffect);
+                // 上传物理参数至 GPU 等待后续 update 使用
+                uploadPhysicsParams(activeEffect, singleEffectBuffer);
+            });
+            glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
+        }
+        processRequests();
+        dispatchUpdate(deltaTime);
     }
 
     @SuppressWarnings("UnusedReturnValue")
@@ -119,41 +138,47 @@ public class ParticleManager {
         if (!shouldWork()) {
             return false;
         }
-        return this.pendingAdd.offer(effect);
+        return this.effectManager.spawnEffect(effect);
     }
 
-    public void flushPendingEffects() {
-        GPUParticleEffect effect;
-        while ((effect = this.pendingAdd.poll()) != null) {
-            if (this.activeEffects.size() < MAX_EFFECT_COUNT) {
-                this.activeEffects.add(effect);
-            } else {
-                Paramagic.LOG.warn("Maximum number of active particle effects reached. Cannot add more effects.");
-                break;
+    public void removeEffect(GPUParticleEffect effect) {
+        this.effectManager.removeEffect(effect);
+    }
+
+    private void dispatchUpdate(float deltaTime) {
+        this.memoryManager.physicsStep();
+
+        ComputeShader updateShader = this.computeShaderProvider.particleUpdateShader();
+        updateShader.bind();
+        updateShader.setUniformValue1i("u_maxParticles", MAX_PARTICLES);
+        updateShader.setUniformValue1f("u_deltaTime", deltaTime);
+        updateShader.setUniformValue1i("u_maxEffectCount", MAX_EFFECT_COUNT);
+        updateShader.dispatch((MAX_PARTICLES + ParticleMemoryManager.LOCAL_SIZE - 1) / ParticleMemoryManager.LOCAL_SIZE, 1, 1);
+
+        glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
+        updateShader.unbind();
+    }
+
+    private void uploadPhysicsParams(GPUParticleEffect activeEffect, ByteBuffer singleEffectBuffer) {
+        EffectPhysicsParameter param = activeEffect.getPhysicsParameter();
+        if (param.isDirty()) {
+            int effectId = activeEffect.getEffectId();
+            if (effectId < 0 || effectId >= MAX_EFFECT_COUNT) {
+                return;
             }
-        }
-        while ((effect = this.pendingRemove.poll()) != null) {
-            this.activeEffects.remove(effect);
-        }
-    }
-
-    private void uploadPhysicsParams() {
-
-    }
-
-    private void updateActiveEffects(float deltaTime) {
-        for (GPUParticleEffect effect : this.activeEffects) {
-            effect.update(deltaTime, this.shaderProvider);
+            long offset = (long)effectId * EffectPhysicsParameter.SIZE_IN_BYTES;
+            singleEffectBuffer.clear();
+            param.writePhysicsParamsToBuffer(singleEffectBuffer);
+            singleEffectBuffer.flip();
+            glBufferSubData(GL_SHADER_STORAGE_BUFFER, offset, singleEffectBuffer);
+            param.setDirty(false);
         }
     }
 
-    private void collectEmissionRequests() {
-        this.emissionRequests.clear();
-        for (GPUParticleEffect effect : this.activeEffects) {
-            List<EmissionRequest> requestsFromEffect = effect.getEmissionRequests();
-            if (!requestsFromEffect.isEmpty()) {
-                this.emissionRequests.addAll(requestsFromEffect);
-            }
+    private void collectEmissionRequests(GPUParticleEffect effect) {
+        List<EmissionRequest> requestsFromEffect = effect.getEmissionRequests();
+        if (!requestsFromEffect.isEmpty()) {
+            this.emissionRequests.addAll(requestsFromEffect);
         }
     }
 
@@ -164,6 +189,7 @@ public class ParticleManager {
         this.emissionProcessor.initializeParticles(requestCount, this.memoryManager);
     }
 
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     private boolean shouldWork() {
         return this.canUseComputeShader && this.canUseGeometryShader;
     }

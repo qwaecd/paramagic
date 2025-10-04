@@ -3,6 +3,7 @@
 #define BINDING_PARTICLE_DATA 1
 #define BINDING_DEAD_LIST 2
 #define BINDING_EFFECT_COUNTERS 5
+#define BINDING_EFFECT_PHYSICS_PARAMS 6
 
 #define CF_EPS 1e-6
 
@@ -31,6 +32,13 @@ struct EffectMetaData {
     uint _padding2;
 };
 
+struct EffectPhysicsParams {
+    // F(r) = A * pow(r, B)
+    vec4 centerForceParams; // x: A, y: B, z: maxRadius, w: enable (0 or 1)
+    vec4 centerForcePos; // x, y, z: 力场中心位置, w: dragCoefficient (阻力系数), acceleration -= velocity * dragCoefficient;
+    vec4 linearForce; // x, y, z: 线性力 (e.g. gravity + wind), w: enable (0 or 1)
+};
+
 layout(std430, binding = BINDING_GLOBAL_DATA) buffer Globals {
     GlobalCounters globalData;
 };
@@ -43,24 +51,35 @@ layout(std430, binding = BINDING_DEAD_LIST) buffer DeadList {
 layout(std430, binding = BINDING_EFFECT_COUNTERS) buffer EffectData {
     EffectMetaData effectData[];
 };
+layout(std430, binding = BINDING_EFFECT_PHYSICS_PARAMS) buffer PhysicsParams {
+    EffectPhysicsParams physicsParams[];
+};
+
 uniform int u_maxParticles;
 uniform float u_deltaTime;
-// center force parameters
-// CF = A * r ^ B
-uniform float CF_A;
-uniform float CF_B;
-uniform vec3 u_centerForcePos;
+uniform int u_maxEffectCount;
 
 void applyForce(uint idx) {
+    uint effectId = uint(particles[idx].meta.x);
+    if (effectId < 0 || effectId >= uint(u_maxEffectCount)) {
+        return;
+    }
+    // apply center force
     vec3 pos = particles[idx].position.xyz;
-    vec3 toCenter = u_centerForcePos - pos;
+    vec3 toCenter = physicsParams[effectId].centerForcePos.xyz - pos;
     float r = length(toCenter);
-    if (r > CF_EPS) {
+    if (r > CF_EPS && physicsParams[effectId].centerForceParams.w > 0.5 && r < physicsParams[effectId].centerForceParams.z) {
         vec3 dir = toCenter / r;
-        float fmag = CF_A * pow(r, CF_B);
+        float fmag = physicsParams[effectId].centerForceParams.x * pow(r, physicsParams[effectId].centerForceParams.y);
         // no mass
         particles[idx].velocity.xyz += dir * fmag * u_deltaTime;
     }
+    // apply linear force
+    particles[idx].velocity.xyz += physicsParams[effectId].linearForce.xyz * physicsParams[effectId].linearForce.w;
+    // apply drag
+    particles[idx].velocity.xyz -= particles[idx].velocity.xyz * physicsParams[effectId].centerForcePos.w * u_deltaTime;
+
+    // integrate
     particles[idx].position.xyz += particles[idx].velocity.xyz * u_deltaTime;
 }
 

@@ -221,7 +221,8 @@ public class ModRenderSystem extends AbstractRenderSystem{
         if (this.canUseComputerShader()) {
             ComputeParticleDemo.getInstance().updateAndRender(deltaFrameTime, context);
         }
-        this.particleManager.renderParticles(context, stateCache);
+        stateCache.apply(RenderState.ADDITIVE);
+        this.particleManager.renderParticles(context);
 
         mainFbo.unbind();
     }

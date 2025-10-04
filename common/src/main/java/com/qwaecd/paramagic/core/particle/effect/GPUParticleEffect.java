@@ -1,6 +1,5 @@
-package com.qwaecd.paramagic.core.particle;
+package com.qwaecd.paramagic.core.particle.effect;
 
-import com.qwaecd.paramagic.core.particle.compute.IComputeShaderProvider;
 import com.qwaecd.paramagic.core.particle.data.EffectPhysicsParameter;
 import com.qwaecd.paramagic.core.particle.data.EmissionRequest;
 import com.qwaecd.paramagic.core.particle.emitter.Emitter;
@@ -15,19 +14,18 @@ public class GPUParticleEffect {
     @Getter
     private final int maxParticleCount;
     @Getter
-    private final int effectId;
+    private int effectId = -1;
+    @Getter
     private final EffectPhysicsParameter physicsParameter;
 
     private final List<EmissionRequest> emissionRequests;
 
     public GPUParticleEffect(
             List<Emitter> emitters,
-            int maxParticleCount,
-            int effectId
+            int maxParticleCount
     ) {
         this.emitters = emitters;
         this.maxParticleCount = maxParticleCount;
-        this.effectId = effectId;
         this.emissionRequests = new ArrayList<>(emitters.size());
         this.physicsParameter = new EffectPhysicsParameter();
     }
@@ -35,23 +33,17 @@ public class GPUParticleEffect {
     public GPUParticleEffect(
             List<Emitter> emitters,
             int maxParticleCount,
-            int effectId,
             EffectPhysicsParameter physicsParameter
     ) {
         this.emitters = emitters;
         this.maxParticleCount = maxParticleCount;
-        this.effectId = effectId;
         this.emissionRequests = new ArrayList<>(emitters.size());
         this.physicsParameter = physicsParameter;
     }
 
-    public void update(float deltaTime, IComputeShaderProvider shaderProvider) {
-        if (!shaderProvider.isSupported()) {
-            return;
-        }
-
+    public void update(float deltaTime) {
         for (Emitter e : emitters) {
-            e.update(deltaTime, shaderProvider.particleUpdateShader());
+            e.update(deltaTime);
         }
     }
 
@@ -64,5 +56,12 @@ public class GPUParticleEffect {
             }
         }
         return this.emissionRequests;
+    }
+
+    void setEffectId(int effectId) {
+        if (this.effectId != -1) {
+            throw new IllegalStateException("Effect ID has already been assigned.");
+        }
+        this.effectId = effectId;
     }
 }

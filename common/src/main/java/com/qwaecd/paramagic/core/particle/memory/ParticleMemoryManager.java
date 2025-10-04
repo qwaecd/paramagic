@@ -26,8 +26,7 @@ public final class ParticleMemoryManager implements AutoCloseable {
     private final int emissionTasksSSBO;
     private final int effectPhysicsParamsSSBO;
 
-    @Getter
-    private static final int LOCAL_SIZE = 256;
+    public static final int LOCAL_SIZE = 256;
 
     public ParticleMemoryManager(int maxParticles, int maxEffectCount) {
         this.MAX_PARTICLES = maxParticles;
@@ -42,33 +41,36 @@ public final class ParticleMemoryManager implements AutoCloseable {
         this.effectPhysicsParamsSSBO = glGenBuffers();
     }
 
-    public void bindMainBuffers() {
-        glBindBufferBase(GL_SHADER_STORAGE_BUFFER, ShaderBindingPoints.GLOBAL_DATA, this.globalData);
-        glBindBufferBase(GL_SHADER_STORAGE_BUFFER, ShaderBindingPoints.PARTICLE_DATA, this.particleDataSSBO);
-        glBindBufferBase(GL_SHADER_STORAGE_BUFFER, ShaderBindingPoints.DEAD_LIST, this.deadListSSBO);
-        glBindBufferBase(GL_SHADER_STORAGE_BUFFER, ShaderBindingPoints.EFFECT_COUNTERS, this.effectCountersListSSBO);
-    }
-
     public void reserveStep() {
-        bindMainBuffers();
+        glBindBufferBase(GL_SHADER_STORAGE_BUFFER, ShaderBindingPoints.GLOBAL_DATA, this.globalData);
+        glBindBufferBase(GL_SHADER_STORAGE_BUFFER, ShaderBindingPoints.EFFECT_COUNTERS, this.effectCountersListSSBO);
         glBindBufferBase(GL_SHADER_STORAGE_BUFFER, ShaderBindingPoints.REQUESTS, this.requestArraySSBO);
         glBindBufferBase(GL_SHADER_STORAGE_BUFFER, ShaderBindingPoints.EMISSION_TASKS, this.emissionTasksSSBO);
         glBindBuffer(GL_SHADER_STORAGE_BUFFER, this.requestArraySSBO);
     }
 
     public void initializeParticleStep() {
-        bindMainBuffers();
+        glBindBufferBase(GL_SHADER_STORAGE_BUFFER, ShaderBindingPoints.GLOBAL_DATA, this.globalData);
+        glBindBufferBase(GL_SHADER_STORAGE_BUFFER, ShaderBindingPoints.PARTICLE_DATA, this.particleDataSSBO);
+        glBindBufferBase(GL_SHADER_STORAGE_BUFFER, ShaderBindingPoints.DEAD_LIST, this.deadListSSBO);
         glBindBufferBase(GL_SHADER_STORAGE_BUFFER, ShaderBindingPoints.REQUESTS, this.requestArraySSBO);
         glBindBufferBase(GL_SHADER_STORAGE_BUFFER, ShaderBindingPoints.EMISSION_TASKS, this.emissionTasksSSBO);
     }
 
     public void physicsStep() {
-        bindMainBuffers();
+        glBindBufferBase(GL_SHADER_STORAGE_BUFFER, ShaderBindingPoints.GLOBAL_DATA, this.globalData);
+        glBindBufferBase(GL_SHADER_STORAGE_BUFFER, ShaderBindingPoints.PARTICLE_DATA, this.particleDataSSBO);
+        glBindBufferBase(GL_SHADER_STORAGE_BUFFER, ShaderBindingPoints.DEAD_LIST, this.deadListSSBO);
+        glBindBufferBase(GL_SHADER_STORAGE_BUFFER, ShaderBindingPoints.EFFECT_COUNTERS, this.effectCountersListSSBO);
         glBindBufferBase(GL_SHADER_STORAGE_BUFFER, ShaderBindingPoints.EFFECT_PHYSICS_PARAMS, this.effectPhysicsParamsSSBO);
     }
 
     public void renderParticleStep() {
         glBindBufferBase(GL_SHADER_STORAGE_BUFFER, ShaderBindingPoints.PARTICLE_DATA, this.particleDataSSBO);
+    }
+
+    public void bindPhysicsParamsBuffer() {
+        glBindBuffer(GL_SHADER_STORAGE_BUFFER, this.effectPhysicsParamsSSBO);
     }
 
     public void init() {
@@ -165,9 +167,6 @@ public final class ParticleMemoryManager implements AutoCloseable {
         long bufferSizeBytes = (long) MAX_REQUESTS_PER_FRAME * EmissionRequest.SIZE_IN_BYTES + Integer.BYTES * 4;
         glBindBuffer(GL_SHADER_STORAGE_BUFFER, this.emissionTasksSSBO);
         glBufferData(GL_SHADER_STORAGE_BUFFER, bufferSizeBytes, GL_DYNAMIC_DRAW);
-        IntBuffer zeroBuffer = MemoryUtil.memCallocInt(1);
-        glBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, zeroBuffer);
-        MemoryUtil.memFree(zeroBuffer);
     }
 
     /**
