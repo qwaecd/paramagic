@@ -57,7 +57,7 @@ public class ParticleManager {
         this.canUseComputeShader = canUseComputeShader;
         this.canUseGeometryShader = canUseGeometryShader;
         this.memoryManager = new ParticleMemoryManager(MAX_PARTICLES, MAX_EFFECT_COUNT);
-        this.effectManager = new EffectManager(MAX_EFFECT_COUNT);
+        this.effectManager = new EffectManager(MAX_EFFECT_COUNT, this.memoryManager);
 
         this.computeShaderProvider = new CShaderProvider(this.canUseComputeShader && this.canUseGeometryShader);
         this.emissionProcessor = new ParticleEmissionProcessor(computeShaderProvider, this.memoryManager.getMAX_REQUESTS_PER_FRAME());

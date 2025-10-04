@@ -12,6 +12,7 @@ import java.nio.IntBuffer;
 import static org.lwjgl.opengl.GL43.*;
 
 public final class ParticleMemoryManager implements AutoCloseable {
+    private final EffectMetaDataMap effectMetaDataMap;
     private final int MAX_PARTICLES;
     private final int MAX_EFFECT_COUNT;
     @Getter
@@ -20,7 +21,7 @@ public final class ParticleMemoryManager implements AutoCloseable {
     private final int particleDataSSBO;
     private final int deadListSSBO;
     private final int globalData;
-    private final int effectCountersListSSBO;
+    private final int effectMetaDataSSBO;
     private final int requestArraySSBO;
 
     private final int emissionTasksSSBO;
@@ -35,15 +36,16 @@ public final class ParticleMemoryManager implements AutoCloseable {
         this.particleDataSSBO = glGenBuffers();
         this.deadListSSBO = glGenBuffers();
         this.globalData = glGenBuffers();
-        this.effectCountersListSSBO = glGenBuffers();
+        this.effectMetaDataSSBO = glGenBuffers();
         this.requestArraySSBO = glGenBuffers();
         this.emissionTasksSSBO = glGenBuffers();
         this.effectPhysicsParamsSSBO = glGenBuffers();
+        this.effectMetaDataMap = new EffectMetaDataMap(maxEffectCount, this.effectMetaDataSSBO);
     }
 
     public void reserveStep() {
         glBindBufferBase(GL_SHADER_STORAGE_BUFFER, ShaderBindingPoints.GLOBAL_DATA, this.globalData);
-        glBindBufferBase(GL_SHADER_STORAGE_BUFFER, ShaderBindingPoints.EFFECT_COUNTERS, this.effectCountersListSSBO);
+        glBindBufferBase(GL_SHADER_STORAGE_BUFFER, ShaderBindingPoints.EFFECT_META_DATA, this.effectMetaDataSSBO);
         glBindBufferBase(GL_SHADER_STORAGE_BUFFER, ShaderBindingPoints.REQUESTS, this.requestArraySSBO);
         glBindBufferBase(GL_SHADER_STORAGE_BUFFER, ShaderBindingPoints.EMISSION_TASKS, this.emissionTasksSSBO);
         glBindBuffer(GL_SHADER_STORAGE_BUFFER, this.requestArraySSBO);
@@ -61,7 +63,7 @@ public final class ParticleMemoryManager implements AutoCloseable {
         glBindBufferBase(GL_SHADER_STORAGE_BUFFER, ShaderBindingPoints.GLOBAL_DATA, this.globalData);
         glBindBufferBase(GL_SHADER_STORAGE_BUFFER, ShaderBindingPoints.PARTICLE_DATA, this.particleDataSSBO);
         glBindBufferBase(GL_SHADER_STORAGE_BUFFER, ShaderBindingPoints.DEAD_LIST, this.deadListSSBO);
-        glBindBufferBase(GL_SHADER_STORAGE_BUFFER, ShaderBindingPoints.EFFECT_COUNTERS, this.effectCountersListSSBO);
+        glBindBufferBase(GL_SHADER_STORAGE_BUFFER, ShaderBindingPoints.EFFECT_META_DATA, this.effectMetaDataSSBO);
         glBindBufferBase(GL_SHADER_STORAGE_BUFFER, ShaderBindingPoints.EFFECT_PHYSICS_PARAMS, this.effectPhysicsParamsSSBO);
     }
 
@@ -73,14 +75,46 @@ public final class ParticleMemoryManager implements AutoCloseable {
         glBindBuffer(GL_SHADER_STORAGE_BUFFER, this.effectPhysicsParamsSSBO);
     }
 
+    /**
+     * 更新一个 Effect 的完整元数据。
+     * 在 spawnEffect 时调用。
+     * @param effectId 要更新的 Effect ID。
+     * @param maxParticles 该 Effect 的最大粒子数。
+     * @param flags 该 Effect 的初始标志位 (e.g., EFFECT_FLAG_IS_ALIVE)。
+     */
+    public void updateEffect(int effectId, int maxParticles, int flags) {
+        this.effectMetaDataMap.updateEffect(effectId, maxParticles, flags);
+    }
+
+    /**
+     * 更新一个 Effect 的标志位。
+     * 在需要中断、冻结或恢复 Effect 时调用。
+     * @param effectId 要更新的 Effect ID。
+     * @param flags 新的标志位值。
+     */
+    public void updateFlags(int effectId, int flags) {
+        this.effectMetaDataMap.updateFlags(effectId, flags);
+    }
+
+    /**
+     * 清理一个 Effect 的元数据。
+     * 在 removeEffect 时调用，将其标记为死亡。
+     * @param effectId 要清理的 Effect ID。
+     */
+    public void clearEffect(int effectId) {
+        this.effectMetaDataMap.clearEffect(effectId);
+    }
+
     public void init() {
         initParticleDataBuffer();
         initDeadListBuffer();
         initGlobalData();
-        initEffectCountersListBuffer();
+        initEffectMetaDataBuffer();
         initRequestArrayBuffer();
         initEmissionTasksBuffer();
         initEffectPhysicsParamsBuffer();
+
+        this.effectMetaDataMap.init();
         glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
     }
 
@@ -132,14 +166,14 @@ public final class ParticleMemoryManager implements AutoCloseable {
      * struct EffectMetaData {
      *     uint maxParticles;
      *     uint currentCount;
-     *     uint _padding1;
+     *     uint flags;
      *     uint _padding2;
      * };
      * </pre>
      */
-    private void initEffectCountersListBuffer() {
-        long bufferSizeBytes = (long) MAX_EFFECT_COUNT * Integer.BYTES * 4;
-        glBindBuffer(GL_SHADER_STORAGE_BUFFER, this.effectCountersListSSBO);
+    private void initEffectMetaDataBuffer() {
+        long bufferSizeBytes = (long) MAX_EFFECT_COUNT * EffectMetaDataMap.SIZE_IN_BYTES;
+        glBindBuffer(GL_SHADER_STORAGE_BUFFER, this.effectMetaDataSSBO);
         glBufferData(GL_SHADER_STORAGE_BUFFER, bufferSizeBytes, GL_DYNAMIC_DRAW);
         IntBuffer zeroBuffer = MemoryUtil.memCallocInt(MAX_EFFECT_COUNT * 4);
         glBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, zeroBuffer);
@@ -186,10 +220,11 @@ public final class ParticleMemoryManager implements AutoCloseable {
 
     @Override
     public void close() {
+        this.effectMetaDataMap.close();
         glDeleteBuffers(this.particleDataSSBO);
         glDeleteBuffers(this.deadListSSBO);
         glDeleteBuffers(this.globalData);
-        glDeleteBuffers(this.effectCountersListSSBO);
+        glDeleteBuffers(this.effectMetaDataSSBO);
         glDeleteBuffers(this.requestArraySSBO);
         glDeleteBuffers(this.emissionTasksSSBO);
         glDeleteBuffers(this.effectPhysicsParamsSSBO);

@@ -7,7 +7,7 @@ public final class ShaderBindingPoints {
     public static final int GLOBAL_DATA = 0; // 全局资源
     public static final int PARTICLE_DATA = 1;  // 全局资源
     public static final int DEAD_LIST = 2;  // 全局资源
-    public static final int EFFECT_COUNTERS = 3;
+    public static final int EFFECT_META_DATA = 3;
 
     public static final int REQUESTS = 4;
     public static final int EMISSION_TASKS = 5;

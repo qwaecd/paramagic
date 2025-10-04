@@ -24,7 +24,7 @@ out float v_intensity;
 void main() {
     Particle particle = particles[gl_VertexID];
      if (particle.attributes.x >= particle.attributes.y) {
-         gl_Position = vec4(-20.0, -20.0, -20.0, 1.0); // discard this vertex by moving it out of clip space
+         gl_Position = vec4(-2000.0, -2000.0, -2000.0, 1.0); // discard this vertex by moving it out of clip space
          v_color = vec4(0.0);
          v_intensity = 0.0;
          return;

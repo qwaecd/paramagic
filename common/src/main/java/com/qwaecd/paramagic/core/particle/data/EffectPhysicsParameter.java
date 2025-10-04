@@ -32,6 +32,11 @@ public final class EffectPhysicsParameter {
         this.linearForce        = new Vector4f(0.0f, -0.0981f, 0.0f, 0.0f);
     }
 
+    /**
+     * @param centerForceData x: A, y: B, z: maxRadius, w: enable (0 or 1)
+     * @param centerForcePos x, y, z: 力场中心位置, w: dragCoefficient (阻力系数)
+     * @param linearForce x, y, z: 线性力 (e.g. gravity + wind), w: enable (0 or 1)
+     */
     public EffectPhysicsParameter(
             Vector4f centerForceData,
             Vector4f centerForcePos,

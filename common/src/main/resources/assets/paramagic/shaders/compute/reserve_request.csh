@@ -1,6 +1,6 @@
 #version 430 core
 #define BINDING_GLOBAL_DATA 0
-#define BINDING_EFFECT_COUNTERS 3
+#define BINDING_EFFECT_META_DATA 3
 #define BINDING_REQUESTS 4
 #define BINDING_EMISSION_TASKS 5
 
@@ -37,14 +37,14 @@ struct EmissionTask {
 struct EffectMetaData {
     uint maxParticles;
     uint currentCount;
-    uint _padding1;
+    uint flags;
     uint _padding2;
 };
 
 layout(std430, binding = BINDING_GLOBAL_DATA) buffer Globals {
     GlobalCounters globalData;
 };
-layout(std430, binding = BINDING_EFFECT_COUNTERS) buffer EffectData {
+layout(std430, binding = BINDING_EFFECT_META_DATA) buffer EffectData {
     EffectMetaData effectData[];
 };
 // From CPU
@@ -59,13 +59,6 @@ layout(std430, binding = BINDING_EMISSION_TASKS) buffer Tasks {
 
 uniform int u_requestCount;
 
-//void createTask(uint taskIndex, uint start, EmissionRequest req) {
-//    emissionTasks[taskIndex].numParticlesToInit = uint(req.count);
-//    emissionTasks[taskIndex].indexStackOffset   = start;
-//    emissionTasks[taskIndex].request            = req;
-//    globalData.successfulTaskCount += 1u;
-//}
-
 // NOTE: This emission pass is SINGLE-THREADED.
 // If you change glDispatchCompute to more than (1,1,1),
 // you MUST enable the parallel allocation path with CAS protection.
@@ -79,7 +72,7 @@ void main() {
     globalData.successfulTaskCount = 0u;
 
     for (int i = 0; i < u_requestCount; ++i) {
-        EmissionRequest req = requests[i];
+        EmissionRequest req = requests[uint(i)];
         // no need to process invalid requests
         if (req.count <= 0) {
             continue;
@@ -90,9 +83,6 @@ void main() {
             continue;
         }
         uint eid = uint(req.effectId);
-        if (effectData[eid].maxParticles == 0u) {
-            effectData[eid].maxParticles = 100000u;
-        }
         // exceed max particles in this effect
         if (uint(req.count) + effectData[eid].currentCount > effectData[eid].maxParticles) {
             continue;

@@ -2,10 +2,13 @@
 #define BINDING_GLOBAL_DATA 0
 #define BINDING_PARTICLE_DATA 1
 #define BINDING_DEAD_LIST 2
-#define BINDING_EFFECT_COUNTERS 5
+#define BINDING_EFFECT_META_DATA 3
 #define BINDING_EFFECT_PHYSICS_PARAMS 6
 
 #define CF_EPS 1e-6
+
+#define EFFECT_FLAG_IS_ALIVE (1u << 0)
+#define EFFECT_FLAG_KILL_ALL (1u << 1)
 
 layout(local_size_x = 256, local_size_y = 1, local_size_z = 1) in;
 
@@ -28,7 +31,7 @@ struct Particle {
 struct EffectMetaData {
     uint maxParticles;
     uint currentCount;
-    uint _padding1;
+    uint flags;
     uint _padding2;
 };
 
@@ -48,7 +51,7 @@ layout(std430, binding = BINDING_PARTICLE_DATA) buffer ParticleData {
 layout(std430, binding = BINDING_DEAD_LIST) buffer DeadList {
     uint deadList[];
 };
-layout(std430, binding = BINDING_EFFECT_COUNTERS) buffer EffectData {
+layout(std430, binding = BINDING_EFFECT_META_DATA) buffer EffectData {
     EffectMetaData effectData[];
 };
 layout(std430, binding = BINDING_EFFECT_PHYSICS_PARAMS) buffer PhysicsParams {
@@ -87,6 +90,14 @@ void update(uint idx) {
     applyForce(idx);
 }
 
+void justDied(uint idx, float lifetime) {
+    particles[idx].attributes.x = lifetime + 1.0;
+    particles[idx].color = vec4(0.0);
+    uint deadIdx = atomicAdd(globalData.deadListStackTop, 1u);
+    atomicExchange(deadList[deadIdx], idx);
+    atomicAdd(effectData[uint(particles[idx].meta.x)].currentCount, uint(-1));
+}
+
 void main() {
     uint idx = gl_GlobalInvocationID.x;
 
@@ -102,13 +113,11 @@ void main() {
         return;
     }
     float newAge = age + u_deltaTime;
+    uint flags = effectData[uint(particles[idx].meta.x)].flags;
 
-    if (newAge >= lifetime) {
+    if (newAge >= lifetime || (flags & EFFECT_FLAG_KILL_ALL) != 0u) {
         // just died
-        particles[idx].attributes.x = lifetime;
-        uint deadIdx = atomicAdd(globalData.deadListStackTop, 1u);
-        deadList[deadIdx] = idx;
-        atomicAdd(effectData[uint(particles[idx].meta.x)].currentCount, uint(-1));
+        justDied(idx, lifetime);
         return;
     }
     particles[idx].attributes.x = newAge;

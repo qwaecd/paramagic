@@ -31,7 +31,8 @@ public final class EmissionRequest {
     @Setter
     private int count;
     private final int emitterType;
-    private final int effectId;
+    @Setter
+    private int effectId;
     private int _padding;
 
     private Vector4f param1;

@@ -5,6 +5,7 @@ import com.qwaecd.paramagic.assembler.AssemblyException;
 import com.qwaecd.paramagic.assembler.ParaComposer;
 import com.qwaecd.paramagic.client.obj.sun.Sun;
 import com.qwaecd.paramagic.client.renderbase.factory.SphereFactory;
+import com.qwaecd.paramagic.core.particle.data.EffectPhysicsParameter;
 import com.qwaecd.paramagic.core.particle.effect.GPUParticleEffect;
 import com.qwaecd.paramagic.core.particle.ParticleManager;
 import com.qwaecd.paramagic.core.particle.emitter.impl.PointEmitter;
@@ -30,6 +31,7 @@ import com.qwaecd.paramagic.feature.MagicCircleManager;
 import lombok.experimental.UtilityClass;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
+import org.joml.Vector4f;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
@@ -40,6 +42,7 @@ import static org.lwjgl.opengl.GL15C.GL_STATIC_DRAW;
 
 @UtilityClass
 public class DebugTools {
+    private static List<GPUParticleEffect> testEffects = new ArrayList<>();
     public static void test() {
         IRenderable ball;
         SphereFactory sphereFactory = new SphereFactory();
@@ -62,9 +65,23 @@ public class DebugTools {
         );
         GPUParticleEffect effect = new GPUParticleEffect(
                 List.of(pointEmitter),
-                100000
+                10000,
+                new EffectPhysicsParameter(
+                        new Vector4f(12.0f, -2.0f, 1000.0f, 1.0f),
+                        new Vector4f(0, 120, 10, 0.09f),
+                        new Vector4f(0.0f, -9.81f / 10000.0f, 0.0f, 1.0f)
+                )
         );
-        ParticleManager.getInstance().spawnEffect(effect);
+        if (ParticleManager.getInstance().spawnEffect(effect)) {
+            testEffects.add(effect);
+        }
+    }
+
+    public static void clearTestEffects() {
+        for (GPUParticleEffect testEffect : testEffects) {
+            ParticleManager.getInstance().removeEffect(testEffect);
+        }
+        testEffects.clear();
     }
 
     private static void paraTest() {

@@ -4,6 +4,7 @@ import com.qwaecd.paramagic.core.particle.data.EffectPhysicsParameter;
 import com.qwaecd.paramagic.core.particle.data.EmissionRequest;
 import com.qwaecd.paramagic.core.particle.emitter.Emitter;
 import lombok.Getter;
+import lombok.Setter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,6 +18,10 @@ public class GPUParticleEffect {
     private int effectId = -1;
     @Getter
     private final EffectPhysicsParameter physicsParameter;
+
+    @Getter
+    @Setter
+    private int effectFlag = EffectFlags.IS_ALIVE.get();
 
     private final List<EmissionRequest> emissionRequests;
 
@@ -52,6 +57,7 @@ public class GPUParticleEffect {
         for (Emitter e : emitters) {
             EmissionRequest req = e.getEmissionRequest();
             if (req != null && req.getCount() > 0) {
+                req.setEffectId(this.effectId);
                 this.emissionRequests.add(req);
             }
         }

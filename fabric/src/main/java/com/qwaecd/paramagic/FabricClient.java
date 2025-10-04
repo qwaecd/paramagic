@@ -42,6 +42,7 @@ public class FabricClient implements ClientModInitializer {
                                     .executes(context -> {
                                         ModRenderSystem.getInstance().clearAll();
                                         MagicCircleManager.getInstance().removeAllCircles();
+                                        DebugTools.clearTestEffects();
                                         context.getSource().sendFeedback(Component.literal("cleared!"));
                                         return 1;
                                     })

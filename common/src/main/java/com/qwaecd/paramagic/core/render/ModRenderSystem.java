@@ -145,11 +145,11 @@ public class ModRenderSystem extends AbstractRenderSystem{
         this.postProcessingManager.initialize(width, height);
     }
 
-    public void renderScene(RenderContext context, float deltaFrameTime) {
+    public void renderScene(RenderContext context) {
         try (GLStateGuard ignored = GLStateGuard.capture()) {
             updateScene();
 
-            renderObjectsToMainFBO(context, deltaFrameTime);
+            renderObjectsToMainFBO(context);
 
             int finalSceneTexture = postProcessScene();
 
@@ -190,7 +190,7 @@ public class ModRenderSystem extends AbstractRenderSystem{
     }
 
     // TODO: 在将 compute shader demo 改为正式功能之前先保留形参 deltaFrameTime
-    private void renderObjectsToMainFBO(RenderContext context, float deltaFrameTime) {
+    private void renderObjectsToMainFBO(RenderContext context) {
         FramebufferUtils.copyDepth(Minecraft.getInstance().getMainRenderTarget(), this.mainFbo);
         mainFbo.bind();
         glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
@@ -218,9 +218,6 @@ public class ModRenderSystem extends AbstractRenderSystem{
             drawOne(it.renderable, context, timeSeconds);
         }
 
-        if (this.canUseComputerShader()) {
-            ComputeParticleDemo.getInstance().updateAndRender(deltaFrameTime, context);
-        }
         stateCache.apply(RenderState.ADDITIVE);
         this.particleManager.renderParticles(context);
 
