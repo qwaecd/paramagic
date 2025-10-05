@@ -14,15 +14,20 @@ public class PointEmitter extends EmitterBase implements Emitter {
 
     public PointEmitter(Vector3f position, float particlesPerSecond) {
         super(position, particlesPerSecond);
+
+        this.baseVelocity = new Vector3f(0.0f, 14.9f, 0.0f);
+        this.velocitySpread = 180.0f; // degrees
+        this.minLifetime = 1.0f;
+        this.maxLifetime = 3.0f;
         this.request = new EmissionRequest(
                 0,
                 EmitterType.POINT.ID,
-                0,
-                new Vector4f(position.x, position.y, position.z, 0), // param1: 发射源位置 (xyz)
-                new Vector4f(0.0f, 0.9f, 0.0f, 0), // param2: 基础速度或方向 (xyz)
-                new Vector4f(1.0f, 0.6f, 0.3f, 1.0f), // param3: 颜色 (rgba)
-                new Vector4f(10.0f, 300.0f, 0.5f, 1.0f), // param4: 粒子生命周期(min, max), 尺寸(min, max)
-                new Vector4f()  // param5: (for POINT) 发射角度
+                -1,
+                new Vector4f(position.x, position.y, position.z, 0.0f), // param1: 发射源位置 (xyz)
+                new Vector4f(this.baseVelocity, 0f), // param2: 基础速度 (xyz)
+                new Vector4f(0.9f, 0.6f, 0.3f, 0.6f), // param3: 颜色 (rgba)
+                new Vector4f(this.minLifetime, this.maxLifetime, 0.8f, 1.4f), // param4: 粒子生命周期(min, max), 尺寸(min, max)
+                new Vector4f(velocitySpread, 1.0f, 0, 0)  // param5: (for POINT) 发射角度(x), bloom_intensity (y)
         );
     }
 
@@ -30,7 +35,7 @@ public class PointEmitter extends EmitterBase implements Emitter {
     public void update(float deltaTime) {
         this.particlesToEmitAccumulated += this.particlesPerSecond * deltaTime;
         float timeSeconds = (System.currentTimeMillis() & 0x3fffffff) / 1000.0f;
-        this.position.add((float) (Math.cos(timeSeconds) * 0.01f) * 3, 0.0f, (float) (Math.sin(timeSeconds) * 0.01f) * 3);
+//        this.position.add((float) (Math.cos(timeSeconds) * 0.01f) * 3, 0.0f, (float) (Math.sin(timeSeconds) * 0.01f) * 3);
     }
 
     @Override

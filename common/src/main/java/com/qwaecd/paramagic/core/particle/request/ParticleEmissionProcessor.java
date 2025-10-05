@@ -9,6 +9,7 @@ import org.lwjgl.system.MemoryUtil;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.List;
+import java.util.Random;
 
 import static org.lwjgl.opengl.GL15.glBindBuffer;
 import static org.lwjgl.opengl.GL15.glBufferSubData;
@@ -20,6 +21,7 @@ import static org.lwjgl.opengl.GL43.GL_SHADER_STORAGE_BUFFER;
 
 public class ParticleEmissionProcessor {
     private final IComputeShaderProvider shaderProvider;
+    private final Random random;
 
     // 用于缓存的 buffer
     private final ByteBuffer stagingBuffer;
@@ -27,6 +29,7 @@ public class ParticleEmissionProcessor {
     public ParticleEmissionProcessor(IComputeShaderProvider shaderProvider, int maxRequestsPreFrame) {
         this.shaderProvider = shaderProvider;
         this.stagingBuffer = MemoryUtil.memAlloc(EmissionRequest.SIZE_IN_BYTES * maxRequestsPreFrame).order(ByteOrder.nativeOrder());
+        this.random = new Random();
     }
 
     public void reserveParticles(int requestCount, List<EmissionRequest> reqs, ParticleMemoryManager memoryManager) {
@@ -56,6 +59,8 @@ public class ParticleEmissionProcessor {
         ComputeShader initializeRequestShader = this.shaderProvider.initializeRequestShader();
 
         initializeRequestShader.bind();
+        initializeRequestShader.setUniformValue1f("u_randomSeed", this.random.nextFloat());
+
         initializeRequestShader.dispatch(requestCount, 1, 1);
 
         glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
