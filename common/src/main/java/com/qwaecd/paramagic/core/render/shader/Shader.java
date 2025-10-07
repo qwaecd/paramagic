@@ -7,8 +7,6 @@ import org.joml.Vector4f;
 import org.lwjgl.BufferUtils;
 
 import java.nio.FloatBuffer;
-import java.util.HashMap;
-import java.util.Map;
 
 import static org.lwjgl.opengl.GL33.*;
 
@@ -20,7 +18,9 @@ public class Shader {
     @Getter
     protected final int programId;
 
-    private final Map<String, Integer> uniformLocationCache = new HashMap<>();
+    private final StringIntMap uniformLocationCache = new StringIntMap(32);
+
+    private final FloatBuffer matrixBuffer = BufferUtils.createFloatBuffer(16);
     /**
      * @param path 着色器文件路径，相对于 resources 下的 shaders 目录，shaders下的传空字符串
      * @param name 着色器名称，文件名（不带扩展名）
@@ -39,63 +39,61 @@ public class Shader {
         glUseProgram(0);
     }
 
+    /** 返回 location（int），内部会缓存并在未命中时查询 glGetUniformLocation */
+    private int loc(String uniformName) {
+        int v = uniformLocationCache.get(uniformName);
+        if (v != StringIntMap.MISSING) return v;
+        int location = glGetUniformLocation(programId, uniformName);
+        uniformLocationCache.put(uniformName, location);
+        return location;
+    }
+
     public void setUniformMatrix4f(String name, FloatBuffer matrix) {
-        Integer l = this.uniformLocationCache.computeIfAbsent(
-                name, n -> glGetUniformLocation(programId, n)
-        );
+        int l = loc(name);
         glUniformMatrix4fv(l, false, matrix);
     }
 
     public void setUniformMatrix4f(String name, Matrix4f matrix) {
-        setUniformMatrix4f(name, matrix.get(BufferUtils.createFloatBuffer(16)));
+        // 复用 matrixBuffer，避免每次分配
+        matrixBuffer.clear();            // position = 0, limit = capacity
+        matrix.get(matrixBuffer);        // 写入 matrixBuffer (advances pos)
+        matrixBuffer.flip();             // set limit = pos, pos = 0
+        int l = loc(name);
+        glUniformMatrix4fv(l, false, matrixBuffer);
+        // 不需要 clear() 也可以，但保留以便下次使用
+        matrixBuffer.clear();
     }
 
     public void setUniformValue3f(String name, float v0, float v1, float v2) {
-        Integer l = this.uniformLocationCache.computeIfAbsent(
-                name, n -> glGetUniformLocation(programId, n)
-        );
+        int l = loc(name);
         glUniform3f(l, v0, v1, v2);
     }
 
     public void setUniformValue3f(String name, Vector3f v) {
-        Integer l = this.uniformLocationCache.computeIfAbsent(
-                name, n -> glGetUniformLocation(programId, n)
-        );
-        glUniform3f(l, v.x, v.y, v.z);
+        setUniformValue3f(name, v.x, v.y, v.z);
     }
 
     public void setUniformValue4f(String name, float v0, float v1, float v2, float v3) {
-        Integer l = this.uniformLocationCache.computeIfAbsent(
-                name, n -> glGetUniformLocation(programId, n)
-        );
+        int l = loc(name);
         glUniform4f(l, v0, v1, v2, v3);
     }
 
     public void setUniformValue4f(String name, Vector4f v) {
-        Integer l = this.uniformLocationCache.computeIfAbsent(
-                name, n -> glGetUniformLocation(programId, n)
-        );
-        glUniform4f(l, v.x, v.y, v.z, v.w);
+        setUniformValue4f(name, v.x, v.y, v.z, v.w);
     }
 
     public void setUniformValue2f(String name, float v0, float v1) {
-        Integer l = this.uniformLocationCache.computeIfAbsent(
-                name, n -> glGetUniformLocation(programId, n)
-        );
+        int l = loc(name);
         glUniform2f(l, v0, v1);
     }
 
     public void setUniformValue1f(String name, float value) {
-                Integer l = this.uniformLocationCache.computeIfAbsent(
-                name, n -> glGetUniformLocation(programId, n)
-        );
+        int l = loc(name);
         glUniform1f(l, value);
     }
 
     public void setUniformValue1i(String name, int value) {
-        Integer l = this.uniformLocationCache.computeIfAbsent(
-                name, n -> glGetUniformLocation(programId, n)
-        );
+        int l = loc(name);
         glUniform1i(l, value);
     }
 

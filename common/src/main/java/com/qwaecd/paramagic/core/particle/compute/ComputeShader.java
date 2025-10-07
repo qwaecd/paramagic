@@ -1,6 +1,7 @@
 package com.qwaecd.paramagic.core.particle.compute;
 
 import com.qwaecd.paramagic.core.render.shader.Shader;
+import com.qwaecd.paramagic.core.render.shader.StringIntMap;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
@@ -18,7 +19,8 @@ public class ComputeShader {
     private final int programId;
     private final Map<String, Integer> subroutineMap;
 
-    private final Map<String, Integer> uniformLocationCache = new HashMap<>();
+    private final StringIntMap uniformLocationCache = new StringIntMap(32);
+
 
     public ComputeShader(Shader shader) {
         this.subroutineMap = new HashMap<>();
@@ -48,10 +50,17 @@ public class ComputeShader {
         glDispatchCompute(numGroupsX, numGroupsY, numGroupsZ);
     }
 
+    /** 返回 location（int），内部会缓存并在未命中时查询 glGetUniformLocation */
+    private int loc(String uniformName) {
+        int v = uniformLocationCache.get(uniformName);
+        if (v != StringIntMap.MISSING) return v;
+        int location = glGetUniformLocation(programId, uniformName);
+        uniformLocationCache.put(uniformName, location);
+        return location;
+    }
+
     public void setUniformMatrix4f(String name, FloatBuffer matrix) {
-        Integer l = this.uniformLocationCache.computeIfAbsent(
-                name, n -> glGetUniformLocation(programId, n)
-        );
+        int l = loc(name);
         glUniformMatrix4fv(l, false, matrix);
     }
 
@@ -60,51 +69,37 @@ public class ComputeShader {
     }
 
     public void setUniformValue3f(String name, float v0, float v1, float v2) {
-        Integer l = this.uniformLocationCache.computeIfAbsent(
-                name, n -> glGetUniformLocation(programId, n)
-        );
+        int l = loc(name);
         glUniform3f(l, v0, v1, v2);
     }
 
     public void setUniformValue3f(String name, Vector3f v) {
-        Integer l = this.uniformLocationCache.computeIfAbsent(
-                name, n -> glGetUniformLocation(programId, n)
-        );
+        int l = loc(name);
         glUniform3f(l, v.x, v.y, v.z);
     }
 
     public void setUniformValue4f(String name, float v0, float v1, float v2, float v3) {
-        Integer l = this.uniformLocationCache.computeIfAbsent(
-                name, n -> glGetUniformLocation(programId, n)
-        );
+        int l = loc(name);
         glUniform4f(l, v0, v1, v2, v3);
     }
 
     public void setUniformValue4f(String name, Vector4f v) {
-        Integer l = this.uniformLocationCache.computeIfAbsent(
-                name, n -> glGetUniformLocation(programId, n)
-        );
+        int l = loc(name);
         glUniform4f(l, v.x, v.y, v.z, v.w);
     }
 
     public void setUniformValue2f(String name, float v0, float v1) {
-        Integer l = this.uniformLocationCache.computeIfAbsent(
-                name, n -> glGetUniformLocation(programId, n)
-        );
+        int l = loc(name);
         glUniform2f(l, v0, v1);
     }
 
     public void setUniformValue1f(String name, float value) {
-        Integer l = this.uniformLocationCache.computeIfAbsent(
-                name, n -> glGetUniformLocation(programId, n)
-        );
+        int l = loc(name);
         glUniform1f(l, value);
     }
 
     public void setUniformValue1i(String name, int value) {
-        Integer l = this.uniformLocationCache.computeIfAbsent(
-                name, n -> glGetUniformLocation(programId, n)
-        );
+        int l = loc(name);
         glUniform1i(l, value);
     }
 }
