@@ -2,7 +2,11 @@ package com.qwaecd.paramagic.core.particle.emitter;
 
 import org.joml.Vector3f;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public abstract class EmitterBase implements Emitter {
+    protected final List<EmitterProperty<?>> properties = new ArrayList<>();
     /**
      * 发射器是否已经停止发射新粒子
      */
@@ -20,7 +24,7 @@ public abstract class EmitterBase implements Emitter {
     /**
      * 发射器位置
      */
-    protected Vector3f position;
+    protected Vector3f emitterPosition;
     // --- 新生粒子初始状态 ---
     /**
      * 新生粒子基础速度方向（单位向量），实际速度会在此基础上有一定随机偏差
@@ -39,9 +43,13 @@ public abstract class EmitterBase implements Emitter {
      */
     protected float maxLifetime;
 
-    protected EmitterBase(Vector3f position, float particlesPerSecond) {
+    protected EmitterBase(Vector3f emitterPosition, float particlesPerSecond) {
         this.particlesPerSecond = particlesPerSecond;
-        this.position = position;
+        this.emitterPosition = emitterPosition;
         this.baseVelocity = new Vector3f(0.0f, 0.1f, 0.0f);
+    }
+
+    protected void registerProperty(EmitterProperty<?> property) {
+        this.properties.add(property);
     }
 }
