@@ -188,7 +188,6 @@ public class ModRenderSystem extends AbstractRenderSystem{
         );
     }
 
-    // TODO: 在将 compute shader demo 改为正式功能之前先保留形参 deltaFrameTime
     private void renderObjectsToMainFBO(RenderContext context) {
         FramebufferUtils.copyDepth(Minecraft.getInstance().getMainRenderTarget(), this.mainFbo);
         mainFbo.bind();

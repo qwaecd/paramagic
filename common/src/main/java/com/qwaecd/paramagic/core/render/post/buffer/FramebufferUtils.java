@@ -14,16 +14,19 @@ public class FramebufferUtils {
      * sourceMcFbo Minecraft的主渲染目标<p>
      * destModFbo 你的自定义FBO
      */
-    public static void copyDepth(RenderTarget sourceMcFbo, SceneMRTFramebuffer destModFbo) {
+    public static void copyDepth(RenderTarget sourceMcFbo, Framebuffer destModFbo) {
+        copy(sourceMcFbo, destModFbo, GL_DEPTH_BUFFER_BIT);
+    }
+
+    public static void copy(RenderTarget sourceMcFbo, Framebuffer destModFbo, int mask) {
         int width = Minecraft.getInstance().getWindow().getWidth();
         int height = Minecraft.getInstance().getWindow().getHeight();
-        // 绑定读和写的FBO
         glBindFramebuffer(GL_READ_FRAMEBUFFER, sourceMcFbo.frameBufferId);
         glBindFramebuffer(GL_DRAW_FRAMEBUFFER, destModFbo.getFboId());
         glBlitFramebuffer(
                 0, 0, width, height, // 源区域
                 0, 0, width, height, // 目标区域
-                GL_DEPTH_BUFFER_BIT,
+                mask,
                 GL_NEAREST
         );
         glBindFramebuffer(GL_FRAMEBUFFER, 0);

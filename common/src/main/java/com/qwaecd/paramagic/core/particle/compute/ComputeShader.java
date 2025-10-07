@@ -18,6 +18,8 @@ public class ComputeShader {
     private final int programId;
     private final Map<String, Integer> subroutineMap;
 
+    private final Map<String, Integer> uniformLocationCache = new HashMap<>();
+
     public ComputeShader(Shader shader) {
         this.subroutineMap = new HashMap<>();
         this.shader = shader;
@@ -47,7 +49,10 @@ public class ComputeShader {
     }
 
     public void setUniformMatrix4f(String name, FloatBuffer matrix) {
-        glUniformMatrix4fv(glGetUniformLocation(programId, name), false, matrix);
+        Integer l = this.uniformLocationCache.computeIfAbsent(
+                name, n -> glGetUniformLocation(programId, n)
+        );
+        glUniformMatrix4fv(l, false, matrix);
     }
 
     public void setUniformMatrix4f(String name, Matrix4f matrix) {
@@ -55,30 +60,51 @@ public class ComputeShader {
     }
 
     public void setUniformValue3f(String name, float v0, float v1, float v2) {
-        glUniform3f(glGetUniformLocation(programId, name), v0, v1, v2);
+        Integer l = this.uniformLocationCache.computeIfAbsent(
+                name, n -> glGetUniformLocation(programId, n)
+        );
+        glUniform3f(l, v0, v1, v2);
     }
 
     public void setUniformValue3f(String name, Vector3f v) {
-        glUniform3f(glGetUniformLocation(programId, name), v.x, v.y, v.z);
+        Integer l = this.uniformLocationCache.computeIfAbsent(
+                name, n -> glGetUniformLocation(programId, n)
+        );
+        glUniform3f(l, v.x, v.y, v.z);
     }
 
     public void setUniformValue4f(String name, float v0, float v1, float v2, float v3) {
-        glUniform4f(glGetUniformLocation(programId, name), v0, v1, v2, v3);
+        Integer l = this.uniformLocationCache.computeIfAbsent(
+                name, n -> glGetUniformLocation(programId, n)
+        );
+        glUniform4f(l, v0, v1, v2, v3);
     }
 
     public void setUniformValue4f(String name, Vector4f v) {
-        glUniform4f(glGetUniformLocation(programId, name), v.x, v.y, v.z, v.w);
+        Integer l = this.uniformLocationCache.computeIfAbsent(
+                name, n -> glGetUniformLocation(programId, n)
+        );
+        glUniform4f(l, v.x, v.y, v.z, v.w);
     }
 
     public void setUniformValue2f(String name, float v0, float v1) {
-        glUniform2f(glGetUniformLocation(programId, name), v0, v1);
+        Integer l = this.uniformLocationCache.computeIfAbsent(
+                name, n -> glGetUniformLocation(programId, n)
+        );
+        glUniform2f(l, v0, v1);
     }
 
     public void setUniformValue1f(String name, float value) {
-        glUniform1f(glGetUniformLocation(programId, name), value);
+        Integer l = this.uniformLocationCache.computeIfAbsent(
+                name, n -> glGetUniformLocation(programId, n)
+        );
+        glUniform1f(l, value);
     }
 
     public void setUniformValue1i(String name, int value) {
-        glUniform1i(glGetUniformLocation(programId, name), value);
+        Integer l = this.uniformLocationCache.computeIfAbsent(
+                name, n -> glGetUniformLocation(programId, n)
+        );
+        glUniform1i(l, value);
     }
 }
