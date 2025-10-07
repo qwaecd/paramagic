@@ -6,6 +6,7 @@ import com.qwaecd.paramagic.core.particle.compute.ComputeShader;
 import com.qwaecd.paramagic.core.particle.compute.IComputeShaderProvider;
 import com.qwaecd.paramagic.core.particle.data.EffectPhysicsParameter;
 import com.qwaecd.paramagic.core.particle.data.EmissionRequest;
+import com.qwaecd.paramagic.core.particle.effect.EffectFlags;
 import com.qwaecd.paramagic.core.particle.effect.EffectManager;
 import com.qwaecd.paramagic.core.particle.effect.GPUParticleEffect;
 import com.qwaecd.paramagic.core.particle.memory.ParticleMemoryManager;
@@ -22,6 +23,7 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL15.glBindBuffer;
@@ -51,6 +53,7 @@ public class ParticleManager {
 
     // 用于重用的暂存发射请求的列表
     private final List<EmissionRequest> emissionRequests;
+    private final ConcurrentLinkedQueue<GPUParticleEffect> killedEffects = new ConcurrentLinkedQueue<>();
     private final int emptyVao;
 
     private ParticleManager(boolean canUseComputeShader, boolean canUseGeometryShader) {
@@ -111,6 +114,7 @@ public class ParticleManager {
     }
 
     public void update(float deltaTime) {
+        flushEffects();
         if (this.effectManager.getCurrentEffectCount() == 0 || !shouldWork()) {
             return;
         }
@@ -122,6 +126,13 @@ public class ParticleManager {
             this.effectManager.forEachActiveEffect(activeEffect -> {
                 // 更新 effect 内部状态
                 activeEffect.update(deltaTime);
+
+                if (!activeEffect.isAlive()) {
+                    activeEffect.setEffectFlag(EffectFlags.KILL_ALL.get());
+                    this.killedEffects.add(activeEffect);
+                    return;
+                }
+
                 // 收集发射请求
                 collectEmissionRequests(activeEffect);
                 // 上传物理参数至 GPU 等待后续 update 使用
@@ -192,5 +203,12 @@ public class ParticleManager {
     @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     private boolean shouldWork() {
         return this.canUseComputeShader && this.canUseGeometryShader;
+    }
+
+    private void flushEffects() {
+        GPUParticleEffect effect;
+        while ((effect = this.killedEffects.poll()) != null) {
+            this.removeEffect(effect);
+        }
     }
 }

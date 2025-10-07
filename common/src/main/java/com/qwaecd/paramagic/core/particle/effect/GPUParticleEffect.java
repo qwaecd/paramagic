@@ -11,6 +11,10 @@ import java.util.List;
 
 
 public class GPUParticleEffect {
+    @Getter
+    private final float maxLifeTime;
+    @Getter
+    private float currentLifeTime = 0.0f;
     private final List<Emitter> emitters;
     @Getter
     private final int maxParticleCount;
@@ -27,8 +31,10 @@ public class GPUParticleEffect {
 
     public GPUParticleEffect(
             List<Emitter> emitters,
-            int maxParticleCount
+            int maxParticleCount,
+            float maxLifeTime
     ) {
+        this.maxLifeTime = maxLifeTime;
         this.emitters = emitters;
         this.maxParticleCount = maxParticleCount;
         this.emissionRequests = new ArrayList<>(emitters.size());
@@ -38,8 +44,10 @@ public class GPUParticleEffect {
     public GPUParticleEffect(
             List<Emitter> emitters,
             int maxParticleCount,
+            float maxLifeTime,
             EffectPhysicsParameter physicsParameter
     ) {
+        this.maxLifeTime = maxLifeTime;
         this.emitters = emitters;
         this.maxParticleCount = maxParticleCount;
         this.emissionRequests = new ArrayList<>(emitters.size());
@@ -47,6 +55,7 @@ public class GPUParticleEffect {
     }
 
     public void update(float deltaTime) {
+        this.currentLifeTime += deltaTime;
         for (Emitter e : emitters) {
             e.update(deltaTime);
         }
@@ -62,6 +71,10 @@ public class GPUParticleEffect {
             }
         }
         return this.emissionRequests;
+    }
+
+    public boolean isAlive() {
+        return (!EffectFlags.KILL_ALL.is(this.effectId)) && (this.maxLifeTime <= 0.0f || this.currentLifeTime < this.maxLifeTime);
     }
 
     void setEffectId(int effectId) {

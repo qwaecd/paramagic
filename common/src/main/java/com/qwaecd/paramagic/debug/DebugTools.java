@@ -66,6 +66,7 @@ public class DebugTools {
         GPUParticleEffect effect = new GPUParticleEffect(
                 List.of(pointEmitter),
                 100_0000,
+                10.0f,
                 new EffectPhysicsParameter(
                         new Vector4f(12.0f, -2.0f, 1000.0f, 0.0f),
                         new Vector4f(0, 120, 10, 0f),
