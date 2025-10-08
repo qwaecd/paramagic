@@ -62,7 +62,7 @@ public class PointEmitter extends EmitterBase implements Emitter {
             req.getParam4().z = v.x;
             req.getParam4().w = v.y;
         });
-        this.bloomIntensityProp = new EmitterProperty<>(0.9f,
+        this.bloomIntensityProp = new EmitterProperty<>(1.4f,
                 (req, v) -> req.getParam5().y = v
         );
 

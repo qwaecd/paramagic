@@ -21,6 +21,8 @@ public class ComputeShader {
 
     private final StringIntMap uniformLocationCache = new StringIntMap(32);
 
+    private final FloatBuffer matrixBuffer = BufferUtils.createFloatBuffer(16);
+
 
     public ComputeShader(Shader shader) {
         this.subroutineMap = new HashMap<>();
@@ -65,7 +67,12 @@ public class ComputeShader {
     }
 
     public void setUniformMatrix4f(String name, Matrix4f matrix) {
-        setUniformMatrix4f(name, matrix.get(BufferUtils.createFloatBuffer(16)));
+        // 复用 matrixBuffer，避免每次分配
+        matrix.get(matrixBuffer);
+//        matrixBuffer.flip(); It is not necessary because get() already sets the position to 0 and limit to 16
+        int l = loc(name);
+        glUniformMatrix4fv(l, false, matrixBuffer);
+//        setUniformMatrix4f(name, matrix.get(BufferUtils.createFloatBuffer(16)));
     }
 
     public void setUniformValue3f(String name, float v0, float v1, float v2) {
@@ -74,8 +81,7 @@ public class ComputeShader {
     }
 
     public void setUniformValue3f(String name, Vector3f v) {
-        int l = loc(name);
-        glUniform3f(l, v.x, v.y, v.z);
+        setUniformValue3f(name, v.x, v.y, v.z);
     }
 
     public void setUniformValue4f(String name, float v0, float v1, float v2, float v3) {
@@ -84,8 +90,7 @@ public class ComputeShader {
     }
 
     public void setUniformValue4f(String name, Vector4f v) {
-        int l = loc(name);
-        glUniform4f(l, v.x, v.y, v.z, v.w);
+        setUniformValue4f(name, v.x, v.y, v.z, v.w);
     }
 
     public void setUniformValue2f(String name, float v0, float v1) {

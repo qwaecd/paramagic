@@ -55,13 +55,11 @@ public class Shader {
 
     public void setUniformMatrix4f(String name, Matrix4f matrix) {
         // 复用 matrixBuffer，避免每次分配
-        matrixBuffer.clear();            // position = 0, limit = capacity
-        matrix.get(matrixBuffer);        // 写入 matrixBuffer (advances pos)
-        matrixBuffer.flip();             // set limit = pos, pos = 0
+        matrix.get(matrixBuffer);
+//        matrixBuffer.flip(); It is not necessary because get() already sets the position to 0 and limit to 16
         int l = loc(name);
         glUniformMatrix4fv(l, false, matrixBuffer);
-        // 不需要 clear() 也可以，但保留以便下次使用
-        matrixBuffer.clear();
+//        setUniformMatrix4f(name, matrix.get(BufferUtils.createFloatBuffer(16)));
     }
 
     public void setUniformValue3f(String name, float v0, float v1, float v2) {
