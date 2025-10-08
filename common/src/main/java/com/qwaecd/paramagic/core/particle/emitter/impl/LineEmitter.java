@@ -5,11 +5,64 @@ import com.qwaecd.paramagic.core.particle.emitter.Emitter;
 import com.qwaecd.paramagic.core.particle.emitter.EmitterBase;
 import com.qwaecd.paramagic.core.particle.emitter.EmitterProperty;
 import com.qwaecd.paramagic.core.particle.emitter.EmitterType;
-import org.jetbrains.annotations.Nullable;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
 
+import javax.annotation.Nullable;
+
+
+/**
+ * <table border="1" style="width:100%; border-collapse: collapse;">
+ *   <caption>LineEmitter 参数映射</caption>
+ *   <thead>
+ *     <tr>
+ *       <th style="text-align:left; padding: 5px;">参数</th>
+ *       <th style="text-align:left; padding: 5px;">X</th>
+ *       <th style="text-align:left; padding: 5px;">Y</th>
+ *       <th style="text-align:left; padding: 5px;">Z</th>
+ *       <th style="text-align:left; padding: 5px;">W</th>
+ *     </tr>
+ *   </thead>
+ *   <tbody>
+ *     <tr>
+ *       <td style="padding: 5px;"><b>param1</b> (线起点)</td>
+ *       <td style="padding: 5px;">startPosition.x</td>
+ *       <td style="padding: 5px;">startPosition.y</td>
+ *       <td style="padding: 5px;">startPosition.z</td>
+ *       <td style="padding: 5px;">-</td>
+ *     </tr>
+ *     <tr>
+ *       <td style="padding: 5px;"><b>param2</b> (线终点)</td>
+ *       <td style="padding: 5px;">endPosition.x</td>
+ *       <td style="padding: 5px;">endPosition.y</td>
+ *       <td style="padding: 5px;">endPosition.z</td>
+ *       <td style="padding: 5px;">-</td>
+ *     </tr>
+ *     <tr>
+ *       <td style="padding: 5px;"><b>param3</b> (颜色)</td>
+ *       <td style="padding: 5px;">color.r</td>
+ *       <td style="padding: 5px;">color.g</td>
+ *       <td style="padding: 5px;">color.b</td>
+ *       <td style="padding: 5px;">color.a</td>
+ *     </tr>
+ *     <tr>
+ *       <td style="padding: 5px;"><b>param4</b> (生命周期/尺寸)</td>
+ *       <td style="padding: 5px;">lifetime.min</td>
+ *       <td style="padding: 5px;">lifetime.max</td>
+ *       <td style="padding: 5px;">size.min</td>
+ *       <td style="padding: 5px;">size.max</td>
+ *     </tr>
+ *     <tr>
+ *       <td style="padding: 5px;"><b>param5</b> (速度/Bloom)</td>
+ *       <td style="padding: 5px;">baseVelocity.x</td>
+ *       <td style="padding: 5px;">baseVelocity.y</td>
+ *       <td style="padding: 5px;">baseVelocity.z</td>
+ *       <td style="padding: 5px;">bloomIntensity</td>
+ *     </tr>
+ *   </tbody>
+ * </table>
+ */
 public class LineEmitter extends EmitterBase implements Emitter {
     private float particlesToEmitAccumulated = 0.0f;
 

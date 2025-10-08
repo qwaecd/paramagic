@@ -8,6 +8,10 @@
 
 #define POINT_EMITTER 1
 #define LINE_EMITTER 2
+#define SPHERE_EMITTER 3
+
+ #define EMITTER_FLAGS_NONE (0u)
+ #define EMITTER_FLAGS_EMIT_FROM_VOLUME (1u << 1)
 
 #define PI 3.141592654
 
@@ -105,6 +109,11 @@ float randomFloatInRange(float min, float max, float offset) {
     return random(offset) * (max - min) + min;
 }
 // --- End random utilities ---
+
+bool hasFlag(uint flagsToCheck, uint targetFlag) {
+    return (flagsToCheck & targetFlag) != 0u;
+}
+
 /**
  * 从单个向量 a_axis 构建一个标准正交基（一个坐标系）
  * a_axis:      输入的向量，将成为新坐标系的 Z 轴
@@ -140,8 +149,8 @@ void pointEmitter(uint particleIndex, EmissionRequest req) {
     // Gram-Schmidt process
     vec3 axisX, axisY, axisZ;
     buildOrthonormalBasis(req.param2.xyz, axisX, axisY, axisZ);
-    float phi = random(0.0) * 2.0 * PI;
-    float cos_theta = mix(cos(radians(req.param5.x)), 1.0, random(1.0));
+    float phi = random(1.0) * 2.0 * PI;
+    float cos_theta = mix(cos(radians(req.param5.x)), 1.0, random(1.1));
     float sin_theta = sqrt(1.0 - cos_theta * cos_theta);
     float x = sin_theta * cos(phi);
     float y = sin_theta * sin(phi);
@@ -154,18 +163,54 @@ void pointEmitter(uint particleIndex, EmissionRequest req) {
     particles[particleIndex].meta = vec4(float(req.effectId), 0.0, 0.0, 0.0);
     particles[particleIndex].position = req.param1;
     particles[particleIndex].velocity = vec4(initial_velocity, req.param2.w);
-    particles[particleIndex].attributes = vec4(0.0, randomFloatInRange(req.param4.x, req.param4.y, 2.0), 0.0, 0.0);
-    particles[particleIndex].renderAttribs = vec4(randomFloatInRange(req.param4.z, req.param4.w, 3.0), 0.0, 0.0, req.param5.y);
+    particles[particleIndex].attributes = vec4(0.0, randomFloatInRange(req.param4.x, req.param4.y, 1.2), 0.0, 0.0);
+    particles[particleIndex].renderAttribs = vec4(randomFloatInRange(req.param4.z, req.param4.w, 1.3), 0.0, 0.0, req.param5.y);
     particles[particleIndex].color = req.param3;
 }
 
 void lineEmitter(uint particleIndex, EmissionRequest req) {
     vec3 direction = req.param2.xyz - req.param1.xyz;
     particles[particleIndex].meta = vec4(float(req.effectId), 0.0, 0.0, 0.0);
-    particles[particleIndex].position = vec4(req.param1.xyz + direction * random(4.0), req.param1.w);
+    particles[particleIndex].position = vec4(req.param1.xyz + direction * random(2.0), req.param1.w);
     particles[particleIndex].velocity = req.param5;
-    particles[particleIndex].attributes = vec4(0.0, randomFloatInRange(req.param4.x, req.param4.y, 5.0), 0.0, 0.0);
-    particles[particleIndex].renderAttribs = vec4(randomFloatInRange(req.param4.z, req.param4.w, 6.0), 0.0, 0.0, req.param5.w);
+    particles[particleIndex].attributes = vec4(0.0, randomFloatInRange(req.param4.x, req.param4.y, 2.1), 0.0, 0.0);
+    particles[particleIndex].renderAttribs = vec4(randomFloatInRange(req.param4.z, req.param4.w, 2.2), 0.0, 0.0, req.param5.w);
+    particles[particleIndex].color = req.param3;
+}
+
+void sphereEmitter(uint particleIndex, EmissionRequest req) {
+    // Gram-Schmidt process
+    vec3 axisX, axisY, axisZ;
+    float isZero;
+    if (length(req.param2.xyz) > 1e-6) {
+        buildOrthonormalBasis(req.param2.xyz, axisX, axisY, axisZ);
+        isZero = 1.0f;
+    } else {
+        buildOrthonormalBasis(vec3(0.0, 1.0, 0.0), axisX, axisY, axisZ);
+        isZero = 0.0f;
+    }
+    float phi = random(3.0) * 2.0 * PI;
+    float cos_theta = mix(cos(radians(req.param5.x)), 1.0, random(3.1));
+    float sin_theta = sqrt(1.0 - cos_theta * cos_theta);
+    float x = sin_theta * cos(phi);
+    float y = sin_theta * sin(phi);
+    float z = cos_theta;
+    vec3 local_dir = vec3(x, y, z);
+    vec3 random_dir_world = local_dir.x * axisX + local_dir.y * axisY + local_dir.z * axisZ;
+    vec3 initial_velocity = random_dir_world * length(req.param2.xyz);
+
+    vec3 particlePosition;
+    if (hasFlag(floatBitsToUint(req.param5.z), EMITTER_FLAGS_EMIT_FROM_VOLUME)) {
+        particlePosition = req.param1.xyz + random_dir_world * pow(random(3.2), 1.0 / 3.0) * req.param1.w;
+    } else {
+        particlePosition = req.param1.xyz + random_dir_world * req.param1.w;
+    }
+
+    particles[particleIndex].meta = vec4(float(req.effectId), 0.0, 0.0, 0.0);
+    particles[particleIndex].position = vec4(particlePosition, req.param1.w);
+    particles[particleIndex].velocity = vec4(initial_velocity * isZero, req.param2.w);
+    particles[particleIndex].attributes = vec4(0.0, randomFloatInRange(req.param4.x, req.param4.y, 3.4), 0.0, 0.0);
+    particles[particleIndex].renderAttribs = vec4(randomFloatInRange(req.param4.z, req.param4.w, 3.5), 0.0, 0.0, req.param5.y);
     particles[particleIndex].color = req.param3;
 }
 
@@ -188,6 +233,7 @@ void main() {
         switch(task.request.emitterType) {
             case POINT_EMITTER: pointEmitter(particleId, task.request); break;
             case LINE_EMITTER : lineEmitter(particleId, task.request); break;
+            case SPHERE_EMITTER : sphereEmitter(particleId, task.request); break;
             default: break;
         }
     }
@@ -200,5 +246,10 @@ void pointEmitterInitializer(uint particleIndex, EmissionRequest req) {
 
 subroutine(EmitterInitializer)
 void lineEmitterInitializer(uint particleIndex, EmissionRequest req) {
+    return;
+}
+
+subroutine(EmitterInitializer)
+void sphereEmitterInitializer(uint particleIndex, EmissionRequest req) {
     return;
 }

@@ -10,6 +10,7 @@ import com.qwaecd.paramagic.core.particle.builder.PhysicsParamBuilder;
 import com.qwaecd.paramagic.core.particle.effect.GPUParticleEffect;
 import com.qwaecd.paramagic.core.particle.emitter.impl.LineEmitter;
 import com.qwaecd.paramagic.core.particle.emitter.impl.PointEmitter;
+import com.qwaecd.paramagic.core.particle.emitter.impl.SphereEmitter;
 import com.qwaecd.paramagic.core.render.ModRenderSystem;
 import com.qwaecd.paramagic.core.render.api.IRenderable;
 import com.qwaecd.paramagic.core.render.shader.ShaderManager;
@@ -62,10 +63,10 @@ public class DebugTools {
         PhysicsParamBuilder physicsParamBuilder = new PhysicsParamBuilder();
 
         physicsParamBuilder
-                .centerForceEnabled(true)
+                .centerForceEnabled(false)
                 .centerForceParam(18.0f, -2.0f)
                 .centerForceMaxRadius(1000.0f)
-                .linearForceEnabled(true)
+                .linearForceEnabled(false)
                 .linearForce(0.01f, -0.0981f / 1000.0f, 0.0f)
                 .dragCoefficient(0.8f);
 
@@ -80,18 +81,31 @@ public class DebugTools {
         // Line Emitter
         LineEmitter lineEmitter = new LineEmitter(
                 new Vector3f(0.0f, 130.0f, 0.0f),
-                800.0f
+                80.0f
         );
         lineEmitter.startPositionProp.modify(v -> v.set(-10.0f, 130.0f, 1.0f));
         lineEmitter.endPositionProp.modify(v -> v.set(10.0f, 130.0f, 1.0f));
-        lineEmitter.baseVelocityProp.modify(v -> v.set(0.0f, 1.0f, 0.0f));
-        lineEmitter.lifetimeRangeProp.modify(v -> v.set(5.0f, 100.0f));
+        lineEmitter.baseVelocityProp.modify(v -> v.set(0.0f, 0.0f, 0.0f));
+        lineEmitter.lifetimeRangeProp.modify(v -> v.set(5.0f, 10.0f));
         lineEmitter.colorProp.modify(v -> v.set(0.4f, 0.5f, 1.0f, 1.0f));
         lineEmitter.bloomIntensityProp.set(0.5f);
 
+        // Sphere Emitter
+        SphereEmitter sphereEmitter = new SphereEmitter(
+                new Vector3f(20.0f, 120.0f, 0.0f),
+                1000.0f
+        );
+        sphereEmitter.sphereRadiusProp.set(5.0f);
+        sphereEmitter.baseVelocityProp.modify(v -> v.set(0.0f, 0.0f, 0.0001f));
+        sphereEmitter.lifetimeRangeProp.modify(v -> v.set(1.0f, 3.0f));
+        sphereEmitter.colorProp.modify(v -> v.set(0.4f, 1.0f, 1.0f, 1.0f));
+        sphereEmitter.bloomIntensityProp.set(1.0f);
+        sphereEmitter.emitFromVolumeProp.set(false);
+        sphereEmitter.velocitySpreadProp.set(90.0f);
+
         // effect
         GPUParticleEffect effect = new GPUParticleEffect(
-                List.of(pointEmitter, lineEmitter),
+                List.of(lineEmitter, sphereEmitter),
                 100_0000,
                 Float.MAX_VALUE,
                 physicsParamBuilder.build()

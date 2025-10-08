@@ -19,13 +19,13 @@ public class GPUParticleEffect {
     @Getter
     private final int maxParticleCount;
     @Getter
-    private int effectId = -1;
+    private int effectId = -1; // 效果的唯一 ID（非位掩码）
     @Getter
     private final EffectPhysicsParameter physicsParameter;
 
     @Getter
     @Setter
-    private int effectFlag = EffectFlags.IS_ALIVE.get();
+    private int effectFlag = EffectFlags.IS_ALIVE.get(); // 效果的状态标志位掩码（bitmask）
 
     private final List<EmissionRequest> emissionRequests;
 
@@ -73,8 +73,14 @@ public class GPUParticleEffect {
         return this.emissionRequests;
     }
 
+    /**
+     * 判断粒子效果当前是否处于存活状态。<br>
+     * 规则：当未设置 KILL_ALL 标志，且寿命未超出或寿命无限（maxLifeTime <= 0），则认为存活。<br>
+     * 注意：in() 的入参是位掩码，应传入 {@link #effectFlag}，而不是 {@link #effectId}。
+     */
     public boolean isAlive() {
-        return (!EffectFlags.KILL_ALL.in(this.effectId)) && (this.maxLifeTime <= 0.0f || this.currentLifeTime < this.maxLifeTime);
+        return (!EffectFlags.KILL_ALL.in(this.effectFlag))
+                && (this.maxLifeTime <= 0.0f || this.currentLifeTime < this.maxLifeTime);
     }
 
     void setEffectId(int effectId) {
