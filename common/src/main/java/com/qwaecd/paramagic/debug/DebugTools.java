@@ -6,8 +6,9 @@ import com.qwaecd.paramagic.assembler.ParaComposer;
 import com.qwaecd.paramagic.client.obj.sun.Sun;
 import com.qwaecd.paramagic.client.renderbase.factory.SphereFactory;
 import com.qwaecd.paramagic.core.particle.ParticleManager;
-import com.qwaecd.paramagic.core.particle.data.EffectPhysicsParameter;
+import com.qwaecd.paramagic.core.particle.builder.PhysicsParamBuilder;
 import com.qwaecd.paramagic.core.particle.effect.GPUParticleEffect;
+import com.qwaecd.paramagic.core.particle.emitter.impl.LineEmitter;
 import com.qwaecd.paramagic.core.particle.emitter.impl.PointEmitter;
 import com.qwaecd.paramagic.core.render.ModRenderSystem;
 import com.qwaecd.paramagic.core.render.api.IRenderable;
@@ -31,7 +32,6 @@ import com.qwaecd.paramagic.feature.MagicCircleManager;
 import lombok.experimental.UtilityClass;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
-import org.joml.Vector4f;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
@@ -59,19 +59,42 @@ public class DebugTools {
     }
 
     private static void effectTest() {
+        PhysicsParamBuilder physicsParamBuilder = new PhysicsParamBuilder();
+
+        physicsParamBuilder
+                .centerForceEnabled(true)
+                .centerForceParam(18.0f, -2.0f)
+                .centerForceMaxRadius(1000.0f)
+                .linearForceEnabled(true)
+                .linearForce(0.01f, -0.0981f / 1000.0f, 0.0f)
+                .dragCoefficient(0.8f);
+
+        // Point Emitter
         PointEmitter pointEmitter = new PointEmitter(
                 new Vector3f(0, 80, 10),
-                10_000.0f
+                10.0f
         );
+
+        pointEmitter.bloomIntensityProp.set(1.8f);
+
+        // Line Emitter
+        LineEmitter lineEmitter = new LineEmitter(
+                new Vector3f(0.0f, 130.0f, 0.0f),
+                800.0f
+        );
+        lineEmitter.startPositionProp.modify(v -> v.set(-10.0f, 130.0f, 1.0f));
+        lineEmitter.endPositionProp.modify(v -> v.set(10.0f, 130.0f, 1.0f));
+        lineEmitter.baseVelocityProp.modify(v -> v.set(0.0f, 1.0f, 0.0f));
+        lineEmitter.lifetimeRangeProp.modify(v -> v.set(5.0f, 100.0f));
+        lineEmitter.colorProp.modify(v -> v.set(0.4f, 0.5f, 1.0f, 1.0f));
+        lineEmitter.bloomIntensityProp.set(0.5f);
+
+        // effect
         GPUParticleEffect effect = new GPUParticleEffect(
-                List.of(pointEmitter),
+                List.of(pointEmitter, lineEmitter),
                 100_0000,
                 Float.MAX_VALUE,
-                new EffectPhysicsParameter(
-                        new Vector4f(12.0f, -2.0f, 1000.0f, 0.0f),
-                        new Vector4f(0, 120, 10, 0f),
-                        new Vector4f(0.0f, -9.81f / 1000.0f, 0.0f, 0.0f)
-                )
+                physicsParamBuilder.build()
         );
         if (ParticleManager.getInstance().spawnEffect(effect)) {
             testEffects.add(effect);

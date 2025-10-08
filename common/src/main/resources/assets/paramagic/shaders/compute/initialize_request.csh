@@ -7,8 +7,9 @@
 #define LOCAL_SIZE_X 256
 
 #define POINT_EMITTER 1
+#define LINE_EMITTER 2
 
-#define PI 3.141592653
+#define PI 3.141592654
 
 layout(local_size_x = LOCAL_SIZE_X, local_size_y = 1, local_size_z = 1) in;
 
@@ -158,6 +159,16 @@ void pointEmitter(uint particleIndex, EmissionRequest req) {
     particles[particleIndex].color = req.param3;
 }
 
+void lineEmitter(uint particleIndex, EmissionRequest req) {
+    vec3 direction = req.param2.xyz - req.param1.xyz;
+    particles[particleIndex].meta = vec4(float(req.effectId), 0.0, 0.0, 0.0);
+    particles[particleIndex].position = vec4(req.param1.xyz + direction * random(4.0), req.param1.w);
+    particles[particleIndex].velocity = req.param5;
+    particles[particleIndex].attributes = vec4(0.0, randomFloatInRange(req.param4.x, req.param4.y, 5.0), 0.0, 0.0);
+    particles[particleIndex].renderAttribs = vec4(randomFloatInRange(req.param4.z, req.param4.w, 6.0), 0.0, 0.0, req.param5.w);
+    particles[particleIndex].color = req.param3;
+}
+
 void main() {
     uint workGroupID = gl_WorkGroupID.x;
 
@@ -176,11 +187,18 @@ void main() {
 
         switch(task.request.emitterType) {
             case POINT_EMITTER: pointEmitter(particleId, task.request); break;
+            case LINE_EMITTER : lineEmitter(particleId, task.request); break;
+            default: break;
         }
     }
 }
 
 subroutine(EmitterInitializer)
 void pointEmitterInitializer(uint particleIndex, EmissionRequest req) {
+    return;
+}
+
+subroutine(EmitterInitializer)
+void lineEmitterInitializer(uint particleIndex, EmissionRequest req) {
     return;
 }

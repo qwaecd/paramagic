@@ -30,6 +30,8 @@ loom {
             client()
             setConfigName("Fabric Client")
             ideConfigGenerated(true)
+            vmArgs.add("-XX:+IgnoreUnrecognizedVMOptions")
+            vmArgs.add("-XX:+AllowEnhancedClassRedefinition")
             runDir("run")
         }
         server {

@@ -15,7 +15,7 @@ public enum EffectFlags {
         return this.bit;
     }
 
-    public boolean is(int flags) {
+    public boolean in(int flags) {
         return (flags & this.bit) != 0;
     }
 }

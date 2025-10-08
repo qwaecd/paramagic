@@ -1,7 +1,8 @@
 package com.qwaecd.paramagic.core.particle.emitter;
 
 public enum EmitterType {
-    POINT(1, "pointEmitterInitializer");
+    POINT(1, "pointEmitterInitializer"),
+    LINE (2, "lineEmitterInitializer");
 
     public final int ID;
     public final String NAME = this.name();

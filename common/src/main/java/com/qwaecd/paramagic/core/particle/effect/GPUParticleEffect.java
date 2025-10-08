@@ -74,7 +74,7 @@ public class GPUParticleEffect {
     }
 
     public boolean isAlive() {
-        return (!EffectFlags.KILL_ALL.is(this.effectId)) && (this.maxLifeTime <= 0.0f || this.currentLifeTime < this.maxLifeTime);
+        return (!EffectFlags.KILL_ALL.in(this.effectId)) && (this.maxLifeTime <= 0.0f || this.currentLifeTime < this.maxLifeTime);
     }
 
     void setEffectId(int effectId) {

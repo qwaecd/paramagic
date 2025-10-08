@@ -58,6 +58,22 @@ public final class EffectPhysicsParameter {
         this.setCFPos(v.x, v.y, v.z);
     }
 
+    public void setCenterForceParam(float A, float B) {
+        this.centerForceData.x = A;
+        this.centerForceData.y = B;
+        this.modified = true;
+    }
+
+    public void setCenterForceMaxRadius(float maxRadius) {
+        this.centerForceData.z = maxRadius;
+        this.modified = true;
+    }
+
+    public void setCenterForceEnabled(boolean enabled) {
+        this.centerForceData.w = enabled ? 1.0f : 0.0f;
+        this.modified = true;
+    }
+
     public void setLinearForce(float x, float y, float z) {
         this.linearForce.x = x;
         this.linearForce.y = y;
@@ -65,8 +81,18 @@ public final class EffectPhysicsParameter {
         this.modified = true;
     }
 
-    public void seLinearForce(Vector3f v) {
+    public void setLinearForce(Vector3f v) {
         this.setLinearForce(v.x, v.y, v.z);
+    }
+
+    public void setLinearForceEnabled(boolean enabled) {
+        this.linearForce.w = enabled ? 1.0f : 0.0f;
+        this.modified = true;
+    }
+
+    public void setDragCoefficient(float dragCoefficient) {
+        this.centerForcePos.w = dragCoefficient;
+        this.modified = true;
     }
 
     public boolean isDirty() {

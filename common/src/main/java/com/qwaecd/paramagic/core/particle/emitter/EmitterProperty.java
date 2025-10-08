@@ -3,6 +3,8 @@ package com.qwaecd.paramagic.core.particle.emitter;
 
 import com.qwaecd.paramagic.core.particle.data.EmissionRequest;
 
+import java.util.function.Consumer;
+
 /**
  * 一个包装了发射器属性及其更新逻辑的类。
  * @param <T> 属性值的类型 (例如 Vector3f, Float, Vector4f)
@@ -28,8 +30,15 @@ public class EmitterProperty<T> {
     }
 
     public void set(T newValue) {
-        // 在这里可以根据需要决定是否进行深拷贝或引用赋值
         this.value = newValue;
+        this.isDirty = true;
+    }
+
+    /**
+     * @param modifierAction 一个函数，它接收内部对象并对其进行修改。
+     */
+    public void modify(Consumer<T> modifierAction) {
+        modifierAction.accept(this.value);
         this.isDirty = true;
     }
 
