@@ -181,14 +181,14 @@ void lineEmitter(uint particleIndex, EmissionRequest req) {
 void sphereEmitter(uint particleIndex, EmissionRequest req) {
     // Gram-Schmidt process
     vec3 axisX, axisY, axisZ;
-    float isZero;
-    if (length(req.param2.xyz) > 1e-6) {
-        buildOrthonormalBasis(req.param2.xyz, axisX, axisY, axisZ);
-        isZero = 1.0f;
-    } else {
-        buildOrthonormalBasis(vec3(0.0, 1.0, 0.0), axisX, axisY, axisZ);
-        isZero = 0.0f;
-    }
+
+    // if (req.param2.xyz is zero) direction = vec3(0.0, 1.0, 0.0);
+    float isNonZero = step(1e-6, length(req.param2.xyz));
+    // isNonZero=0.0 -> direction = vec3(0.0, 1.0, 0.0)
+    // isNonZero=1.0 -> direction = req.param2.xyz
+    vec3 direction = mix(vec3(0.0, 1.0, 0.0), req.param2.xyz, isNonZero);
+    buildOrthonormalBasis(direction, axisX, axisY, axisZ);
+
     float phi = random(3.0) * 2.0 * PI;
     float cos_theta = mix(cos(radians(req.param5.x)), 1.0, random(3.1));
     float sin_theta = sqrt(1.0 - cos_theta * cos_theta);
@@ -208,7 +208,7 @@ void sphereEmitter(uint particleIndex, EmissionRequest req) {
 
     particles[particleIndex].meta = vec4(float(req.effectId), 0.0, 0.0, 0.0);
     particles[particleIndex].position = vec4(particlePosition, req.param1.w);
-    particles[particleIndex].velocity = vec4(initial_velocity * isZero, req.param2.w);
+    particles[particleIndex].velocity = vec4(initial_velocity * isNonZero, req.param2.w);
     particles[particleIndex].attributes = vec4(0.0, randomFloatInRange(req.param4.x, req.param4.y, 3.4), 0.0, 0.0);
     particles[particleIndex].renderAttribs = vec4(randomFloatInRange(req.param4.z, req.param4.w, 3.5), 0.0, 0.0, req.param5.y);
     particles[particleIndex].color = req.param3;

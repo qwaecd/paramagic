@@ -95,10 +95,10 @@ public class DebugTools {
                 new Vector3f(20.0f, 120.0f, 0.0f),
                 1000.0f
         );
-        sphereEmitter.sphereRadiusProp.set(5.0f);
-        sphereEmitter.baseVelocityProp.modify(v -> v.set(0.0f, 0.0f, 0.0001f));
-        sphereEmitter.lifetimeRangeProp.modify(v -> v.set(1.0f, 3.0f));
-        sphereEmitter.colorProp.modify(v -> v.set(0.4f, 1.0f, 1.0f, 1.0f));
+        sphereEmitter.sphereRadiusProp.set(1.0f);
+        sphereEmitter.baseVelocityProp.modify(v -> v.set(0.0f, 0.0f, 0.9f));
+        sphereEmitter.lifetimeRangeProp.modify(v -> v.set(1.0f, 10.0f));
+        sphereEmitter.colorProp.modify(v -> v.set(0.2f, 1.0f, 1.0f, 1.0f));
         sphereEmitter.bloomIntensityProp.set(1.0f);
         sphereEmitter.emitFromVolumeProp.set(false);
         sphereEmitter.velocitySpreadProp.set(90.0f);
