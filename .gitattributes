@@ -13,4 +13,3 @@
 *.pyd binary
 *.cfg text eol=lf
 *.jks binary
-*.csh linguist-language=GLSL

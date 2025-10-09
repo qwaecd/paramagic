@@ -11,9 +11,9 @@ import static org.lwjgl.opengl.GL43.GL_COMPUTE_SHADER;
 public enum ShaderType {
     VERTEX("vertex", ".vsh", GL_VERTEX_SHADER),
     FRAGMENT("fragment", ".fsh", GL_FRAGMENT_SHADER),
-    COMPUTE("compute", ".csh", GL_COMPUTE_SHADER),
+    COMPUTE("compute", ".comp", GL_COMPUTE_SHADER),
     GEOMETRY("geometry", ".gsh", GL_GEOMETRY_SHADER),
-    Subroutine("subroutine", ".sub", -1); // Subroutine shaders don't have a specific GL type
+    Subroutine("subroutine", ".sub.comp", -1); // Subroutine shaders don't have a specific GL type
     @Getter
     private final String typeName;
     @Getter
