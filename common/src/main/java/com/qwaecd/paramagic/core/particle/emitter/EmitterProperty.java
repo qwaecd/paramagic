@@ -13,6 +13,7 @@ public class EmitterProperty<T> {
     private T value;
     private boolean isDirty;
     private final PropertyUpdater<T> updater;
+    private final Consumer<T> modifierCallback;
 
     /**
      * 构造一个发射器属性。
@@ -22,6 +23,20 @@ public class EmitterProperty<T> {
     public EmitterProperty(T initialValue, PropertyUpdater<T> updater) {
         this.value = initialValue;
         this.updater = updater;
+        this.modifierCallback = (v) -> {};
+        this.isDirty = true;
+    }
+
+    /**
+     * 构造一个发射器属性。
+     * @param initialValue 初始值
+     * @param updater 更新逻辑，定义了如何将此属性的值应用到EmissionRequest上。
+     * @param modifierCallback 每当属性被修改时调用的回调函数。
+     */
+    public EmitterProperty(T initialValue, PropertyUpdater<T> updater, Consumer<T> modifierCallback) {
+        this.value = initialValue;
+        this.updater = updater;
+        this.modifierCallback = modifierCallback;
         this.isDirty = true;
     }
 
@@ -31,6 +46,7 @@ public class EmitterProperty<T> {
 
     public void set(T newValue) {
         this.value = newValue;
+        this.modifierCallback.accept(this.value);
         this.isDirty = true;
     }
 
@@ -39,6 +55,7 @@ public class EmitterProperty<T> {
      */
     public void modify(Consumer<T> modifierAction) {
         modifierAction.accept(this.value);
+        this.modifierCallback.accept(this.value);
         this.isDirty = true;
     }
 

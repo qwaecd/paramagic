@@ -3,7 +3,8 @@ package com.qwaecd.paramagic.core.particle.emitter;
 public enum EmitterType {
     POINT(1, "pointEmitterInitializer"),
     LINE(2, "lineEmitterInitializer"),
-    SPHERE(3, "sphereEmitterInitializer"),;
+    SPHERE(3, "sphereEmitterInitializer"),
+    CUBE(4, "cubeEmitterInitializer"),;
 
     public final int ID;
     public final String NAME = this.name();

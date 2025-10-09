@@ -2,6 +2,7 @@ package com.qwaecd.paramagic.core.particle.emitter;
 
 import lombok.Getter;
 import org.joml.Vector3f;
+import org.joml.Vector3fc;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,7 +26,6 @@ public abstract class EmitterBase implements Emitter {
     /**
      * 发射器位置
      */
-    @Getter
     protected Vector3f emitterPosition;
     // --- 新生粒子初始状态 ---
     /**

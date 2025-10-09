@@ -8,9 +8,7 @@ import com.qwaecd.paramagic.client.renderbase.factory.SphereFactory;
 import com.qwaecd.paramagic.core.particle.ParticleManager;
 import com.qwaecd.paramagic.core.particle.builder.PhysicsParamBuilder;
 import com.qwaecd.paramagic.core.particle.effect.GPUParticleEffect;
-import com.qwaecd.paramagic.core.particle.emitter.impl.LineEmitter;
-import com.qwaecd.paramagic.core.particle.emitter.impl.PointEmitter;
-import com.qwaecd.paramagic.core.particle.emitter.impl.SphereEmitter;
+import com.qwaecd.paramagic.core.particle.emitter.impl.*;
 import com.qwaecd.paramagic.core.render.ModRenderSystem;
 import com.qwaecd.paramagic.core.render.api.IRenderable;
 import com.qwaecd.paramagic.core.render.shader.ShaderManager;
@@ -93,19 +91,36 @@ public class DebugTools {
         // Sphere Emitter
         SphereEmitter sphereEmitter = new SphereEmitter(
                 new Vector3f(20.0f, 120.0f, 0.0f),
-                1000.0f
+                10.0f
         );
         sphereEmitter.sphereRadiusProp.set(1.0f);
-        sphereEmitter.baseVelocityProp.modify(v -> v.set(0.0f, 0.0f, 0.9f));
+        sphereEmitter.baseVelocityProp.modify(v -> v.set(0.0f, 1.0f, 0.001f));
         sphereEmitter.lifetimeRangeProp.modify(v -> v.set(1.0f, 10.0f));
-        sphereEmitter.colorProp.modify(v -> v.set(0.2f, 1.0f, 1.0f, 1.0f));
+        sphereEmitter.colorProp.modify(v -> v.set(1.0f, 0.0f, 0.0f, 1.0f));
         sphereEmitter.bloomIntensityProp.set(1.0f);
         sphereEmitter.emitFromVolumeProp.set(false);
-        sphereEmitter.velocitySpreadProp.set(90.0f);
+        sphereEmitter.velocitySpreadProp.set(1.0f);
+        sphereEmitter.velocityModeProp.set(VelocityModeStates.DIRECT);
+
+        // Cube Emitter
+        CubeEmitter cubeEmitter = new CubeEmitter(
+                new Vector3f(0.0f),
+                1000.0f
+        );
+        cubeEmitter.cubeAABBProp.modify(v -> v.setAABB(
+                0.0f, 120.0f, 20.0f,
+                0.0f + 1.0f, 120.0f + 2.0f, 20.0f + 1.0f
+        ));
+        cubeEmitter.baseVelocityProp.modify(v -> v.set(1.1f));
+        cubeEmitter.lifetimeRangeProp.modify(v -> v.set(1.0f, 10.0f));
+        cubeEmitter.colorProp.modify(v -> v.set(0.2f, 1.0f, 0.5f, 1.0f));
+        cubeEmitter.bloomIntensityProp.set(1.8f);
+        cubeEmitter.emitFromVolumeProp.set(true);
+        cubeEmitter.velocityModeProp.set(VelocityModeStates.RADIAL_FROM_CENTER);
 
         // effect
         GPUParticleEffect effect = new GPUParticleEffect(
-                List.of(lineEmitter, sphereEmitter),
+                List.of(cubeEmitter, sphereEmitter),
                 100_0000,
                 Float.MAX_VALUE,
                 physicsParamBuilder.build()
