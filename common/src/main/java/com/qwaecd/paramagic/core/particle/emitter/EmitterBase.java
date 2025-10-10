@@ -1,25 +1,28 @@
 package com.qwaecd.paramagic.core.particle.emitter;
 
-import lombok.Getter;
+import com.qwaecd.paramagic.core.particle.data.EmissionRequest;
+import com.qwaecd.paramagic.core.particle.emitter.prop.EmitterProperty;
+import com.qwaecd.paramagic.core.particle.emitter.prop.EmitterType;
+import com.qwaecd.paramagic.core.particle.emitter.prop.ParticleBurst;
+import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3f;
-import org.joml.Vector3fc;
+import org.joml.Vector4f;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public abstract class EmitterBase implements Emitter {
+    protected float particlesToEmitAccumulated = 0.0f;
+
     protected final List<EmitterProperty<?>> properties = new ArrayList<>();
-    /**
-     * 发射器是否已经停止发射新粒子
-     */
-    protected boolean finished = false;
-    /**
-     * 发射器停止发射新粒子后的经过时间，单位秒
-     */
-    protected float timeSinceFinished = 0.0f;
+
+    protected final List<ParticleBurst> bursts = new ArrayList<>();
+    protected float emitterAge = 0.0f;
+    protected int nextBurstIndex = 0;
 
     /**
-     * 每秒发射的粒子数，对于一次性发射，其值为 0
+     * The number of particles emitted per second. For one-time bursts, this value is 0.<br>
+     * 每秒发射的粒子数，对于一次性发射，其值为 0.0f。
      */
     protected float particlesPerSecond;
 
@@ -32,10 +35,7 @@ public abstract class EmitterBase implements Emitter {
      * 新生粒子基础速度方向（单位向量），实际速度会在此基础上有一定随机偏差
      */
     protected Vector3f baseVelocity;
-    /**
-     * 新生粒子速度偏差角度范围（与baseVelocity的夹角），单位度，范围0到180度
-     */
-    protected float velocitySpread; // 0 to 180 degrees
+
     /**
      * 新生粒子最小生命周期，单位秒
      */
@@ -45,13 +45,74 @@ public abstract class EmitterBase implements Emitter {
      */
     protected float maxLifetime;
 
-    protected EmitterBase(Vector3f emitterPosition, float particlesPerSecond) {
+    // 用于缓存的发射请求对象，避免每帧都创建新对象
+    protected final EmissionRequest request;
+
+    protected EmitterBase(EmitterType emitterType, Vector3f emitterPosition, float particlesPerSecond) {
         this.particlesPerSecond = particlesPerSecond;
         this.emitterPosition = emitterPosition;
         this.baseVelocity = new Vector3f(0.0f, 0.1f, 0.0f);
+
+        this.request = new EmissionRequest(
+                0,
+                emitterType.ID,
+                -1,
+                new Vector4f(),
+                new Vector4f(),
+                new Vector4f(),
+                new Vector4f(),
+                new Vector4f()
+        );
     }
 
     protected void registerProperty(EmitterProperty<?> property) {
         this.properties.add(property);
+    }
+
+    @Override
+    public void update(float deltaTime) {
+        this.particlesToEmitAccumulated += this.particlesPerSecond * deltaTime;
+        this.emitterAge += deltaTime;
+        for (EmitterProperty<?> p : this.properties) {
+            p.updateRequestIfDirty(this.request);
+        }
+    }
+
+    @Override
+    public @Nullable EmissionRequest getEmissionRequest() {
+        int totalParticlesToEmit = 0;
+
+        // 持续生成
+        if (this.particlesToEmitAccumulated >= 1.0f) {
+            int continuousParticles = (int) this.particlesToEmitAccumulated;
+            this.particlesToEmitAccumulated -= continuousParticles;
+            totalParticlesToEmit += continuousParticles;
+        }
+
+        // 单次爆发
+        while (this.nextBurstIndex < bursts.size() && emitterAge >= bursts.get(nextBurstIndex).getTimeInEmitterLife()) {
+            totalParticlesToEmit += bursts.get(nextBurstIndex).getCount();
+            ++this.nextBurstIndex;
+        }
+
+        if (totalParticlesToEmit > 0) {
+            this.request.setCount(totalParticlesToEmit);
+            return this.request;
+        }
+
+        return null;
+    }
+
+    public void addBurst(ParticleBurst burst) {
+        this.bursts.add(burst);
+        this.bursts.sort((b1, b2) -> Float.compare(b1.getTimeInEmitterLife(), b2.getTimeInEmitterLife()));
+    }
+
+    /**
+     * 清除所有脉冲发射事件。
+     */
+    public void clearBursts() {
+        this.bursts.clear();
+        this.nextBurstIndex = 0;
     }
 }

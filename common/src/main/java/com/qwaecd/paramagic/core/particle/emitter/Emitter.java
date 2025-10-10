@@ -1,6 +1,7 @@
 package com.qwaecd.paramagic.core.particle.emitter;
 
 import com.qwaecd.paramagic.core.particle.data.EmissionRequest;
+import com.qwaecd.paramagic.core.particle.emitter.prop.EmitterType;
 
 import javax.annotation.Nullable;
 

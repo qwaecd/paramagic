@@ -2,6 +2,9 @@ package com.qwaecd.paramagic.core.particle.emitter.impl;
 
 import com.qwaecd.paramagic.core.particle.data.EmissionRequest;
 import com.qwaecd.paramagic.core.particle.emitter.*;
+import com.qwaecd.paramagic.core.particle.emitter.prop.EmitterFlags;
+import com.qwaecd.paramagic.core.particle.emitter.prop.EmitterProperty;
+import com.qwaecd.paramagic.core.particle.emitter.prop.EmitterType;
 import com.qwaecd.paramagic.tools.BitmaskUtils;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
@@ -61,10 +64,6 @@ import javax.annotation.Nullable;
  * </table>
  */
 public class SphereEmitter extends EmitterBase implements Emitter {
-    private float particlesToEmitAccumulated = 0.0f;
-
-    // 缓存 EmissionRequest
-    private final EmissionRequest request;
 
     public final EmitterProperty<Vector3f> positionProp;
     public final EmitterProperty<Float>    sphereRadiusProp; // param1.w
@@ -79,21 +78,21 @@ public class SphereEmitter extends EmitterBase implements Emitter {
     public final EmitterProperty<VelocityModeStates> velocityModeProp;
 
     public SphereEmitter(Vector3f emitterPosition, float particlesPerSecond) {
-        super(emitterPosition, particlesPerSecond);
+        super(EmitterType.SPHERE, emitterPosition, particlesPerSecond);
 
         this.minLifetime = 1.0f;
         this.maxLifetime = 5.0f;
 
-        this.request = new EmissionRequest(
-                0,
-                EmitterType.SPHERE.ID,
-                -1,
-                new Vector4f(), // param1: 发射源位置 (xyz), 球半径(w)
-                new Vector4f(), // param2: 基础速度 (xyz)
-                new Vector4f(), // param3: 颜色 (rgba)
-                new Vector4f(), // param4: 粒子生命周期(min, max), 尺寸(min, max)
-                new Vector4f()  // param5: 发射角度(x), bloom_intensity (y), 发射标识(z)
-        );
+//        this.request = new EmissionRequest(
+//                0,
+//                EmitterType.SPHERE.ID,
+//                -1,
+//                new Vector4f(), // param1: 发射源位置 (xyz), 球半径(w)
+//                new Vector4f(), // param2: 基础速度 (xyz)
+//                new Vector4f(), // param3: 颜色 (rgba)
+//                new Vector4f(), // param4: 粒子生命周期(min, max), 尺寸(min, max)
+//                new Vector4f()  // param5: 发射角度(x), bloom_intensity (y), 发射标识(z)
+//        );
 
         this.positionProp = new EmitterProperty<>(this.emitterPosition,
                 (req, v) -> req.getParam1().set(v.x, v.y, v.z));
@@ -149,25 +148,6 @@ public class SphereEmitter extends EmitterBase implements Emitter {
         registerProperty(this.bloomIntensityProp);
         registerProperty(this.emitFromVolumeProp);
         registerProperty(this.velocityModeProp);
-    }
-
-    @Override
-    public void update(float deltaTime) {
-        this.particlesToEmitAccumulated += this.particlesPerSecond * deltaTime;
-        for (EmitterProperty<?> p : this.properties) {
-            p.updateRequestIfDirty(this.request);
-        }
-    }
-
-    @Override
-    public @Nullable EmissionRequest getEmissionRequest() {
-        if (this.particlesToEmitAccumulated >= 1.0f) {
-            int particlesToEmit = (int) this.particlesToEmitAccumulated;
-            this.particlesToEmitAccumulated -= particlesToEmit;
-            this.request.setCount(particlesToEmit);
-            return this.request;
-        }
-        return null;
     }
 
     @Override

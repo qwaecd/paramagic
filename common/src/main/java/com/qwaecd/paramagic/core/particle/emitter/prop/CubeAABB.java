@@ -1,4 +1,4 @@
-package com.qwaecd.paramagic.core.particle.emitter;
+package com.qwaecd.paramagic.core.particle.emitter.prop;
 
 import org.joml.Vector3f;
 import org.joml.Vector3fc;
@@ -34,6 +34,12 @@ public class CubeAABB {
         return this.max;
     }
 
+    /**
+     * Calculates the center of the AABB and stores it in the destination vector.
+     * @param dest The vector to store the result in.
+     * @return The destination vector for chaining.
+     */
+    @SuppressWarnings("UnusedReturnValue")
     public Vector3f getCenter(Vector3f dest) {
         return dest.set(this.min).add(this.max).mul(0.5f);
     }

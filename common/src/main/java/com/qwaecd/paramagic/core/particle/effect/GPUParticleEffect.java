@@ -3,6 +3,7 @@ package com.qwaecd.paramagic.core.particle.effect;
 import com.qwaecd.paramagic.core.particle.data.EffectPhysicsParameter;
 import com.qwaecd.paramagic.core.particle.data.EmissionRequest;
 import com.qwaecd.paramagic.core.particle.emitter.Emitter;
+import com.qwaecd.paramagic.core.particle.emitter.prop.ParticleBurst;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -83,7 +84,7 @@ public class GPUParticleEffect {
                 && (this.maxLifeTime <= 0.0f || this.currentLifeTime < this.maxLifeTime);
     }
 
-    void setEffectId(int effectId) {
+    final void setEffectId(int effectId) {
         if (this.effectId != -1) {
             throw new IllegalStateException("Effect ID has already been assigned.");
         }
