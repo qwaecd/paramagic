@@ -1,6 +1,5 @@
 package com.qwaecd.paramagic.core.particle.emitter.impl;
 
-import com.qwaecd.paramagic.core.particle.data.EmissionRequest;
 import com.qwaecd.paramagic.core.particle.emitter.Emitter;
 import com.qwaecd.paramagic.core.particle.emitter.EmitterBase;
 import com.qwaecd.paramagic.core.particle.emitter.prop.EmitterProperty;
@@ -8,8 +7,6 @@ import com.qwaecd.paramagic.core.particle.emitter.prop.EmitterType;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
-
-import javax.annotation.Nullable;
 
 /**
  * <table border="1" style="width:100%; border-collapse: collapse;">
