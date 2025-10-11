@@ -13,12 +13,7 @@ import com.qwaecd.paramagic.core.particle.emitter.prop.ParticleBurst;
 import com.qwaecd.paramagic.core.render.ModRenderSystem;
 import com.qwaecd.paramagic.core.render.api.IRenderable;
 import com.qwaecd.paramagic.core.render.shader.ShaderManager;
-import com.qwaecd.paramagic.core.render.texture.AbstractMaterial;
 import com.qwaecd.paramagic.core.render.texture.Material;
-import com.qwaecd.paramagic.core.render.vertex.Mesh;
-import com.qwaecd.paramagic.core.render.vertex.MeshBuilder;
-import com.qwaecd.paramagic.core.render.vertex.VertexAttribute;
-import com.qwaecd.paramagic.core.render.vertex.VertexLayout;
 import com.qwaecd.paramagic.data.animation.AnimationBindingData;
 import com.qwaecd.paramagic.data.animation.AnimatorData;
 import com.qwaecd.paramagic.data.animation.BindingData;
@@ -33,12 +28,8 @@ import lombok.experimental.UtilityClass;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
-import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
-
-import static org.lwjgl.opengl.GL11C.*;
-import static org.lwjgl.opengl.GL15C.GL_STATIC_DRAW;
 
 @UtilityClass
 public class DebugTools {
@@ -299,68 +290,5 @@ public class DebugTools {
 
         ParaData paraData = new ParaData(rootPara);
         return paraData;
-    }
-
-    // 使用顶点数组构建一个立方体，包含六个面，每个面由两个三角形组成
-    private TestObj addTestObj() {
-        MeshBuilder meshBuilder = new MeshBuilder();
-        Mesh mesh = new Mesh(GL_TRIANGLES);
-
-        VertexLayout layout = new VertexLayout();
-        layout.addAttribute(new VertexAttribute(0, 3, GL_FLOAT, false));
-        layout.addAttribute(new VertexAttribute(1, 4, GL_UNSIGNED_BYTE, true));
-
-        ByteBuffer data = meshBuilder
-                // Front face
-                .pos(-1.0f, -1.0f,  1.0f).color(0.0f, 1.0f, 1.0f, 1.0f).endVertex() // Cyan
-                .pos( 1.0f, -1.0f,  1.0f).color(1.0f, 0.0f, 1.0f, 1.0f).endVertex() // Magenta
-                .pos( 1.0f,  1.0f,  1.0f).color(1.0f, 1.0f, 1.0f, 1.0f).endVertex() // White
-                .pos( 1.0f,  1.0f,  1.0f).color(1.0f, 1.0f, 1.0f, 1.0f).endVertex() // White
-                .pos(-1.0f,  1.0f,  1.0f).color(1.0f, 0.5f, 0.0f, 1.0f).endVertex() // Orange
-                .pos(-1.0f, -1.0f,  1.0f).color(0.0f, 1.0f, 1.0f, 1.0f).endVertex() // Cyan
-                // Back face
-                .pos(-1.0f, -1.0f, -1.0f).color(1.0f, 0.0f, 0.0f, 1.0f).endVertex() // Red
-                .pos( 1.0f, -1.0f, -1.0f).color(0.0f, 1.0f, 0.0f, 1.0f).endVertex() // Green
-                .pos( 1.0f,  1.0f, -1.0f).color(0.0f, 0.0f, 1.0f, 1.0f).endVertex() // Blue
-                .pos( 1.0f,  1.0f, -1.0f).color(0.0f, 0.0f, 1.0f, 1.0f).endVertex() // Blue
-                .pos(-1.0f,  1.0f, -1.0f).color(1.0f, 1.0f, 0.0f, 1.0f).endVertex() // Yellow
-                .pos(-1.0f, -1.0f, -1.0f).color(1.0f, 0.0f, 0.0f, 1.0f).endVertex() // Red
-                // Top face
-                .pos(-1.0f,  1.0f, -1.0f).color(1.0f, 1.0f, 0.0f, 1.0f).endVertex() // Yellow
-                .pos(-1.0f,  1.0f,  1.0f).color(1.0f, 0.5f, 0.0f, 1.0f).endVertex() // Orange
-                .pos( 1.0f,  1.0f,  1.0f).color(1.0f, 1.0f, 1.0f, 1.0f).endVertex() // White
-                .pos( 1.0f,  1.0f,  1.0f).color(1.0f, 1.0f, 1.0f, 1.0f).endVertex() // White
-                .pos( 1.0f,  1.0f, -1.0f).color(0.0f, 0.0f, 1.0f, 1.0f).endVertex() // Blue
-                .pos(-1.0f,  1.0f, -1.0f).color(1.0f, 1.0f, 0.0f, 1.0f).endVertex() // Yellow
-                // Bottom face
-                .pos(-1.0f, -1.0f, -1.0f).color(1.0f, 0.0f, 0.0f, 1.0f).endVertex() // Red
-                .pos( 1.0f, -1.0f, -1.0f).color(0.0f, 1.0f, 0.0f, 1.0f).endVertex() // Green
-                .pos( 1.0f, -1.0f,  1.0f).color(1.0f, 0.0f, 1.0f, 1.0f).endVertex() // Magenta
-                .pos( 1.0f, -1.0f,  1.0f).color(1.0f, 0.0f, 1.0f, 1.0f).endVertex() // Magenta
-                .pos(-1.0f, -1.0f,  1.0f).color(0.0f, 1.0f, 1.0f, 1.0f).endVertex() // Cyan
-                .pos(-1.0f, -1.0f, -1.0f).color(1.0f, 0.0f, 0.0f, 1.0f).endVertex() // Red
-                // Right face
-                .pos( 1.0f, -1.0f, -1.0f).color(0.0f, 1.0f, 0.0f, 1.0f).endVertex() // Green
-                .pos( 1.0f,  1.0f, -1.0f).color(0.0f, 0.0f, 1.0f, 1.0f).endVertex() // Blue
-                .pos( 1.0f,  1.0f,  1.0f).color(1.0f, 1.0f, 1.0f, 1.0f).endVertex() // White
-                .pos( 1.0f,  1.0f,  1.0f).color(1.0f, 1.0f, 1.0f, 1.0f).endVertex() // White
-                .pos( 1.0f, -1.0f,  1.0f).color(1.0f, 0.0f, 1.0f, 1.0f).endVertex() // Magenta
-                .pos( 1.0f, -1.0f, -1.0f).color(0.0f, 1.0f, 0.0f, 1.0f).endVertex() // Green
-                // Left face
-                .pos(-1.0f, -1.0f, -1.0f).color(1.0f, 0.0f, 0.0f, 1.0f).endVertex() // Red
-                .pos(-1.0f, -1.0f,  1.0f).color(0.0f, 1.0f, 1.0f, 1.0f).endVertex() // Cyan
-                .pos(-1.0f,  1.0f,  1.0f).color(1.0f, 0.5f, 0.0f, 1.0f).endVertex() // Orange
-                .pos(-1.0f,  1.0f,  1.0f).color(1.0f, 0.5f, 0.0f, 1.0f).endVertex() // Orange
-                .pos(-1.0f,  1.0f, -1.0f).color(1.0f, 1.0f, 0.0f, 1.0f).endVertex() // Yellow
-                .pos(-1.0f, -1.0f, -1.0f).color(1.0f, 0.0f, 0.0f, 1.0f).endVertex() // Red
-                .buildBuffer(layout);
-        mesh.uploadAndConfigure(data, layout, GL_STATIC_DRAW);
-
-        AbstractMaterial material = new Material(ShaderManager.getInstance().getPositionColorShader());
-
-        TestObj testObj = new TestObj(mesh, material);
-        testObj.getTransform()
-                .setPosition(0, 0, 0);
-        return testObj;
     }
 }
