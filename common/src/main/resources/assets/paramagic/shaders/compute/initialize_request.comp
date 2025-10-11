@@ -189,10 +189,32 @@ void pointEmitter(uint particleIndex, EmissionRequest req, uint unique_ID) {
 }
 
 void lineEmitter(uint particleIndex, EmissionRequest req, uint unique_ID) {
-    vec3 direction = req.param2.xyz - req.param1.xyz;
+    uint emitterFlags = floatBitsToUint(req.param1.w);
+    uint velocityMode = emitterFlags & EMITTER_MASK_VELOCITY_MODE;
+
+    vec3 initial_velocity;
+    switch(velocityMode) {
+        case EMITTER_FLAGS_VELOCITY_MODE_RANDOM: {
+            // Random mode
+            vec3 randomVec3 = vec3(random(2.6 + float(unique_ID)), random(2.7 + float(unique_ID)), random(2.8 + float(unique_ID))) * 2.0 - 1.0;
+            initial_velocity = normalize(randomVec3) * length(req.param5.xyz);
+            break;
+        }
+        case EMITTER_FLAGS_VELOCITY_MODE_DIRECT:
+        case EMITTER_FLAGS_VELOCITY_MODE_CONE:
+        case EMITTER_FLAGS_VELOCITY_MODE_RADIAL_FROM_CENTER:
+        default: {
+            // Radial from center
+            initial_velocity = req.param5.xyz;
+            break;
+        }
+    }
+
+    vec3 direction = req.param1.xyz + (req.param2.xyz - req.param1.xyz) * random(2.0 + float(unique_ID));
+
     particles[particleIndex].meta = vec4(float(req.effectId), 0.0, 0.0, 0.0);
-    particles[particleIndex].position = vec4(req.param1.xyz + direction * random(2.0 + float(unique_ID)), req.param1.w);
-    particles[particleIndex].velocity = req.param5;
+    particles[particleIndex].position = vec4(direction, req.param1.w);
+    particles[particleIndex].velocity = vec4(initial_velocity, req.param5.w);
     particles[particleIndex].attributes = vec4(0.0, randomFloatInRange(req.param4.x, req.param4.y, 2.1 + float(unique_ID)), 0.0, 0.0);
     particles[particleIndex].renderAttribs = vec4(randomFloatInRange(req.param4.z, req.param4.w, 2.2 + float(unique_ID)), 0.0, 0.0, req.param5.w);
     particles[particleIndex].color = req.param3;

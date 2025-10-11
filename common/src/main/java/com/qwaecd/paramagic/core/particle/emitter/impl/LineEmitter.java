@@ -4,6 +4,7 @@ import com.qwaecd.paramagic.core.particle.emitter.Emitter;
 import com.qwaecd.paramagic.core.particle.emitter.EmitterBase;
 import com.qwaecd.paramagic.core.particle.emitter.prop.EmitterProperty;
 import com.qwaecd.paramagic.core.particle.emitter.prop.EmitterType;
+import com.qwaecd.paramagic.tools.BitmaskUtils;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
@@ -27,7 +28,7 @@ import org.joml.Vector4f;
  *       <td style="padding: 5px;">startPosition.x</td>
  *       <td style="padding: 5px;">startPosition.y</td>
  *       <td style="padding: 5px;">startPosition.z</td>
- *       <td style="padding: 5px;">-</td>
+ *       <td style="padding: 5px;">flags (velocityModeProp)</td>
  *     </tr>
  *     <tr>
  *       <td style="padding: 5px;"><b>param2</b> (线终点)</td>
@@ -69,6 +70,8 @@ public class LineEmitter extends EmitterBase implements Emitter {
     public final EmitterProperty<Vector2f> sizeRangeProp;     // min, max
     public final EmitterProperty<Vector3f> baseVelocityProp;
     public final EmitterProperty<Float>    bloomIntensityProp;
+    public final EmitterProperty<VelocityModeStates> velocityModeProp;
+
 
     public LineEmitter(Vector3f emitterPosition, float particlesPerSecond) {
         super(EmitterType.LINE, emitterPosition, particlesPerSecond);
@@ -110,6 +113,16 @@ public class LineEmitter extends EmitterBase implements Emitter {
         this.bloomIntensityProp = new EmitterProperty<>(0.0f,
                 (req, v) -> req.getParam5().w = v
         );
+        this.velocityModeProp = new EmitterProperty<>(VelocityModeStates.DIRECT,
+                (req, v) -> {
+                    final int offset = 1;
+                    Vector4f param1 = req.getParam1();
+                    int currentFlags = Float.floatToIntBits(param1.w);
+                    param1.w = Float.intBitsToFloat(
+                            BitmaskUtils.setFlag(currentFlags, v.bit << offset)
+                    );
+                }
+        );
 
         registerProperty(this.startPositionProp);
         registerProperty(this.endPositionProp);
@@ -118,6 +131,7 @@ public class LineEmitter extends EmitterBase implements Emitter {
         registerProperty(this.lifetimeRangeProp);
         registerProperty(this.sizeRangeProp);
         registerProperty(this.bloomIntensityProp);
+        registerProperty(this.velocityModeProp);
     }
 
     @Override

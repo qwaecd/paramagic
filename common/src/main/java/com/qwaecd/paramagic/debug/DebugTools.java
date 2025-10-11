@@ -81,14 +81,16 @@ public class DebugTools {
         // Line Emitter
         LineEmitter lineEmitter = new LineEmitter(
                 new Vector3f(0.0f, 130.0f, 0.0f),
-                10.0f
+                0.0f
         );
         lineEmitter.startPositionProp.modify(v -> v.set(-10.0f, 130.0f, 1.0f));
         lineEmitter.endPositionProp.modify(v -> v.set(10.0f, 130.0f, 1.0f));
-        lineEmitter.baseVelocityProp.modify(v -> v.set(0.0f, 10.0f, 0.0f));
-        lineEmitter.lifetimeRangeProp.modify(v -> v.set(5.0f, 10.0f));
+        lineEmitter.baseVelocityProp.modify(v -> v.set(0.0f, 0.05f, 0.0f));
+        lineEmitter.lifetimeRangeProp.modify(v -> v.set(0.1f, 1.3f));
         lineEmitter.colorProp.modify(v -> v.set(0.4f, 0.5f, 1.0f, 1.0f));
         lineEmitter.bloomIntensityProp.set(0.5f);
+        lineEmitter.velocityModeProp.set(VelocityModeStates.RANDOM);
+        lineEmitter.addBurst(new ParticleBurst(0.1f, 3000));
 
         // Sphere Emitter
         SphereEmitter sphereEmitter = new SphereEmitter(
@@ -105,7 +107,7 @@ public class DebugTools {
         sphereEmitter.velocityModeProp.set(VelocityModeStates.RADIAL_FROM_CENTER);
         int numBursts = 1;
         for (int i = 0; i < numBursts; i ++) {
-            sphereEmitter.addBurst(new ParticleBurst(0.05f * i + 0.1f, 10000));
+//            sphereEmitter.addBurst(new ParticleBurst(0.05f * i + 0.1f, 10000));
         }
 
 
@@ -127,9 +129,9 @@ public class DebugTools {
 
         // effect
         GPUParticleEffect effect = new GPUParticleEffect(
-                List.of(cubeEmitter, sphereEmitter),
+                List.of(cubeEmitter, sphereEmitter, lineEmitter),
                 100_0000,
-                -1.0f,
+                3.0f,
                 physicsParamBuilder.build()
         );
         if (ParticleManager.getInstance().spawnEffect(effect)) {
