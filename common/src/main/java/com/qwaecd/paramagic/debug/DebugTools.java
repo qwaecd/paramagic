@@ -31,6 +31,8 @@ import org.joml.Vector3f;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.qwaecd.paramagic.core.particle.emitter.prop.AllEmitterProperties.*;
+
 @UtilityClass
 public class DebugTools {
     private static final List<GPUParticleEffect> testEffects = new ArrayList<>();
@@ -67,20 +69,20 @@ public class DebugTools {
                 10.0f
         );
 
-        pointEmitter.bloomIntensityProp.set(1.8f);
+        pointEmitter.getProperty(BLOOM_INTENSITY).set(1.8f);
 
         // Line Emitter
         LineEmitter lineEmitter = new LineEmitter(
                 new Vector3f(0.0f, 130.0f, 0.0f),
                 0.0f
         );
-        lineEmitter.startPositionProp.modify(v -> v.set(-10.0f, 130.0f, 1.0f));
-        lineEmitter.endPositionProp.modify(v -> v.set(10.0f, 130.0f, 1.0f));
-        lineEmitter.baseVelocityProp.modify(v -> v.set(0.0f, 0.05f, 0.0f));
-        lineEmitter.lifetimeRangeProp.modify(v -> v.set(0.1f, 1.3f));
-        lineEmitter.colorProp.modify(v -> v.set(0.4f, 0.5f, 1.0f, 1.0f));
-        lineEmitter.bloomIntensityProp.set(0.5f);
-        lineEmitter.velocityModeProp.set(VelocityModeStates.RANDOM);
+        lineEmitter.getProperty(POSITION).modify(v -> v.set(-10.0f, 130.0f, 1.0f));
+        lineEmitter.getProperty(END_POSITION).modify(v -> v.set(10.0f, 130.0f, 1.0f));
+        lineEmitter.getProperty(BASE_VELOCITY).modify(v -> v.set(0.0f, 0.05f, 0.0f));
+        lineEmitter.getProperty(LIFE_TIME_RANGE).modify(v -> v.set(0.1f, 1.3f));
+        lineEmitter.getProperty(COLOR).modify(v -> v.set(0.4f, 0.5f, 1.0f, 1.0f));
+        lineEmitter.getProperty(BLOOM_INTENSITY).set(0.5f);
+        lineEmitter.getProperty(VELOCITY_MODE).set(VelocityModeStates.RANDOM);
         lineEmitter.addBurst(new ParticleBurst(0.1f, 3000));
 
         // Sphere Emitter
@@ -88,14 +90,14 @@ public class DebugTools {
                 new Vector3f(20.0f, 120.0f, 0.0f),
                 0.0f
         );
-        sphereEmitter.sphereRadiusProp.set(1.0f);
-        sphereEmitter.baseVelocityProp.modify(v -> v.set(0.0f, 9.3f, 0.0f));
-        sphereEmitter.lifetimeRangeProp.modify(v -> v.set(1.0f, 10.0f));
-        sphereEmitter.colorProp.modify(v -> v.set(1.0f, 0.0f, 0.0f, 1.0f));
-        sphereEmitter.bloomIntensityProp.set(1.0f);
-        sphereEmitter.emitFromVolumeProp.set(true);
-        sphereEmitter.velocitySpreadProp.set(1.0f);
-        sphereEmitter.velocityModeProp.set(VelocityModeStates.RADIAL_FROM_CENTER);
+        sphereEmitter.getProperty(SPHERE_RADIUS).set(1.0f);
+        sphereEmitter.getProperty(BASE_VELOCITY).modify(v -> v.set(0.0f, 9.3f, 0.0f));
+        sphereEmitter.getProperty(LIFE_TIME_RANGE).modify(v -> v.set(1.0f, 10.0f));
+        sphereEmitter.getProperty(COLOR).modify(v -> v.set(1.0f, 0.0f, 0.0f, 1.0f));
+        sphereEmitter.getProperty(BLOOM_INTENSITY).set(1.0f);
+        sphereEmitter.getProperty(EMIT_FROM_VOLUME).set(true);
+        sphereEmitter.getProperty(VELOCITY_SPREAD).set(1.0f);
+        sphereEmitter.getProperty(VELOCITY_MODE).set(VelocityModeStates.RADIAL_FROM_CENTER);
         int numBursts = 1;
         for (int i = 0; i < numBursts; i ++) {
 //            sphereEmitter.addBurst(new ParticleBurst(0.05f * i + 0.1f, 10000));
@@ -107,16 +109,16 @@ public class DebugTools {
                 new Vector3f(0.0f),
                 1.0f
         );
-        cubeEmitter.cubeAABBProp.modify(v -> v.setAABB(
+        cubeEmitter.getProperty(CUBE_AABB).modify(v -> v.setAABB(
                 20.0f, 120.0f, 3.0f,
                 20.0f + 0.5f, 120.0f + 0.5f, 3.0f + 0.5f
         ));
-        cubeEmitter.baseVelocityProp.modify(v -> v.set(0.0f, -0.3f, 1.91f));
-        cubeEmitter.lifetimeRangeProp.modify(v -> v.set(5.0f, 7.0f).add(40.0f, 40.0f));
-        cubeEmitter.colorProp.modify(v -> v.set(0.2f, 1.0f, 0.5f, 1.0f));
-        cubeEmitter.bloomIntensityProp.set(1.8f);
-        cubeEmitter.emitFromVolumeProp.set(true);
-        cubeEmitter.velocityModeProp.set(VelocityModeStates.DIRECT);
+        cubeEmitter.getProperty(BASE_VELOCITY).modify(v -> v.set(0.0f, -0.3f, 1.91f));
+        cubeEmitter.getProperty(LIFE_TIME_RANGE).modify(v -> v.set(5.0f, 7.0f).add(40.0f, 40.0f));
+        cubeEmitter.getProperty(COLOR).modify(v -> v.set(0.2f, 1.0f, 0.5f, 1.0f));
+        cubeEmitter.getProperty(BLOOM_INTENSITY).set(1.8f);
+        cubeEmitter.getProperty(EMIT_FROM_VOLUME).set(true);
+        cubeEmitter.getProperty(VELOCITY_MODE).set(VelocityModeStates.DIRECT);
 
         // effect
         GPUParticleEffect effect = new GPUParticleEffect(

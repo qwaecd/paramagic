@@ -9,6 +9,8 @@ import org.joml.Vector2f;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
 
+import static com.qwaecd.paramagic.core.particle.emitter.prop.AllEmitterProperties.*;
+
 
 /**
  * <table border="1" style="width:100%; border-collapse: collapse;">
@@ -63,16 +65,6 @@ import org.joml.Vector4f;
  */
 public class LineEmitter extends EmitterBase implements Emitter {
 
-    public final EmitterProperty<Vector3f> startPositionProp;
-    public final EmitterProperty<Vector3f> endPositionProp;
-    public final EmitterProperty<Vector4f> colorProp;
-    public final EmitterProperty<Vector2f> lifetimeRangeProp; // min, max
-    public final EmitterProperty<Vector2f> sizeRangeProp;     // min, max
-    public final EmitterProperty<Vector3f> baseVelocityProp;
-    public final EmitterProperty<Float>    bloomIntensityProp;
-    public final EmitterProperty<VelocityModeStates> velocityModeProp;
-
-
     public LineEmitter(Vector3f emitterPosition, float particlesPerSecond) {
         super(EmitterType.LINE, emitterPosition, particlesPerSecond);
 
@@ -90,30 +82,33 @@ public class LineEmitter extends EmitterBase implements Emitter {
 //                new Vector4f()  // param5: 基础速度(xyz), bloom_intensity (w)
 //        );
 
-        this.startPositionProp = new EmitterProperty<>(this.emitterPosition,
+
+        // start position
+        registerProperty(POSITION, new EmitterProperty<>(this.emitterPosition,
                 (req, v) -> req.getParam1().set(v.x, v.y, v.z)
-        );
-        this.endPositionProp = new EmitterProperty<>(new Vector3f(1.0f),
+                ));
+        // end position
+        registerProperty(END_POSITION, new EmitterProperty<>(new Vector3f(1.0f),
                 (req, v) -> req.getParam2().set(v.x, v.y, v.z)
-        );
-        this.colorProp = new EmitterProperty<>(new Vector4f(0.9f, 0.6f, 0.1f, 1.0f),
-                (req, v) -> req.getParam3().set(v.x, v.y, v.z, v.w));
-        this.lifetimeRangeProp = new EmitterProperty<>(new Vector2f(this.minLifetime, this.maxLifetime),
+                ));
+        registerProperty(BASE_VELOCITY, new EmitterProperty<>(this.baseVelocity,
+                (req, v) -> req.getParam5().set(v.x, v.y, v.z)));
+        registerProperty(COLOR, new EmitterProperty<>(new Vector4f(0.9f, 0.6f, 0.1f, 1.0f),
+                (req, v) -> req.getParam3().set(v.x, v.y, v.z, v.w)));
+        registerProperty(LIFE_TIME_RANGE, new EmitterProperty<>(new Vector2f(this.minLifetime, this.maxLifetime),
                 (req, v) -> {
                     req.getParam4().x = v.x;
                     req.getParam4().y = v.y;
-        });
-        this.sizeRangeProp = new EmitterProperty<>(new Vector2f(0.8f, 1.4f),
+                }));
+        registerProperty(SIZE_RANGE, new EmitterProperty<>(new Vector2f(0.8f, 1.4f),
                 (req, v) -> {
                     req.getParam4().z = v.x;
                     req.getParam4().w = v.y;
-        });
-        this.baseVelocityProp = new EmitterProperty<>(this.baseVelocity,
-                (req, v) -> req.getParam5().set(v.x, v.y, v.z));
-        this.bloomIntensityProp = new EmitterProperty<>(0.0f,
+                }));
+        registerProperty(BLOOM_INTENSITY, new EmitterProperty<>(0.0f,
                 (req, v) -> req.getParam5().w = v
-        );
-        this.velocityModeProp = new EmitterProperty<>(VelocityModeStates.DIRECT,
+                ));
+        registerProperty(VELOCITY_MODE, new EmitterProperty<>(VelocityModeStates.DIRECT,
                 (req, v) -> {
                     final int offset = 1;
                     Vector4f param1 = req.getParam1();
@@ -122,25 +117,18 @@ public class LineEmitter extends EmitterBase implements Emitter {
                             BitmaskUtils.setFlag(currentFlags, v.bit << offset)
                     );
                 }
-        );
-
-        registerProperty(this.startPositionProp);
-        registerProperty(this.endPositionProp);
-        registerProperty(this.baseVelocityProp);
-        registerProperty(this.colorProp);
-        registerProperty(this.lifetimeRangeProp);
-        registerProperty(this.sizeRangeProp);
-        registerProperty(this.bloomIntensityProp);
-        registerProperty(this.velocityModeProp);
+                ));
     }
 
     @Override
     public void moveTo(Vector3f newPos) {
-        this.startPositionProp.modify(v -> v.set(newPos));
-        this.endPositionProp.modify(v -> {
-            float newX = (v.x - this.startPositionProp.get().x) + newPos.x;
-            float newY = (v.y - this.startPositionProp.get().y) + newPos.y;
-            float newZ = (v.z - this.startPositionProp.get().z) + newPos.z;
+        EmitterProperty<Vector3f> startPositionProp = this.getProperty(POSITION);
+        EmitterProperty<Vector3f> endPositionProp = this.getProperty(END_POSITION);
+        startPositionProp.modify(v -> v.set(newPos));
+        endPositionProp.modify(v -> {
+            float newX = (v.x - startPositionProp.get().x) + newPos.x;
+            float newY = (v.y - startPositionProp.get().y) + newPos.y;
+            float newZ = (v.z - startPositionProp.get().z) + newPos.z;
             v.set(newX, newY, newZ);
         });
     }

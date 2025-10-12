@@ -14,6 +14,8 @@ import java.util.List;
 import java.util.Random;
 import java.util.function.Consumer;
 
+import static com.qwaecd.paramagic.core.particle.emitter.prop.AllEmitterProperties.*;
+
 public final class EXPLOSION {
     private final Random random = new Random();
     private final List<GPUParticleEffect> particleEffects = new ArrayList<>();
@@ -40,19 +42,19 @@ public final class EXPLOSION {
                 emitterCenter,
                 1000.0f
         );
-        centerParticleBall.sphereRadiusProp.set(0.4f);
-        centerParticleBall.baseVelocityProp.modify(v -> v.set(0.6f, 0.0f, 0.0f));
-        centerParticleBall.emitFromVolumeProp.set(true);
-        centerParticleBall.lifetimeRangeProp.modify(v -> v.set(0.8f, 3.0f));
-        centerParticleBall.velocityModeProp.set(VelocityModeStates.RANDOM);
-        centerParticleBall.sizeRangeProp.modify(v -> v.set(1.0f, 2.0f));
-        centerParticleBall.colorProp.modify(v -> v.set(
+        centerParticleBall.getProperty(SPHERE_RADIUS).set(0.4f);
+        centerParticleBall.getProperty(BASE_VELOCITY).modify(v -> v.set(0.6f, 0.0f, 0.0f));
+        centerParticleBall.getProperty(EMIT_FROM_VOLUME).set(true);
+        centerParticleBall.getProperty(LIFE_TIME_RANGE).modify(v -> v.set(0.8f, 3.0f));
+        centerParticleBall.getProperty(VELOCITY_MODE).set(VelocityModeStates.RANDOM);
+        centerParticleBall.getProperty(SIZE_RANGE).modify(v -> v.set(1.0f, 2.0f));
+        centerParticleBall.getProperty(COLOR).modify(v -> v.set(
                 0.9f,
                 0.4f,
                 0.5f,
                 1.0f
         ));
-        centerParticleBall.bloomIntensityProp.set(1.4f);
+        centerParticleBall.getProperty(BLOOM_INTENSITY).set(1.4f);
         // 汇聚法力粒子特效
         GPUParticleEffect centerEffect = new GPUParticleEffect(
                 List.of(centerParticleBall),

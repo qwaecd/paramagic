@@ -10,6 +10,8 @@ import org.joml.Vector2f;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
 
+import static com.qwaecd.paramagic.core.particle.emitter.prop.AllEmitterProperties.*;
+
 /**
  * <table border="1" style="width:100%; border-collapse: collapse;">
  *   <caption>SphereEmitter 参数映射</caption>
@@ -63,18 +65,6 @@ import org.joml.Vector4f;
  */
 public class SphereEmitter extends EmitterBase implements Emitter {
 
-    public final EmitterProperty<Vector3f> positionProp;
-    public final EmitterProperty<Float>    sphereRadiusProp; // param1.w
-    public final EmitterProperty<Vector3f> baseVelocityProp;
-    public final EmitterProperty<Vector4f> colorProp;
-    public final EmitterProperty<Vector2f> lifetimeRangeProp; // min, max
-    public final EmitterProperty<Vector2f> sizeRangeProp;     // min, max
-    public final EmitterProperty<Float>    velocitySpreadProp;
-    public final EmitterProperty<Float>    bloomIntensityProp;
-    // 发射标识位，包含 是否表面发射、速度模式等
-    public final EmitterProperty<Boolean>  emitFromVolumeProp;
-    public final EmitterProperty<VelocityModeStates> velocityModeProp;
-
     public SphereEmitter(Vector3f emitterPosition, float particlesPerSecond) {
         super(EmitterType.SPHERE, emitterPosition, particlesPerSecond);
 
@@ -92,30 +82,30 @@ public class SphereEmitter extends EmitterBase implements Emitter {
 //                new Vector4f()  // param5: 发射角度(x), bloom_intensity (y), 发射标识(z)
 //        );
 
-        this.positionProp = new EmitterProperty<>(this.emitterPosition,
-                (req, v) -> req.getParam1().set(v.x, v.y, v.z));
-        this.sphereRadiusProp = new EmitterProperty<>(1.0f,
-                (req, v) -> req.getParam1().w = v);
-        this.baseVelocityProp = new EmitterProperty<>(this.baseVelocity,
-                (req, v) -> req.getParam2().set(v.x, v.y, v.z));
-        this.colorProp = new EmitterProperty<>(new Vector4f(0.9f, 0.6f, 0.1f, 1.0f),
-                (req, v) -> req.getParam3().set(v.x, v.y, v.z, v.w));
-        this.lifetimeRangeProp = new EmitterProperty<>(new Vector2f(this.minLifetime, this.maxLifetime),
+        registerProperty(POSITION, new EmitterProperty<>(this.emitterPosition,
+                (req, v) -> req.getParam1().set(v.x, v.y, v.z)));
+        registerProperty(BASE_VELOCITY, new EmitterProperty<>(this.baseVelocity,
+                (req, v) -> req.getParam2().set(v.x, v.y, v.z)));
+        registerProperty(SPHERE_RADIUS, new EmitterProperty<>(1.0f,
+                (req, v) -> req.getParam1().w = v));
+        registerProperty(COLOR, new EmitterProperty<>(new Vector4f(0.9f, 0.6f, 0.1f, 1.0f),
+                (req, v) -> req.getParam3().set(v.x, v.y, v.z, v.w)));
+        registerProperty(LIFE_TIME_RANGE, new EmitterProperty<>(new Vector2f(this.minLifetime, this.maxLifetime),
                 (req, v) -> {
                     req.getParam4().x = v.x;
                     req.getParam4().y = v.y;
-                });
-        this.sizeRangeProp = new EmitterProperty<>(new Vector2f(0.8f, 1.4f),
+                }));
+        registerProperty(SIZE_RANGE, new EmitterProperty<>(new Vector2f(0.8f, 1.4f),
                 (req, v) -> {
                     req.getParam4().z = v.x;
                     req.getParam4().w = v.y;
-                });
-        this.velocitySpreadProp = new EmitterProperty<>(180.0f,
-                (req, v) -> req.getParam5().x = v);
-        this.bloomIntensityProp = new EmitterProperty<>(0.0f,
+                }));
+        registerProperty(VELOCITY_SPREAD, new EmitterProperty<>(180.0f,
+                (req, v) -> req.getParam5().x = v));
+        registerProperty(BLOOM_INTENSITY, new EmitterProperty<>(0.0f,
                 (req, v) -> req.getParam5().y = v
-        );
-        this.emitFromVolumeProp = new EmitterProperty<>(false,
+        ));
+        registerProperty(EMIT_FROM_VOLUME, new EmitterProperty<>(false,
                 (req, v) -> {
                     final int offset = 0;
                     Vector4f param5 = req.getParam5();
@@ -124,8 +114,8 @@ public class SphereEmitter extends EmitterBase implements Emitter {
                             BitmaskUtils.setFlag(currentFlags, EmitterFlags.EMIT_FROM_VOLUME.get() << offset, v)
                     );
                 }
-        );
-        this.velocityModeProp = new EmitterProperty<>(VelocityModeStates.CONE,
+        ));
+        registerProperty(VELOCITY_MODE, new EmitterProperty<>(VelocityModeStates.CONE,
                 (req, v) -> {
                     final int offset = 1;
                     Vector4f param5 = req.getParam5();
@@ -134,23 +124,13 @@ public class SphereEmitter extends EmitterBase implements Emitter {
                             BitmaskUtils.setFlag(currentFlags, v.bit << offset)
                     );
                 }
-        );
-
-        registerProperty(this.positionProp);
-        registerProperty(this.baseVelocityProp);
-        registerProperty(this.sphereRadiusProp);
-        registerProperty(this.colorProp);
-        registerProperty(this.lifetimeRangeProp);
-        registerProperty(this.sizeRangeProp);
-        registerProperty(this.velocitySpreadProp);
-        registerProperty(this.bloomIntensityProp);
-        registerProperty(this.emitFromVolumeProp);
-        registerProperty(this.velocityModeProp);
+        ));
     }
 
     @Override
     public void moveTo(Vector3f newPos) {
-        this.positionProp.set(newPos);
+        EmitterProperty<Vector3f> positionProp = this.getProperty(POSITION);
+        positionProp.set(newPos);
     }
 
     @Override

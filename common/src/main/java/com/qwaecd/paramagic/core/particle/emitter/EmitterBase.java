@@ -4,17 +4,20 @@ import com.qwaecd.paramagic.core.particle.data.EmissionRequest;
 import com.qwaecd.paramagic.core.particle.emitter.prop.EmitterProperty;
 import com.qwaecd.paramagic.core.particle.emitter.prop.EmitterType;
 import com.qwaecd.paramagic.core.particle.emitter.prop.ParticleBurst;
+import com.qwaecd.paramagic.core.particle.emitter.prop.PropertyKey;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public abstract class EmitterBase implements Emitter {
     protected float particlesToEmitAccumulated = 0.0f;
 
-    protected final List<EmitterProperty<?>> properties = new ArrayList<>();
+    protected final Map<PropertyKey<?>, EmitterProperty<?>> properties = new HashMap<>();
 
     protected final List<ParticleBurst> bursts = new ArrayList<>();
     protected float emitterAge = 0.0f;
@@ -65,15 +68,39 @@ public abstract class EmitterBase implements Emitter {
         );
     }
 
-    protected void registerProperty(EmitterProperty<?> property) {
-        this.properties.add(property);
+    protected <T> void registerProperty(PropertyKey<T> key, EmitterProperty<T> property) {
+        this.properties.put(key, property);
+    }
+
+    @Override
+    public <T> void setProperty(PropertyKey<T> key, T value) {
+        EmitterProperty<T> prop = getProperty(key);
+        if (prop != null) {
+            prop.set(value);
+        } else {
+            throw new IllegalArgumentException("Property " + key.getName() + " not found on this emitter.");
+        }
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public <T> EmitterProperty<T> getProperty(PropertyKey<T> key) {
+        return (EmitterProperty<T>) properties.get(key);
+    }
+
+    @Override
+    public boolean hasProperty(PropertyKey<?> key) {
+        return properties.containsKey(key);
     }
 
     @Override
     public void update(float deltaTime) {
         this.particlesToEmitAccumulated += this.particlesPerSecond * deltaTime;
         this.emitterAge += deltaTime;
-        for (EmitterProperty<?> p : this.properties) {
+        for (EmitterProperty<?> p : this.properties.values()) {
+            if (p == null) {
+                continue;
+            }
             p.updateRequestIfDirty(this.request);
         }
     }

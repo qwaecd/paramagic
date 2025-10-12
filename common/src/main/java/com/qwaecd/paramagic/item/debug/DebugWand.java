@@ -19,6 +19,8 @@ import org.joml.Vector3f;
 import java.util.List;
 import java.util.Random;
 
+import static com.qwaecd.paramagic.core.particle.emitter.prop.AllEmitterProperties.*;
+
 public class DebugWand extends Item {
     private final Random random = new Random();
 
@@ -60,17 +62,17 @@ public class DebugWand extends Item {
                 new Vector3f(0.0f, 130.0f, 0.0f),
                 0.0f
         );
-        lineEmitter.startPositionProp.modify(v -> v.set(emitterPos));
-        lineEmitter.endPositionProp.modify(v -> v.set(
+        lineEmitter.getProperty(POSITION).modify(v -> v.set(emitterPos));
+        lineEmitter.getProperty(END_POSITION).modify(v -> v.set(
                 emitterPos.x + lookAngle.x * emitterDistance,
                 emitterPos.y + lookAngle.y * emitterDistance,
                 emitterPos.z + lookAngle.z * emitterDistance)
         );
-        lineEmitter.baseVelocityProp.modify(v -> v.set(0.0f, 0.25f, 0.0f));
-        lineEmitter.lifetimeRangeProp.modify(v -> v.set(0.1f, 1.3f));
-        lineEmitter.colorProp.modify(v -> v.set(random.nextFloat(), random.nextFloat(), random.nextFloat(), 1.0f));
-        lineEmitter.bloomIntensityProp.set(random.nextFloat());
-        lineEmitter.velocityModeProp.set(VelocityModeStates.RANDOM);
+        lineEmitter.getProperty(BASE_VELOCITY).modify(v -> v.set(0.0f, 0.25f, 0.0f));
+        lineEmitter.getProperty(LIFE_TIME_RANGE).modify(v -> v.set(0.1f, 1.3f));
+        lineEmitter.getProperty(COLOR).modify(v -> v.set(random.nextFloat(), random.nextFloat(), random.nextFloat(), 1.0f));
+        lineEmitter.getProperty(BLOOM_INTENSITY).set(random.nextFloat());
+        lineEmitter.getProperty(VELOCITY_MODE).set(VelocityModeStates.RANDOM);
         lineEmitter.addBurst(new ParticleBurst(0.1f, 3000));
 
         // Sphere Emitter
@@ -78,16 +80,16 @@ public class DebugWand extends Item {
                 new Vector3f(),
                 0.0f
         );
-        sphereEmitter.positionProp.modify(v -> v.set(emitterPos));
-        sphereEmitter.sphereRadiusProp.set(random.nextFloat());
-        sphereEmitter.baseVelocityProp.modify(v -> v.set(0.0f, 9.3f, 0.0f));
-        sphereEmitter.lifetimeRangeProp.modify(v -> v.set(0.1f, 1.4f));
-        sphereEmitter.colorProp.modify(v -> v.set(random.nextFloat(),random.nextFloat(),random.nextFloat(), 1.0f));
-        sphereEmitter.sizeRangeProp.modify(v -> v.set(1.8f, 3.6f));
-        sphereEmitter.bloomIntensityProp.set(random.nextFloat() + 1.0f);
-        sphereEmitter.emitFromVolumeProp.set(true);
-        sphereEmitter.velocitySpreadProp.set(1.0f);
-        sphereEmitter.velocityModeProp.set(VelocityModeStates.RADIAL_FROM_CENTER);
+        sphereEmitter.getProperty(POSITION).modify(v -> v.set(emitterPos));
+        sphereEmitter.getProperty(SPHERE_RADIUS).set(random.nextFloat());
+        sphereEmitter.getProperty(BASE_VELOCITY).modify(v -> v.set(0.0f, 9.3f, 0.0f));
+        sphereEmitter.getProperty(LIFE_TIME_RANGE).modify(v -> v.set(0.1f, 1.4f));
+        sphereEmitter.getProperty(COLOR).modify(v -> v.set(random.nextFloat(),random.nextFloat(),random.nextFloat(), 1.0f));
+        sphereEmitter.getProperty(SIZE_RANGE).modify(v -> v.set(1.8f, 3.6f));
+        sphereEmitter.getProperty(BLOOM_INTENSITY).set(random.nextFloat() + 1.0f);
+        sphereEmitter.getProperty(EMIT_FROM_VOLUME).set(true);
+        sphereEmitter.getProperty(VELOCITY_SPREAD).set(1.0f);
+        sphereEmitter.getProperty(VELOCITY_MODE).set(VelocityModeStates.RADIAL_FROM_CENTER);
         int numBursts = 1;
         for (int i = 0; i < numBursts; i ++) {
             sphereEmitter.addBurst(new ParticleBurst(0.05f * i + 0.1f, 2000));
