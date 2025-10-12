@@ -16,6 +16,11 @@ public class PhysicsParamBuilder {
         return this;
     }
 
+    public PhysicsParamBuilder centerForcePos(Vector3f v) {
+        this.param.setCFPos(v.x, v.y, v.z);
+        return this;
+    }
+
     /**
      * Set center force parameters F(r) = A * pow(r, B)
      */

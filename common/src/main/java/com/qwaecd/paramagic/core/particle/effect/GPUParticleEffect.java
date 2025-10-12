@@ -8,6 +8,7 @@ import lombok.Setter;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 
 
 public class GPUParticleEffect {
@@ -81,6 +82,12 @@ public class GPUParticleEffect {
     public boolean isAlive() {
         return (!EffectFlags.KILL_ALL.in(this.effectFlag))
                 && (this.maxLifeTime <= 0.0f || this.currentLifeTime < this.maxLifeTime);
+    }
+
+    public void forEachEmitter(Consumer<Emitter> action) {
+        for (Emitter e : emitters) {
+            action.accept(e);
+        }
     }
 
     final void setEffectId(int effectId) {

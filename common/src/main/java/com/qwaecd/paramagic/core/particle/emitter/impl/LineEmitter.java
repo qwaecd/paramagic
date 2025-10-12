@@ -135,6 +135,17 @@ public class LineEmitter extends EmitterBase implements Emitter {
     }
 
     @Override
+    public void moveTo(Vector3f newPos) {
+        this.startPositionProp.modify(v -> v.set(newPos));
+        this.endPositionProp.modify(v -> {
+            float newX = (v.x - this.startPositionProp.get().x) + newPos.x;
+            float newY = (v.y - this.startPositionProp.get().y) + newPos.y;
+            float newZ = (v.z - this.startPositionProp.get().z) + newPos.z;
+            v.set(newX, newY, newZ);
+        });
+    }
+
+    @Override
     public EmitterType getType() {
         return EmitterType.LINE;
     }

@@ -152,6 +152,11 @@ public class CubeEmitter extends EmitterBase implements Emitter {
     }
 
     @Override
+    public void moveTo(Vector3f newPos) {
+        this.cubeAABBProp.modify(v -> v.moveCenterTo(newPos));
+    }
+
+    @Override
     public EmitterType getType() {
         return EmitterType.CUBE;
     }

@@ -44,6 +44,14 @@ public class CubeAABB {
         return dest.set(this.min).add(this.max).mul(0.5f);
     }
 
+    public void moveCenterTo(Vector3f newCenter) {
+        float offsetX = newCenter.x - (this.min.x + this.max.x) / 2.0f;
+        float offsetY = newCenter.y - (this.min.y + this.max.y) / 2.0f;
+        float offsetZ = newCenter.z - (this.min.z + this.max.z) / 2.0f;
+        this.min.add(offsetX, offsetY, offsetZ);
+        this.max.add(offsetX, offsetY, offsetZ);
+    }
+
     public void setAABB(Vector3f minV, Vector3f maxV) {
         this.min.set(
                 Math.min(minV.x, maxV.x),

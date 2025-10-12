@@ -118,6 +118,11 @@ public class PointEmitter extends EmitterBase implements Emitter {
     }
 
     @Override
+    public void moveTo(Vector3f newPos) {
+        this.positionProp.set(newPos);
+    }
+
+    @Override
     public EmitterType getType() {
         return EmitterType.POINT;
     }
