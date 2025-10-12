@@ -43,6 +43,12 @@ public final class ParticleMemoryManager implements AutoCloseable {
         this.effectMetaDataMap = new EffectMetaDataMap(maxEffectCount, this.effectMetaDataSSBO);
     }
 
+    public void unbindAllSSBO() {
+        for (int i = 0; i < 8; i++) {
+            glBindBufferBase(GL_SHADER_STORAGE_BUFFER, i, 0);
+        }
+    }
+
     public void reserveStep() {
         glBindBufferBase(GL_SHADER_STORAGE_BUFFER, ShaderBindingPoints.GLOBAL_DATA, this.globalData);
         glBindBufferBase(GL_SHADER_STORAGE_BUFFER, ShaderBindingPoints.EFFECT_META_DATA, this.effectMetaDataSSBO);

@@ -100,9 +100,9 @@ public class ParticleManager {
         Matrix4f projectionMatrix = context.getProjectionMatrix();
         Matrix4f viewMatrix = context.getMatrixStackProvider().getViewMatrix();
         Vector3d cameraPos = context.getCamera().position();
-        // Pass uniforms to particle_render.vsh
         this.memoryManager.renderParticleStep();
         glBindVertexArray(this.emptyVao);
+        // Pass uniforms to particle_render.vsh
         this.renderShader.bind();
         this.renderShader.setUniformMatrix4f("u_projectionMatrix", projectionMatrix);
         this.renderShader.setUniformMatrix4f("u_viewMatrix", viewMatrix);
@@ -111,6 +111,7 @@ public class ParticleManager {
         glDrawArrays(GL_POINTS, 0, MAX_PARTICLES);
         glBindVertexArray(0);
         glUseProgram(0);
+        this.memoryManager.unbindAllSSBO();
     }
 
     public void update(float deltaTime) {
@@ -168,6 +169,7 @@ public class ParticleManager {
 
         glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
         updateShader.unbind();
+        memoryManager.unbindAllSSBO();
     }
 
     private void uploadPhysicsParams(GPUParticleEffect activeEffect, ByteBuffer singleEffectBuffer) {

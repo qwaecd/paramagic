@@ -52,6 +52,7 @@ public class ParticleEmissionProcessor {
         glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT | GL_ATOMIC_COUNTER_BARRIER_BIT);
         reserveRequestShader.unbind();
         glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
+        memoryManager.unbindAllSSBO();
     }
 
     public void initializeParticles(int requestCount, ParticleMemoryManager memoryManager) {
@@ -66,5 +67,6 @@ public class ParticleEmissionProcessor {
         glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 
         initializeRequestShader.unbind();
+        memoryManager.unbindAllSSBO();
     }
 }
