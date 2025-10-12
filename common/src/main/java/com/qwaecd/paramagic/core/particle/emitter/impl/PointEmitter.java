@@ -2,13 +2,13 @@ package com.qwaecd.paramagic.core.particle.emitter.impl;
 
 import com.qwaecd.paramagic.core.particle.emitter.Emitter;
 import com.qwaecd.paramagic.core.particle.emitter.EmitterBase;
-import com.qwaecd.paramagic.core.particle.emitter.prop.EmitterProperty;
-import com.qwaecd.paramagic.core.particle.emitter.prop.EmitterType;
+import com.qwaecd.paramagic.core.particle.emitter.EmitterType;
+import com.qwaecd.paramagic.core.particle.emitter.property.EmitterProperty;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
 
-import static com.qwaecd.paramagic.core.particle.emitter.prop.AllEmitterProperties.*;
+import static com.qwaecd.paramagic.core.particle.emitter.property.key.AllEmitterProperties.*;
 
 /**
  * <table border="1" style="width:100%; border-collapse: collapse;">

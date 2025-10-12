@@ -1,6 +1,7 @@
-package com.qwaecd.paramagic.core.particle.emitter.prop;
+package com.qwaecd.paramagic.core.particle.emitter.property.key;
 
-import com.qwaecd.paramagic.core.particle.emitter.impl.VelocityModeStates;
+import com.qwaecd.paramagic.core.particle.emitter.property.type.CubeAABB;
+import com.qwaecd.paramagic.core.particle.emitter.property.type.VelocityModeStates;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
 import org.joml.Vector4f;

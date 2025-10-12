@@ -1,4 +1,4 @@
-package com.qwaecd.paramagic.core.particle.emitter.prop;
+package com.qwaecd.paramagic.core.particle.emitter.property;
 
 
 import com.qwaecd.paramagic.core.particle.data.EmissionRequest;

@@ -1,4 +1,4 @@
-package com.qwaecd.paramagic.core.particle.emitter.prop;
+package com.qwaecd.paramagic.core.particle.emitter.property.key;
 
 public class PropertyKey<T> {
     private final String name;

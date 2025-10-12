@@ -1,10 +1,9 @@
 package com.qwaecd.paramagic.feature.effect;
 
-import com.qwaecd.paramagic.core.particle.ParticleManager;
 import com.qwaecd.paramagic.core.particle.builder.PhysicsParamBuilder;
 import com.qwaecd.paramagic.core.particle.effect.GPUParticleEffect;
 import com.qwaecd.paramagic.core.particle.emitter.impl.SphereEmitter;
-import com.qwaecd.paramagic.core.particle.emitter.impl.VelocityModeStates;
+import com.qwaecd.paramagic.core.particle.emitter.property.type.VelocityModeStates;
 import com.qwaecd.paramagic.feature.MagicCircle;
 import lombok.Getter;
 import org.joml.Vector3f;
@@ -14,7 +13,7 @@ import java.util.List;
 import java.util.Random;
 import java.util.function.Consumer;
 
-import static com.qwaecd.paramagic.core.particle.emitter.prop.AllEmitterProperties.*;
+import static com.qwaecd.paramagic.core.particle.emitter.property.key.AllEmitterProperties.*;
 
 public final class EXPLOSION {
     private final Random random = new Random();

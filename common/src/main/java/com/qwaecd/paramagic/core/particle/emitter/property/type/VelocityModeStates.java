@@ -1,4 +1,4 @@
-package com.qwaecd.paramagic.core.particle.emitter.impl;
+package com.qwaecd.paramagic.core.particle.emitter.property.type;
 
 @SuppressWarnings("PointlessBitwiseExpression")
 public enum VelocityModeStates {

@@ -1,4 +1,4 @@
-package com.qwaecd.paramagic.core.particle.emitter.prop;
+package com.qwaecd.paramagic.core.particle.emitter;
 
 public enum EmitterType {
     POINT(1, "pointEmitterInitializer"),

@@ -1,4 +1,4 @@
-package com.qwaecd.paramagic.core.particle.emitter.prop;
+package com.qwaecd.paramagic.core.particle.emitter.property.type;
 
 @SuppressWarnings("PointlessBitwiseExpression")
 public enum EmitterFlags {

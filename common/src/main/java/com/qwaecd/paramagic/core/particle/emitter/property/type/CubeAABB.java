@@ -1,4 +1,4 @@
-package com.qwaecd.paramagic.core.particle.emitter.prop;
+package com.qwaecd.paramagic.core.particle.emitter.property.type;
 
 import org.joml.Vector3f;
 import org.joml.Vector3fc;

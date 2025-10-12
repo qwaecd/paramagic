@@ -3,10 +3,10 @@ package com.qwaecd.paramagic.item.debug;
 import com.qwaecd.paramagic.core.particle.ParticleManager;
 import com.qwaecd.paramagic.core.particle.builder.PhysicsParamBuilder;
 import com.qwaecd.paramagic.core.particle.effect.GPUParticleEffect;
+import com.qwaecd.paramagic.core.particle.emitter.ParticleBurst;
 import com.qwaecd.paramagic.core.particle.emitter.impl.LineEmitter;
 import com.qwaecd.paramagic.core.particle.emitter.impl.SphereEmitter;
-import com.qwaecd.paramagic.core.particle.emitter.impl.VelocityModeStates;
-import com.qwaecd.paramagic.core.particle.emitter.prop.ParticleBurst;
+import com.qwaecd.paramagic.core.particle.emitter.property.type.VelocityModeStates;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.player.Player;
@@ -19,7 +19,7 @@ import org.joml.Vector3f;
 import java.util.List;
 import java.util.Random;
 
-import static com.qwaecd.paramagic.core.particle.emitter.prop.AllEmitterProperties.*;
+import static com.qwaecd.paramagic.core.particle.emitter.property.key.AllEmitterProperties.*;
 
 public class DebugWand extends Item {
     private final Random random = new Random();

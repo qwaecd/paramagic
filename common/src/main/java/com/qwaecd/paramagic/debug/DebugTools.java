@@ -8,8 +8,12 @@ import com.qwaecd.paramagic.client.renderbase.factory.SphereFactory;
 import com.qwaecd.paramagic.core.particle.ParticleManager;
 import com.qwaecd.paramagic.core.particle.builder.PhysicsParamBuilder;
 import com.qwaecd.paramagic.core.particle.effect.GPUParticleEffect;
-import com.qwaecd.paramagic.core.particle.emitter.impl.*;
-import com.qwaecd.paramagic.core.particle.emitter.prop.ParticleBurst;
+import com.qwaecd.paramagic.core.particle.emitter.ParticleBurst;
+import com.qwaecd.paramagic.core.particle.emitter.impl.CubeEmitter;
+import com.qwaecd.paramagic.core.particle.emitter.impl.LineEmitter;
+import com.qwaecd.paramagic.core.particle.emitter.impl.PointEmitter;
+import com.qwaecd.paramagic.core.particle.emitter.impl.SphereEmitter;
+import com.qwaecd.paramagic.core.particle.emitter.property.type.VelocityModeStates;
 import com.qwaecd.paramagic.core.render.ModRenderSystem;
 import com.qwaecd.paramagic.core.render.api.IRenderable;
 import com.qwaecd.paramagic.core.render.shader.ShaderManager;
@@ -31,7 +35,7 @@ import org.joml.Vector3f;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.qwaecd.paramagic.core.particle.emitter.prop.AllEmitterProperties.*;
+import static com.qwaecd.paramagic.core.particle.emitter.property.key.AllEmitterProperties.*;
 
 @UtilityClass
 public class DebugTools {

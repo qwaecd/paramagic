@@ -1,9 +1,8 @@
 package com.qwaecd.paramagic.core.particle.emitter;
 
 import com.qwaecd.paramagic.core.particle.data.EmissionRequest;
-import com.qwaecd.paramagic.core.particle.emitter.prop.EmitterProperty;
-import com.qwaecd.paramagic.core.particle.emitter.prop.EmitterType;
-import com.qwaecd.paramagic.core.particle.emitter.prop.PropertyKey;
+import com.qwaecd.paramagic.core.particle.emitter.property.EmitterProperty;
+import com.qwaecd.paramagic.core.particle.emitter.property.key.PropertyKey;
 import org.joml.Vector3f;
 
 import javax.annotation.Nullable;
