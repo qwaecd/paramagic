@@ -32,8 +32,6 @@ public class AllShaders {
     }
 
     private static void computeShaders() {
-        ShaderManager.registerShaderInfo("compute_demo", new ShaderInfo("compute/", "compute_demo", ShaderType.COMPUTE));
-        ShaderManager.registerShaderInfo("compute_render", new ShaderInfo("compute/", "compute_render"));
         ShaderManager.registerShaderInfo("initialize_request", new ShaderInfo("compute/", "initialize_request", ShaderType.COMPUTE));
         ShaderManager.registerShaderInfo("reserve_request", new ShaderInfo("compute/", "reserve_request", ShaderType.COMPUTE));
         ShaderManager.registerShaderInfo("particle_update", new ShaderInfo("compute/", "particle_update", ShaderType.COMPUTE));

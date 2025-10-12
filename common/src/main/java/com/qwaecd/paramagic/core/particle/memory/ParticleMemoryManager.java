@@ -152,7 +152,9 @@ public final class ParticleMemoryManager implements AutoCloseable {
         glBindBuffer(GL_SHADER_STORAGE_BUFFER, this.globalData);
         glBufferData(GL_SHADER_STORAGE_BUFFER, Integer.BYTES * 4, GL_DYNAMIC_DRAW);
         IntBuffer intBuffer = MemoryUtil.memAllocInt(4);
-        intBuffer.put(MAX_PARTICLES - 1);
+        // 不要减一 不要减一 不要减一
+        // 可用粒子栈数量而不是索引
+        intBuffer.put(MAX_PARTICLES);
         intBuffer.put(0);
         intBuffer.put(0);
         intBuffer.put(0);

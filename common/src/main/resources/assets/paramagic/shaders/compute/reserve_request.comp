@@ -65,7 +65,7 @@ uniform int u_requestCount;
 void main() {
     uint invocationID = gl_GlobalInvocationID.x;
 
-    if (invocationID != 0u || u_requestCount <= 0) {
+    if (invocationID != 0u) {
         return;
     }
 
