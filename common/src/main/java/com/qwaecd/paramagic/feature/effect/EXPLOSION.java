@@ -30,7 +30,7 @@ public final class EXPLOSION {
         PhysicsParamBuilder physicsParamBuilder = new PhysicsParamBuilder();
         physicsParamBuilder
                 .centerForceEnabled(true)
-                .centerForceParam(0.4f, -1.0f)
+                .centerForceParam(0.2f, -1.0f)
                 .centerForcePos(emitterCenter)
                 .centerForceMaxRadius(1000.0f)
                 .linearForceEnabled(false)
@@ -41,7 +41,7 @@ public final class EXPLOSION {
                 emitterCenter,
                 1000.0f
         );
-        centerParticleBall.getProperty(SPHERE_RADIUS).set(0.4f);
+        centerParticleBall.getProperty(SPHERE_RADIUS).set(0.5f);
         centerParticleBall.getProperty(BASE_VELOCITY).modify(v -> v.set(0.6f, 0.0f, 0.0f));
         centerParticleBall.getProperty(EMIT_FROM_VOLUME).set(true);
         centerParticleBall.getProperty(LIFE_TIME_RANGE).modify(v -> v.set(0.8f, 3.0f));
@@ -74,7 +74,17 @@ public final class EXPLOSION {
 
     public void updateProps(Vector3f newEmitterCenter) {
         GPUParticleEffect centerBall = this.particleEffects.get(0);
-        centerBall.forEachEmitter(emitter -> emitter.moveTo(newEmitterCenter));
+        centerBall.forEachEmitter(emitter -> {
+            emitter.moveTo(newEmitterCenter);
+            if (emitter.hasProperty(COLOR)) {
+                emitter.getProperty(COLOR).modify(v -> {
+                    float r = random.nextFloat() * 0.8f + 0.2f;
+                    float g = random.nextFloat();
+                    float b = random.nextFloat();
+                    v.set(r, g, b, 1.0f);
+                });
+            }
+        });
         centerBall.getPhysicsParameter().setCFPos(newEmitterCenter);
     }
 

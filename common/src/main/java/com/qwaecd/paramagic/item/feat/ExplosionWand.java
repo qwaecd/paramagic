@@ -49,7 +49,6 @@ public class ExplosionWand extends Item {
     @Override
     public void onUseTick(Level level, LivingEntity livingEntity, ItemStack stack, int remainingUseDuration) {
         if (livingEntity instanceof Player player && level.isClientSide) {
-            System.out.println("Use Tick: " + remainingUseDuration);
             effectTick(level, player, remainingUseDuration);
         }
     }
