@@ -35,7 +35,11 @@ public class ExplosionWand extends Item {
                     (float) eyePosition.y + (float) lookAngle.y * 2.2f,
                     (float) eyePosition.z + (float) lookAngle.z * 2.2f
             );
-            ClientEffectManager.getInstance().addExplosion(player.getUUID(), new EXPLOSION(emitterCenter));
+            ClientEffectManager.getInstance().addExplosion(player.getUUID(),
+                    new EXPLOSION(emitterCenter,
+                            eyePosition.toVector3f(),
+                            lookAngle.toVector3f()
+                    ));
         }
         player.startUsingItem(usedHand);
         return InteractionResultHolder.consume(itemstack);
