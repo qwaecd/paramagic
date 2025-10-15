@@ -10,41 +10,78 @@ import java.nio.ByteBuffer;
 /**
  * <pre>
  * struct EffectPhysicsParams {
- *     // F(r) = A * pow(r, B)
- *     vec4 centerForceParams; // x: A, y: B, z: maxRadius, w: enable (0 or 1)
+ *     // F(r) = A * pow(r, B) + C * pow(r, D) + E * sin(F * r + phase) * pow(r, G);
+ *     vec4 primaryForce; // x: A, y: B, z: maxRadius_for_primary, w: enablePrimary(0/1)
+ *     vec4 secondaryForce; // x: C, y: D, z: maxRadius_for_secondary, w: enableSecondary(0/1)
+ *
+ *     vec4 sinusoidalForce; // sinusoidalForce: x: E, y: F, z: G, w: enableSinus(0/1)
+ *     vec4 sinusoidalExtra; // sinusoidalExtra: x: phase, y,z,w = reserved
+ *
  *     vec4 centerForcePos; // x, y, z: 力场中心位置, w: dragCoefficient (阻力系数), acceleration -= velocity * dragCoefficient;
+ *
  *     vec4 linearForce; // x, y, z: 线性力 (e.g. gravity + wind), w: enable (0 or 1)
- * };</pre>
+ * };
+ * </pre>
  */
 @Getter
 @Setter
 @SuppressWarnings({"unused", "FieldMayBeFinal"})
 public final class EffectPhysicsParameter {
-    private Vector4f centerForceData;
+    private Vector4f primaryForce;
+    private Vector4f secondaryForce;
+
+    private Vector4f sinusoidalForce;
+    private Vector4f sinusoidalExtra;
+
     private Vector4f centerForcePos;
     private Vector4f linearForce;
 
     private boolean modified = true;
 
+
+    /**
+     * <pre>
+     * struct EffectPhysicsParams {
+     *     // F(r) = A * pow(r, B) + C * pow(r, D) + E * sin(F * r + phase) * pow(r, G);
+     *     vec4 primaryForce; // x: A, y: B, z: maxRadius_for_primary, w: enablePrimary(0/1)
+     *     vec4 secondaryForce; // x: C, y: D, z: maxRadius_for_secondary, w: enableSecondary(0/1)
+     *
+     *     vec4 sinusoidalForce; // sinusoidalForce: x: E, y: F, z: G, w: enableSinus(0/1)
+     *     vec4 sinusoidalExtra; // sinusoidalExtra: x: phase, z: maxRadius_for_sinusoidal, y,w = reserved
+     *
+     *     vec4 centerForcePos; // x, y, z: 力场中心位置, w: dragCoefficient (阻力系数), acceleration -= velocity * dragCoefficient;
+     *
+     *     vec4 linearForce; // x, y, z: 线性力 (e.g. gravity + wind), w: enable (0 or 1)
+     * };
+     * </pre>
+     */
     public EffectPhysicsParameter() {
-        this.centerForceData    = new Vector4f(0.0f, 0.0f, 0.0f, 0.0f);
+        this.primaryForce    = new Vector4f(0.0f, 0.0f, 0.0f, 0.0f);
+        this.secondaryForce    = new Vector4f(0.0f, 0.0f, 0.0f, 0.0f);
+
+        this.sinusoidalForce    = new Vector4f(0.0f, 0.0f, 0.0f, 0.0f);
+        this.sinusoidalExtra    = new Vector4f(0.0f, 0.0f, 0.0f, 0.0f);
+
         this.centerForcePos     = new Vector4f(0.0f, 0.0f, 0.0f, 0.01f);
         this.linearForce        = new Vector4f(0.0f, -0.0981f, 0.0f, 0.0f);
     }
 
-    /**
-     * @param centerForceData x: A, y: B, z: maxRadius, w: enable (0 or 1)
-     * @param centerForcePos x, y, z: 力场中心位置, w: dragCoefficient (阻力系数)
-     * @param linearForce x, y, z: 线性力 (e.g. gravity + wind), w: enable (0 or 1)
-     */
     public EffectPhysicsParameter(
-            Vector4f centerForceData,
+            Vector4f primaryForce,
+            Vector4f secondaryForce,
+            Vector4f sinusoidalForce,
+            Vector4f sinusoidalExtra,
             Vector4f centerForcePos,
-            Vector4f linearForce
+            Vector4f linearForce,
+            boolean modified
     ) {
-        this.centerForceData = centerForceData;
+        this.primaryForce = primaryForce;
+        this.secondaryForce = secondaryForce;
+        this.sinusoidalForce = sinusoidalForce;
+        this.sinusoidalExtra = sinusoidalExtra;
         this.centerForcePos = centerForcePos;
         this.linearForce = linearForce;
+        this.modified = modified;
     }
 
     public void setCFPos(float x, float y, float z) {
@@ -58,19 +95,69 @@ public final class EffectPhysicsParameter {
         this.setCFPos(v.x, v.y, v.z);
     }
 
-    public void setCenterForceParam(float A, float B) {
-        this.centerForceData.x = A;
-        this.centerForceData.y = B;
+    /**
+     * {@code F(r) = A * pow(r, B) ... ;}
+     */
+    public void setPrimaryForceParam(float A, float B) {
+        this.primaryForce.x = A;
+        this.primaryForce.y = B;
         this.modified = true;
     }
 
-    public void setCenterForceMaxRadius(float maxRadius) {
-        this.centerForceData.z = maxRadius;
+    /**
+     * {@code F(r) = ... C * pow(r, D) ... ;}
+     */
+    public void setSecondaryForceParam(float C, float D) {
+        this.secondaryForce.x = C;
+        this.secondaryForce.y = D;
         this.modified = true;
     }
 
-    public void setCenterForceEnabled(boolean enabled) {
-        this.centerForceData.w = enabled ? 1.0f : 0.0f;
+    /**
+     * {@code F(r) = ... E * sin(F * r + phase) * pow(r, G);}
+     */
+    public void setSinusoidalForceParam(float E, float F, float G) {
+        this.sinusoidalForce.x = E;
+        this.sinusoidalForce.y = F;
+        this.sinusoidalForce.z = G;
+        this.modified = true;
+    }
+
+    /**
+     * {@code F(r) = ... E * sin(F * r + phase) * pow(r, G);}
+     */
+    public void setSinusoidalExtraParam(float phase) {
+        this.sinusoidalExtra.x = phase;
+        this.modified = true;
+    }
+
+    public void setPrimaryForceMaxRadius(float maxRadius) {
+        this.primaryForce.z = maxRadius;
+        this.modified = true;
+    }
+
+    public void setSecondaryForceMaxRadius(float maxRadius) {
+        this.secondaryForce.z = maxRadius;
+        this.modified = true;
+    }
+
+    public void setSinusoidalForceMaxRadius(float maxRadius) {
+        this.sinusoidalExtra.z = maxRadius;
+        this.modified = true;
+    }
+
+    public void setPrimaryForceEnabled(boolean enabled) {
+        this.primaryForce.w = enabled ? 1.0f : 0.0f;
+        this.modified = true;
+    }
+
+    public void setSecondaryForceEnabled(boolean enabled) {
+        this.secondaryForce.w = enabled ? 1.0f : 0.0f;
+        this.modified = true;
+    }
+
+    public void setSinusoidalForceEnabled(boolean enabled) {
+        this.sinusoidalForce.w = enabled ? 1.0f : 0.0f;
         this.modified = true;
     }
 
@@ -108,21 +195,18 @@ public final class EffectPhysicsParameter {
     }
 
     public void writePhysicsParamsToBuffer(ByteBuffer buffer) {
-        buffer.putFloat(this.centerForceData.x);
-        buffer.putFloat(this.centerForceData.y);
-        buffer.putFloat(this.centerForceData.z);
-        buffer.putFloat(this.centerForceData.w);
-
-        buffer.putFloat(this.centerForcePos.x);
-        buffer.putFloat(this.centerForcePos.y);
-        buffer.putFloat(this.centerForcePos.z);
-        buffer.putFloat(this.centerForcePos.w);
-
-        buffer.putFloat(this.linearForce.x);
-        buffer.putFloat(this.linearForce.y);
-        buffer.putFloat(this.linearForce.z);
-        buffer.putFloat(this.linearForce.w);
+        write(this.primaryForce, buffer);
+        write(this.secondaryForce, buffer);
+        write(this.sinusoidalForce, buffer);
+        write(this.sinusoidalExtra, buffer);
+        write(this.centerForcePos, buffer);
+        write(this.linearForce, buffer);
     }
 
-    public static final int SIZE_IN_BYTES = 3 * Float.BYTES * 4;
+    private void write(Vector4f v, ByteBuffer buffer) {
+        buffer.putFloat(v.x).putFloat(v.y).putFloat(v.z).putFloat(v.w);
+    }
+
+    private static final int structMembers = 6;
+    public static final int SIZE_IN_BYTES = structMembers * Float.BYTES * 4;
 }

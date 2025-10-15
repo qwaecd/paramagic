@@ -214,11 +214,18 @@ public final class ParticleMemoryManager implements AutoCloseable {
     /**
      * <pre>
      * struct EffectPhysicsParams {
-     *     // F(r) = A * pow(r, B)
-     *     vec4 centerForceParams; // x: A, y: B, z: maxRadius, w: enable (0 or 1)
+     *     // F(r) = A * pow(r, B) + C * pow(r, D) + E * sin(F * r + phase) * pow(r, G);
+     *     vec4 primaryForce; // x: A, y: B, z: maxRadius_for_primary, w: enablePrimary(0/1)
+     *     vec4 secondaryForce; // x: C, y: D, z: maxRadius_for_secondary, w: enableSecondary(0/1)
+     *
+     *     vec4 sinusoidalForce; // sinusoidalForce: x: E, y: F, z: G, w: enableSinus(0/1)
+     *     vec4 sinusoidalExtra; // sinusoidalExtra: x: phase, z: maxRadius_for_sinusoidal, y,w = reserved
+     *
      *     vec4 centerForcePos; // x, y, z: 力场中心位置, w: dragCoefficient (阻力系数), acceleration -= velocity * dragCoefficient;
+     *
      *     vec4 linearForce; // x, y, z: 线性力 (e.g. gravity + wind), w: enable (0 or 1)
-     * };</pre>
+     * };
+     * </pre>
      */
     private void initEffectPhysicsParamsBuffer() {
         long bufferSizeBytes = (long) MAX_EFFECT_COUNT * EffectPhysicsParameter.SIZE_IN_BYTES;

@@ -5,7 +5,7 @@
 #define BINDING_EFFECT_META_DATA 3
 #define BINDING_EFFECT_PHYSICS_PARAMS 6
 
-#define CF_EPS 1e-6
+#define CF_EPS 1e-4
 
 #define EFFECT_FLAG_IS_ALIVE (1u << 0)
 #define EFFECT_FLAG_KILL_ALL (1u << 1)
@@ -36,9 +36,17 @@ struct EffectMetaData {
 };
 
 struct EffectPhysicsParams {
-    // F(r) = A * pow(r, B)
-    vec4 centerForceParams; // x: A, y: B, z: maxRadius, w: enable (0 or 1)
+    // F(r) = A * pow(r, B) + C * pow(r, D) + E * sin(F * r + phase) * pow(r, G);
+    vec4 primaryForce; // x: A, y: B, z: maxRadius_for_primary, w: enablePrimary(0/1)
+    vec4 secondaryForce; // x: C, y: D, z: maxRadius_for_secondary, w: enableSecondary(0/1)
+
+    // sinusoidalForce: x: E, y: F, z: G, w: enableSinus(0/1)
+    vec4 sinusoidalForce;
+    // sinusoidalExtra: x: phase, y,z,w = reserved
+    vec4 sinusoidalExtra;
+
     vec4 centerForcePos; // x, y, z: 力场中心位置, w: dragCoefficient (阻力系数), acceleration -= velocity * dragCoefficient;
+
     vec4 linearForce; // x, y, z: 线性力 (e.g. gravity + wind), w: enable (0 or 1)
 };
 
@@ -64,23 +72,47 @@ uniform int u_maxEffectCount;
 
 void applyForce(uint idx) {
     uint effectId = uint(particles[idx].meta.x);
-    if (effectId < 0 || effectId >= uint(u_maxEffectCount)) {
+    if (effectId >= uint(u_maxEffectCount)) {
         return;
     }
     // apply center force
+    // F(r) = A * pow(r, B) + C * pow(r, D) + E * sin(F * r + phase) * pow(r, G);
+    EffectPhysicsParams p = physicsParams[effectId];
     vec3 pos = particles[idx].position.xyz;
-    vec3 toCenter = physicsParams[effectId].centerForcePos.xyz - pos;
+    vec3 toCenter = p.centerForcePos.xyz - pos;
     float r = length(toCenter);
-    if (r > CF_EPS && physicsParams[effectId].centerForceParams.w > 0.5 && r < physicsParams[effectId].centerForceParams.z) {
-        vec3 dir = toCenter / r;
-        float fmag = physicsParams[effectId].centerForceParams.x * pow(r, physicsParams[effectId].centerForceParams.y);
+    vec3 dir = toCenter / max(r, CF_EPS);
+
+    float fmag = 0.0;
+    // primary: A * r^B
+    if (p.primaryForce.w > 0.5 && r < p.primaryForce.z) {
+        float A = physicsParams[effectId].primaryForce.x;
+        float B = physicsParams[effectId].primaryForce.y;
         // no mass
-        particles[idx].velocity.xyz += dir * fmag * u_deltaTime;
+        fmag += A * pow(r, B) * u_deltaTime;
     }
+    // secondary: C * r^D
+    if (p.secondaryForce.w > 0.5 && r < p.secondaryForce.z) {
+        float C = p.secondaryForce.x;
+        float D = p.secondaryForce.y;
+        // no mass
+        fmag += C * pow(r, D) * u_deltaTime;
+    }
+    // sinusoidal: E * sin(F * r + phase) * r^G
+    if (p.sinusoidalForce.w > 0.5 && r < p.sinusoidalExtra.z) {
+        float E = p.sinusoidalForce.x;
+        float F = p.sinusoidalForce.y;
+        float G = p.sinusoidalForce.z;
+        float phase = p.sinusoidalExtra.x;
+        fmag += E * sin(F * r + phase) * pow(r, G) * u_deltaTime;
+    }
+    // total center force
+    particles[idx].velocity.xyz += dir * fmag;
+
     // apply linear force
-    particles[idx].velocity.xyz += physicsParams[effectId].linearForce.xyz * physicsParams[effectId].linearForce.w;
+    particles[idx].velocity.xyz += p.linearForce.xyz * u_deltaTime * p.linearForce.w;
     // apply drag
-    particles[idx].velocity.xyz -= particles[idx].velocity.xyz * physicsParams[effectId].centerForcePos.w * u_deltaTime;
+    particles[idx].velocity.xyz -= particles[idx].velocity.xyz * p.centerForcePos.w * u_deltaTime;
 
     // integrate
     particles[idx].position.xyz += particles[idx].velocity.xyz * u_deltaTime;

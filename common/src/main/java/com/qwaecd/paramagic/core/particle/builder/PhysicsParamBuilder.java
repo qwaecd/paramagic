@@ -22,23 +22,67 @@ public class PhysicsParamBuilder {
     }
 
     /**
-     * Set center force parameters F(r) = A * pow(r, B)
+     * Set center force parameters {@code F(r) = A * pow(r, B) ...;}
      */
-    public PhysicsParamBuilder centerForceParam(float A, float B) {
-        this.param.setCenterForceParam(A, B);
+    public PhysicsParamBuilder primaryForceParam(float A, float B) {
+        this.param.setPrimaryForceParam(A, B);
         return this;
     }
 
-    public PhysicsParamBuilder centerForceMaxRadius(float maxRadius) {
-        this.param.setCenterForceMaxRadius(maxRadius);
+    public PhysicsParamBuilder primaryForceMaxRadius(float maxRadius) {
+        this.param.setPrimaryForceMaxRadius(maxRadius);
         return this;
     }
 
-    public PhysicsParamBuilder centerForceEnabled(boolean enabled) {
-        this.param.setCenterForceEnabled(enabled);
+    public PhysicsParamBuilder primaryForceEnabled(boolean enabled) {
+        this.param.setPrimaryForceEnabled(enabled);
         return this;
     }
 
+
+    /**
+     * Set center force parameters {@code F(r) = ... C * pow(r, D) ...;}
+     */
+    public PhysicsParamBuilder secondaryForceParam(float C, float D) {
+        this.param.setSecondaryForceParam(C, D);
+        return this;
+    }
+
+    public PhysicsParamBuilder secondaryForceMaxRadius(float maxRadius) {
+        this.param.setSecondaryForceMaxRadius(maxRadius);
+        return this;
+    }
+
+    public PhysicsParamBuilder secondaryForceEnabled(boolean enabled) {
+        this.param.setSecondaryForceEnabled(enabled);
+        return this;
+    }
+
+    /**
+     * Set sinusoidal force parameters {@code F(r) = ... E * sin(F * r + phase) * pow(r, G);}
+     */
+    public PhysicsParamBuilder sinusoidalForceParam(float E, float F, float G) {
+        this.param.setSinusoidalForceParam(E, F, G);
+        return this;
+    }
+
+    public PhysicsParamBuilder sinusoidalForceMaxRadius(float maxRadius) {
+        this.param.setSinusoidalForceMaxRadius(maxRadius);
+        return this;
+    }
+
+    public PhysicsParamBuilder sinusoidalExtraParam(float phase) {
+        this.param.setSinusoidalExtraParam(phase);
+        return this;
+    }
+
+    public PhysicsParamBuilder sinusoidalForceEnabled(boolean enabled) {
+        this.param.setSinusoidalForceEnabled(enabled);
+        return this;
+    }
+
+
+    // linear force
     public PhysicsParamBuilder linearForce(float x, float y, float z) {
         this.param.setLinearForce(x, y, z);
         return this;

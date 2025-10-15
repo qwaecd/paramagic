@@ -40,10 +40,10 @@ public final class EXPLOSION {
         {
             PhysicsParamBuilder physicsParamBuilder = new PhysicsParamBuilder();
             physicsParamBuilder
-                    .centerForceEnabled(true)
-                    .centerForceParam(0.2f, -1.0f)
+                    .primaryForceEnabled(true)
+                    .primaryForceParam(0.2f, -1.0f)
                     .centerForcePos(emitterCenter)
-                    .centerForceMaxRadius(1000.0f)
+                    .primaryForceMaxRadius(1000.0f)
                     .linearForceEnabled(false)
                     .linearForce(0.01f, -0.0981f / 1000.0f, 0.0f)
                     .dragCoefficient(1.0f);
@@ -79,17 +79,16 @@ public final class EXPLOSION {
         {
             PhysicsParamBuilder physicsParamBuilder = new PhysicsParamBuilder();
             physicsParamBuilder
-                    .centerForceEnabled(true)
-                    .centerForceParam(10.2f, -1.2f)
                     .centerForcePos(emitterCenter)
-                    .centerForceMaxRadius(1000.0f)
+                    .primaryForceEnabled(true).primaryForceParam(10.2f, -1.2f).primaryForceMaxRadius(1000.0f)
+                    .secondaryForceEnabled(true).secondaryForceParam(-0.8f, -3.0f).secondaryForceMaxRadius(1000.0f)
                     .linearForceEnabled(true)
                     .linearForce(0.0f, 0.0981f / 1000.0f, 0.0f)
                     .dragCoefficient(1.0f);
 
-            float xOffset = 4.5f;
-            float yOffset = 1.5f;
-            final float zOffset = 3.5f;
+            float xOffset = 5.5f;
+            float yOffset = 2.5f;
+            final float zOffset = 4.5f;
             // A    B
             // C    D
             Vector3f posA = new Vector3f().add(-xOffset*random.nextFloat(0.5f, 1.0f),  yOffset*random.nextFloat(0.5f, 1.0f), 0.0f);
@@ -116,7 +115,7 @@ public final class EXPLOSION {
             initialPoints.forEach(v -> {
                 SphereEmitter emitter = new SphereEmitter(
                         v,
-                        100.0f
+                        300.0f
                 );
                 emitter.getProperty(SPHERE_RADIUS).set(0.2f);
                 emitter.getProperty(BASE_VELOCITY).modify(vec -> vec.set(0.6f, 0.0f, 0.0f));
@@ -199,7 +198,7 @@ public final class EXPLOSION {
     }
 
     private void onMahoLineEffect() {
-        float strength = 0.06f;
+        float strength = 5.6f;
         this.mahoLineEffect.getPhysicsParameter().setLinearForce(
                 ((random.nextFloat() * 2.0f) - 1.0f) * strength,
                 ((random.nextFloat() * 2.0f) - 1.0f) * strength,

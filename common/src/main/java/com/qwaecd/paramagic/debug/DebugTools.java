@@ -59,10 +59,10 @@ public class DebugTools {
         PhysicsParamBuilder physicsParamBuilder = new PhysicsParamBuilder();
 
         physicsParamBuilder
-                .centerForceEnabled(false)
-                .centerForceParam(13.6f, -2.0f)
+                .primaryForceEnabled(false)
+                .primaryForceParam(13.6f, -2.0f)
                 .centerForcePos(20.0f, 115.0f, 2.0f)
-                .centerForceMaxRadius(1000.0f)
+                .primaryForceMaxRadius(1000.0f)
                 .linearForceEnabled(false)
                 .linearForce(0.01f, -0.0981f / 1000.0f, 0.0f)
                 .dragCoefficient(0.0f);
