@@ -124,12 +124,12 @@ public final class EXPLOSION {
                 emitter.getProperty(VELOCITY_MODE).set(VelocityModeStates.RANDOM);
                 emitter.getProperty(SIZE_RANGE).modify(vec -> vec.set(3.0f, 5.2f));
                 emitter.getProperty(COLOR).modify(vec -> vec.set(
-                        0.01f,
-                        0.2f,
-                        0.7f * random.nextFloat(0.6f, 1.2f),
+                        0.4f,
+                        0.4f,
+                        1.4f,
                         1.0f
                 ));
-                emitter.getProperty(BLOOM_INTENSITY).set(0.5f);
+                emitter.getProperty(BLOOM_INTENSITY).set(0.3f);
                 sphereEmitters.add(emitter);
             });
 
@@ -144,12 +144,12 @@ public final class EXPLOSION {
             centerBall.getProperty(VELOCITY_MODE).set(VelocityModeStates.RANDOM);
             centerBall.getProperty(SIZE_RANGE).modify(v -> v.set(2.0f, 3.5f));
             centerBall.getProperty(COLOR).modify(v -> v.set(
-                    0.0f,
-                    0.2f,
-                    0.6f * random.nextFloat(0.6f, 1.2f),
+                    0.4f,
+                    0.6f,
+                    0.9f,
                     1.0f
             ));
-            centerBall.getProperty(BLOOM_INTENSITY).set(0.6f);
+            centerBall.getProperty(BLOOM_INTENSITY).set(0.1f);
 
 
             List<Emitter> allEmitters = new ArrayList<>(sphereEmitters);

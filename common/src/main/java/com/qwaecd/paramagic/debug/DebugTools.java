@@ -57,12 +57,13 @@ public class DebugTools {
 
     private static void effectTest() {
         PhysicsParamBuilder physicsParamBuilder = new PhysicsParamBuilder();
+        Vector3f centerForcePos = new Vector3f(20.0f, 115.0f, 2.0f);
 
         physicsParamBuilder
-                .primaryForceEnabled(false)
-                .primaryForceParam(13.6f, -2.0f)
-                .centerForcePos(20.0f, 115.0f, 2.0f)
-                .primaryForceMaxRadius(1000.0f)
+                .centerForcePos(centerForcePos).primaryForceEnabled(false).secondaryForceEnabled(false).sinusoidalForceEnabled(true)
+                .primaryForceParam(4.6f, -2.0f).primaryForceMaxRadius(1000.0f)
+                .secondaryForceParam(-2.6f, -4.0f).secondaryForceMaxRadius(1000.0f)
+                .sinusoidalForceParam(40.0f, 1.0f, -2.0f).sinusoidalExtraParam(0.0f).sinusoidalForceMaxRadius(10000.0f)
                 .linearForceEnabled(false)
                 .linearForce(0.01f, -0.0981f / 1000.0f, 0.0f)
                 .dragCoefficient(0.0f);
@@ -91,21 +92,17 @@ public class DebugTools {
 
         // Sphere Emitter
         SphereEmitter sphereEmitter = new SphereEmitter(
-                new Vector3f(20.0f, 120.0f, 0.0f),
-                0.0f
+                new Vector3f(centerForcePos),
+                1000.0f
         );
-        sphereEmitter.getProperty(SPHERE_RADIUS).set(1.0f);
-        sphereEmitter.getProperty(BASE_VELOCITY).modify(v -> v.set(0.0f, 9.3f, 0.0f));
-        sphereEmitter.getProperty(LIFE_TIME_RANGE).modify(v -> v.set(1.0f, 10.0f));
-        sphereEmitter.getProperty(COLOR).modify(v -> v.set(1.0f, 0.0f, 0.0f, 1.0f));
+        sphereEmitter.getProperty(SPHERE_RADIUS).set(20.0f);
+        sphereEmitter.getProperty(BASE_VELOCITY).modify(v -> v.set(0.0f, 0.0f, 0.0f));
+        sphereEmitter.getProperty(LIFE_TIME_RANGE).modify(v -> v.set(30.0f, 60.0f));
+        sphereEmitter.getProperty(COLOR).modify(v -> v.set(1.0f, 0.0f, 0.4f, 1.0f));
         sphereEmitter.getProperty(BLOOM_INTENSITY).set(1.0f);
         sphereEmitter.getProperty(EMIT_FROM_VOLUME).set(true);
         sphereEmitter.getProperty(VELOCITY_SPREAD).set(1.0f);
-        sphereEmitter.getProperty(VELOCITY_MODE).set(VelocityModeStates.RADIAL_FROM_CENTER);
-        int numBursts = 1;
-        for (int i = 0; i < numBursts; i ++) {
-//            sphereEmitter.addBurst(new ParticleBurst(0.05f * i + 0.1f, 10000));
-        }
+        sphereEmitter.getProperty(VELOCITY_MODE).set(VelocityModeStates.DIRECT);
 
 
         // Cube Emitter
@@ -126,9 +123,9 @@ public class DebugTools {
 
         // effect
         GPUParticleEffect effect = new GPUParticleEffect(
-                List.of(cubeEmitter, sphereEmitter, lineEmitter),
+                List.of(sphereEmitter),
                 100_0000,
-                3.0f,
+                600.0f,
                 physicsParamBuilder.build()
         );
         if (ParticleManager.getInstance().spawnEffect(effect)) {
