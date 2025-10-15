@@ -87,15 +87,15 @@ public final class EXPLOSION {
                     .linearForce(0.0f, 0.0981f / 1000.0f, 0.0f)
                     .dragCoefficient(1.0f);
 
-            float xOffset = 3.5f;
+            float xOffset = 4.5f;
             float yOffset = 1.5f;
-            final float zOffset = 4.0f;
+            final float zOffset = 3.5f;
             // A    B
             // C    D
-            Vector3f posA = new Vector3f().add(-xOffset/**random.nextFloat(0.5f, 1.0f)*/,  yOffset/**random.nextFloat(0.5f, 1.0f)*/, 0.0f);
-            Vector3f posB = new Vector3f().add( xOffset/**random.nextFloat(0.5f, 1.0f)*/,  yOffset/**random.nextFloat(0.5f, 1.0f)*/, 0.0f);
-            Vector3f posC = new Vector3f().add(-xOffset/**random.nextFloat(0.5f, 1.0f)*/, -yOffset/**random.nextFloat(0.5f, 1.0f)*/, 0.0f);
-            Vector3f posD = new Vector3f().add( xOffset/**random.nextFloat(0.5f, 1.0f)*/, -yOffset/**random.nextFloat(0.5f, 1.0f)*/, 0.0f);
+            Vector3f posA = new Vector3f().add(-xOffset*random.nextFloat(0.5f, 1.0f),  yOffset*random.nextFloat(0.5f, 1.0f), 0.0f);
+            Vector3f posB = new Vector3f().add( xOffset*random.nextFloat(0.5f, 1.0f),  yOffset*random.nextFloat(0.5f, 1.0f), 0.0f);
+            Vector3f posC = new Vector3f().add(-xOffset*random.nextFloat(0.5f, 1.0f), -yOffset*random.nextFloat(0.5f, 1.0f), 0.0f);
+            Vector3f posD = new Vector3f().add( xOffset*random.nextFloat(0.5f, 1.0f), -yOffset*random.nextFloat(0.5f, 1.0f), 0.0f);
             List<Vector3f> initialPoints = new ArrayList<>();
             initialPoints.add(posA);
             initialPoints.add(posB);
@@ -118,19 +118,19 @@ public final class EXPLOSION {
                         v,
                         100.0f
                 );
-                emitter.getProperty(SPHERE_RADIUS).set(0.3f);
+                emitter.getProperty(SPHERE_RADIUS).set(0.2f);
                 emitter.getProperty(BASE_VELOCITY).modify(vec -> vec.set(0.6f, 0.0f, 0.0f));
                 emitter.getProperty(EMIT_FROM_VOLUME).set(true);
-                emitter.getProperty(LIFE_TIME_RANGE).modify(vec -> vec.set(10.0f, 20.5f));
+                emitter.getProperty(LIFE_TIME_RANGE).modify(vec -> vec.set(6.0f, 12.5f));
                 emitter.getProperty(VELOCITY_MODE).set(VelocityModeStates.RANDOM);
-                emitter.getProperty(SIZE_RANGE).modify(vec -> vec.set(2.0f, 4.2f));
+                emitter.getProperty(SIZE_RANGE).modify(vec -> vec.set(3.0f, 5.2f));
                 emitter.getProperty(COLOR).modify(vec -> vec.set(
-                        0.0f,
+                        0.01f,
                         0.2f,
-                        0.6f * random.nextFloat(0.6f, 1.2f),
+                        0.7f * random.nextFloat(0.6f, 1.2f),
                         1.0f
                 ));
-                emitter.getProperty(BLOOM_INTENSITY).set(0.8f);
+                emitter.getProperty(BLOOM_INTENSITY).set(0.5f);
                 sphereEmitters.add(emitter);
             });
 
@@ -164,13 +164,6 @@ public final class EXPLOSION {
             submitEffect(mahoLine, 1);
             this.mahoLineEffect = mahoLine;
         }
-    }
-
-    public void tick(float deltaTime) {
-        for (GPUParticleEffect particleEffect : this.particleEffects) {
-            particleEffect.update(deltaTime);
-        }
-        this.magicCircle.update(deltaTime);
     }
 
     public void updateProps(Vector3f newEmitterCenter) {
