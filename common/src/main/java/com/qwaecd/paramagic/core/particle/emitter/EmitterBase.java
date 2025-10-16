@@ -62,6 +62,7 @@ public abstract class EmitterBase implements Emitter {
                 new Vector4f(),
                 new Vector4f(),
                 new Vector4f(),
+                new Vector4f(),
                 new Vector4f()
         );
     }

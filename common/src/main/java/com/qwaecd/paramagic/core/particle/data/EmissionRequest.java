@@ -22,6 +22,7 @@ import java.nio.ByteBuffer;
  *     vec4 param3; // e.g., 颜色 (rgba)
  *     vec4 param4; // e.g., 粒子生命周期(min, max), 尺寸(min, max)
  *     vec4 param5; // e.g., (for BURST_SPHERE) 速度(min, max), (for POINT) 发射角度
+ *     vec4 param6;
  * };
  * </pre>
  */
@@ -40,6 +41,7 @@ public final class EmissionRequest {
     private Vector4f param3;
     private Vector4f param4;
     private Vector4f param5;
+    private Vector4f param6;
 
     public EmissionRequest(
             int count,
@@ -49,7 +51,8 @@ public final class EmissionRequest {
             Vector4f param2,
             Vector4f param3,
             Vector4f param4,
-            Vector4f param5
+            Vector4f param5,
+            Vector4f param6
     ) {
         this.count = count;
         this.emitterType = emitterType;
@@ -61,6 +64,7 @@ public final class EmissionRequest {
         this.param3 = param3;
         this.param4 = param4;
         this.param5 = param5;
+        this.param6 = param6;
     }
     public void writeToBuffer(ByteBuffer buffer) {
         buffer.putInt(count);
@@ -68,31 +72,19 @@ public final class EmissionRequest {
         buffer.putInt(effectId);
         buffer.putInt(_padding);
 
-        buffer.putFloat(param1.x);
-        buffer.putFloat(param1.y);
-        buffer.putFloat(param1.z);
-        buffer.putFloat(param1.w);
-
-        buffer.putFloat(param2.x);
-        buffer.putFloat(param2.y);
-        buffer.putFloat(param2.z);
-        buffer.putFloat(param2.w);
-
-        buffer.putFloat(param3.x);
-        buffer.putFloat(param3.y);
-        buffer.putFloat(param3.z);
-        buffer.putFloat(param3.w);
-
-        buffer.putFloat(param4.x);
-        buffer.putFloat(param4.y);
-        buffer.putFloat(param4.z);
-        buffer.putFloat(param4.w);
-
-        buffer.putFloat(param5.x);
-        buffer.putFloat(param5.y);
-        buffer.putFloat(param5.z);
-        buffer.putFloat(param5.w);
+        write(param1, buffer);
+        write(param2, buffer);
+        write(param3, buffer);
+        write(param4, buffer);
+        write(param5, buffer);
+        write(param6, buffer);
     }
 
-    public static final int SIZE_IN_BYTES = 96;
+    private void write(Vector4f v, ByteBuffer buffer) {
+        buffer.putFloat(v.x).putFloat(v.y).putFloat(v.z).putFloat(v.w);
+    }
+
+    private static final int paramCount = 6;
+
+    public static final int SIZE_IN_BYTES = (4 * Integer.BYTES) + (paramCount * Float.BYTES * 4);
 }

@@ -9,10 +9,7 @@ import com.qwaecd.paramagic.core.particle.ParticleManager;
 import com.qwaecd.paramagic.core.particle.builder.PhysicsParamBuilder;
 import com.qwaecd.paramagic.core.particle.effect.GPUParticleEffect;
 import com.qwaecd.paramagic.core.particle.emitter.ParticleBurst;
-import com.qwaecd.paramagic.core.particle.emitter.impl.CubeEmitter;
-import com.qwaecd.paramagic.core.particle.emitter.impl.LineEmitter;
-import com.qwaecd.paramagic.core.particle.emitter.impl.PointEmitter;
-import com.qwaecd.paramagic.core.particle.emitter.impl.SphereEmitter;
+import com.qwaecd.paramagic.core.particle.emitter.impl.*;
 import com.qwaecd.paramagic.core.particle.emitter.property.type.VelocityModeStates;
 import com.qwaecd.paramagic.core.render.ModRenderSystem;
 import com.qwaecd.paramagic.core.render.api.IRenderable;
@@ -60,7 +57,7 @@ public class DebugTools {
         Vector3f centerForcePos = new Vector3f(20.0f, 115.0f, 2.0f);
 
         physicsParamBuilder
-                .centerForcePos(centerForcePos).primaryForceEnabled(false).secondaryForceEnabled(false).sinusoidalForceEnabled(true)
+                .centerForcePos(centerForcePos).primaryForceEnabled(false).secondaryForceEnabled(false).sinusoidalForceEnabled(false)
                 .primaryForceParam(4.6f, -2.0f).primaryForceMaxRadius(1000.0f)
                 .secondaryForceParam(-2.6f, -4.0f).secondaryForceMaxRadius(1000.0f)
                 .sinusoidalForceParam(40.0f, 1.0f, -2.0f).sinusoidalExtraParam(0.0f).sinusoidalForceMaxRadius(10000.0f)
@@ -121,9 +118,23 @@ public class DebugTools {
         cubeEmitter.getProperty(EMIT_FROM_VOLUME).set(true);
         cubeEmitter.getProperty(VELOCITY_MODE).set(VelocityModeStates.DIRECT);
 
+        // circle emitter
+        CircleEmitter circleEmitter = new CircleEmitter(
+                centerForcePos,
+                1000.0f
+        );
+        circleEmitter.getProperty(BASE_VELOCITY).modify(v -> v.set(0.0f, 1.0f, 0.0f));
+        circleEmitter.getProperty(LIFE_TIME_RANGE).modify(v -> v.set(0.2f, 1.6f));
+        circleEmitter.getProperty(COLOR).modify(v -> v.set(1.0f, 0.0f, 0.4f, 1.0f));
+        circleEmitter.getProperty(SIZE_RANGE).modify(v -> v.set(1.1f, 2.3f));
+        circleEmitter.getProperty(BLOOM_INTENSITY).set(2.0f);
+        circleEmitter.getProperty(VELOCITY_MODE).set(VelocityModeStates.DIRECT);
+        circleEmitter.getProperty(NORMAL).modify(v -> v.set(0.0f, 1.0f, 0.0f));
+        circleEmitter.getProperty(INNER_OUTER_RADIUS).modify(v -> v.set(0.5f, 0.7f));
+
         // effect
         GPUParticleEffect effect = new GPUParticleEffect(
-                List.of(sphereEmitter),
+                List.of(circleEmitter),
                 100_0000,
                 600.0f,
                 physicsParamBuilder.build()

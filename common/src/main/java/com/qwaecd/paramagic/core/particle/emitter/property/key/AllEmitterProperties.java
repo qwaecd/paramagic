@@ -26,4 +26,10 @@ public final class AllEmitterProperties {
      * For LineEmitter: The end position of the line segment.
      */
     public static final PropertyKey<Vector3f> END_POSITION = new PropertyKey<>("end_position", new Vector3f(1.0f));
+
+    /**
+     * For CircleEmitter: The inner and outer radius of the circle.
+     */
+    public static final PropertyKey<Vector2f> INNER_OUTER_RADIUS = new PropertyKey<>("inner_outer_radius", new Vector2f(0.5f, 1.0f));
+    public static final PropertyKey<Vector3f> NORMAL = new PropertyKey<>("normal", new Vector3f(0.0f, 1.0f, 0.0f));
 }

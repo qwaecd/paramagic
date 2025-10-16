@@ -24,6 +24,7 @@ struct EmissionRequest {
     vec4 param3;
     vec4 param4;
     vec4 param5;
+    vec4 param6;
 };
 
 struct EmissionTask {
