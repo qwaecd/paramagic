@@ -122,11 +122,11 @@ public final class EXPLOSION {
                 emitter.getProperty(EMIT_FROM_VOLUME).set(true);
                 emitter.getProperty(LIFE_TIME_RANGE).modify(vec -> vec.set(6.0f, 12.5f));
                 emitter.getProperty(VELOCITY_MODE).set(VelocityModeStates.RANDOM);
-                emitter.getProperty(SIZE_RANGE).modify(vec -> vec.set(3.0f, 5.2f));
+                emitter.getProperty(SIZE_RANGE).modify(vec -> vec.set(1.0f, 3.2f));
                 emitter.getProperty(COLOR).modify(vec -> vec.set(
-                        0.4f,
-                        0.4f,
-                        1.4f,
+                        0.6f,
+                        0.5f,
+                        0.7f,
                         1.0f
                 ));
                 emitter.getProperty(BLOOM_INTENSITY).set(0.3f);
@@ -149,7 +149,7 @@ public final class EXPLOSION {
                     0.9f,
                     1.0f
             ));
-            centerBall.getProperty(BLOOM_INTENSITY).set(0.1f);
+            centerBall.getProperty(BLOOM_INTENSITY).set(0.21f);
 
 
             List<Emitter> allEmitters = new ArrayList<>(sphereEmitters);
@@ -198,6 +198,17 @@ public final class EXPLOSION {
     }
 
     private void onMahoLineEffect() {
+        this.mahoLineEffect.forEachEmitter(emitter -> {
+            if (emitter.hasProperty(COLOR)) {
+                emitter.getProperty(COLOR).modify(v -> {
+                    float r = random.nextFloat(0.6f, 1.2f);
+                    float g = random.nextFloat(0.6f, 0.9f);
+                    float b = random.nextFloat(0.8f, 1.4f);
+                    v.set(r, g, b, v.w);
+                });
+            }
+        });
+
         float strength = 5.6f;
         this.mahoLineEffect.getPhysicsParameter().setLinearForce(
                 ((random.nextFloat() * 2.0f) - 1.0f) * strength,
