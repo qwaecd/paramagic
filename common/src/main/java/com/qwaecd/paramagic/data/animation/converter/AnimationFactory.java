@@ -4,14 +4,14 @@ import com.qwaecd.paramagic.client.animation.AnimationTrack;
 import com.qwaecd.paramagic.client.animation.Animator;
 import com.qwaecd.paramagic.core.para.material.ParaMaterial;
 import com.qwaecd.paramagic.core.render.Transform;
-import com.qwaecd.paramagic.data.animation.AnimationBindingData;
-import com.qwaecd.paramagic.data.animation.AnimatorData;
-import com.qwaecd.paramagic.data.animation.AnimatorLibraryData;
-import com.qwaecd.paramagic.data.animation.BindingData;
+import com.qwaecd.paramagic.data.animation.struct.AnimationBindingConfig;
+import com.qwaecd.paramagic.data.animation.struct.AnimatorData;
+import com.qwaecd.paramagic.data.animation.struct.AnimatorLibraryData;
+import com.qwaecd.paramagic.data.animation.struct.AnimationBinding;
 import com.qwaecd.paramagic.data.animation.converter.impl.KeyframeTrackConverter;
-import com.qwaecd.paramagic.data.animation.track.KeyframeTrackData;
-import com.qwaecd.paramagic.data.animation.track.TrackData;
-import com.qwaecd.paramagic.data.para.ConversionException;
+import com.qwaecd.paramagic.data.animation.struct.track.KeyframeTrackData;
+import com.qwaecd.paramagic.data.animation.struct.track.TrackData;
+import com.qwaecd.paramagic.data.para.converter.ConversionException;
 import com.qwaecd.paramagic.feature.MagicCircle;
 import com.qwaecd.paramagic.feature.MagicNode;
 
@@ -38,44 +38,44 @@ public class AnimationFactory {
     }
 
     public void injectAnimations(MagicCircle circle,
-                                 @Nonnull AnimationBindingData bindingData,
+                                 @Nonnull AnimationBindingConfig bindingData,
                                  @Nullable AnimatorLibraryData animLib)
             throws ConversionException
     {
         validateInputs(circle);
-        for (BindingData datum : bindingData.getBindingData()) {
+        for (AnimationBinding datum : bindingData.getBindings()) {
             processBindingData(circle, datum, animLib);
         }
     }
 
-    private void processBindingData(MagicCircle circle, BindingData bindingData, @Nullable AnimatorLibraryData animLib) throws ConversionException {
-        AnimatorData animatorData = resolveAnimatorData(bindingData, animLib);
-        MagicNode targetNode = findTargetNode(circle, bindingData.getTargetComponentId());
+    private void processBindingData(MagicCircle circle, AnimationBinding animationBinding, @Nullable AnimatorLibraryData animLib) throws ConversionException {
+        AnimatorData animatorData = resolveAnimatorData(animationBinding, animLib);
+        MagicNode targetNode = findTargetNode(circle, animationBinding.getTargetComponentId());
         Animator animatorInstance = getOrCreateAnimator(targetNode);
         attachTracksToAnimator(animatorData, targetNode, animatorInstance);
     }
 
-    private AnimatorData resolveAnimatorData(BindingData bindingData, @Nullable AnimatorLibraryData animLib) throws ConversionException {
-        AnimatorData animatorData = bindingData.getAnimatorData();
+    private AnimatorData resolveAnimatorData(AnimationBinding animationBinding, @Nullable AnimatorLibraryData animLib) throws ConversionException {
+        AnimatorData animatorData = animationBinding.getAnimatorData();
 
         // 如果不是内联定义的，则从库中查找
         if (animatorData == null) {
-            return loadAnimatorDataFromLibrary(bindingData, animLib);
+            return loadAnimatorDataFromLibrary(animationBinding, animLib);
         }
 
         return animatorData;
     }
 
-    private AnimatorData loadAnimatorDataFromLibrary(BindingData bindingData, @Nullable AnimatorLibraryData animLib) throws ConversionException {
+    private AnimatorData loadAnimatorDataFromLibrary(AnimationBinding animationBinding, @Nullable AnimatorLibraryData animLib) throws ConversionException {
         if (animLib == null) {
             throw new ConversionException("AnimatorLibraryData is required when using external animator templates, but it is null.");
         }
 
         try {
-            String animatorTemplateName = bindingData.getAnimatorTemplateName();
+            String animatorTemplateName = animationBinding.getAnimatorTemplateName();
             return animLib.getTemplateByName(animatorTemplateName).orElseThrow();
         } catch (NoSuchElementException e) {
-            throw new ConversionException("Animator template '" + bindingData.getAnimatorTemplateName() + "' not found in library.");
+            throw new ConversionException("Animator template '" + animationBinding.getAnimatorTemplateName() + "' not found in library.");
         }
     }
 

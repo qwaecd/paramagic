@@ -1,10 +1,10 @@
 package com.qwaecd.paramagic.assembler;
 
-import com.qwaecd.paramagic.data.animation.AnimationBindingData;
-import com.qwaecd.paramagic.data.animation.AnimatorLibraryData;
+import com.qwaecd.paramagic.data.animation.struct.AnimationBindingConfig;
+import com.qwaecd.paramagic.data.animation.struct.AnimatorLibraryData;
 import com.qwaecd.paramagic.data.animation.converter.AnimationFactory;
-import com.qwaecd.paramagic.data.para.ConversionException;
-import com.qwaecd.paramagic.data.para.ParaData;
+import com.qwaecd.paramagic.data.para.converter.ConversionException;
+import com.qwaecd.paramagic.data.para.struct.ParaData;
 import com.qwaecd.paramagic.data.para.converter.ParaConverters;
 import com.qwaecd.paramagic.feature.MagicCircle;
 import lombok.Getter;
@@ -20,13 +20,13 @@ public class ParaComposer {
     }
 
     public MagicCircle assemble(ParaData skeletonData,
-                                AnimationBindingData animationBindingData,
+                                AnimationBindingConfig animationBindingConfig,
                                 AnimatorLibraryData animLib)
             throws AssemblyException
     {
         MagicCircle circle = genMagicCircle(skeletonData);
 
-        injectAnimationsToCircle(circle, animationBindingData, animLib);
+        injectAnimationsToCircle(circle, animationBindingConfig, animLib);
 
         return circle;
     }
@@ -41,10 +41,10 @@ public class ParaComposer {
         return circle;
     }
 
-    private void injectAnimationsToCircle(MagicCircle circle, AnimationBindingData animationBindingData, AnimatorLibraryData animLib) throws AssemblyException {
-        if (animationBindingData != null) {
+    private void injectAnimationsToCircle(MagicCircle circle, AnimationBindingConfig animationBindingConfig, AnimatorLibraryData animLib) throws AssemblyException {
+        if (animationBindingConfig != null) {
             try {
-                animationFactory.injectAnimations(circle, animationBindingData, animLib);
+                animationFactory.injectAnimations(circle, animationBindingConfig, animLib);
             } catch (ConversionException e) {
                 throw new AssemblyException("Failed to inject animations into magic circle.", e);
             }

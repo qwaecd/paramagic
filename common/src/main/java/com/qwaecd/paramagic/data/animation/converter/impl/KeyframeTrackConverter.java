@@ -5,10 +5,10 @@ import com.qwaecd.paramagic.client.animation.Keyframe;
 import com.qwaecd.paramagic.client.animation.PropertyAccessor;
 import com.qwaecd.paramagic.core.para.material.ParaMaterial;
 import com.qwaecd.paramagic.core.render.Transform;
-import com.qwaecd.paramagic.data.animation.PropertyType;
+import com.qwaecd.paramagic.data.animation.property.AnimatableProperty;
 import com.qwaecd.paramagic.data.animation.converter.TrackConverter;
-import com.qwaecd.paramagic.data.animation.track.KeyframeTrackData;
-import com.qwaecd.paramagic.data.para.ConversionException;
+import com.qwaecd.paramagic.data.animation.struct.track.KeyframeTrackData;
+import com.qwaecd.paramagic.data.para.converter.ConversionException;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -25,7 +25,7 @@ public class KeyframeTrackConverter implements TrackConverter<KeyframeTrackData<
         return new AnimationTrack(accessor, runtimeKeyframes, trackData.loop);
     }
 
-    private <T> PropertyAccessor<T> createAccessor(Transform transform, ParaMaterial material, PropertyType<T> propertyType) {
-        return propertyType.getAccessorFactory().getAccessor(transform, material);
+    private <T> PropertyAccessor<T> createAccessor(Transform transform, ParaMaterial material, AnimatableProperty<T> animatableProperty) {
+        return animatableProperty.getAccessorFactory().getAccessor(transform, material);
     }
 }

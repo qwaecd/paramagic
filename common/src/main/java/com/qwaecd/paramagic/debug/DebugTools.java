@@ -15,14 +15,18 @@ import com.qwaecd.paramagic.core.render.ModRenderSystem;
 import com.qwaecd.paramagic.core.render.api.IRenderable;
 import com.qwaecd.paramagic.core.render.shader.ShaderManager;
 import com.qwaecd.paramagic.core.render.texture.Material;
-import com.qwaecd.paramagic.data.animation.AnimationBindingData;
-import com.qwaecd.paramagic.data.animation.AnimatorData;
-import com.qwaecd.paramagic.data.animation.BindingData;
-import com.qwaecd.paramagic.data.animation.PropertyType;
-import com.qwaecd.paramagic.data.animation.track.KeyframeData;
-import com.qwaecd.paramagic.data.animation.track.KeyframeTrackData;
-import com.qwaecd.paramagic.data.animation.track.TrackData;
-import com.qwaecd.paramagic.data.para.*;
+import com.qwaecd.paramagic.data.animation.property.AllAnimatableProperties;
+import com.qwaecd.paramagic.data.animation.struct.AnimationBindingConfig;
+import com.qwaecd.paramagic.data.animation.struct.AnimatorData;
+import com.qwaecd.paramagic.data.animation.struct.AnimationBinding;
+import com.qwaecd.paramagic.data.animation.struct.track.KeyframeData;
+import com.qwaecd.paramagic.data.animation.struct.track.KeyframeTrackData;
+import com.qwaecd.paramagic.data.animation.struct.track.TrackData;
+import com.qwaecd.paramagic.data.para.converter.ConversionException;
+import com.qwaecd.paramagic.data.para.struct.ParaData;
+import com.qwaecd.paramagic.data.para.struct.components.PolygonParaData;
+import com.qwaecd.paramagic.data.para.struct.components.RingParaData;
+import com.qwaecd.paramagic.data.para.struct.components.VoidParaData;
 import com.qwaecd.paramagic.feature.MagicCircle;
 import com.qwaecd.paramagic.feature.MagicCircleManager;
 import lombok.experimental.UtilityClass;
@@ -169,18 +173,18 @@ public class DebugTools {
 
     private MagicCircle testInjectAnimation(ParaData paraData) throws AssemblyException, ConversionException {
         ParaComposer composer = ParaComposer.getINSTANCE();
-        MagicCircle circle = composer.assemble(paraData, genAnimationBindingData(), null);
+        MagicCircle circle = composer.assemble(paraData, genAnimationBindingConfig(), null);
 
         return circle;
     }
 
-    private AnimationBindingData genAnimationBindingData() {
-        List<BindingData> bindingDataList = new ArrayList<>();
+    private AnimationBindingConfig genAnimationBindingConfig() {
+        List<AnimationBinding> animationBindingList = new ArrayList<>();
 
         AnimatorData animatingCenter;
         {
             TrackData<?> rotationTrack = new KeyframeTrackData<>(
-                    PropertyType.ROTATION,
+                    AllAnimatableProperties.ROTATION,
                     List.of(
                             new KeyframeData<>(1.0f, new Quaternionf().rotateY((float)Math.toRadians(180))),
                             new KeyframeData<>(0f, new Quaternionf().rotateY((float)Math.toRadians(0))),
@@ -190,7 +194,7 @@ public class DebugTools {
             );
 
             TrackData<?> scaleTrack = new KeyframeTrackData<>(
-                    PropertyType.SCALE,
+                    AllAnimatableProperties.SCALE,
                     List.of(
                             new KeyframeData<>(6.0f, new Vector3f(1)),
                             new KeyframeData<>(0f, new Vector3f(0.0f, 0.0f, 0.0f)),
@@ -203,17 +207,17 @@ public class DebugTools {
             animatingCenter = new AnimatorData(List.of(rotationTrack, scaleTrack));
         }
 
-        BindingData data1 = new BindingData(
+        AnimationBinding data1 = new AnimationBinding(
                 "root.3",
                 null,
                 animatingCenter
         );
-        bindingDataList.add(data1);
+        animationBindingList.add(data1);
         // --------------------------------------------
         AnimatorData animatingColor;
         {
             TrackData<?> colorTrack = new KeyframeTrackData<>(
-                    PropertyType.EMISSIVE_COLOR,
+                    AllAnimatableProperties.EMISSIVE_COLOR,
                     List.of(
                             new KeyframeData<>(0.0f, new Vector3f(1.0f, 1.0f, 0.0f)),
                             new KeyframeData<>(20.0f, new Vector3f(1.0f, 0.0f, 1.0f)),
@@ -224,7 +228,7 @@ public class DebugTools {
             );
 
             TrackData<?> intensity = new KeyframeTrackData<>(
-                    PropertyType.EMISSIVE_INTENSITY,
+                    AllAnimatableProperties.EMISSIVE_INTENSITY,
                     List.of(
                             new KeyframeData<>(0.0f, 0.1f),
                             new KeyframeData<>(5.0f, 1.0f),
@@ -236,14 +240,14 @@ public class DebugTools {
             );
             animatingColor = new AnimatorData(List.of(colorTrack, intensity));
         }
-        BindingData data2 = new BindingData(
+        AnimationBinding data2 = new AnimationBinding(
                 "root.0",
                 null,
                 animatingColor
         );
-        bindingDataList.add(data2);
+        animationBindingList.add(data2);
 
-        return new AnimationBindingData(bindingDataList);
+        return new AnimationBindingConfig(animationBindingList);
     }
 
     private void modifyMagicCircle(MagicCircle circle) throws ConversionException {

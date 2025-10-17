@@ -3,8 +3,8 @@ package com.qwaecd.paramagic.data.animation.converter;
 import com.qwaecd.paramagic.client.animation.AnimationTrack;
 import com.qwaecd.paramagic.core.para.material.ParaMaterial;
 import com.qwaecd.paramagic.core.render.Transform;
-import com.qwaecd.paramagic.data.animation.track.TrackData;
-import com.qwaecd.paramagic.data.para.ConversionException;
+import com.qwaecd.paramagic.data.animation.struct.track.TrackData;
+import com.qwaecd.paramagic.data.para.converter.ConversionException;
 
 /**
  * Converts a specific type of TrackData instance into a runtime AnimationTrack.<br>
