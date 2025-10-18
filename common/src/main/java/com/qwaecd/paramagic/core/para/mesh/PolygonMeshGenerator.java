@@ -11,14 +11,11 @@ import java.nio.ShortBuffer;
 import java.util.HashMap;
 import java.util.Map;
 
+import static com.qwaecd.paramagic.core.para.mesh.ParaMeshProvider.DEFAULT_LAYOUT_POS_COLOR;
 import static org.lwjgl.opengl.GL15.GL_STATIC_DRAW;
 
 public class PolygonMeshGenerator {
     private final Map<String, Mesh> polygonCache;
-
-    private static final VertexLayout LAYOUT_POS_COLOR = new VertexLayout()
-            .addNextAttribute(VertexAttributeEnum.POSITION.get())
-            .addNextAttribute(VertexAttributeEnum.COLOR.get());
 
     public PolygonMeshGenerator() {
         this.polygonCache = new HashMap<>();
@@ -67,11 +64,11 @@ public class PolygonMeshGenerator {
             // 第二个三角形: (当前外, 下一内, 当前内)
             builder.addTriangle(baseOuter, nextInner, baseInner);
         }
-        ByteBuffer vertexData = builder.buildBuffer(LAYOUT_POS_COLOR);
+        ByteBuffer vertexData = builder.buildBuffer(DEFAULT_LAYOUT_POS_COLOR);
         ShortBuffer indexData = builder.buildIndexBufferU16();
 
         Mesh mesh = new Mesh(Mesh.DrawMode.TRIANGLES);
-        mesh.uploadAndConfigure(vertexData, LAYOUT_POS_COLOR, GL_STATIC_DRAW, indexData, GL_STATIC_DRAW);
+        mesh.uploadAndConfigure(vertexData, DEFAULT_LAYOUT_POS_COLOR, GL_STATIC_DRAW, indexData, GL_STATIC_DRAW);
         return mesh;
     }
 }

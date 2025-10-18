@@ -2,11 +2,13 @@ package com.qwaecd.paramagic.data.para.converter.factory;
 
 import com.qwaecd.paramagic.core.para.material.ParaMaterialProvider;
 import com.qwaecd.paramagic.core.para.mesh.ParaMeshProvider;
+import com.qwaecd.paramagic.data.para.converter.factory.creator.CurvyStarParaCreator;
 import com.qwaecd.paramagic.data.para.struct.ParaComponentData;
+import com.qwaecd.paramagic.data.para.struct.components.CurvyStarParaData;
 import com.qwaecd.paramagic.data.para.struct.components.PolygonParaData;
 import com.qwaecd.paramagic.data.para.struct.components.RingParaData;
 import com.qwaecd.paramagic.data.para.struct.components.VoidParaData;
-import com.qwaecd.paramagic.data.para.converter.factory.creator.PolygonCreator;
+import com.qwaecd.paramagic.data.para.converter.factory.creator.PolygonParaCreator;
 import com.qwaecd.paramagic.data.para.converter.factory.creator.RingParaCreator;
 import com.qwaecd.paramagic.data.para.converter.factory.creator.VoidParaCreator;
 import com.qwaecd.paramagic.feature.MagicNode;
@@ -29,7 +31,8 @@ public class ParaAssetFactory {
     private void registerDefaultFactories() {
         registerFactory(VoidParaData.class, new VoidParaCreator());
         registerFactory(RingParaData.class, new RingParaCreator(this.paraMeshProvider, this.paraMaterialProvider));
-        registerFactory(PolygonParaData.class, new PolygonCreator(this.paraMeshProvider, this.paraMaterialProvider));
+        registerFactory(PolygonParaData.class, new PolygonParaCreator(this.paraMeshProvider, this.paraMaterialProvider));
+        registerFactory(CurvyStarParaData.class, new CurvyStarParaCreator(this.paraMeshProvider, this.paraMaterialProvider));
     }
 
     public <T extends ParaComponentData> void registerFactory(Class<T> type, NodeCreator<T> factory) {

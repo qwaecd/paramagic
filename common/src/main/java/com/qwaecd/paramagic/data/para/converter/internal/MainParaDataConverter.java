@@ -5,9 +5,10 @@ import com.qwaecd.paramagic.data.para.converter.ConversionException;
 import com.qwaecd.paramagic.data.para.converter.api.ParaComponentConverter;
 import com.qwaecd.paramagic.data.para.converter.api.ParaConverterRegistry;
 import com.qwaecd.paramagic.data.para.converter.api.ParaDataConverter;
+import com.qwaecd.paramagic.data.para.converter.components.CurvyStarParaConverter;
 import com.qwaecd.paramagic.data.para.struct.ParaComponentData;
 import com.qwaecd.paramagic.data.para.struct.ParaData;
-import com.qwaecd.paramagic.data.para.converter.components.PolygonConverter;
+import com.qwaecd.paramagic.data.para.converter.components.PolygonParaConverter;
 import com.qwaecd.paramagic.data.para.converter.components.RingParaConverter;
 import com.qwaecd.paramagic.data.para.converter.components.VoidParaConverter;
 import com.qwaecd.paramagic.data.para.converter.factory.ParaAssetFactory;
@@ -43,7 +44,8 @@ public class MainParaDataConverter implements ParaDataConverter {
     private void registerAllConversions() {
         this.converterRegistry.register(new VoidParaConverter(this.assetFactory));
         this.converterRegistry.register(new RingParaConverter(this.assetFactory));
-        this.converterRegistry.register(new PolygonConverter(this.assetFactory));
+        this.converterRegistry.register(new PolygonParaConverter(this.assetFactory));
+        this.converterRegistry.register(new CurvyStarParaConverter(this.assetFactory));
     }
     @Override
     public MagicCircle convert(ParaData paraData) throws ConversionException {

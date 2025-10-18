@@ -17,4 +17,8 @@ public class ParaMaterialProvider {
     public ParaMaterial createPolygonMaterial() {
         return new PolygonMaterial(this.ringShader);
     }
+
+    public ParaMaterial createCurvyStarMaterial() {
+        return new CurvyStarMaterial(this.ringShader);
+    }
 }

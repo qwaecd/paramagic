@@ -24,6 +24,7 @@ import com.qwaecd.paramagic.data.animation.struct.track.KeyframeTrackData;
 import com.qwaecd.paramagic.data.animation.struct.track.TrackData;
 import com.qwaecd.paramagic.data.para.converter.ConversionException;
 import com.qwaecd.paramagic.data.para.struct.ParaData;
+import com.qwaecd.paramagic.data.para.struct.components.CurvyStarParaData;
 import com.qwaecd.paramagic.data.para.struct.components.PolygonParaData;
 import com.qwaecd.paramagic.data.para.struct.components.RingParaData;
 import com.qwaecd.paramagic.data.para.struct.components.VoidParaData;
@@ -304,6 +305,19 @@ public class DebugTools {
             group.addChild(polygon2);
 
             rootPara.addChild(group);
+        }
+
+        {
+            CurvyStarParaData curvy = new CurvyStarParaData(
+                    3.8f,
+                    6,
+                    1.0f,
+                    0.0f,
+                    0.04f
+            );
+            curvy.color.set(1.0f, 0.4f, 0.2f, 1.0f);
+            curvy.position.set(0, 0.11f, 0);
+            rootPara.addChild(curvy);
         }
 
         ParaData paraData = new ParaData(rootPara);
