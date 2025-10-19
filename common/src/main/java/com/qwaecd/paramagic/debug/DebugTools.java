@@ -110,7 +110,7 @@ public class DebugTools {
         // Cube Emitter
         CubeEmitter cubeEmitter = new CubeEmitter(
                 new Vector3f(0.0f),
-                1.0f
+                100.0f
         );
         cubeEmitter.getProperty(CUBE_AABB).modify(v -> v.setAABB(
                 20.0f, 120.0f, 3.0f,
@@ -304,21 +304,22 @@ public class DebugTools {
             polygon2.color.set(0.6f, 0.1f, 0.3f);
             group.addChild(polygon2);
 
+            {
+                CurvyStarParaData curvy = new CurvyStarParaData(
+                        4.0f,
+                        16,
+                        -1.0f,
+                        0.0f,
+                        0.05f
+                );
+                curvy.color.set(0.8f, 0.4f, 0.9f, 0.8f);
+                curvy.position.set(0, 0.0f, 0);
+                group.addChild(curvy);
+            }
             rootPara.addChild(group);
         }
 
-        {
-            CurvyStarParaData curvy = new CurvyStarParaData(
-                    3.8f,
-                    6,
-                    1.0f,
-                    0.0f,
-                    0.04f
-            );
-            curvy.color.set(1.0f, 0.4f, 0.2f, 1.0f);
-            curvy.position.set(0, 0.11f, 0);
-            rootPara.addChild(curvy);
-        }
+
 
         ParaData paraData = new ParaData(rootPara);
         return paraData;

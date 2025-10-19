@@ -6,7 +6,6 @@ import org.joml.*;
 
 import java.lang.Math;
 import java.nio.ByteBuffer;
-import java.nio.IntBuffer;
 import java.nio.ShortBuffer;
 import java.util.HashMap;
 import java.util.Map;
@@ -19,7 +18,7 @@ public class CurvyStarMeshGenerator {
 
     // 生成圆弧时的迭代次数
     private static final int stepCount = 32;
-    private static final Matrix2f rotate90 = new Matrix2f().rotate((float) Math.toRadians(180));
+    private static final Matrix2f rotate180 = new Matrix2f().rotate((float) Math.toRadians(180));
 
     public CurvyStarMeshGenerator() {
         this.curvyStarCache = new HashMap<>();
@@ -48,9 +47,10 @@ public class CurvyStarMeshGenerator {
         // 多边形中心单个扇形的圆心角 theta
         final double Theta = 2 * Math.PI / sides;
         // 弧圆心 OP 向量
+        @SuppressWarnings("UnnecessaryLocalVariable")
         final float OP = alpha;
         // 弧圆半径 r
-        final double r = r(radius, Theta);
+        final double r = r(OP, radius, Theta);
         // 弧圆心角的一半 phi
         final double cosPhi = (r*r + OP*OP - radius*radius) / (2 * r * Math.abs(OP));
         final double phi = alpha > 0.0f ?  Math.acos(cosPhi) : Math.acos(cosPhi) + Math.PI;
@@ -78,25 +78,21 @@ public class CurvyStarMeshGenerator {
                 Vector2f C = new Vector2f(
                         (float)  (outerRadius * cosBeta),
                         (float)  (outerRadius * sinBeta)
-                ).mul(rotate90).add(OP, 0.0f);
+                ).mul(rotate180).add(OP, 0.0f).mul(rotationMatrix);
                 Vector2f D = new Vector2f(
                         (float)  (innerRadius * cosBeta),
                         (float)  (innerRadius * sinBeta)
-                ).mul(rotate90).add(OP, 0.0f);
+                ).mul(rotate180).add(OP, 0.0f).mul(rotationMatrix);
                 // 同时生成关于 x 轴对称的一对
                 Vector2f C_1 = new Vector2f(
                         (float)  (outerRadius * cosBeta),
                         (float) -(outerRadius * sinBeta)
-                ).mul(rotate90).add(OP, 0.0f);
+                ).mul(rotate180).add(OP, 0.0f).mul(rotationMatrix);
                 Vector2f D_1 = new Vector2f(
                         (float)  (innerRadius * cosBeta),
                         (float) -(innerRadius * sinBeta)
-                ).mul(rotate90).add(OP, 0.0f);
+                ).mul(rotate180).add(OP, 0.0f).mul(rotationMatrix);
 
-                rotationMatrix.transformTranspose(C);
-                rotationMatrix.transformTranspose(D);
-                rotationMatrix.transformTranspose(C_1);
-                rotationMatrix.transformTranspose(D_1);
 
                 // 是的, y 分量恒定为0
                 builder.pos(C.x, 0, C.y).color(color.x, color.y, color.z, color.w).endVertex();
@@ -135,12 +131,9 @@ public class CurvyStarMeshGenerator {
         return mesh;
     }
 
-    private double r(float radius, double theta) {
+    private double r(float OP, float radius, double theta) {
         // 计算圆弧半径 r
-        final Vector2d OM_0 = new Vector2d(
-                radius * Math.cos(theta * 0),
-                radius * Math.sin(theta * 0)
-        );
+        final Vector2d OM_0 = new Vector2d(OP, 0);
         final Vector2d OM_1 = new Vector2d(
                 radius * Math.cos(theta * 1),
                 radius * Math.sin(theta * 1)
