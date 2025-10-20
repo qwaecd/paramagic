@@ -1,10 +1,17 @@
 package com.qwaecd.paramagic.feature.effect;
 
+import com.qwaecd.paramagic.Paramagic;
+import com.qwaecd.paramagic.assembler.AssemblyException;
+import com.qwaecd.paramagic.assembler.ParaComposer;
 import com.qwaecd.paramagic.core.particle.builder.PhysicsParamBuilder;
 import com.qwaecd.paramagic.core.particle.effect.GPUParticleEffect;
 import com.qwaecd.paramagic.core.particle.emitter.Emitter;
 import com.qwaecd.paramagic.core.particle.emitter.impl.SphereEmitter;
 import com.qwaecd.paramagic.core.particle.emitter.property.type.VelocityModeStates;
+import com.qwaecd.paramagic.data.para.struct.ParaData;
+import com.qwaecd.paramagic.data.para.struct.components.CurvyStarParaData;
+import com.qwaecd.paramagic.data.para.struct.components.RingParaData;
+import com.qwaecd.paramagic.data.para.struct.components.VoidParaData;
 import com.qwaecd.paramagic.feature.MagicCircle;
 import lombok.Getter;
 import org.joml.Quaternionf;
@@ -31,8 +38,89 @@ public final class EXPLOSION {
 
 
     public EXPLOSION(Vector3f emitterCenter, Vector3f eyePosition, Vector3f lookAngle) {
-        this.magicCircle = new MagicCircle();
+        this.magicCircle = createMagicCircle(emitterCenter, eyePosition, lookAngle);
         initializeParticleEffects(emitterCenter, eyePosition, lookAngle);
+    }
+
+
+    private MagicCircle createMagicCircle(Vector3f emitterCenter, Vector3f eyePosition, Vector3f lookAngle) {
+        VoidParaData rootPara = new VoidParaData();
+        {
+            RingParaData innerRing = new RingParaData(
+                    1.1f, 1.17f,
+                    64
+            );
+            innerRing.position.set(0.0f, 0.0f, 0.0f);
+            innerRing.color.set(0.8f, 0.3f, 0.5f, 0.8f);
+            rootPara.addChild(innerRing);
+
+            CurvyStarParaData curvy = new CurvyStarParaData(
+                    7.17f,
+                    8,
+                    5.0f,
+                    0.0f,
+                    0.05f
+            );
+            curvy.color.set(0.8f, 0.4f, 0.9f, 0.8f);
+            curvy.position.set(0.0f, 0.0f, 0.0f);
+            rootPara.addChild(curvy);
+
+            CurvyStarParaData curvy2 = new CurvyStarParaData(
+                    1.17f,
+                    6,
+                    0.3f,
+                    0.0f,
+                    0.05f
+            );
+            curvy2.color.set(0.8f, 0.4f, 0.9f, 0.8f);
+            curvy2.position.set(0.0f, 0.0f, 0.0f);
+            rootPara.addChild(curvy2);
+        }
+
+        {
+            RingParaData outRing = new RingParaData(
+                    4.0f, 4.1f,
+                    64
+            );
+            outRing.position.set(0.0f, 0.0f, 0.0f);
+            outRing.color.set(0.8f, 0.3f, 0.5f, 0.4f);
+            rootPara.addChild(outRing);
+            RingParaData outRing2 = new RingParaData(
+                    4.2f, 4.28f,
+                    64
+            );
+            outRing2.position.set(0.0f, 0.0f, 0.0f);
+            outRing2.color.set(0.8f, 0.3f, 0.4f, 0.4f);
+            rootPara.addChild(outRing2);
+        }
+
+
+        CurvyStarParaData curvy = new CurvyStarParaData(
+                4.0f,
+                6,
+                2.0f,
+                0.0f,
+                0.05f
+        );
+        curvy.color.set(0.8f, 0.4f, 0.9f, 0.8f);
+        curvy.position.set(0.0f, 0.0f, 0.0f);
+        rootPara.addChild(curvy);
+
+        ParaData paraData = new ParaData(rootPara);
+        MagicCircle circle;
+        try {
+            ParaComposer composer = ParaComposer.getINSTANCE();
+            circle = composer.assemble(paraData, null, null);
+        } catch (AssemblyException e) {
+            Paramagic.LOG.error("Assembly error: ", e);
+            circle = new MagicCircle();
+        }
+        final float scale = 1.0f;
+        circle.getTransform()
+                .setPosition(eyePosition.x, eyePosition.y - 1.6f, eyePosition.z)
+                .setRotationDegrees(0.0f, 0.0f, 0.0f)
+                .setScale(scale);
+        return circle;
     }
 
     private void initializeParticleEffects(Vector3f emitterCenter, Vector3f eyePosition, Vector3f lookAngle) {
@@ -165,7 +253,8 @@ public final class EXPLOSION {
         }
     }
 
-    public void updateProps(Vector3f newEmitterCenter) {
+    public void updateProps(Vector3f newEmitterCenter, Vector3f newEyePos) {
+        updateMagicCircle(newEyePos);
         onCenterMahoBallEffect(newEmitterCenter);
         onMahoLineEffect();
     }
@@ -174,6 +263,11 @@ public final class EXPLOSION {
         for (GPUParticleEffect effect : this.particleEffects) {
             consumer.accept(effect);
         }
+    }
+
+    private void updateMagicCircle(Vector3f newEyePos) {
+        final Vector3f axis = new Vector3f(0.0f, 1.0f, 0.0f);
+        this.magicCircle.getTransform().rotate((float) Math.toRadians(0.5f), axis);
     }
 
     private void submitEffect(GPUParticleEffect e, int index) {

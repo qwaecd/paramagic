@@ -202,7 +202,7 @@ public class DebugTools {
                             new KeyframeData<>(3.0f, new Vector3f(0.5f)),
                             new KeyframeData<>(24.0f, new Vector3f(2))
                     ),
-                    true
+                    false
             );
 
             animatingCenter = new AnimatorData(List.of(rotationTrack, scaleTrack));
@@ -242,7 +242,7 @@ public class DebugTools {
             animatingColor = new AnimatorData(List.of(colorTrack, intensity));
         }
         AnimationBinding data2 = new AnimationBinding(
-                "root.0",
+                "root.3.2",
                 null,
                 animatingColor
         );
@@ -303,19 +303,19 @@ public class DebugTools {
             polygon2.position.set(0, 0.2f, 0);
             polygon2.color.set(0.6f, 0.1f, 0.3f);
             group.addChild(polygon2);
-
             {
                 CurvyStarParaData curvy = new CurvyStarParaData(
-                        4.0f,
-                        16,
+                        2.0f,
+                        7,
                         -1.0f,
                         0.0f,
                         0.05f
                 );
                 curvy.color.set(0.8f, 0.4f, 0.9f, 0.8f);
-                curvy.position.set(0, 0.0f, 0);
+                curvy.position.set(0, -0.3f, 0);
                 group.addChild(curvy);
             }
+
             rootPara.addChild(group);
         }
 

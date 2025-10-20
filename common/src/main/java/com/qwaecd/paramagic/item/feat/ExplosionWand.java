@@ -80,7 +80,8 @@ public class ExplosionWand extends Item {
                 (float) eyePosition.z + (float) lookAngle.z * 2.2f
         );
         explosion.updateProps(
-                newEmitterCenter
+                newEmitterCenter,
+                eyePosition.toVector3f()
         );
     }
 
