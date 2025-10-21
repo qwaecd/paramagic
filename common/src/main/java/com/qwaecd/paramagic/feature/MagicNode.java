@@ -15,6 +15,10 @@ import java.util.List;
 import java.util.Optional;
 
 public class MagicNode implements IRenderable {
+    @Getter
+    @Setter
+    private String name;
+
     public  final Transform transform;
     private final AbstractMaterial material;
     private final Mesh mesh;

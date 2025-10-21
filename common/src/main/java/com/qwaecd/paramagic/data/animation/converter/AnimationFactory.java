@@ -50,7 +50,7 @@ public class AnimationFactory {
 
     private void processBindingData(MagicCircle circle, AnimationBinding animationBinding, @Nullable AnimatorLibraryData animLib) throws ConversionException {
         AnimatorData animatorData = resolveAnimatorData(animationBinding, animLib);
-        MagicNode targetNode = findTargetNode(circle, animationBinding.getTargetComponentId());
+        MagicNode targetNode = findTargetNode(circle, animationBinding.getTargetNodeNameOrComponentId());
         Animator animatorInstance = getOrCreateAnimator(targetNode);
         attachTracksToAnimator(animatorData, targetNode, animatorInstance);
     }
@@ -79,10 +79,10 @@ public class AnimationFactory {
         }
     }
 
-    private MagicNode findTargetNode(MagicCircle circle, String targetComponentId) throws ConversionException {
-        Optional<MagicNode> nodeById = circle.findNodeById(targetComponentId);
+    private MagicNode findTargetNode(MagicCircle circle, String targetNodeNameOrComponentId) throws ConversionException {
+        Optional<MagicNode> nodeById = circle.findNode(targetNodeNameOrComponentId);
         if (nodeById.isEmpty()) {
-            throw new ConversionException("Target component ID '" + targetComponentId + "' not found in MagicCircle.");
+            throw new ConversionException("Target component ID '" + targetNodeNameOrComponentId + "' not found in MagicCircle.");
         }
         return nodeById.get();
     }

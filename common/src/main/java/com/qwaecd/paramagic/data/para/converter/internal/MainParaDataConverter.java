@@ -57,25 +57,28 @@ public class MainParaDataConverter implements ParaDataConverter {
 
         MagicCircle magicCircle = new MagicCircle();
 
-        if (paraData.rootComponent != null) {
-            try {
-                MagicNode rootNode = convertComponentRecursive(paraData.rootComponent, magicCircle);
-
-                if (rootNode != null) {
-                    magicCircle.addChild(rootNode);
-                    Paramagic.LOG.debug("Successfully converted ParaData with {} registered nodes",
-                            magicCircle.getRegisteredComponentIds().size());
-                } else {
-                    Paramagic.LOG.warn("Root component conversion resulted in null node");
-                }
-
-            } catch (Exception e) {
-                throw new ConversionException("Failed to convert root component", e);
-            }
-        } else {
+        // 根 Para 组件本身为 null -> return empty Circle
+        if (paraData.rootComponent == null) {
             Paramagic.LOG.warn("ParaData has null root component, creating empty MagicCircle");
+            return magicCircle;
         }
 
+        try {
+            MagicNode rootNode = convertComponentRecursive(paraData.rootComponent, magicCircle);
+
+            // 转换后的根 node 为 null -> return empty Circle
+            if (rootNode == null) {
+                Paramagic.LOG.warn("Root component conversion resulted in null node");
+                return magicCircle;
+            }
+
+            magicCircle.addChild(rootNode);
+
+            Paramagic.LOG.debug("Successfully converted ParaData with {} registered nodes",
+                    magicCircle.getRegisteredComponentIds().size());
+        } catch (Exception e) {
+            throw new ConversionException("Failed to convert root component", e);
+        }
         return magicCircle;
     }
     @Override
@@ -144,6 +147,11 @@ public class MainParaDataConverter implements ParaDataConverter {
 
         // Register the node if it has an ID
         if (parentCircle != null && data.getComponentId() != null && !data.getComponentId().isEmpty()) {
+            String nodeName = data.getName();
+            if (nodeName != null && !nodeName.isEmpty()) {
+                node.setName(nodeName);
+            }
+
             parentCircle.registerNode(data.getComponentId(), node);
             Paramagic.LOG.trace("Registered node with ID: {}", data.getComponentId());
         }

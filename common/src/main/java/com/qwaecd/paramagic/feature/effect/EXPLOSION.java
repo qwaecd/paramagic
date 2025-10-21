@@ -8,6 +8,13 @@ import com.qwaecd.paramagic.core.particle.effect.GPUParticleEffect;
 import com.qwaecd.paramagic.core.particle.emitter.Emitter;
 import com.qwaecd.paramagic.core.particle.emitter.impl.SphereEmitter;
 import com.qwaecd.paramagic.core.particle.emitter.property.type.VelocityModeStates;
+import com.qwaecd.paramagic.data.animation.property.AllAnimatableProperties;
+import com.qwaecd.paramagic.data.animation.struct.AnimationBinding;
+import com.qwaecd.paramagic.data.animation.struct.AnimationBindingConfig;
+import com.qwaecd.paramagic.data.animation.struct.AnimatorData;
+import com.qwaecd.paramagic.data.animation.struct.track.KeyframeData;
+import com.qwaecd.paramagic.data.animation.struct.track.KeyframeTrackData;
+import com.qwaecd.paramagic.data.animation.struct.track.TrackData;
 import com.qwaecd.paramagic.data.para.struct.ParaData;
 import com.qwaecd.paramagic.data.para.struct.components.CurvyStarParaData;
 import com.qwaecd.paramagic.data.para.struct.components.RingParaData;
@@ -61,6 +68,7 @@ public final class EXPLOSION {
                     0.0f,
                     0.05f
             );
+            curvy.setName("out_curvy");
             curvy.color.set(0.8f, 0.4f, 0.9f, 0.8f);
             curvy.position.set(0.0f, 0.0f, 0.0f);
             rootPara.addChild(curvy);
@@ -110,7 +118,8 @@ public final class EXPLOSION {
         MagicCircle circle;
         try {
             ParaComposer composer = ParaComposer.getINSTANCE();
-            circle = composer.assemble(paraData, null, null);
+            AnimationBindingConfig bindingConfig = genAnimationData(emitterCenter, eyePosition, lookAngle);
+            circle = composer.assemble(paraData, bindingConfig, null);
         } catch (AssemblyException e) {
             Paramagic.LOG.error("Assembly error: ", e);
             circle = new MagicCircle();
@@ -121,6 +130,53 @@ public final class EXPLOSION {
                 .setRotationDegrees(0.0f, 0.0f, 0.0f)
                 .setScale(scale);
         return circle;
+    }
+
+    private AnimationBindingConfig genAnimationData(Vector3f emitterCenter, Vector3f eyePosition, Vector3f lookAngle) {
+        List<AnimationBinding> animationBindingList = new ArrayList<>();
+
+        AnimatorData rotationAnim;
+        {
+            TrackData<?> rotationTrack = new KeyframeTrackData<>(
+                    AllAnimatableProperties.ROTATION,
+                    List.of(
+                            new KeyframeData<>(10f, new Quaternionf().rotateY((float)Math.toRadians(0))),
+                            new KeyframeData<>(5.0f, new Quaternionf().rotateY((float)Math.toRadians(180))),
+                            new KeyframeData<>(0.0f, new Quaternionf().rotateY((float)Math.toRadians(359)))
+                    ),
+                    true
+            );
+
+            TrackData<?> scaleTrack = new KeyframeTrackData<>(
+                    AllAnimatableProperties.SCALE,
+                    List.of(
+                            new KeyframeData<>(0f,      new Vector3f(0.0f)),
+                            new KeyframeData<>(2.0f,    new Vector3f(0.5f)),
+                            new KeyframeData<>(6.0f,    new Vector3f(1.0f))
+                    ),
+                    false
+            );
+
+            TrackData<?> intensity = new KeyframeTrackData<>(
+                    AllAnimatableProperties.EMISSIVE_INTENSITY,
+                    List.of(
+                            new KeyframeData<>(0.0f, 0.1f),
+                            new KeyframeData<>(5.0f, 1.0f),
+                            new KeyframeData<>(10.0f, 3.0f),
+                            new KeyframeData<>(15.0f, 2.0f),
+                            new KeyframeData<>(20.0f, 0.1f)
+                    ),
+                    true
+            );
+            rotationAnim = new AnimatorData(List.of(rotationTrack, scaleTrack, intensity));
+            AnimationBinding data1 = new AnimationBinding(
+                    "out_curvy",
+                    null,
+                    rotationAnim
+            );
+            animationBindingList.add(data1);
+        }
+        return new AnimationBindingConfig(animationBindingList);
     }
 
     private void initializeParticleEffects(Vector3f emitterCenter, Vector3f eyePosition, Vector3f lookAngle) {
