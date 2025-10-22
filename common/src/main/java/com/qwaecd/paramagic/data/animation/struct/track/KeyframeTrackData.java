@@ -14,7 +14,7 @@ public class KeyframeTrackData<T> extends TrackData<T> {
         this.loop = loop;
     }
 
-    public void addKeyFrame(KeyframeData<T> keyframe) {
+    public void addKeyframe(KeyframeData<T> keyframe) {
         this.keyframes.add(keyframe);
     }
 }

@@ -47,8 +47,8 @@ public final class TimelineBuilder {
      * Add a keyframe at the current time point, can only act on keyframe tracks.<br>
      * 向当前的时间点添加一个关键帧，只能作用于关键帧轨道.
      */
-    public <T> TimelineBuilder keyFrame(AnimatableProperty<T> property, T value) {
-        this.keyFrame(property, value, false);
+    public <T> TimelineBuilder keyframe(AnimatableProperty<T> property, T value) {
+        this.keyframe(property, value, false);
         return this;
     }
 
@@ -58,7 +58,7 @@ public final class TimelineBuilder {
      * @param loop 初次设定该轨道时指定轨道的循环属性，若该轨道已经创建了，则以第一次创建为准.
      */
     @SuppressWarnings("unchecked")
-    public <T> TimelineBuilder keyFrame(AnimatableProperty<T> property, T value, boolean loop) {
+    public <T> TimelineBuilder keyframe(AnimatableProperty<T> property, T value, boolean loop) {
         TrackData<?> trackData = this.tracks.get(property);
         if (trackData == null) {
             trackData = new KeyframeTrackData<>(
@@ -71,7 +71,7 @@ public final class TimelineBuilder {
 
         if (trackData instanceof KeyframeTrackData<?> kfT) {
             KeyframeTrackData<T> keyframeTrack = (KeyframeTrackData<T>) kfT;
-            keyframeTrack.addKeyFrame(
+            keyframeTrack.addKeyframe(
                     new KeyframeData<>(this.timePointer, value)
             );
         } else {

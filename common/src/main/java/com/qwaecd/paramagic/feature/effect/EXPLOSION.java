@@ -12,9 +12,6 @@ import com.qwaecd.paramagic.data.animation.property.AllAnimatableProperties;
 import com.qwaecd.paramagic.data.animation.struct.AnimationBinding;
 import com.qwaecd.paramagic.data.animation.struct.AnimationBindingConfig;
 import com.qwaecd.paramagic.data.animation.struct.AnimatorData;
-import com.qwaecd.paramagic.data.animation.struct.track.KeyframeData;
-import com.qwaecd.paramagic.data.animation.struct.track.KeyframeTrackData;
-import com.qwaecd.paramagic.data.animation.struct.track.TrackData;
 import com.qwaecd.paramagic.data.animation.util.TimelineBuilder;
 import com.qwaecd.paramagic.data.para.struct.ParaData;
 import com.qwaecd.paramagic.data.para.struct.components.CurvyStarParaData;
@@ -141,22 +138,22 @@ public final class EXPLOSION {
             TimelineBuilder timelineBuilder = new TimelineBuilder();
             timelineBuilder
                     .at(0.0f)
-                    .keyFrame(AllAnimatableProperties.ROTATION, new Quaternionf().rotateY((float)Math.toRadians(359)), true)
-                    .keyFrame(AllAnimatableProperties.SCALE, new Vector3f(0.0f), false)
-                    .keyFrame(AllAnimatableProperties.EMISSIVE_INTENSITY, 0.5f, true)
+                    .keyframe(AllAnimatableProperties.ROTATION, new Quaternionf().rotateY((float)Math.toRadians(359)), true)
+                    .keyframe(AllAnimatableProperties.SCALE, new Vector3f(0.0f), false)
+                    .keyframe(AllAnimatableProperties.EMISSIVE_INTENSITY, 0.5f, true)
                     .timeStep(2.0f)
-                    .keyFrame(AllAnimatableProperties.SCALE, new Vector3f(0.5f))
+                    .keyframe(AllAnimatableProperties.SCALE, new Vector3f(0.5f))
                     .at(5.0f)
-                    .keyFrame(AllAnimatableProperties.ROTATION, new Quaternionf().rotateY((float)Math.toRadians(180)))
-                    .keyFrame(AllAnimatableProperties.EMISSIVE_INTENSITY, 1.0f)
-                    .keyFrame(AllAnimatableProperties.SCALE, new Vector3f(1.0f))
+                    .keyframe(AllAnimatableProperties.ROTATION, new Quaternionf().rotateY((float)Math.toRadians(180)))
+                    .keyframe(AllAnimatableProperties.EMISSIVE_INTENSITY, 1.0f)
+                    .keyframe(AllAnimatableProperties.SCALE, new Vector3f(1.0f))
                     .at(10.0f)
-                    .keyFrame(AllAnimatableProperties.ROTATION, new Quaternionf().rotateY((float)Math.toRadians(0)))
-                    .keyFrame(AllAnimatableProperties.EMISSIVE_INTENSITY, 5.0f)
+                    .keyframe(AllAnimatableProperties.ROTATION, new Quaternionf().rotateY((float)Math.toRadians(0)))
+                    .keyframe(AllAnimatableProperties.EMISSIVE_INTENSITY, 5.0f)
                     .at(15.0f)
-                    .keyFrame(AllAnimatableProperties.EMISSIVE_INTENSITY, 2.0f)
+                    .keyframe(AllAnimatableProperties.EMISSIVE_INTENSITY, 2.0f)
                     .at(20.0f)
-                    .keyFrame(AllAnimatableProperties.EMISSIVE_INTENSITY, 0.5f);
+                    .keyframe(AllAnimatableProperties.EMISSIVE_INTENSITY, 0.5f);
 
             animatorData = timelineBuilder.build();
             AnimationBinding data1 = new AnimationBinding(
