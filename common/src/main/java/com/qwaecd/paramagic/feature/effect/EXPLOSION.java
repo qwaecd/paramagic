@@ -15,6 +15,7 @@ import com.qwaecd.paramagic.data.animation.struct.AnimatorData;
 import com.qwaecd.paramagic.data.animation.struct.track.KeyframeData;
 import com.qwaecd.paramagic.data.animation.struct.track.KeyframeTrackData;
 import com.qwaecd.paramagic.data.animation.struct.track.TrackData;
+import com.qwaecd.paramagic.data.animation.util.TimelineBuilder;
 import com.qwaecd.paramagic.data.para.struct.ParaData;
 import com.qwaecd.paramagic.data.para.struct.components.CurvyStarParaData;
 import com.qwaecd.paramagic.data.para.struct.components.RingParaData;
@@ -135,44 +136,33 @@ public final class EXPLOSION {
     private AnimationBindingConfig genAnimationData(Vector3f emitterCenter, Vector3f eyePosition, Vector3f lookAngle) {
         List<AnimationBinding> animationBindingList = new ArrayList<>();
 
-        AnimatorData rotationAnim;
+        AnimatorData animatorData;
         {
-            TrackData<?> rotationTrack = new KeyframeTrackData<>(
-                    AllAnimatableProperties.ROTATION,
-                    List.of(
-                            new KeyframeData<>(10f, new Quaternionf().rotateY((float)Math.toRadians(0))),
-                            new KeyframeData<>(5.0f, new Quaternionf().rotateY((float)Math.toRadians(180))),
-                            new KeyframeData<>(0.0f, new Quaternionf().rotateY((float)Math.toRadians(359)))
-                    ),
-                    true
-            );
+            TimelineBuilder timelineBuilder = new TimelineBuilder();
+            timelineBuilder
+                    .at(0.0f)
+                    .keyFrame(AllAnimatableProperties.ROTATION, new Quaternionf().rotateY((float)Math.toRadians(359)), true)
+                    .keyFrame(AllAnimatableProperties.SCALE, new Vector3f(0.0f), false)
+                    .keyFrame(AllAnimatableProperties.EMISSIVE_INTENSITY, 0.5f, true)
+                    .timeStep(2.0f)
+                    .keyFrame(AllAnimatableProperties.SCALE, new Vector3f(0.5f))
+                    .at(5.0f)
+                    .keyFrame(AllAnimatableProperties.ROTATION, new Quaternionf().rotateY((float)Math.toRadians(180)))
+                    .keyFrame(AllAnimatableProperties.EMISSIVE_INTENSITY, 1.0f)
+                    .keyFrame(AllAnimatableProperties.SCALE, new Vector3f(1.0f))
+                    .at(10.0f)
+                    .keyFrame(AllAnimatableProperties.ROTATION, new Quaternionf().rotateY((float)Math.toRadians(0)))
+                    .keyFrame(AllAnimatableProperties.EMISSIVE_INTENSITY, 5.0f)
+                    .at(15.0f)
+                    .keyFrame(AllAnimatableProperties.EMISSIVE_INTENSITY, 2.0f)
+                    .at(20.0f)
+                    .keyFrame(AllAnimatableProperties.EMISSIVE_INTENSITY, 0.5f);
 
-            TrackData<?> scaleTrack = new KeyframeTrackData<>(
-                    AllAnimatableProperties.SCALE,
-                    List.of(
-                            new KeyframeData<>(0f,      new Vector3f(0.0f)),
-                            new KeyframeData<>(2.0f,    new Vector3f(0.5f)),
-                            new KeyframeData<>(6.0f,    new Vector3f(1.0f))
-                    ),
-                    false
-            );
-
-            TrackData<?> intensity = new KeyframeTrackData<>(
-                    AllAnimatableProperties.EMISSIVE_INTENSITY,
-                    List.of(
-                            new KeyframeData<>(0.0f, 0.1f),
-                            new KeyframeData<>(5.0f, 1.0f),
-                            new KeyframeData<>(10.0f, 3.0f),
-                            new KeyframeData<>(15.0f, 2.0f),
-                            new KeyframeData<>(20.0f, 0.1f)
-                    ),
-                    true
-            );
-            rotationAnim = new AnimatorData(List.of(rotationTrack, scaleTrack, intensity));
+            animatorData = timelineBuilder.build();
             AnimationBinding data1 = new AnimationBinding(
                     "out_curvy",
                     null,
-                    rotationAnim
+                    animatorData
             );
             animationBindingList.add(data1);
         }
