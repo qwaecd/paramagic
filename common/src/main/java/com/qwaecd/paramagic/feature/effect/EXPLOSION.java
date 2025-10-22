@@ -17,6 +17,7 @@ import com.qwaecd.paramagic.data.para.struct.ParaData;
 import com.qwaecd.paramagic.data.para.struct.components.CurvyStarParaData;
 import com.qwaecd.paramagic.data.para.struct.components.RingParaData;
 import com.qwaecd.paramagic.data.para.struct.components.VoidParaData;
+import com.qwaecd.paramagic.data.para.util.ParaComponentBuilder;
 import com.qwaecd.paramagic.feature.MagicCircle;
 import lombok.Getter;
 import org.joml.Quaternionf;
@@ -49,70 +50,39 @@ public final class EXPLOSION {
 
 
     private MagicCircle createMagicCircle(Vector3f emitterCenter, Vector3f eyePosition, Vector3f lookAngle) {
-        VoidParaData rootPara = new VoidParaData();
-        {
-            RingParaData innerRing = new RingParaData(
-                    1.1f, 1.17f,
-                    64
-            );
-            innerRing.position.set(0.0f, 0.0f, 0.0f);
-            innerRing.color.set(0.8f, 0.3f, 0.5f, 0.8f);
-            rootPara.addChild(innerRing);
+        ParaComponentBuilder rootParaBuilder = new ParaComponentBuilder()
+                .beginChild(new RingParaData(1.1f, 1.17f, 64))
+                .withPosition(0.0f, 0.0f, 0.0f)
+                .withColor(0.8f, 0.3f, 0.5f, 0.8f)
+                .endChild()
 
-            CurvyStarParaData curvy = new CurvyStarParaData(
-                    7.17f,
-                    8,
-                    5.0f,
-                    0.0f,
-                    0.05f
-            );
-            curvy.setName("out_curvy");
-            curvy.color.set(0.8f, 0.4f, 0.9f, 0.8f);
-            curvy.position.set(0.0f, 0.0f, 0.0f);
-            rootPara.addChild(curvy);
+                .beginChild(new CurvyStarParaData(7.17f, 8, 5.0f, 0.0f, 0.05f))
+                .withName("out_curvy")
+                .withColor(0.8f, 0.4f, 0.9f, 0.8f)
+                .withPosition(0.0f, 0.0f, 0.0f)
+                .endChild()
 
-            CurvyStarParaData curvy2 = new CurvyStarParaData(
-                    1.17f,
-                    6,
-                    0.3f,
-                    0.0f,
-                    0.05f
-            );
-            curvy2.color.set(0.8f, 0.4f, 0.9f, 0.8f);
-            curvy2.position.set(0.0f, 0.0f, 0.0f);
-            rootPara.addChild(curvy2);
-        }
+                .beginChild(new CurvyStarParaData(1.17f, 6, 0.3f, 0.0f, 0.05f))
+                .withColor(0.8f, 0.4f, 0.9f, 0.8f)
+                .withPosition(0.0f, 0.0f, 0.0f)
+                .endChild()
 
-        {
-            RingParaData outRing = new RingParaData(
-                    4.0f, 4.1f,
-                    64
-            );
-            outRing.position.set(0.0f, 0.0f, 0.0f);
-            outRing.color.set(0.8f, 0.3f, 0.5f, 0.4f);
-            rootPara.addChild(outRing);
-            RingParaData outRing2 = new RingParaData(
-                    4.2f, 4.28f,
-                    64
-            );
-            outRing2.position.set(0.0f, 0.0f, 0.0f);
-            outRing2.color.set(0.8f, 0.3f, 0.4f, 0.4f);
-            rootPara.addChild(outRing2);
-        }
+                .beginChild(new RingParaData(4.0f, 4.1f, 64))
+                .withColor(0.8f, 0.3f, 0.5f, 0.4f)
+                .withPosition(0.0f, 0.0f, 0.0f)
+                .endChild()
 
+                .beginChild(new RingParaData(4.2f, 4.28f, 64))
+                .withColor(0.8f, 0.3f, 0.4f, 0.4f)
+                .withPosition(0.0f, 0.0f, 0.0f)
+                .endChild()
 
-        CurvyStarParaData curvy = new CurvyStarParaData(
-                4.0f,
-                6,
-                2.0f,
-                0.0f,
-                0.05f
-        );
-        curvy.color.set(0.8f, 0.4f, 0.9f, 0.8f);
-        curvy.position.set(0.0f, 0.0f, 0.0f);
-        rootPara.addChild(curvy);
+                .beginChild(new CurvyStarParaData(4.0f, 6, 2.0f, 0.0f, 0.05f))
+                .withColor(0.8f, 0.4f, 0.9f, 0.8f)
+                .withPosition(0.0f, 0.0f, 0.0f)
+                .endChild();
 
-        ParaData paraData = new ParaData(rootPara);
+        ParaData paraData = new ParaData(rootParaBuilder.build());
         MagicCircle circle;
         try {
             ParaComposer composer = ParaComposer.getINSTANCE();
