@@ -133,8 +133,8 @@ public final class EXPLOSION {
     private AnimationBindingConfig genAnimationData(Vector3f emitterCenter, Vector3f eyePosition, Vector3f lookAngle) {
         List<AnimationBinding> animationBindingList = new ArrayList<>();
 
-        AnimatorData animatorData;
         {
+            AnimatorData animatorData;
             TimelineBuilder timelineBuilder = new TimelineBuilder();
             timelineBuilder
                     .at(0.0f)
@@ -156,12 +156,12 @@ public final class EXPLOSION {
                     .keyframe(AllAnimatableProperties.EMISSIVE_INTENSITY, 0.5f);
 
             animatorData = timelineBuilder.build();
-            AnimationBinding data1 = new AnimationBinding(
+            AnimationBinding bindingData = new AnimationBinding(
                     "out_curvy",
                     null,
                     animatorData
             );
-            animationBindingList.add(data1);
+            animationBindingList.add(bindingData);
         }
         return new AnimationBindingConfig(animationBindingList);
     }

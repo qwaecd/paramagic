@@ -1,7 +1,7 @@
 package com.qwaecd.paramagic.data.para.converter.factory.creator;
 
-import com.qwaecd.paramagic.data.para.struct.components.VoidParaData;
 import com.qwaecd.paramagic.data.para.converter.factory.NodeCreator;
+import com.qwaecd.paramagic.data.para.struct.components.VoidParaData;
 import com.qwaecd.paramagic.feature.MagicNode;
 
 public class VoidParaCreator implements NodeCreator<VoidParaData> {

@@ -11,10 +11,6 @@ import org.joml.Vector3f;
 import org.joml.Vector4f;
 
 import static com.qwaecd.paramagic.core.particle.emitter.property.key.AllEmitterProperties.*;
-import static com.qwaecd.paramagic.core.particle.emitter.property.key.AllEmitterProperties.BLOOM_INTENSITY;
-import static com.qwaecd.paramagic.core.particle.emitter.property.key.AllEmitterProperties.COLOR;
-import static com.qwaecd.paramagic.core.particle.emitter.property.key.AllEmitterProperties.LIFE_TIME_RANGE;
-import static com.qwaecd.paramagic.core.particle.emitter.property.key.AllEmitterProperties.SIZE_RANGE;
 
 public class CircleEmitter extends EmitterBase implements Emitter {
 

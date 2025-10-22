@@ -4,8 +4,8 @@ import com.qwaecd.paramagic.core.para.material.ParaMaterial;
 import com.qwaecd.paramagic.core.para.material.ParaMaterialProvider;
 import com.qwaecd.paramagic.core.para.mesh.ParaMeshProvider;
 import com.qwaecd.paramagic.core.render.vertex.Mesh;
-import com.qwaecd.paramagic.data.para.struct.components.RingParaData;
 import com.qwaecd.paramagic.data.para.converter.factory.NodeCreator;
+import com.qwaecd.paramagic.data.para.struct.components.RingParaData;
 import com.qwaecd.paramagic.feature.MagicNode;
 
 public class RingParaCreator implements NodeCreator<RingParaData> {

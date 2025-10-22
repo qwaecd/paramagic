@@ -2,9 +2,11 @@ package com.qwaecd.paramagic.core.para.mesh;
 
 import com.qwaecd.paramagic.core.render.vertex.Mesh;
 import com.qwaecd.paramagic.core.render.vertex.MeshBuilder;
-import org.joml.*;
+import org.joml.Matrix2f;
+import org.joml.Vector2d;
+import org.joml.Vector2f;
+import org.joml.Vector4f;
 
-import java.lang.Math;
 import java.nio.ByteBuffer;
 import java.nio.ShortBuffer;
 import java.util.HashMap;

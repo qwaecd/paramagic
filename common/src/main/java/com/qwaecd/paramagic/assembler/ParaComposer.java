@@ -1,11 +1,11 @@
 package com.qwaecd.paramagic.assembler;
 
+import com.qwaecd.paramagic.data.animation.converter.AnimationFactory;
 import com.qwaecd.paramagic.data.animation.struct.AnimationBindingConfig;
 import com.qwaecd.paramagic.data.animation.struct.AnimatorLibraryData;
-import com.qwaecd.paramagic.data.animation.converter.AnimationFactory;
 import com.qwaecd.paramagic.data.para.converter.ConversionException;
-import com.qwaecd.paramagic.data.para.struct.ParaData;
 import com.qwaecd.paramagic.data.para.converter.ParaConverters;
+import com.qwaecd.paramagic.data.para.struct.ParaData;
 import com.qwaecd.paramagic.feature.MagicCircle;
 import lombok.Getter;
 

@@ -5,8 +5,8 @@ import com.qwaecd.paramagic.client.animation.Keyframe;
 import com.qwaecd.paramagic.client.animation.PropertyAccessor;
 import com.qwaecd.paramagic.core.para.material.ParaMaterial;
 import com.qwaecd.paramagic.core.render.Transform;
-import com.qwaecd.paramagic.data.animation.property.AnimatableProperty;
 import com.qwaecd.paramagic.data.animation.converter.TrackConverter;
+import com.qwaecd.paramagic.data.animation.property.AnimatableProperty;
 import com.qwaecd.paramagic.data.animation.struct.track.KeyframeTrackData;
 import com.qwaecd.paramagic.data.para.converter.ConversionException;
 

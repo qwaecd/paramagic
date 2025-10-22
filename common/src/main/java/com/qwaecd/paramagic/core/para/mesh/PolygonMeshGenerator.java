@@ -2,8 +2,6 @@ package com.qwaecd.paramagic.core.para.mesh;
 
 import com.qwaecd.paramagic.core.render.vertex.Mesh;
 import com.qwaecd.paramagic.core.render.vertex.MeshBuilder;
-import com.qwaecd.paramagic.core.render.vertex.VertexAttributeEnum;
-import com.qwaecd.paramagic.core.render.vertex.VertexLayout;
 import org.joml.Vector4f;
 
 import java.nio.ByteBuffer;
