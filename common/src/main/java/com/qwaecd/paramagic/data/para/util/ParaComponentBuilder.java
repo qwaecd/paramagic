@@ -103,6 +103,11 @@ public final class ParaComponentBuilder {
         return this;
     }
 
+    public ParaComponentBuilder withIntensity(float intensity) {
+        this.instance.setIntensity(intensity);
+        return this;
+    }
+
     /**
      * 递归地构建所有的子节点，并将它们添加到父节点的children列表中。
      * @return 返回构建完成的、包含完整树结构的根节点对象。

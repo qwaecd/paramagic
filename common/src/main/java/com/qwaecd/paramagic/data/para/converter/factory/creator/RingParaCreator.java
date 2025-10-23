@@ -20,6 +20,8 @@ public class RingParaCreator implements NodeCreator<RingParaData> {
     public MagicNode create(RingParaData data) {
         Mesh mesh = this.meshProvider.rings().get(data.color, data.innerRadius, data.outerRadius, data.segments);
         ParaMaterial material = this.materialProvider.createRingMaterial();
+        material.setEmissiveColor(data.color.x, data.color.y, data.color.z);
+        material.setEmissiveIntensity(data.getIntensity());
         MagicNode magicNode = new MagicNode(mesh, material);
 
         magicNode.transform.set(data.position, data.rotation, data.scale);

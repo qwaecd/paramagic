@@ -23,6 +23,7 @@ import lombok.Getter;
 import lombok.experimental.UtilityClass;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
+import org.joml.Vector4f;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,6 +32,9 @@ import java.util.function.Consumer;
 
 import static com.qwaecd.paramagic.core.particle.emitter.property.key.AllEmitterProperties.*;
 
+/**
+ * 爆裂魔法！小子！
+ */
 public final class EXPLOSION {
     public static final float EFFECT_TIME = 180.0f;
     private final Random random = new Random();
@@ -292,44 +296,56 @@ public final class EXPLOSION {
         }
 
         ParaComponentData genComponentData(String paraName) {
+            final float intensity = 0.4f;
+            final Vector4f ringColor = new Vector4f(1.1f, 0.6f, 0.5f, 0.8f);
+            final Vector4f starColor = new Vector4f(1.0f, 0.5f, 0.5f, 0.8f);
             return new ParaComponentBuilder().withName(paraName)
                     // 中心结构
                     .beginChild(new RingParaData(1.1f, 1.17f, 64))
-                    .withColor(1.1f, 0.3f, 0.5f, 0.8f)
+                    .withColor(ringColor)
+                    .withIntensity(intensity)
                     .endChild()
 
                     .beginChild(new RingParaData(1.2f, 1.25f, 64))
-                    .withColor(1.5f, 0.3f, 0.5f, 0.8f)
+                    .withColor(ringColor)
+                    .withIntensity(intensity)
                     .endChild()
 
                     .beginChild(new CurvyStarParaData(1.1f, 6, 0.3f, 0.0f, 0.05f))
-                    .withColor(1.1f, 0.4f, 0.9f, 0.8f)
+                    .withColor(starColor)
+                    .withIntensity(intensity)
                     .endChild()
 
                     // 中层结构
                     .beginChild(new RingParaData(4.0f, 4.1f, 64))
-                    .withColor(1.1f, 0.3f, 0.5f, 0.4f)
+                    .withColor(ringColor)
+                    .withIntensity(intensity)
                     .endChild()
 
                     .beginChild(new RingParaData(4.2f, 4.28f, 64))
-                    .withColor(1.1f, 0.3f, 0.4f, 0.4f)
+                    .withColor(ringColor)
+                    .withIntensity(intensity)
                     .endChild()
 
                     .beginChild(new CurvyStarParaData(4.0f, 6, 2.0f, 0.0f, 0.05f))
-                    .withColor(1.1f, 0.4f, 0.9f, 0.8f)
+                    .withColor(starColor)
+                    .withIntensity(intensity)
                     .endChild()
 
                     // 外层结构
                     .beginChild(new RingParaData(8.0f, 8.1f, 64))
-                    .withColor(1.1f, 0.3f, 0.5f, 0.4f)
+                    .withColor(ringColor)
+                    .withIntensity(intensity)
                     .endChild()
 
                     .beginChild(new RingParaData(8.2f, 8.28f, 64))
-                    .withColor(1.1f, 0.3f, 0.4f, 0.4f)
+                    .withColor(ringColor)
+                    .withIntensity(intensity)
                     .endChild()
 
                     .beginChild(new CurvyStarParaData(5.0f, 6, -2.6f, 0.0f, 0.05f))
-                    .withColor(1.1f, 0.4f, 0.9f, 0.8f)
+                    .withColor(starColor)
+                    .withIntensity(intensity)
                     .endChild()
                     .build();
         }

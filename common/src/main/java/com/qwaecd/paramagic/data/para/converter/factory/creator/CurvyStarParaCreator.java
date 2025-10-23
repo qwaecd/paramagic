@@ -20,6 +20,8 @@ public class CurvyStarParaCreator implements NodeCreator<CurvyStarParaData> {
     public MagicNode create(CurvyStarParaData data) {
         Mesh mesh = this.meshProvider.curvyStars().get(data.color, data.radius, data.sides, data.curvature, data.startAngle, data.lineWidth);
         ParaMaterial material = this.materialProvider.createCurvyStarMaterial();
+        material.setEmissiveColor(data.color.x, data.color.y, data.color.z);
+        material.setEmissiveIntensity(data.getIntensity());
         MagicNode magicNode = new MagicNode(mesh, material);
 
         magicNode.transform.set(data.position, data.rotation, data.scale);

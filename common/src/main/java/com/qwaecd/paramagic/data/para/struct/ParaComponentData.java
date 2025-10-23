@@ -32,6 +32,9 @@ public abstract class ParaComponentData {
     public Vector3f scale;
 
     public Vector4f color;
+    @Getter
+    @Setter
+    protected float intensity;
 
     protected ParaComponentData() {
         this.children = new ArrayList<>();
@@ -39,7 +42,9 @@ public abstract class ParaComponentData {
         this.position = new Vector3f(0.0f, 0.0f, 0.0f);
         this.rotation = new Quaternionf().identity();
         this.scale = new Vector3f(1.0f, 1.0f, 1.0f);
+
         this.color = new Vector4f(1.0f, 1.0f, 1.0f, 1.0f);
+        this.intensity = 0.0f;
     }
     public void addChild(ParaComponentData child) {
         this.children.add(child);

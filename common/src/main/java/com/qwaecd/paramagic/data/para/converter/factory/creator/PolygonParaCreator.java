@@ -20,6 +20,8 @@ public class PolygonParaCreator implements NodeCreator<PolygonParaData> {
     public MagicNode create(PolygonParaData data) {
         Mesh mesh = this.meshProvider.polygons().get(data.color, data.radius, data.sides, data.startAngle, data.lineWidth);
         ParaMaterial material = this.materialProvider.createPolygonMaterial();
+        material.setEmissiveColor(data.color.x, data.color.y, data.color.z);
+        material.setEmissiveIntensity(data.getIntensity());
         MagicNode magicNode = new MagicNode(mesh, material);
 
         magicNode.transform.set(data.position, data.rotation, data.scale);
