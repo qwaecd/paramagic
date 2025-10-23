@@ -101,7 +101,7 @@ public class AnimationFactory {
     private void attachTracksToAnimator(AnimatorData animatorData, MagicNode targetNode, Animator animatorInstance) throws ConversionException {
         for (TrackData<?> track : animatorData.getTracks()) {
             ParaMaterial material = (ParaMaterial) targetNode.getMaterial();
-            if (track.isColorTrack) {
+            if (track.isMaterialTrack) {
                 if (material == null){
                     throw new ConversionException("Material is required, you may be animating a VoidPara.");
                 }

@@ -13,12 +13,14 @@ import com.qwaecd.paramagic.data.animation.struct.AnimationBinding;
 import com.qwaecd.paramagic.data.animation.struct.AnimationBindingConfig;
 import com.qwaecd.paramagic.data.animation.struct.AnimatorData;
 import com.qwaecd.paramagic.data.animation.util.TimelineBuilder;
+import com.qwaecd.paramagic.data.para.struct.ParaComponentData;
 import com.qwaecd.paramagic.data.para.struct.ParaData;
 import com.qwaecd.paramagic.data.para.struct.components.CurvyStarParaData;
 import com.qwaecd.paramagic.data.para.struct.components.RingParaData;
 import com.qwaecd.paramagic.data.para.util.ParaComponentBuilder;
 import com.qwaecd.paramagic.feature.MagicCircle;
 import lombok.Getter;
+import lombok.experimental.UtilityClass;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
@@ -49,39 +51,7 @@ public final class EXPLOSION {
 
 
     private MagicCircle createMagicCircle(Vector3f emitterCenter, Vector3f eyePosition, Vector3f lookAngle) {
-        ParaComponentBuilder rootParaBuilder = new ParaComponentBuilder()
-                .beginChild(new RingParaData(1.1f, 1.17f, 64))
-                    .withPosition(0.0f, 0.0f, 0.0f)
-                    .withColor(0.8f, 0.3f, 0.5f, 0.8f)
-                .endChild()
-
-                .beginChild(new CurvyStarParaData(7.17f, 8, 5.0f, 0.0f, 0.05f))
-                    .withName("out_curvy")
-                    .withColor(0.8f, 0.4f, 0.9f, 0.8f)
-                    .withPosition(0.0f, 0.0f, 0.0f)
-                .endChild()
-
-                .beginChild(new CurvyStarParaData(1.17f, 6, 0.3f, 0.0f, 0.05f))
-                    .withColor(0.8f, 0.4f, 0.9f, 0.8f)
-                    .withPosition(0.0f, 0.0f, 0.0f)
-                .endChild()
-
-                .beginChild(new RingParaData(4.0f, 4.1f, 64))
-                    .withColor(0.8f, 0.3f, 0.5f, 0.4f)
-                    .withPosition(0.0f, 0.0f, 0.0f)
-                .endChild()
-
-                .beginChild(new RingParaData(4.2f, 4.28f, 64))
-                    .withColor(0.8f, 0.3f, 0.4f, 0.4f)
-                    .withPosition(0.0f, 0.0f, 0.0f)
-                .endChild()
-
-                .beginChild(new CurvyStarParaData(4.0f, 6, 2.0f, 0.0f, 0.05f))
-                    .withColor(0.8f, 0.4f, 0.9f, 0.8f)
-                    .withPosition(0.0f, 0.0f, 0.0f)
-                .endChild();
-
-        ParaData paraData = new ParaData(rootParaBuilder.build());
+        ParaData paraData = new ParaData(new ExplosionParaNode(ParaBingingKey.underPlayer).get());
         MagicCircle circle;
         try {
             ParaComposer composer = ParaComposer.getINSTANCE();
@@ -109,24 +79,16 @@ public final class EXPLOSION {
                     .at(0.0f)
                     .keyframe(AllAnimatableProperties.ROTATION, new Quaternionf().rotateY((float)Math.toRadians(359)), true)
                     .keyframe(AllAnimatableProperties.SCALE, new Vector3f(0.0f), false)
-                    .keyframe(AllAnimatableProperties.EMISSIVE_INTENSITY, 0.5f, true)
-                    .timeStep(2.0f)
-                    .keyframe(AllAnimatableProperties.SCALE, new Vector3f(0.5f))
+                    .timeStep(0.5f)
+                    .keyframe(AllAnimatableProperties.SCALE, new Vector3f(1.0f))
                     .at(5.0f)
                     .keyframe(AllAnimatableProperties.ROTATION, new Quaternionf().rotateY((float)Math.toRadians(180)))
-                    .keyframe(AllAnimatableProperties.EMISSIVE_INTENSITY, 1.0f)
-                    .keyframe(AllAnimatableProperties.SCALE, new Vector3f(1.0f))
                     .at(10.0f)
-                    .keyframe(AllAnimatableProperties.ROTATION, new Quaternionf().rotateY((float)Math.toRadians(0)))
-                    .keyframe(AllAnimatableProperties.EMISSIVE_INTENSITY, 5.0f)
-                    .at(15.0f)
-                    .keyframe(AllAnimatableProperties.EMISSIVE_INTENSITY, 2.0f)
-                    .at(20.0f)
-                    .keyframe(AllAnimatableProperties.EMISSIVE_INTENSITY, 0.5f);
+                    .keyframe(AllAnimatableProperties.ROTATION, new Quaternionf().rotateY((float)Math.toRadians(0)));
 
             animatorData = timelineBuilder.build();
             AnimationBinding bindingData = new AnimationBinding(
-                    "out_curvy",
+                    ParaBingingKey.underPlayer,
                     null,
                     animatorData
             );
@@ -279,7 +241,7 @@ public final class EXPLOSION {
 
     private void modifyMagicCircleProp() {
         final Vector3f axis = new Vector3f(0.0f, 1.0f, 0.0f);
-        this.magicCircle.getTransform().rotate((float) Math.toRadians(0.5f), axis);
+//        this.magicCircle.getTransform().rotate((float) Math.toRadians(0.5f), axis);
     }
 
     private void submitEffect(GPUParticleEffect e, int index) {
@@ -321,5 +283,65 @@ public final class EXPLOSION {
                 ((random.nextFloat() * 2.0f) - 1.0f) * strength,
                 ((random.nextFloat() * 2.0f) - 1.0f) * strength
         );
+    }
+
+    private static class ExplosionParaNode {
+        final ParaComponentData paraComponentData;
+        ExplosionParaNode(String paraName) {
+            paraComponentData = genComponentData(paraName);
+        }
+
+        ParaComponentData genComponentData(String paraName) {
+            return new ParaComponentBuilder().withName(paraName)
+                    // 中心结构
+                    .beginChild(new RingParaData(1.1f, 1.17f, 64))
+                    .withColor(1.1f, 0.3f, 0.5f, 0.8f)
+                    .endChild()
+
+                    .beginChild(new RingParaData(1.2f, 1.25f, 64))
+                    .withColor(1.5f, 0.3f, 0.5f, 0.8f)
+                    .endChild()
+
+                    .beginChild(new CurvyStarParaData(1.1f, 6, 0.3f, 0.0f, 0.05f))
+                    .withColor(1.1f, 0.4f, 0.9f, 0.8f)
+                    .endChild()
+
+                    // 中层结构
+                    .beginChild(new RingParaData(4.0f, 4.1f, 64))
+                    .withColor(1.1f, 0.3f, 0.5f, 0.4f)
+                    .endChild()
+
+                    .beginChild(new RingParaData(4.2f, 4.28f, 64))
+                    .withColor(1.1f, 0.3f, 0.4f, 0.4f)
+                    .endChild()
+
+                    .beginChild(new CurvyStarParaData(4.0f, 6, 2.0f, 0.0f, 0.05f))
+                    .withColor(1.1f, 0.4f, 0.9f, 0.8f)
+                    .endChild()
+
+                    // 外层结构
+                    .beginChild(new RingParaData(8.0f, 8.1f, 64))
+                    .withColor(1.1f, 0.3f, 0.5f, 0.4f)
+                    .endChild()
+
+                    .beginChild(new RingParaData(8.2f, 8.28f, 64))
+                    .withColor(1.1f, 0.3f, 0.4f, 0.4f)
+                    .endChild()
+
+                    .beginChild(new CurvyStarParaData(5.0f, 6, -2.6f, 0.0f, 0.05f))
+                    .withColor(1.1f, 0.4f, 0.9f, 0.8f)
+                    .endChild()
+                    .build();
+        }
+
+
+        ParaComponentData get() {
+            return paraComponentData;
+        }
+    }
+
+    @UtilityClass
+    private static class ParaBingingKey {
+        String underPlayer = "under_player";
     }
 }
