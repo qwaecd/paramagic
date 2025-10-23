@@ -75,8 +75,7 @@ public class MagicCircle extends MagicNode {
         return this.nodeRegistry.getRegisteredComponentIds();
     }
 
-    @SuppressWarnings("InnerClassMayBeStatic")
-    class MagicNodeRegistry {
+    static class MagicNodeRegistry {
         // 路径ID到MagicNode的映射
         private final Map<String, MagicNode> nodesByPath = new HashMap<>();
 

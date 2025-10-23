@@ -16,7 +16,6 @@ import com.qwaecd.paramagic.data.animation.util.TimelineBuilder;
 import com.qwaecd.paramagic.data.para.struct.ParaData;
 import com.qwaecd.paramagic.data.para.struct.components.CurvyStarParaData;
 import com.qwaecd.paramagic.data.para.struct.components.RingParaData;
-import com.qwaecd.paramagic.data.para.struct.components.VoidParaData;
 import com.qwaecd.paramagic.data.para.util.ParaComponentBuilder;
 import com.qwaecd.paramagic.feature.MagicCircle;
 import lombok.Getter;
@@ -52,34 +51,34 @@ public final class EXPLOSION {
     private MagicCircle createMagicCircle(Vector3f emitterCenter, Vector3f eyePosition, Vector3f lookAngle) {
         ParaComponentBuilder rootParaBuilder = new ParaComponentBuilder()
                 .beginChild(new RingParaData(1.1f, 1.17f, 64))
-                .withPosition(0.0f, 0.0f, 0.0f)
-                .withColor(0.8f, 0.3f, 0.5f, 0.8f)
+                    .withPosition(0.0f, 0.0f, 0.0f)
+                    .withColor(0.8f, 0.3f, 0.5f, 0.8f)
                 .endChild()
 
                 .beginChild(new CurvyStarParaData(7.17f, 8, 5.0f, 0.0f, 0.05f))
-                .withName("out_curvy")
-                .withColor(0.8f, 0.4f, 0.9f, 0.8f)
-                .withPosition(0.0f, 0.0f, 0.0f)
+                    .withName("out_curvy")
+                    .withColor(0.8f, 0.4f, 0.9f, 0.8f)
+                    .withPosition(0.0f, 0.0f, 0.0f)
                 .endChild()
 
                 .beginChild(new CurvyStarParaData(1.17f, 6, 0.3f, 0.0f, 0.05f))
-                .withColor(0.8f, 0.4f, 0.9f, 0.8f)
-                .withPosition(0.0f, 0.0f, 0.0f)
+                    .withColor(0.8f, 0.4f, 0.9f, 0.8f)
+                    .withPosition(0.0f, 0.0f, 0.0f)
                 .endChild()
 
                 .beginChild(new RingParaData(4.0f, 4.1f, 64))
-                .withColor(0.8f, 0.3f, 0.5f, 0.4f)
-                .withPosition(0.0f, 0.0f, 0.0f)
+                    .withColor(0.8f, 0.3f, 0.5f, 0.4f)
+                    .withPosition(0.0f, 0.0f, 0.0f)
                 .endChild()
 
                 .beginChild(new RingParaData(4.2f, 4.28f, 64))
-                .withColor(0.8f, 0.3f, 0.4f, 0.4f)
-                .withPosition(0.0f, 0.0f, 0.0f)
+                    .withColor(0.8f, 0.3f, 0.4f, 0.4f)
+                    .withPosition(0.0f, 0.0f, 0.0f)
                 .endChild()
 
                 .beginChild(new CurvyStarParaData(4.0f, 6, 2.0f, 0.0f, 0.05f))
-                .withColor(0.8f, 0.4f, 0.9f, 0.8f)
-                .withPosition(0.0f, 0.0f, 0.0f)
+                    .withColor(0.8f, 0.4f, 0.9f, 0.8f)
+                    .withPosition(0.0f, 0.0f, 0.0f)
                 .endChild();
 
         ParaData paraData = new ParaData(rootParaBuilder.build());
@@ -266,8 +265,8 @@ public final class EXPLOSION {
         }
     }
 
-    public void updateProps(Vector3f newEmitterCenter, Vector3f newEyePos) {
-        updateMagicCircle(newEyePos);
+    public void modifyProps(Vector3f newEmitterCenter, Vector3f newEyePos) {
+        modifyMagicCircleProp();
         onCenterMahoBallEffect(newEmitterCenter);
         onMahoLineEffect();
     }
@@ -278,7 +277,7 @@ public final class EXPLOSION {
         }
     }
 
-    private void updateMagicCircle(Vector3f newEyePos) {
+    private void modifyMagicCircleProp() {
         final Vector3f axis = new Vector3f(0.0f, 1.0f, 0.0f);
         this.magicCircle.getTransform().rotate((float) Math.toRadians(0.5f), axis);
     }
