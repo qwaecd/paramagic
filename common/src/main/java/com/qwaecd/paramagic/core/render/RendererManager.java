@@ -1,7 +1,7 @@
 package com.qwaecd.paramagic.core.render;
 
 import com.qwaecd.paramagic.client.renderer.MagicCircleRenderer;
-import com.qwaecd.paramagic.feature.MagicCircleManager;
+import com.qwaecd.paramagic.feature.circle.MagicCircleManager;
 
 
 public class RendererManager {

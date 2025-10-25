@@ -1,7 +1,7 @@
 package com.qwaecd.paramagic.data.para.converter.api;
 
 import com.qwaecd.paramagic.data.para.struct.ParaComponentData;
-import com.qwaecd.paramagic.feature.MagicNode;
+import com.qwaecd.paramagic.feature.circle.MagicNode;
 
 /**
  * Converter interface for ParaComponentData to MagicNode.<br>

@@ -107,8 +107,7 @@ public class AnimationTrack {
         return time >= this.duration;
     }
 
-    @SuppressWarnings("InnerClassMayBeStatic")
-    private class TempValue {
+    private static class TempValue {
         Vector3f vct3 = new Vector3f();
         Vector4f vct4 = new Vector4f();
         Quaternionf quat = new Quaternionf();

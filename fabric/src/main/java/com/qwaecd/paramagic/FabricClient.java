@@ -4,7 +4,7 @@ import com.qwaecd.paramagic.client.render.impl.FabricRenderContext;
 import com.qwaecd.paramagic.core.render.ModRenderSystem;
 import com.qwaecd.paramagic.core.render.context.RenderContextManager;
 import com.qwaecd.paramagic.debug.DebugTools;
-import com.qwaecd.paramagic.feature.MagicCircleManager;
+import com.qwaecd.paramagic.feature.circle.MagicCircleManager;
 import com.qwaecd.paramagic.platform.Services;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandManager;

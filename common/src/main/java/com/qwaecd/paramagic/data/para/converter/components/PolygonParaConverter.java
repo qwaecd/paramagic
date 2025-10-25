@@ -3,7 +3,7 @@ package com.qwaecd.paramagic.data.para.converter.components;
 import com.qwaecd.paramagic.data.para.converter.api.ParaComponentConverter;
 import com.qwaecd.paramagic.data.para.converter.factory.ParaAssetFactory;
 import com.qwaecd.paramagic.data.para.struct.components.PolygonParaData;
-import com.qwaecd.paramagic.feature.MagicNode;
+import com.qwaecd.paramagic.feature.circle.MagicNode;
 
 public class PolygonParaConverter implements ParaComponentConverter<PolygonParaData> {
     private final ParaAssetFactory assetFactory;

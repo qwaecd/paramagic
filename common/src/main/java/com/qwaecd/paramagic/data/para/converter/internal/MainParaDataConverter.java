@@ -12,8 +12,8 @@ import com.qwaecd.paramagic.data.para.converter.components.VoidParaConverter;
 import com.qwaecd.paramagic.data.para.converter.factory.ParaAssetFactory;
 import com.qwaecd.paramagic.data.para.struct.ParaComponentData;
 import com.qwaecd.paramagic.data.para.struct.ParaData;
-import com.qwaecd.paramagic.feature.MagicCircle;
-import com.qwaecd.paramagic.feature.MagicNode;
+import com.qwaecd.paramagic.feature.circle.MagicCircle;
+import com.qwaecd.paramagic.feature.circle.MagicNode;
 import lombok.Getter;
 
 import java.util.ArrayList;

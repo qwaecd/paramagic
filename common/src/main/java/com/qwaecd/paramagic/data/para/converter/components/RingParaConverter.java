@@ -3,7 +3,7 @@ package com.qwaecd.paramagic.data.para.converter.components;
 import com.qwaecd.paramagic.data.para.converter.api.ParaComponentConverter;
 import com.qwaecd.paramagic.data.para.converter.factory.ParaAssetFactory;
 import com.qwaecd.paramagic.data.para.struct.components.RingParaData;
-import com.qwaecd.paramagic.feature.MagicNode;
+import com.qwaecd.paramagic.feature.circle.MagicNode;
 
 public class RingParaConverter implements ParaComponentConverter<RingParaData> {
     private final ParaAssetFactory assetFactory;

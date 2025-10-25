@@ -1,4 +1,4 @@
-package com.qwaecd.paramagic.feature;
+package com.qwaecd.paramagic.feature.circle;
 
 import com.qwaecd.paramagic.client.renderer.MagicCircleRenderer;
 import com.qwaecd.paramagic.core.render.ModRenderSystem;

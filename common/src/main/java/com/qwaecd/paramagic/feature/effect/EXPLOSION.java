@@ -18,7 +18,7 @@ import com.qwaecd.paramagic.data.para.struct.ParaData;
 import com.qwaecd.paramagic.data.para.struct.components.CurvyStarParaData;
 import com.qwaecd.paramagic.data.para.struct.components.RingParaData;
 import com.qwaecd.paramagic.data.para.util.ParaComponentBuilder;
-import com.qwaecd.paramagic.feature.MagicCircle;
+import com.qwaecd.paramagic.feature.circle.MagicCircle;
 import lombok.Getter;
 import lombok.experimental.UtilityClass;
 import org.joml.Quaternionf;
@@ -275,7 +275,7 @@ public final class EXPLOSION {
                 emitter.getProperty(COLOR).modify(v -> {
                     float r = random.nextFloat(0.6f, 1.2f);
                     float g = random.nextFloat(0.6f, 0.9f);
-                    float b = random.nextFloat(0.8f, 1.4f);
+                    float b = random.nextFloat(0.8f, 2.4f);
                     v.set(r, g, b, v.w);
                 });
             }

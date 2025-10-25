@@ -3,7 +3,7 @@ package com.qwaecd.paramagic.data.para.converter.components;
 import com.qwaecd.paramagic.data.para.converter.api.ParaComponentConverter;
 import com.qwaecd.paramagic.data.para.converter.factory.ParaAssetFactory;
 import com.qwaecd.paramagic.data.para.struct.components.CurvyStarParaData;
-import com.qwaecd.paramagic.feature.MagicNode;
+import com.qwaecd.paramagic.feature.circle.MagicNode;
 
 public class CurvyStarParaConverter implements ParaComponentConverter<CurvyStarParaData> {
     private final ParaAssetFactory assetFactory;

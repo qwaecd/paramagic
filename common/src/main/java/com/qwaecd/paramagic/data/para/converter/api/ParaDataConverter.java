@@ -2,7 +2,7 @@ package com.qwaecd.paramagic.data.para.converter.api;
 
 import com.qwaecd.paramagic.data.para.converter.ConversionException;
 import com.qwaecd.paramagic.data.para.struct.ParaData;
-import com.qwaecd.paramagic.feature.MagicCircle;
+import com.qwaecd.paramagic.feature.circle.MagicCircle;
 
 public interface ParaDataConverter {
     /**

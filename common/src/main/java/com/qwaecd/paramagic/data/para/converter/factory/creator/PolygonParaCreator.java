@@ -6,7 +6,7 @@ import com.qwaecd.paramagic.core.para.mesh.ParaMeshProvider;
 import com.qwaecd.paramagic.core.render.vertex.Mesh;
 import com.qwaecd.paramagic.data.para.converter.factory.NodeCreator;
 import com.qwaecd.paramagic.data.para.struct.components.PolygonParaData;
-import com.qwaecd.paramagic.feature.MagicNode;
+import com.qwaecd.paramagic.feature.circle.MagicNode;
 
 public class PolygonParaCreator implements NodeCreator<PolygonParaData> {
     private final ParaMeshProvider meshProvider;

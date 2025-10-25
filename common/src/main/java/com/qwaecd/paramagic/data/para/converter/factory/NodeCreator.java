@@ -1,7 +1,7 @@
 package com.qwaecd.paramagic.data.para.converter.factory;
 
 import com.qwaecd.paramagic.data.para.struct.ParaComponentData;
-import com.qwaecd.paramagic.feature.MagicNode;
+import com.qwaecd.paramagic.feature.circle.MagicNode;
 
 @FunctionalInterface
 public interface NodeCreator<T extends ParaComponentData> {

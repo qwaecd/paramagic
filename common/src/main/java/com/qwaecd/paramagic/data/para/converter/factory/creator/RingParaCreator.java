@@ -6,7 +6,7 @@ import com.qwaecd.paramagic.core.para.mesh.ParaMeshProvider;
 import com.qwaecd.paramagic.core.render.vertex.Mesh;
 import com.qwaecd.paramagic.data.para.converter.factory.NodeCreator;
 import com.qwaecd.paramagic.data.para.struct.components.RingParaData;
-import com.qwaecd.paramagic.feature.MagicNode;
+import com.qwaecd.paramagic.feature.circle.MagicNode;
 
 public class RingParaCreator implements NodeCreator<RingParaData> {
     private final ParaMeshProvider meshProvider;

@@ -12,8 +12,8 @@ import com.qwaecd.paramagic.data.animation.struct.AnimatorLibraryData;
 import com.qwaecd.paramagic.data.animation.struct.track.KeyframeTrackData;
 import com.qwaecd.paramagic.data.animation.struct.track.TrackData;
 import com.qwaecd.paramagic.data.para.converter.ConversionException;
-import com.qwaecd.paramagic.feature.MagicCircle;
-import com.qwaecd.paramagic.feature.MagicNode;
+import com.qwaecd.paramagic.feature.circle.MagicCircle;
+import com.qwaecd.paramagic.feature.circle.MagicNode;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;

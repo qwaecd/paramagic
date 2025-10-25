@@ -11,7 +11,7 @@ import com.qwaecd.paramagic.data.para.struct.components.CurvyStarParaData;
 import com.qwaecd.paramagic.data.para.struct.components.PolygonParaData;
 import com.qwaecd.paramagic.data.para.struct.components.RingParaData;
 import com.qwaecd.paramagic.data.para.struct.components.VoidParaData;
-import com.qwaecd.paramagic.feature.MagicNode;
+import com.qwaecd.paramagic.feature.circle.MagicNode;
 
 import java.util.HashMap;
 import java.util.Map;

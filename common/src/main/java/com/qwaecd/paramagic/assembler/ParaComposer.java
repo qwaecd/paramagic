@@ -6,7 +6,7 @@ import com.qwaecd.paramagic.data.animation.struct.AnimatorLibraryData;
 import com.qwaecd.paramagic.data.para.converter.ConversionException;
 import com.qwaecd.paramagic.data.para.converter.ParaConverters;
 import com.qwaecd.paramagic.data.para.struct.ParaData;
-import com.qwaecd.paramagic.feature.MagicCircle;
+import com.qwaecd.paramagic.feature.circle.MagicCircle;
 import lombok.Getter;
 
 

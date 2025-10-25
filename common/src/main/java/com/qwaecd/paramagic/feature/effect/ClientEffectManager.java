@@ -1,7 +1,7 @@
 package com.qwaecd.paramagic.feature.effect;
 
 import com.qwaecd.paramagic.core.particle.ParticleManager;
-import com.qwaecd.paramagic.feature.MagicCircleManager;
+import com.qwaecd.paramagic.feature.circle.MagicCircleManager;
 
 import java.util.HashMap;
 import java.util.Map;

@@ -1,4 +1,4 @@
-package com.qwaecd.paramagic.feature;
+package com.qwaecd.paramagic.feature.circle;
 
 import com.qwaecd.paramagic.client.animation.Animator;
 import com.qwaecd.paramagic.client.renderer.MagicCircleRenderer;
