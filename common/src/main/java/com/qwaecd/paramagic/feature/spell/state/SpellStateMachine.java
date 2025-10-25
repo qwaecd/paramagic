@@ -8,6 +8,7 @@ import com.qwaecd.paramagic.feature.spell.state.phase.PhaseConfiguration;
 import com.qwaecd.paramagic.feature.spell.state.phase.SpellPhaseType;
 import com.qwaecd.paramagic.feature.spell.state.phase.impl.CastingPhase;
 import com.qwaecd.paramagic.feature.spell.state.phase.impl.IdlePhase;
+import com.qwaecd.paramagic.feature.spell.state.transition.AllTransEvents;
 import com.qwaecd.paramagic.feature.spell.state.transition.IPhaseTransition;
 
 import javax.annotation.Nullable;
@@ -17,13 +18,13 @@ import java.util.List;
 public class SpellStateMachine {
     @Nullable
     private ISpellPhase currentPhase;
-    private final SpellConfiguration config;
+    private final SpellConfiguration spellConfiguration;
     private final List<ISpellPhaseListener> listeners;
 
 
     public SpellStateMachine(SpellConfiguration cfg) {
         this.currentPhase = cfg.getInitialPhase();
-        this.config = cfg;
+        this.spellConfiguration = cfg;
         this.listeners = new ArrayList<>();
     }
 
@@ -34,7 +35,21 @@ public class SpellStateMachine {
     public void update(float deltaTime) {
         if (this.currentPhase != null) {
             this.currentPhase.update(this, deltaTime);
+        } else {
+            endSpell();
         }
+    }
+
+    public void requestNextPhase() {
+        handleTransition(AllTransEvents.NEXT.get());
+    }
+
+    public void interrupt() {
+        handleTransition(AllTransEvents.INTERRUPT.get());
+    }
+
+    public void interrupt(String reason) {
+        handleTransition(reason);
     }
 
     public void addListener(ISpellPhaseListener listener) {
@@ -57,7 +72,7 @@ public class SpellStateMachine {
             return;
         }
 
-        PhaseConfiguration currentPhaseConfig = this.config.getPhaseConfig(this.currentPhase.getPhaseType());
+        PhaseConfiguration currentPhaseConfig = this.spellConfiguration.getPhaseConfig(this.currentPhase.getPhaseType());
         if (currentPhaseConfig == null){
             throw new IllegalStateException("No phase configuration found for phase: " + this.currentPhase);
         }
@@ -69,12 +84,13 @@ public class SpellStateMachine {
         }
 
         SpellPhaseType nextPhaseType = transition.decideNextPhase(this);
-        if (nextPhaseType == null) {
+        PhaseConfiguration nextCfg = this.spellConfiguration.getPhaseConfig(nextPhaseType);
+        if (nextPhaseType == null || nextCfg == null) {
             endSpell();
             return;
         }
 
-        changePhase(nextPhaseType, currentPhaseConfig);
+        changePhase(nextPhaseType, nextCfg);
     }
 
     private void endSpell() {
@@ -87,13 +103,13 @@ public class SpellStateMachine {
         }
     }
 
-    private void changePhase(SpellPhaseType newPhaseType, PhaseConfiguration currentPhaseConfig) {
+    private void changePhase(SpellPhaseType newPhaseType, PhaseConfiguration cfg) {
         if (this.currentPhase != null) {
             this.currentPhase.onExit(this);
         }
 
         ISpellPhase oldPhase = this.currentPhase;
-        this.currentPhase = createPhase(newPhaseType, currentPhaseConfig);
+        this.currentPhase = createPhase(newPhaseType, cfg);
         this.currentPhase.onEnter(this);
 
         if (oldPhase == null) {
@@ -103,13 +119,13 @@ public class SpellStateMachine {
         notifyStateChanged(oldPhase.getPhaseType(), newPhaseType);
     }
 
-    private static ISpellPhase createPhase(SpellPhaseType newPhaseType, PhaseConfiguration currentPhaseConfig) {
+    private static ISpellPhase createPhase(SpellPhaseType newPhaseType, PhaseConfiguration cfg) {
         switch (newPhaseType) {
             case IDLE -> {
-                return new IdlePhase(currentPhaseConfig);
+                return new IdlePhase(cfg);
             }
             case CASTING -> {
-                return new CastingPhase(currentPhaseConfig);
+                return new CastingPhase(cfg);
             }
             // TODO: 实现其他的阶段类型
             default -> throw new IllegalArgumentException("Unknown phase type: " + newPhaseType);
