@@ -2,12 +2,14 @@ package com.qwaecd.paramagic.feature.spell.state.phase;
 
 import com.qwaecd.paramagic.feature.spell.state.SpellStateMachine;
 import com.qwaecd.paramagic.feature.spell.state.transition.IPhaseTransition;
+import lombok.Getter;
 
 import java.util.HashMap;
 import java.util.Map;
 
 public class PhaseConfiguration {
     private final SpellPhaseType phaseType;
+    @Getter
     private final float duration; // 阶段持续时间，0或负数表示无限
 
     private final Map<String, IPhaseTransition<SpellStateMachine>> transitions = new HashMap<>();

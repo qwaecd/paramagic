@@ -3,6 +3,7 @@ package com.qwaecd.paramagic.feature.spell.state;
 import com.qwaecd.paramagic.Paramagic;
 import com.qwaecd.paramagic.feature.spell.SpellConfiguration;
 import com.qwaecd.paramagic.feature.spell.state.listener.ISpellPhaseListener;
+import com.qwaecd.paramagic.feature.spell.state.phase.EffectTriggerPoint;
 import com.qwaecd.paramagic.feature.spell.state.phase.ISpellPhase;
 import com.qwaecd.paramagic.feature.spell.state.phase.PhaseConfiguration;
 import com.qwaecd.paramagic.feature.spell.state.phase.SpellPhaseType;
@@ -23,9 +24,9 @@ public class SpellStateMachine {
 
 
     public SpellStateMachine(SpellConfiguration cfg) {
-        this.currentPhase = cfg.getInitialPhase();
         this.spellConfiguration = cfg;
         this.listeners = new ArrayList<>();
+        changePhase(cfg.getInitialPhase().getPhaseType());
     }
 
     /**
@@ -45,11 +46,14 @@ public class SpellStateMachine {
     }
 
     public void interrupt() {
-        handleTransition(AllTransEvents.INTERRUPT.get());
+        interrupt(AllTransEvents.INTERRUPT.get());
     }
 
     public void interrupt(String reason) {
         handleTransition(reason);
+        for (ISpellPhaseListener listener : this.listeners) {
+            listener.onSpellInterrupted();
+        }
     }
 
     public void addListener(ISpellPhaseListener listener) {
@@ -66,9 +70,12 @@ public class SpellStateMachine {
         }
     }
 
+    public void triggerEffect(EffectTriggerPoint triggerPoint) {
+
+    }
+
     private void handleTransition(String event) {
         if (this.currentPhase == null) {
-            endSpell();
             return;
         }
 
@@ -79,18 +86,18 @@ public class SpellStateMachine {
 
         IPhaseTransition<SpellStateMachine> transition = currentPhaseConfig.getTransition(event);
         if (transition == null) {
-            endSpell();
+            Paramagic.LOG.error("No transition found for event: {} in phase: {}", event, this.currentPhase.getPhaseType());
             return;
         }
 
         SpellPhaseType nextPhaseType = transition.decideNextPhase(this);
         PhaseConfiguration nextCfg = this.spellConfiguration.getPhaseConfig(nextPhaseType);
         if (nextPhaseType == null || nextCfg == null) {
-            endSpell();
+            Paramagic.LOG.error("No next phase or configuration found for transition on event: {}", event);
             return;
         }
 
-        changePhase(nextPhaseType, nextCfg);
+        changePhase(nextPhaseType);
     }
 
     private void endSpell() {
@@ -103,24 +110,23 @@ public class SpellStateMachine {
         }
     }
 
-    private void changePhase(SpellPhaseType newPhaseType, PhaseConfiguration cfg) {
+    private void changePhase(SpellPhaseType newPhaseType) {
         if (this.currentPhase != null) {
             this.currentPhase.onExit(this);
         }
 
         ISpellPhase oldPhase = this.currentPhase;
-        this.currentPhase = createPhase(newPhaseType, cfg);
+        this.currentPhase = createPhaseFromConfig(this.spellConfiguration.getPhaseConfig(newPhaseType));
         this.currentPhase.onEnter(this);
 
-        if (oldPhase == null) {
-            Paramagic.LOG.error("Old phase is null when changing state.");
-            return;
+        if (oldPhase != null) {
+            notifyStateChanged(oldPhase.getPhaseType(), newPhaseType);
         }
-        notifyStateChanged(oldPhase.getPhaseType(), newPhaseType);
     }
 
-    private static ISpellPhase createPhase(SpellPhaseType newPhaseType, PhaseConfiguration cfg) {
-        switch (newPhaseType) {
+    private static ISpellPhase createPhaseFromConfig(PhaseConfiguration cfg) {
+        SpellPhaseType phaseType = cfg.getPhaseType();
+        switch (phaseType) {
             case IDLE -> {
                 return new IdlePhase(cfg);
             }
@@ -128,7 +134,7 @@ public class SpellStateMachine {
                 return new CastingPhase(cfg);
             }
             // TODO: 实现其他的阶段类型
-            default -> throw new IllegalArgumentException("Unknown phase type: " + newPhaseType);
+            default -> throw new IllegalArgumentException("Unknown phase type: " + phaseType);
         }
     }
 }

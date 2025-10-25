@@ -21,6 +21,9 @@ public abstract class BasePhase implements ISpellPhase {
     @Override
     public void update(SpellStateMachine stateMachine, float deltaTime) {
         this.phaseTime += deltaTime;
+        if (this.config.getDuration() > 0.0f && this.phaseTime >= this.config.getDuration()) {
+            stateMachine.requestNextPhase();
+        }
     }
 
     @Override
