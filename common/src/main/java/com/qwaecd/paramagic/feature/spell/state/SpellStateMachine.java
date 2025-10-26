@@ -36,6 +36,10 @@ public class SpellStateMachine {
     public void update(float deltaTime) {
         if (this.currentPhase != null) {
             this.currentPhase.update(this, deltaTime);
+
+            for (ISpellPhaseListener listener : this.listeners) {
+                listener.onTick(deltaTime);
+            }
         } else {
             endSpell();
         }
@@ -71,6 +75,15 @@ public class SpellStateMachine {
     }
 
     public void triggerEffect(EffectTriggerPoint triggerPoint) {
+        switch (triggerPoint) {
+            case ON_ENTER, ON_EXIT -> {
+                for (ISpellPhaseListener listener : this.listeners) {
+                    listener.onEffectTriggered(triggerPoint);
+                }
+            }
+            default -> {
+            }
+        }
 
     }
 

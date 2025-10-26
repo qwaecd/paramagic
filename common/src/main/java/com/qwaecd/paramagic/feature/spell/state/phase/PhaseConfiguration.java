@@ -21,7 +21,7 @@ public class PhaseConfiguration {
 
     /**
      * 添加一个简单的、无条件的转换。<br>
-     * {@code .addTransition("default", SpellPhaseType.COOLDOWN)}
+     * {@code .addTransition("next", SpellPhaseType.COOLDOWN)}
      * @see com.qwaecd.paramagic.feature.spell.state.transition.AllTransEvents
      */
     public PhaseConfiguration addTransition(String event, SpellPhaseType nextPhase) {
@@ -31,7 +31,7 @@ public class PhaseConfiguration {
 
     /**
      * 添加一个基于Lambda的、有条件的转换。<br>
-     * {@code .addTransition("default", (stateMachine) -> { ... return ...; })}
+     * {@code .addTransition("next", (stateMachine) -> { ... return ...; })}
      * @see com.qwaecd.paramagic.feature.spell.state.transition.AllTransEvents
      */
     public PhaseConfiguration addTransition(String event, IPhaseTransition<SpellStateMachine> transition) {
