@@ -7,8 +7,8 @@ import com.qwaecd.paramagic.feature.spell.state.phase.EffectTriggerPoint;
 import com.qwaecd.paramagic.feature.spell.state.phase.ISpellPhase;
 import com.qwaecd.paramagic.feature.spell.state.phase.PhaseConfiguration;
 import com.qwaecd.paramagic.feature.spell.state.phase.SpellPhaseType;
-import com.qwaecd.paramagic.feature.spell.state.phase.impl.CastingPhase;
-import com.qwaecd.paramagic.feature.spell.state.phase.impl.IdlePhase;
+import com.qwaecd.paramagic.feature.spell.state.phase.struct.impl.CastingPhase;
+import com.qwaecd.paramagic.feature.spell.state.phase.struct.impl.IdlePhase;
 import com.qwaecd.paramagic.feature.spell.state.transition.AllTransEvents;
 import com.qwaecd.paramagic.feature.spell.state.transition.IPhaseTransition;
 
@@ -16,11 +16,14 @@ import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
+@SuppressWarnings("LombokGetterMayBeUsed")
 public class SpellStateMachine {
     @Nullable
     private ISpellPhase currentPhase;
     private final SpellConfiguration spellConfiguration;
     private final List<ISpellPhaseListener> listeners;
+
+    private boolean isCompleted = false;
 
 
     public SpellStateMachine(SpellConfiguration cfg) {
@@ -87,6 +90,10 @@ public class SpellStateMachine {
 
     }
 
+    public boolean isCompleted() {
+        return isCompleted;
+    }
+
     private void handleTransition(String event) {
         if (this.currentPhase == null) {
             return;
@@ -114,6 +121,7 @@ public class SpellStateMachine {
     }
 
     private void endSpell() {
+        this.isCompleted = true;
         if (this.currentPhase != null) {
             this.currentPhase.onExit(this);
         }

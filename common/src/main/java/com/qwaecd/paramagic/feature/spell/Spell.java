@@ -13,4 +13,8 @@ public class Spell {
     public void tick(float deltaTime) {
         this.stateMachine.update(deltaTime);
     }
+
+    public boolean isCompleted() {
+        return this.stateMachine.isCompleted();
+    }
 }

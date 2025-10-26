@@ -1,6 +1,9 @@
-package com.qwaecd.paramagic.feature.spell.state.phase;
+package com.qwaecd.paramagic.feature.spell.state.phase.struct;
 
 import com.qwaecd.paramagic.feature.spell.state.SpellStateMachine;
+import com.qwaecd.paramagic.feature.spell.state.phase.ISpellPhase;
+import com.qwaecd.paramagic.feature.spell.state.phase.PhaseConfiguration;
+import com.qwaecd.paramagic.feature.spell.state.phase.SpellPhaseType;
 
 public abstract class BasePhase implements ISpellPhase {
     protected final PhaseConfiguration config;
