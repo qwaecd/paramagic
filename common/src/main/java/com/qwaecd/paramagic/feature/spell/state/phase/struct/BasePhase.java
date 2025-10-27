@@ -1,11 +1,12 @@
 package com.qwaecd.paramagic.feature.spell.state.phase.struct;
 
-import com.qwaecd.paramagic.feature.spell.state.SpellStateMachine;
-import com.qwaecd.paramagic.feature.spell.state.phase.ISpellPhase;
+import com.qwaecd.paramagic.feature.spell.state.internal.context.MachineContext;
+import com.qwaecd.paramagic.feature.spell.state.phase.EffectTriggerPoint;
+import com.qwaecd.paramagic.feature.spell.state.phase.SpellPhase;
 import com.qwaecd.paramagic.feature.spell.state.phase.PhaseConfiguration;
 import com.qwaecd.paramagic.feature.spell.state.phase.SpellPhaseType;
 
-public abstract class BasePhase implements ISpellPhase {
+public abstract class BasePhase implements SpellPhase {
     protected final PhaseConfiguration config;
     protected float phaseTime;
 
@@ -13,19 +14,21 @@ public abstract class BasePhase implements ISpellPhase {
         this.config = cfg;
     }
     @Override
-    public void onEnter(SpellStateMachine stateMachine) {
+    public void onEnter(final MachineContext context) {
         this.phaseTime = 0.0f;
+        context.getStateMachine().triggerEffect(EffectTriggerPoint.ON_ENTER);
     }
 
     @Override
-    public void onExit(SpellStateMachine stateMachine) {
+    public void onExit(final MachineContext context) {
+        context.getStateMachine().triggerEffect(EffectTriggerPoint.ON_EXIT);
     }
 
     @Override
-    public void update(SpellStateMachine stateMachine, float deltaTime) {
+    public void update(final MachineContext context, float deltaTime) {
         this.phaseTime += deltaTime;
         if (this.config.getDuration() > 0.0f && this.phaseTime >= this.config.getDuration()) {
-            stateMachine.requestNextPhase();
+            context.getStateMachine().requestNextPhase();
         }
     }
 

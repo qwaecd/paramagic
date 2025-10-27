@@ -1,7 +1,8 @@
 package com.qwaecd.paramagic.feature.spell.state.phase;
 
 import com.qwaecd.paramagic.feature.spell.state.SpellStateMachine;
-import com.qwaecd.paramagic.feature.spell.state.transition.IPhaseTransition;
+import com.qwaecd.paramagic.feature.spell.state.internal.event.transition.AllTransEvents;
+import com.qwaecd.paramagic.feature.spell.state.internal.event.transition.IPhaseTransition;
 import lombok.Getter;
 
 import java.util.HashMap;
@@ -22,7 +23,7 @@ public class PhaseConfiguration {
     /**
      * 添加一个简单的、无条件的转换。<br>
      * {@code .addTransition("next", SpellPhaseType.COOLDOWN)}
-     * @see com.qwaecd.paramagic.feature.spell.state.transition.AllTransEvents
+     * @see AllTransEvents
      */
     public PhaseConfiguration addTransition(String event, SpellPhaseType nextPhase) {
         this.transitions.put(event, IPhaseTransition.to(nextPhase));
@@ -32,7 +33,7 @@ public class PhaseConfiguration {
     /**
      * 添加一个基于Lambda的、有条件的转换。<br>
      * {@code .addTransition("next", (stateMachine) -> { ... return ...; })}
-     * @see com.qwaecd.paramagic.feature.spell.state.transition.AllTransEvents
+     * @see AllTransEvents
      */
     public PhaseConfiguration addTransition(String event, IPhaseTransition<SpellStateMachine> transition) {
         this.transitions.put(event, transition);
@@ -40,7 +41,7 @@ public class PhaseConfiguration {
     }
 
     /**
-     * @see com.qwaecd.paramagic.feature.spell.state.transition.AllTransEvents
+     * @see AllTransEvents
      */
     public IPhaseTransition<SpellStateMachine> getTransition(String event) {
         return this.transitions.get(event);

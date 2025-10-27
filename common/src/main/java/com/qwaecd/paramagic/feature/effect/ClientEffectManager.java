@@ -2,15 +2,15 @@ package com.qwaecd.paramagic.feature.effect;
 
 import com.qwaecd.paramagic.core.particle.ParticleManager;
 import com.qwaecd.paramagic.feature.circle.MagicCircleManager;
+import com.qwaecd.paramagic.feature.effect.exposion.EXPLOSION;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.UUID;
 
 public class ClientEffectManager {
     private static ClientEffectManager INSTANCE;
 
-    private final Map<UUID, EXPLOSION> activeExplosions = new HashMap<>();
+    private final Map<String, EXPLOSION> activeExplosions = new HashMap<>();
 
     private ClientEffectManager() {
     }
@@ -22,14 +22,14 @@ public class ClientEffectManager {
         return INSTANCE;
     }
 
-    public void addExplosion(UUID playerId, EXPLOSION explosion) {
-        activeExplosions.put(playerId, explosion);
+    public void addExplosion(String id, EXPLOSION explosion) {
+        activeExplosions.put(id, explosion);
         MagicCircleManager.getInstance().addCircle(explosion.getMagicCircle());
         explosion.forEachEffect(e -> ParticleManager.getInstance().spawnEffect(e));
     }
 
-    public void removeExplosion(UUID playerId) {
-        EXPLOSION explosion = activeExplosions.remove(playerId);
+    public void removeExplosion(String id) {
+        EXPLOSION explosion = activeExplosions.remove(id);
         if (explosion == null) {
             return;
         }
@@ -37,7 +37,7 @@ public class ClientEffectManager {
         explosion.forEachEffect(e -> ParticleManager.getInstance().removeEffect(e));
     }
 
-    public EXPLOSION getExplosion(UUID playerId) {
-        return activeExplosions.get(playerId);
+    public EXPLOSION getExplosion(String id) {
+        return activeExplosions.get(id);
     }
 }

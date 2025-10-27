@@ -1,4 +1,4 @@
-package com.qwaecd.paramagic.feature.spell.state.transition;
+package com.qwaecd.paramagic.feature.spell.state.internal.event.transition;
 
 public final class AllTransEvents {
     private AllTransEvents() {}

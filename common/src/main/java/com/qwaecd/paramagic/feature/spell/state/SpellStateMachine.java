@@ -2,34 +2,45 @@ package com.qwaecd.paramagic.feature.spell.state;
 
 import com.qwaecd.paramagic.Paramagic;
 import com.qwaecd.paramagic.feature.spell.SpellConfiguration;
-import com.qwaecd.paramagic.feature.spell.state.listener.ISpellPhaseListener;
+import com.qwaecd.paramagic.feature.spell.state.internal.context.MachineContext;
+import com.qwaecd.paramagic.feature.spell.state.internal.event.queue.EventQueue;
+import com.qwaecd.paramagic.feature.spell.state.internal.event.MachineEvent;
+import com.qwaecd.paramagic.feature.spell.state.internal.event.machine.AllMachineEvents;
+import com.qwaecd.paramagic.feature.spell.state.internal.event.machine.EndSpellReason;
+import com.qwaecd.paramagic.feature.spell.state.internal.event.queue.MachineEventEnvelope;
+import com.qwaecd.paramagic.feature.spell.state.internal.event.transition.Transition;
+import com.qwaecd.paramagic.feature.spell.listener.ISpellPhaseListener;
 import com.qwaecd.paramagic.feature.spell.state.phase.EffectTriggerPoint;
-import com.qwaecd.paramagic.feature.spell.state.phase.ISpellPhase;
-import com.qwaecd.paramagic.feature.spell.state.phase.PhaseConfiguration;
+import com.qwaecd.paramagic.feature.spell.state.phase.SpellPhase;
 import com.qwaecd.paramagic.feature.spell.state.phase.SpellPhaseType;
-import com.qwaecd.paramagic.feature.spell.state.phase.struct.impl.CastingPhase;
-import com.qwaecd.paramagic.feature.spell.state.phase.struct.impl.IdlePhase;
-import com.qwaecd.paramagic.feature.spell.state.transition.AllTransEvents;
-import com.qwaecd.paramagic.feature.spell.state.transition.IPhaseTransition;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 
 @SuppressWarnings("LombokGetterMayBeUsed")
 public class SpellStateMachine {
+    public static final int MAX_EVENTS_PER_TICK = 64;
     @Nullable
-    private ISpellPhase currentPhase;
+    private SpellPhase currentPhase;
     private final SpellConfiguration spellConfiguration;
     private final List<ISpellPhaseListener> listeners;
+    /**
+     * 当状态切换时, phaseGeneration 会增加 1.
+     */
+    private long phaseGeneration = 0L;
 
     private boolean isCompleted = false;
-
+    private final EventQueue eventQueue = new EventQueue();
+    private final MachineContext context;
 
     public SpellStateMachine(SpellConfiguration cfg) {
         this.spellConfiguration = cfg;
         this.listeners = new ArrayList<>();
-        changePhase(cfg.getInitialPhase().getPhaseType());
+        this.context = new MachineContext(this);
+        changePhase(cfg.getInitialPhase());
     }
 
     /**
@@ -37,30 +48,59 @@ public class SpellStateMachine {
      * @param deltaTime 距离上一次调用该函数的时间间隔，单位为秒.
      */
     public void update(float deltaTime) {
-        if (this.currentPhase != null) {
-            this.currentPhase.update(this, deltaTime);
-
-            for (ISpellPhaseListener listener : this.listeners) {
-                listener.onTick(deltaTime);
+        int processed = 0;
+        while(processed < MAX_EVENTS_PER_TICK) {
+            MachineEventEnvelope envelope = this.eventQueue.pollOne();
+            if (envelope == null) {
+                break;
             }
+            if (envelope.getGeneration() != -1L && envelope.getGeneration() != this.phaseGeneration) {
+                // 该事件已过期, 忽略
+                continue;
+            }
+            processEvent(envelope.getEvent());
+            processed++;
+        }
+        if (processed >= MAX_EVENTS_PER_TICK) {
+            // 多出的事件不做处理
+            Paramagic.LOG.warn("SpellStateMachine processed max events per tick ({}), remaining events will be discarded.", MAX_EVENTS_PER_TICK);
+//            this.eventQueue.clear();
+        }
+
+        if (this.currentPhase != null && !isCompleted()) {
+            this.currentPhase.update(this.context, deltaTime);
+
+            forEachListenerSafe(listener -> listener.onTick(deltaTime));
         } else {
-            endSpell();
+            endSpell(EndSpellReason.COMPLETED);
+        }
+    }
+
+    private void processEvent(MachineEvent event) {
+        if (this.currentPhase != null) {
+            Transition transition = this.currentPhase.onEvent(this.context, event);
+            if (transition != null && transition.getTargetPhase() != null) {
+                // 进行状态转换
+                handleTransition(transition);
+            }
         }
     }
 
     public void requestNextPhase() {
-        handleTransition(AllTransEvents.NEXT.get());
+        this.postEvent(AllMachineEvents.NEXT_PHASE);
     }
 
-    public void interrupt() {
-        interrupt(AllTransEvents.INTERRUPT.get());
+    public void postEvent(MachineEvent event) {
+        postEventBounded(event, true);
     }
 
-    public void interrupt(String reason) {
-        handleTransition(reason);
-        for (ISpellPhaseListener listener : this.listeners) {
-            listener.onSpellInterrupted();
-        }
+    public void postEventBounded(MachineEvent event, boolean bindToPhase) {
+        long gen = bindToPhase ? this.phaseGeneration : -1L;
+        this.eventQueue.offer(event, gen);
+    }
+
+    public void forceInterrupt() {
+        this.endSpell(EndSpellReason.INTERRUPTED);
     }
 
     public void addListener(ISpellPhaseListener listener) {
@@ -71,19 +111,10 @@ public class SpellStateMachine {
         this.listeners.remove(listener);
     }
 
-    protected void notifyStateChanged(SpellPhaseType oldPhase, SpellPhaseType newPhase) {
-        for (ISpellPhaseListener listener : this.listeners) {
-            listener.onPhaseChanged(oldPhase, newPhase);
-        }
-    }
-
     public void triggerEffect(EffectTriggerPoint triggerPoint) {
         switch (triggerPoint) {
-            case ON_ENTER, ON_EXIT -> {
-                for (ISpellPhaseListener listener : this.listeners) {
-                    listener.onEffectTriggered(triggerPoint);
-                }
-            }
+            case ON_ENTER, ON_EXIT ->
+                    forEachListenerSafe(listener -> listener.onEffectTriggered(triggerPoint));
             default -> {
             }
         }
@@ -94,68 +125,71 @@ public class SpellStateMachine {
         return isCompleted;
     }
 
-    private void handleTransition(String event) {
+    private void notifyStateChanged(SpellPhaseType oldPhase, SpellPhaseType newPhase) {
+        forEachListenerSafe(listener -> listener.onPhaseChanged(oldPhase, newPhase));
+    }
+
+    private void handleTransition(@Nonnull Transition transition) {
         if (this.currentPhase == null) {
             return;
         }
 
-        PhaseConfiguration currentPhaseConfig = this.spellConfiguration.getPhaseConfig(this.currentPhase.getPhaseType());
-        if (currentPhaseConfig == null){
-            throw new IllegalStateException("No phase configuration found for phase: " + this.currentPhase);
+        SpellPhaseType targetPhase = transition.getTargetPhase();
+        if (targetPhase == null) return;
+
+        SpellPhase newPhase = this.spellConfiguration.getPhase(targetPhase);
+        if (newPhase == null) {
+            throw new NullPointerException("No phase found for type: " + targetPhase);
         }
 
-        IPhaseTransition<SpellStateMachine> transition = currentPhaseConfig.getTransition(event);
-        if (transition == null) {
-            Paramagic.LOG.error("No transition found for event: {} in phase: {}", event, this.currentPhase.getPhaseType());
-            return;
-        }
-
-        SpellPhaseType nextPhaseType = transition.decideNextPhase(this);
-        PhaseConfiguration nextCfg = this.spellConfiguration.getPhaseConfig(nextPhaseType);
-        if (nextPhaseType == null || nextCfg == null) {
-            Paramagic.LOG.error("No next phase or configuration found for transition on event: {}", event);
-            return;
-        }
-
-        changePhase(nextPhaseType);
+        changePhase(newPhase);
     }
 
-    private void endSpell() {
+    private void endSpell(EndSpellReason reason) {
         this.isCompleted = true;
         if (this.currentPhase != null) {
-            this.currentPhase.onExit(this);
+            this.currentPhase.onExit(this.context);
         }
         this.currentPhase = null;
-        for (ISpellPhaseListener listener : this.listeners) {
-            listener.onSpellCompleted();
+
+        switch (reason) {
+            case COMPLETED: {
+                forEachListenerSafe(ISpellPhaseListener::onSpellCompleted);
+                break;
+            }
+            case INTERRUPTED:
+            case FAILED:
+            default: {
+                forEachListenerSafe(ISpellPhaseListener::onSpellInterrupted);
+                break;
+            }
         }
+        this.eventQueue.clear();
     }
 
-    private void changePhase(SpellPhaseType newPhaseType) {
+    private void changePhase(SpellPhase newPhase) {
         if (this.currentPhase != null) {
-            this.currentPhase.onExit(this);
+            this.currentPhase.onExit(this.context);
         }
 
-        ISpellPhase oldPhase = this.currentPhase;
-        this.currentPhase = createPhaseFromConfig(this.spellConfiguration.getPhaseConfig(newPhaseType));
-        this.currentPhase.onEnter(this);
+        SpellPhase oldPhase = this.currentPhase;
+        this.currentPhase = newPhase;
+        this.phaseGeneration++;
+
+        this.currentPhase.onEnter(this.context);
 
         if (oldPhase != null) {
-            notifyStateChanged(oldPhase.getPhaseType(), newPhaseType);
+            notifyStateChanged(oldPhase.getPhaseType(), newPhase.getPhaseType());
         }
     }
 
-    private static ISpellPhase createPhaseFromConfig(PhaseConfiguration cfg) {
-        SpellPhaseType phaseType = cfg.getPhaseType();
-        switch (phaseType) {
-            case IDLE -> {
-                return new IdlePhase(cfg);
+    private void forEachListenerSafe(Consumer<ISpellPhaseListener> action) {
+        for (ISpellPhaseListener listener : this.listeners) {
+            try {
+                action.accept(listener);
+            } catch (Exception e) {
+                Paramagic.LOG.error("Error while notifying listener '{}' :", listener, e);
             }
-            case CASTING -> {
-                return new CastingPhase(cfg);
-            }
-            // TODO: 实现其他的阶段类型
-            default -> throw new IllegalArgumentException("Unknown phase type: " + phaseType);
         }
     }
 }
