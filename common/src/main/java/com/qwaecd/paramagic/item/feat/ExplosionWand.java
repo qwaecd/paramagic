@@ -4,11 +4,11 @@ import com.qwaecd.paramagic.core.accessor.EntityAccessor;
 import com.qwaecd.paramagic.feature.effect.exposion.EXPLOSION;
 import com.qwaecd.paramagic.feature.effect.exposion.listener.ExplosionBaseListener;
 import com.qwaecd.paramagic.feature.effect.exposion.listener.ExplosionRenderListener;
-import com.qwaecd.paramagic.feature.spell.Spell;
-import com.qwaecd.paramagic.feature.spell.SpellScheduler;
-import com.qwaecd.paramagic.feature.spell.state.phase.PhaseConfiguration;
-import com.qwaecd.paramagic.feature.spell.state.phase.SpellPhaseType;
-import com.qwaecd.paramagic.feature.spell.state.internal.event.transition.AllTransEvents;
+import com.qwaecd.paramagic.spell.Spell;
+import com.qwaecd.paramagic.spell.SpellScheduler;
+import com.qwaecd.paramagic.spell.state.phase.PhaseConfig;
+import com.qwaecd.paramagic.spell.state.phase.SpellPhaseType;
+import com.qwaecd.paramagic.spell.state.internal.event.transition.AllTransEvents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
@@ -70,11 +70,11 @@ public class ExplosionWand extends Item {
     private Spell genSpell(String id) {
         Spell s = new Spell.Builder(id)
                 .addPhase(
-                        new PhaseConfiguration(SpellPhaseType.IDLE, 1.0f)
+                        new PhaseConfig(SpellPhaseType.IDLE, 1.0f)
                                 .addTransition(AllTransEvents.NEXT.get(), SpellPhaseType.CASTING)
                 )
                 .addPhase(
-                        new PhaseConfiguration(SpellPhaseType.CASTING, 10.0f)
+                        new PhaseConfig(SpellPhaseType.CASTING, 10.0f)
 //                                .addTransition(AllTransEvents.NEXT.get(), SpellPhaseType.IDLE)
                 )
                 .build();

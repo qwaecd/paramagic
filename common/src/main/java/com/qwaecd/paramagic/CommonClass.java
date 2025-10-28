@@ -2,7 +2,7 @@ package com.qwaecd.paramagic;
 
 import com.qwaecd.paramagic.core.render.ModRenderSystem;
 import com.qwaecd.paramagic.core.render.shader.AllShaders;
-import com.qwaecd.paramagic.feature.spell.SpellScheduler;
+import com.qwaecd.paramagic.spell.SpellScheduler;
 import com.qwaecd.paramagic.platform.Services;
 
 // This class is part of the common project meaning it is shared between all supported loaders. Code written here can only
