@@ -7,8 +7,9 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 public final class Transition {
-    @Nullable
+    public static final Transition STAY = new Transition(null);
     @Getter
+    @Nullable
     private final SpellPhaseType targetPhase;
 
     private Transition(@Nullable SpellPhaseType targetPhase) {
@@ -19,6 +20,6 @@ public final class Transition {
         return new Transition(targetPhase);
     }
     public static Transition stay() {
-        return new Transition(null);
+        return Transition.STAY;
     }
 }
