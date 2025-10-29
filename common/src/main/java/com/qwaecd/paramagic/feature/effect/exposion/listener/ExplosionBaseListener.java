@@ -5,7 +5,7 @@ import com.qwaecd.paramagic.spell.Spell;
 import com.qwaecd.paramagic.spell.SpellScheduler;
 import com.qwaecd.paramagic.spell.listener.ISpellPhaseListener;
 import com.qwaecd.paramagic.spell.state.phase.EffectTriggerPoint;
-import com.qwaecd.paramagic.spell.state.phase.SpellPhaseType;
+import com.qwaecd.paramagic.spell.state.phase.property.SpellPhaseType;
 
 public class ExplosionBaseListener implements ISpellPhaseListener {
     protected final Spell spell;

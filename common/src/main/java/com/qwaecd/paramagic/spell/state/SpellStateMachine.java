@@ -8,16 +8,18 @@ import com.qwaecd.paramagic.spell.state.internal.event.queue.EventQueue;
 import com.qwaecd.paramagic.spell.state.internal.event.MachineEvent;
 import com.qwaecd.paramagic.spell.state.internal.event.machine.AllMachineEvents;
 import com.qwaecd.paramagic.spell.state.internal.event.queue.MachineEventEnvelope;
-import com.qwaecd.paramagic.spell.state.internal.event.transition.Transition;
+import com.qwaecd.paramagic.spell.state.internal.Transition;
 import com.qwaecd.paramagic.spell.listener.ISpellPhaseListener;
 import com.qwaecd.paramagic.spell.state.phase.EffectTriggerPoint;
 import com.qwaecd.paramagic.spell.state.phase.SpellPhase;
-import com.qwaecd.paramagic.spell.state.phase.SpellPhaseType;
+import com.qwaecd.paramagic.spell.state.phase.property.SpellPhaseType;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.function.Consumer;
 
 @SuppressWarnings("LombokGetterMayBeUsed")
@@ -27,6 +29,7 @@ public class SpellStateMachine {
     private SpellPhase currentPhase;
     private final SpellConfiguration spellConfiguration;
     private final List<ISpellPhaseListener> listeners;
+    private static final SystemEvents systemEvents = new SystemEvents();
     /**
      * 当状态切换时, phaseGeneration 会增加 1.
      */
@@ -77,7 +80,10 @@ public class SpellStateMachine {
     }
 
     private void processEvent(MachineEvent event) {
-        systemEvent(event);
+        if (systemEvents.contains(event)) {
+            systemEvent(event);
+            return;
+        }
         if (this.currentPhase != null) {
             Transition transition = this.currentPhase.onEvent(this.context, event);
             if (transition != null && transition.getTargetPhase() != null) {
@@ -138,10 +144,12 @@ public class SpellStateMachine {
 
     private void handleTransition(@Nonnull Transition transition) {
         if (this.currentPhase == null) {
+            // 说明状态机理论上应该早被中断或者停止了
             return;
         }
 
         SpellPhaseType targetPhase = transition.getTargetPhase();
+        // 当前阶段并没有返回转换到下一个状态的具体状态, 不应该发生转换
         if (targetPhase == null) return;
 
         SpellPhase newPhase = this.spellConfiguration.getPhase(targetPhase);
@@ -197,6 +205,17 @@ public class SpellStateMachine {
             } catch (Exception e) {
                 Paramagic.LOG.error("Error while notifying listener '{}' :", listener, e);
             }
+        }
+    }
+
+    public static class SystemEvents {
+        private final Set<MachineEvent> systemEvents = new HashSet<>();
+        private SystemEvents() {
+            systemEvents.add(AllMachineEvents.INTERRUPT);
+        }
+
+        public boolean contains(MachineEvent event) {
+            return systemEvents.contains(event);
         }
     }
 }

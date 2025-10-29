@@ -3,8 +3,8 @@ package com.qwaecd.paramagic.spell.state.phase.struct;
 import com.qwaecd.paramagic.spell.state.internal.MachineContext;
 import com.qwaecd.paramagic.spell.state.phase.EffectTriggerPoint;
 import com.qwaecd.paramagic.spell.state.phase.SpellPhase;
-import com.qwaecd.paramagic.spell.state.phase.PhaseConfig;
-import com.qwaecd.paramagic.spell.state.phase.SpellPhaseType;
+import com.qwaecd.paramagic.spell.state.phase.property.PhaseConfig;
+import com.qwaecd.paramagic.spell.state.phase.property.SpellPhaseType;
 
 public abstract class BasePhase implements SpellPhase {
     protected final PhaseConfig config;

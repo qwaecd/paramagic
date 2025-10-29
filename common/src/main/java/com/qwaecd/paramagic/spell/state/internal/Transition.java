@@ -1,6 +1,6 @@
-package com.qwaecd.paramagic.spell.state.internal.event.transition;
+package com.qwaecd.paramagic.spell.state.internal;
 
-import com.qwaecd.paramagic.spell.state.phase.SpellPhaseType;
+import com.qwaecd.paramagic.spell.state.phase.property.SpellPhaseType;
 import lombok.Getter;
 
 import javax.annotation.Nonnull;

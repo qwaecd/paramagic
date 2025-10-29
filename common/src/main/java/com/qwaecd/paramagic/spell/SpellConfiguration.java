@@ -1,8 +1,8 @@
 package com.qwaecd.paramagic.spell;
 
 import com.qwaecd.paramagic.spell.state.phase.SpellPhase;
-import com.qwaecd.paramagic.spell.state.phase.PhaseConfig;
-import com.qwaecd.paramagic.spell.state.phase.SpellPhaseType;
+import com.qwaecd.paramagic.spell.state.phase.property.PhaseConfig;
+import com.qwaecd.paramagic.spell.state.phase.property.SpellPhaseType;
 import com.qwaecd.paramagic.spell.state.phase.struct.impl.CastingPhase;
 import com.qwaecd.paramagic.spell.state.phase.struct.impl.IdlePhase;
 import lombok.Getter;

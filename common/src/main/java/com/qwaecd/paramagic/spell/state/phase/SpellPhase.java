@@ -2,7 +2,8 @@ package com.qwaecd.paramagic.spell.state.phase;
 
 import com.qwaecd.paramagic.spell.state.internal.MachineContext;
 import com.qwaecd.paramagic.spell.state.internal.event.MachineEvent;
-import com.qwaecd.paramagic.spell.state.internal.event.transition.Transition;
+import com.qwaecd.paramagic.spell.state.internal.Transition;
+import com.qwaecd.paramagic.spell.state.phase.property.SpellPhaseType;
 
 public interface SpellPhase {
     Transition onEvent(final MachineContext context, MachineEvent event);

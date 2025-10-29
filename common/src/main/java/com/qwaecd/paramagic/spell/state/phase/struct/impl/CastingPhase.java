@@ -2,8 +2,8 @@ package com.qwaecd.paramagic.spell.state.phase.struct.impl;
 
 import com.qwaecd.paramagic.spell.state.phase.struct.BasePhase;
 import com.qwaecd.paramagic.spell.state.phase.SpellPhase;
-import com.qwaecd.paramagic.spell.state.phase.PhaseConfig;
-import com.qwaecd.paramagic.spell.state.phase.SpellPhaseType;
+import com.qwaecd.paramagic.spell.state.phase.property.PhaseConfig;
+import com.qwaecd.paramagic.spell.state.phase.property.SpellPhaseType;
 
 public class CastingPhase extends BasePhase implements SpellPhase {
     private boolean isCastingComplete = false;
