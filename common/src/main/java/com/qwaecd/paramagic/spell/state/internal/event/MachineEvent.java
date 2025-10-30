@@ -6,6 +6,9 @@ import javax.annotation.Nonnull;
 import java.util.Objects;
 
 public class MachineEvent implements Comparable<MachineEvent> {
+    /**
+     * 只要 name 相同就认为是同一个事件, 不考虑 priority
+     */
     public final String name;
     public final int priority;
 

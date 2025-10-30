@@ -1,0 +1,11 @@
+package com.qwaecd.paramagic.spell.state.internal.event;
+
+public final class AllMachineEvents {
+    private AllMachineEvents() {}
+
+    public static final MachineEvent START_CASTING = new MachineEvent("start_casting", MachineEvent.Priority.MID);
+    public static final MachineEvent CASTING_COMPLETE = new MachineEvent("casting_complete", MachineEvent.Priority.MID);
+    public static final MachineEvent COOLDOWN_COMPLETE = new MachineEvent("cooldown_complete", MachineEvent.Priority.MID);
+    public static final MachineEvent CHANNELING_COMPLETE = new MachineEvent("channeling_complete", MachineEvent.Priority.MID);
+    public static final MachineEvent INTERRUPT = new MachineEvent("interrupt", MachineEvent.Priority.HIGH);
+}

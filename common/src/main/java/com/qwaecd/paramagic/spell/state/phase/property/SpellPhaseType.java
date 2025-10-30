@@ -16,5 +16,5 @@ public enum SpellPhaseType {
     /**
      * 冷却
      */
-    COOLDOWN;
+    COOLDOWN
 }

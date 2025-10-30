@@ -4,28 +4,34 @@ import com.qwaecd.paramagic.spell.state.internal.MachineContext;
 import com.qwaecd.paramagic.spell.state.internal.Transition;
 import com.qwaecd.paramagic.spell.state.internal.event.AllMachineEvents;
 import com.qwaecd.paramagic.spell.state.internal.event.MachineEvent;
-import com.qwaecd.paramagic.spell.state.phase.struct.BasePhase;
 import com.qwaecd.paramagic.spell.state.phase.SpellPhase;
 import com.qwaecd.paramagic.spell.state.phase.property.PhaseConfig;
 import com.qwaecd.paramagic.spell.state.phase.property.SpellPhaseType;
+import com.qwaecd.paramagic.spell.state.phase.struct.BasePhase;
 
-public class IdlePhase extends BasePhase implements SpellPhase {
-
-    public IdlePhase(PhaseConfig cfg) {
+public class CooldownPhase extends BasePhase implements SpellPhase {
+    public CooldownPhase(PhaseConfig cfg) {
         super(cfg);
     }
 
     @Override
     public Transition onEvent(MachineContext context, MachineEvent event) {
-        // 不需要考虑该阶段是否结束, 只要收到开始施法的事件就切换到施法阶段
-        if (event.equals(AllMachineEvents.START_CASTING)) {
-            return Transition.to(SpellPhaseType.CASTING);
+        if (event.equals(AllMachineEvents.COOLDOWN_COMPLETE)) {
+            return Transition.to(SpellPhaseType.IDLE);
         }
         return Transition.stay();
     }
 
     @Override
+    public void update(final MachineContext context, float deltaTime) {
+        super.update(context, deltaTime);
+        if (this.phaseCompleted) {
+            context.getStateMachine().postEvent(AllMachineEvents.COOLDOWN_COMPLETE);
+        }
+    }
+
+    @Override
     public SpellPhaseType getPhaseType() {
-        return SpellPhaseType.IDLE;
+        return SpellPhaseType.COOLDOWN;
     }
 }

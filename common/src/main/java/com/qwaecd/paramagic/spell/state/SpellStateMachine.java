@@ -6,7 +6,7 @@ import com.qwaecd.paramagic.spell.SpellConfiguration;
 import com.qwaecd.paramagic.spell.state.internal.MachineContext;
 import com.qwaecd.paramagic.spell.state.internal.event.queue.EventQueue;
 import com.qwaecd.paramagic.spell.state.internal.event.MachineEvent;
-import com.qwaecd.paramagic.spell.state.internal.event.machine.AllMachineEvents;
+import com.qwaecd.paramagic.spell.state.internal.event.AllMachineEvents;
 import com.qwaecd.paramagic.spell.state.internal.event.queue.MachineEventEnvelope;
 import com.qwaecd.paramagic.spell.state.internal.Transition;
 import com.qwaecd.paramagic.spell.listener.ISpellPhaseListener;
@@ -99,9 +99,9 @@ public class SpellStateMachine {
         }
     }
 
-    public void requestNextPhase() {
-        this.postEvent(AllMachineEvents.NEXT_PHASE);
-    }
+//    public void requestNextPhase() {
+//        this.postEvent(AllMachineEvents.NEXT_PHASE);
+//    }
 
     public void postEvent(MachineEvent event) {
         postEventBounded(event, true);

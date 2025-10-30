@@ -9,6 +9,7 @@ import com.qwaecd.paramagic.spell.state.phase.property.SpellPhaseType;
 public abstract class BasePhase implements SpellPhase {
     protected final PhaseConfig config;
     protected float phaseTime;
+    protected boolean phaseCompleted = false;
 
     protected BasePhase(PhaseConfig cfg) {
         this.config = cfg;
@@ -27,8 +28,8 @@ public abstract class BasePhase implements SpellPhase {
     @Override
     public void update(final MachineContext context, float deltaTime) {
         this.phaseTime += deltaTime;
-        if (this.config.getDuration() > 0.0f && this.phaseTime >= this.config.getDuration()) {
-            context.getStateMachine().requestNextPhase();
+        if (this.config.getDuration() > 0.0f && this.phaseTime >= this.config.getDuration() && !this.phaseCompleted) {
+            this.phaseCompleted = true;
         }
     }
 
