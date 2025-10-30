@@ -1,8 +1,7 @@
-package com.qwaecd.paramagic.spell.state.internal.event;
+package com.qwaecd.paramagic.spell.state.event;
 
 
 import javax.annotation.Nonnull;
-
 import java.util.Objects;
 
 public class MachineEvent implements Comparable<MachineEvent> {

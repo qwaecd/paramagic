@@ -6,7 +6,7 @@ import com.qwaecd.paramagic.feature.effect.exposion.listener.ExplosionBaseListen
 import com.qwaecd.paramagic.feature.effect.exposion.listener.ExplosionRenderListener;
 import com.qwaecd.paramagic.spell.Spell;
 import com.qwaecd.paramagic.spell.SpellScheduler;
-import com.qwaecd.paramagic.spell.state.internal.event.AllMachineEvents;
+import com.qwaecd.paramagic.spell.state.event.AllMachineEvents;
 import com.qwaecd.paramagic.spell.state.phase.property.PhaseConfig;
 import com.qwaecd.paramagic.spell.state.phase.property.SpellPhaseType;
 import net.minecraft.nbt.CompoundTag;

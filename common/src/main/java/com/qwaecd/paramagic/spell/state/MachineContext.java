@@ -1,6 +1,5 @@
-package com.qwaecd.paramagic.spell.state.internal;
+package com.qwaecd.paramagic.spell.state;
 
-import com.qwaecd.paramagic.spell.state.SpellStateMachine;
 import lombok.Getter;
 
 public final class MachineContext {

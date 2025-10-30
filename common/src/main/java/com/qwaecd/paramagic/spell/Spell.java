@@ -1,9 +1,9 @@
 package com.qwaecd.paramagic.spell;
 
 
-import com.qwaecd.paramagic.spell.state.SpellStateMachine;
 import com.qwaecd.paramagic.spell.listener.ISpellPhaseListener;
-import com.qwaecd.paramagic.spell.state.internal.event.MachineEvent;
+import com.qwaecd.paramagic.spell.state.SpellStateMachine;
+import com.qwaecd.paramagic.spell.state.event.MachineEvent;
 import com.qwaecd.paramagic.spell.state.phase.property.PhaseConfig;
 import lombok.Getter;
 

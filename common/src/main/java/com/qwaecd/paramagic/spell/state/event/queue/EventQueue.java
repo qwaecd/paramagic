@@ -1,7 +1,7 @@
-package com.qwaecd.paramagic.spell.state.internal.event.queue;
+package com.qwaecd.paramagic.spell.state.event.queue;
 
 
-import com.qwaecd.paramagic.spell.state.internal.event.MachineEvent;
+import com.qwaecd.paramagic.spell.state.event.MachineEvent;
 
 import javax.annotation.Nullable;
 import java.util.Queue;

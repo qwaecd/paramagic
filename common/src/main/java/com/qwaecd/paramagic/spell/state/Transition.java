@@ -1,4 +1,4 @@
-package com.qwaecd.paramagic.spell.state.internal;
+package com.qwaecd.paramagic.spell.state;
 
 import com.qwaecd.paramagic.spell.state.phase.property.SpellPhaseType;
 import lombok.Getter;

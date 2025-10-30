@@ -1,4 +1,4 @@
-package com.qwaecd.paramagic.spell.state.internal.event;
+package com.qwaecd.paramagic.spell.state.event;
 
 public final class AllMachineEvents {
     private AllMachineEvents() {}
