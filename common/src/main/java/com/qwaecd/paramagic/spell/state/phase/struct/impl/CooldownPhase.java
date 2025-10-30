@@ -16,18 +16,12 @@ public class CooldownPhase extends BasePhase implements SpellPhase {
 
     @Override
     public Transition onEvent(MachineContext context, MachineEvent event) {
-        if (event.equals(AllMachineEvents.COOLDOWN_COMPLETE)) {
-            return Transition.to(SpellPhaseType.IDLE);
-        }
         return Transition.stay();
     }
 
     @Override
     public void update(final MachineContext context, float deltaTime) {
-        super.update(context, deltaTime);
-        if (this.phaseCompleted) {
-            context.getStateMachine().postEvent(AllMachineEvents.COOLDOWN_COMPLETE);
-        }
+        context.getStateMachine().postEvent(AllMachineEvents.END_SPELL);
     }
 
     @Override

@@ -30,11 +30,9 @@ public class ExplosionBaseListener implements ISpellPhaseListener {
 
     @Override
     public void onSpellInterrupted() {
-        SpellScheduler.getINSTANCE().removeSpell(this.spell.getID());
     }
 
     @Override
     public void onSpellCompleted() {
-        SpellScheduler.getINSTANCE().removeSpell(this.spell.getID());
     }
 }

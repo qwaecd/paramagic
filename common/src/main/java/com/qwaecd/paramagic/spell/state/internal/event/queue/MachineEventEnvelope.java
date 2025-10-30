@@ -3,7 +3,9 @@ package com.qwaecd.paramagic.spell.state.internal.event.queue;
 import com.qwaecd.paramagic.spell.state.internal.event.MachineEvent;
 import lombok.Getter;
 
-public final class MachineEventEnvelope {
+import javax.annotation.Nonnull;
+
+public final class MachineEventEnvelope implements Comparable<MachineEventEnvelope> {
     @Getter
     final MachineEvent event;
     /**
@@ -16,5 +18,10 @@ public final class MachineEventEnvelope {
     MachineEventEnvelope(MachineEvent event, long generation) {
         this.event = event;
         this.generation = generation;
+    }
+
+    @Override
+    public int compareTo(@Nonnull MachineEventEnvelope o) {
+        return event.compareTo(o.event);
     }
 }

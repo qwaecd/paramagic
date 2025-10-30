@@ -4,20 +4,19 @@ import com.qwaecd.paramagic.spell.state.phase.SpellPhase;
 import com.qwaecd.paramagic.spell.state.phase.property.PhaseConfig;
 import com.qwaecd.paramagic.spell.state.phase.property.SpellPhaseType;
 import com.qwaecd.paramagic.spell.state.phase.struct.impl.CastingPhase;
+import com.qwaecd.paramagic.spell.state.phase.struct.impl.ChannelingPhase;
+import com.qwaecd.paramagic.spell.state.phase.struct.impl.CooldownPhase;
 import com.qwaecd.paramagic.spell.state.phase.struct.impl.IdlePhase;
 import lombok.Getter;
 
 import javax.annotation.Nonnull;
 import java.util.EnumMap;
-import java.util.HashMap;
 import java.util.Map;
 
 public class SpellConfiguration {
     @Nonnull
     @Getter
     private final SpellPhase initialPhase;
-
-    private final Map<SpellPhaseType, PhaseConfig> phaseConfigMap = new HashMap<>();
 
     private final Map<SpellPhaseType, SpellPhase> phaseInstanceMap = new EnumMap<>(SpellPhaseType.class);
 
@@ -28,7 +27,7 @@ public class SpellConfiguration {
         this.addPhaseConfig(initialPhaseCfg);
     }
 
-    public void addPhase(SpellPhase phase) {
+    private void addPhase(SpellPhase phase) {
         this.phaseInstanceMap.put(phase.getPhaseType(), phase);
     }
 
@@ -38,7 +37,8 @@ public class SpellConfiguration {
 
 
     public void addPhaseConfig(PhaseConfig phaseConfig) {
-        this.phaseConfigMap.put(phaseConfig.getPhaseType(), phaseConfig);
+        SpellPhase phaseFromConfig = createPhaseFromConfig(phaseConfig);
+        this.phaseInstanceMap.put(phaseConfig.getPhaseType(), phaseFromConfig);
     }
 
     public static SpellPhase createPhaseFromConfig(PhaseConfig cfg) {
@@ -50,7 +50,12 @@ public class SpellConfiguration {
             case CASTING -> {
                 return new CastingPhase(cfg);
             }
-            // TODO: 实现其他的阶段类型
+            case CHANNELING -> {
+                return new ChannelingPhase(cfg);
+            }
+            case COOLDOWN -> {
+                return new CooldownPhase(cfg);
+            }
             default -> throw new IllegalArgumentException("Unknown phase type: " + phaseType);
         }
     }

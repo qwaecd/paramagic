@@ -7,7 +7,8 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class SpellScheduler {
-    private static SpellScheduler INSTANCE;
+    private static SpellScheduler C_INSTANCE;
+    private static SpellScheduler S_INSTANCE;
     private final List<Spell> activeSpells = new ArrayList<>();
     private final Map<String, Spell> spellMap = new HashMap<>();
 
@@ -15,16 +16,20 @@ public class SpellScheduler {
     private final ConcurrentLinkedQueue<Spell> pendingRemove = new ConcurrentLinkedQueue<>();
 
     public static void init() {
-        if (INSTANCE == null) {
-            INSTANCE = new SpellScheduler();
+        if (S_INSTANCE == null) {
+            S_INSTANCE = new SpellScheduler();
+        }
+        if (C_INSTANCE == null) {
+            C_INSTANCE = new SpellScheduler();
         }
     }
 
-    public static SpellScheduler getINSTANCE() {
-        if (INSTANCE == null) {
+    public static SpellScheduler getINSTANCE(boolean isClientSide) {
+        SpellScheduler instance = isClientSide ? C_INSTANCE : S_INSTANCE;
+        if (instance == null) {
             throw new IllegalStateException("SpellScheduler not initialized. Call init() first.");
         }
-        return INSTANCE;
+        return instance;
     }
 
     public void tick(float deltaTime) {
@@ -34,7 +39,7 @@ public class SpellScheduler {
             this.registerSpell(s);
         }
         while ((s = pendingRemove.poll()) != null) {
-            s.interrupt();
+            s.forceInterrupt();
             this.activeSpells.remove(s);
             this.unregisterSpell(s);
         }
@@ -64,7 +69,7 @@ public class SpellScheduler {
     }
 
     private void registerSpell(Spell spell) {
-        this.spellMap.put(spell.getID(), spell);
+        this.spellMap.put(spell.getId(), spell);
     }
 
     private void unregisterSpell(String ID) {
@@ -72,6 +77,6 @@ public class SpellScheduler {
     }
 
     private void unregisterSpell(Spell spell) {
-        this.spellMap.remove(spell.getID());
+        this.spellMap.remove(spell.getId());
     }
 }

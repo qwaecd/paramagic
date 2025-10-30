@@ -21,7 +21,7 @@ public class ParamagicFabric implements ModInitializer {
         ServerTickEvents.END_SERVER_TICK.register(
                 server -> {
                     final float deltaTime = 1.0f / 20.0f; // Assuming a fixed tick rate of 20 ticks per second
-                    SpellScheduler.getINSTANCE().tick(deltaTime);
+                    SpellScheduler.getINSTANCE(false).tick(deltaTime);
                 }
         );
     }

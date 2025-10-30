@@ -3,17 +3,22 @@ package com.qwaecd.paramagic.spell;
 
 import com.qwaecd.paramagic.spell.state.SpellStateMachine;
 import com.qwaecd.paramagic.spell.listener.ISpellPhaseListener;
+import com.qwaecd.paramagic.spell.state.internal.event.MachineEvent;
 import com.qwaecd.paramagic.spell.state.phase.property.PhaseConfig;
 import lombok.Getter;
 
 public class Spell {
     @Getter
-    private final String ID;
+    private final String id;
     private final SpellStateMachine stateMachine;
 
-    public Spell(String ID, SpellConfiguration cfg) {
-        this.ID = ID;
+    public Spell(String id, SpellConfiguration cfg) {
+        this.id = id;
         this.stateMachine = new SpellStateMachine(cfg);
+    }
+
+    public void postEvent(MachineEvent event) {
+        this.stateMachine.postEvent(event);
     }
 
     public void tick(float deltaTime) {
@@ -25,6 +30,10 @@ public class Spell {
     }
 
     public void interrupt() {
+        this.stateMachine.interrupt();
+    }
+
+    public void forceInterrupt() {
         this.stateMachine.forceInterrupt();
     }
 

@@ -6,6 +6,7 @@ import com.qwaecd.paramagic.feature.effect.exposion.listener.ExplosionBaseListen
 import com.qwaecd.paramagic.feature.effect.exposion.listener.ExplosionRenderListener;
 import com.qwaecd.paramagic.spell.Spell;
 import com.qwaecd.paramagic.spell.SpellScheduler;
+import com.qwaecd.paramagic.spell.state.internal.event.AllMachineEvents;
 import com.qwaecd.paramagic.spell.state.phase.property.PhaseConfig;
 import com.qwaecd.paramagic.spell.state.phase.property.SpellPhaseType;
 import net.minecraft.nbt.CompoundTag;
@@ -55,10 +56,12 @@ public class ExplosionWand extends Item {
         }
         spell.addListener(new ExplosionBaseListener(spell, entityAccessor));
 
-        SpellScheduler.getINSTANCE().addSpell(spell);
+        spell.postEvent(AllMachineEvents.START_CASTING);
+
+        SpellScheduler.getINSTANCE(level.isClientSide).addSpell(spell);
 
         if (!level.isClientSide) {
-            itemstack.getOrCreateTagElement("SpellID").putString("ID", spell.getID());
+            itemstack.getOrCreateTagElement("SpellID").putString("ID", spell.getId());
         }
 
 
@@ -69,10 +72,16 @@ public class ExplosionWand extends Item {
     private Spell genSpell(String id) {
         Spell s = new Spell.Builder(id)
                 .addPhase(
-                        PhaseConfig.create(SpellPhaseType.IDLE, 1.0f)
+                        PhaseConfig.create(SpellPhaseType.IDLE, 0.1f)
                 )
                 .addPhase(
-                        PhaseConfig.create(SpellPhaseType.CASTING, 10.0f)
+                        PhaseConfig.create(SpellPhaseType.CASTING, 3.0f)
+                )
+                .addPhase(
+                        PhaseConfig.create(SpellPhaseType.CHANNELING, 10.0f)
+                )
+                .addPhase(
+                        PhaseConfig.create(SpellPhaseType.COOLDOWN, 0.0f)
                 )
                 .build();
         return s;
@@ -94,7 +103,7 @@ public class ExplosionWand extends Item {
         CompoundTag spellID = stack.getTagElement("SpellID");
         if (spellID != null) {
             String ID = spellID.getString("ID");
-            SpellScheduler.getINSTANCE().removeSpell(ID);
+            SpellScheduler.getINSTANCE(level.isClientSide).removeSpell(ID);
         }
     }
 

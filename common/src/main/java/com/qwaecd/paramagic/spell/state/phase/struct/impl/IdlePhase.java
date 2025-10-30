@@ -21,7 +21,18 @@ public class IdlePhase extends BasePhase implements SpellPhase {
         if (event.equals(AllMachineEvents.START_CASTING)) {
             return Transition.to(SpellPhaseType.CASTING);
         }
+        if (this.phaseCompleted) {
+            return Transition.to(SpellPhaseType.CASTING);
+        }
         return Transition.stay();
+    }
+
+    @Override
+    public void update(final MachineContext context, float deltaTime) {
+        super.update(context, deltaTime);
+        if (this.phaseCompleted) {
+            context.getStateMachine().postEvent(AllMachineEvents.START_CASTING);
+        }
     }
 
     @Override

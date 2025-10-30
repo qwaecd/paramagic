@@ -18,8 +18,8 @@ public class ExplosionRenderListener extends ExplosionBaseListener implements IS
 
     @Override
     public void onPhaseChanged(SpellPhaseType oldPhase, SpellPhaseType newPhase) {
-        if (newPhase == SpellPhaseType.CASTING && oldPhase == SpellPhaseType.IDLE) {
-            ClientEffectManager.getInstance().addExplosion(this.spell.getID(), this.explosion);
+        if (newPhase == SpellPhaseType.CHANNELING && oldPhase == SpellPhaseType.CASTING) {
+            ClientEffectManager.getInstance().addExplosion(this.spell.getId(), this.explosion);
         }
     }
 
@@ -44,11 +44,11 @@ public class ExplosionRenderListener extends ExplosionBaseListener implements IS
 
     @Override
     public void onSpellInterrupted() {
-        ClientEffectManager.getInstance().removeExplosion(this.spell.getID());
+        ClientEffectManager.getInstance().removeExplosion(this.spell.getId());
     }
 
     @Override
     public void onSpellCompleted() {
-        ClientEffectManager.getInstance().removeExplosion(this.spell.getID());
+        ClientEffectManager.getInstance().removeExplosion(this.spell.getId());
     }
 }

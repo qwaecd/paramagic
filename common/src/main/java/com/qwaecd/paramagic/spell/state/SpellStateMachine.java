@@ -81,9 +81,10 @@ public class SpellStateMachine {
 
     private void processEvent(MachineEvent event) {
         if (systemEvents.contains(event)) {
-            systemEvent(event);
+            processSystemEvent(event);
             return;
         }
+
         if (this.currentPhase != null) {
             Transition transition = this.currentPhase.onEvent(this.context, event);
             if (transition != null && transition.getTargetPhase() != null) {
@@ -93,15 +94,14 @@ public class SpellStateMachine {
         }
     }
 
-    private void systemEvent(MachineEvent event) {
+    private void processSystemEvent(MachineEvent event) {
         if (event.equals(AllMachineEvents.INTERRUPT)) {
             endSpell(EndSpellReason.INTERRUPTED);
         }
+        if (event.equals(AllMachineEvents.END_SPELL)) {
+            endSpell(EndSpellReason.COMPLETED);
+        }
     }
-
-//    public void requestNextPhase() {
-//        this.postEvent(AllMachineEvents.NEXT_PHASE);
-//    }
 
     public void postEvent(MachineEvent event) {
         postEventBounded(event, true);
@@ -110,6 +110,10 @@ public class SpellStateMachine {
     public void postEventBounded(MachineEvent event, boolean bindToPhase) {
         long gen = bindToPhase ? this.phaseGeneration : -1L;
         this.eventQueue.offer(event, gen);
+    }
+
+    public void interrupt() {
+        postEventBounded(AllMachineEvents.INTERRUPT, false);
     }
 
     public void forceInterrupt() {
@@ -212,6 +216,7 @@ public class SpellStateMachine {
         private final Set<MachineEvent> systemEvents = new HashSet<>();
         private SystemEvents() {
             systemEvents.add(AllMachineEvents.INTERRUPT);
+            systemEvents.add(AllMachineEvents.END_SPELL);
         }
 
         public boolean contains(MachineEvent event) {
