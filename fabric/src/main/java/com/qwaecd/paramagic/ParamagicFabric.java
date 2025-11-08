@@ -1,8 +1,8 @@
 package com.qwaecd.paramagic;
 
 import com.qwaecd.paramagic.init.ModEntitiesFabric;
-import com.qwaecd.paramagic.spell.SpellScheduler;
 import com.qwaecd.paramagic.init.ModItemsFabric;
+import com.qwaecd.paramagic.spell.SpellScheduler;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 
