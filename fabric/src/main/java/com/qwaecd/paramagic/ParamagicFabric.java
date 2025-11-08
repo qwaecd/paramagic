@@ -1,7 +1,8 @@
 package com.qwaecd.paramagic;
 
+import com.qwaecd.paramagic.init.ModEntitiesFabric;
 import com.qwaecd.paramagic.spell.SpellScheduler;
-import com.qwaecd.paramagic.init.ModItems;
+import com.qwaecd.paramagic.init.ModItemsFabric;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 
@@ -12,7 +13,8 @@ public class ParamagicFabric implements ModInitializer {
     public void onInitialize() {
         Paramagic.LOG.info("Hello Fabric world!");
         CommonClass.init();
-        ModItems.registerAll();
+        ModItemsFabric.registerAll();
+        ModEntitiesFabric.registerAll();
 
         onServerTickEvent();
     }

@@ -78,7 +78,7 @@ public class ExplosionWand extends Item {
                         PhaseConfig.create(SpellPhaseType.CASTING, 3.0f)
                 )
                 .addPhase(
-                        PhaseConfig.create(SpellPhaseType.CHANNELING, 10.0f)
+                        PhaseConfig.create(SpellPhaseType.CHANNELING, -1.0f)
                 )
                 .addPhase(
                         PhaseConfig.create(SpellPhaseType.COOLDOWN, 0.0f)
