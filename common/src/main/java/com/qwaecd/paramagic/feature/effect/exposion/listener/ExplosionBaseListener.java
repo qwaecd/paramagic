@@ -16,11 +16,11 @@ public class ExplosionBaseListener implements ISpellPhaseListener {
         this.accessor = accessor;
     }
     @Override
-    public void onPhaseChanged(SpellPhaseType oldPhase, SpellPhaseType newPhase) {
+    public void onPhaseChanged(SpellPhaseType oldPhase, SpellPhaseType currentPhase) {
     }
 
     @Override
-    public void onTick(float deltaTime) {
+    public void onTick(SpellPhaseType currentPhase, float deltaTime) {
     }
 
     @Override

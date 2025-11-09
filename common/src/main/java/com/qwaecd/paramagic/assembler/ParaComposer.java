@@ -31,6 +31,10 @@ public class ParaComposer {
         return circle;
     }
 
+    public static MagicCircle assemble(ParaData skeletonData) throws AssemblyException {
+        return INSTANCE.assemble(skeletonData, null, null);
+    }
+
     private MagicCircle genMagicCircle(ParaData skeletonData) throws AssemblyException {
         MagicCircle circle;
         try {

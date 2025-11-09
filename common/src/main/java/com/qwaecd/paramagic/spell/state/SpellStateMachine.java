@@ -71,7 +71,8 @@ public class SpellStateMachine {
         if (this.currentPhase != null && !isCompleted()) {
             this.currentPhase.update(this.context, deltaTime);
 
-            forEachListenerSafe(listener -> listener.onTick(deltaTime));
+            final SpellPhaseType phaseType = this.currentPhase.getPhaseType();
+            forEachListenerSafe(listener -> listener.onTick(phaseType, deltaTime));
         } else {
             endSpell(EndSpellReason.COMPLETED);
         }

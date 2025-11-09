@@ -1,6 +1,13 @@
 package com.qwaecd.paramagic.feature.effect.exposion.listener;
 
+import com.qwaecd.paramagic.Paramagic;
+import com.qwaecd.paramagic.assembler.AssemblyException;
+import com.qwaecd.paramagic.assembler.ParaComposer;
 import com.qwaecd.paramagic.core.accessor.EntityAccessor;
+import com.qwaecd.paramagic.data.para.struct.ParaData;
+import com.qwaecd.paramagic.feature.circle.CircleMap;
+import com.qwaecd.paramagic.feature.circle.MagicCircle;
+import com.qwaecd.paramagic.feature.circle.MagicCircleManager;
 import com.qwaecd.paramagic.feature.effect.ClientEffectManager;
 import com.qwaecd.paramagic.feature.effect.exposion.EXPLOSION;
 import com.qwaecd.paramagic.spell.Spell;
@@ -17,14 +24,24 @@ public class ExplosionRenderListener extends ExplosionBaseListener implements IS
     }
 
     @Override
-    public void onPhaseChanged(SpellPhaseType oldPhase, SpellPhaseType newPhase) {
-        if (newPhase == SpellPhaseType.CHANNELING && oldPhase == SpellPhaseType.CASTING) {
+    public void onPhaseChanged(SpellPhaseType oldPhase, SpellPhaseType currentPhase) {
+        if (currentPhase == SpellPhaseType.CHANNELING && oldPhase == SpellPhaseType.CASTING) {
             ClientEffectManager.getInstance().addExplosion(this.spell.getId(), this.explosion);
+        }
+        ParaData paraData = this.spell.getSpellAssets().getParaData();
+        if (currentPhase == SpellPhaseType.CASTING && oldPhase == SpellPhaseType.IDLE) {
+            try {
+                MagicCircle circle = ParaComposer.assemble(paraData);
+                CircleMap.register(spell.getId(), circle);
+                MagicCircleManager.getInstance().addCircle(circle);
+            } catch (AssemblyException e) {
+                Paramagic.LOG.error("Failed to assemble explosion para data.", e);
+            }
         }
     }
 
     @Override
-    public void onTick(float deltaTime) {
+    public void onTick(SpellPhaseType currentPhase, float deltaTime) {
         Vector3f lookAngle = this.accessor.getLookAngle();
         Vector3f eyePosition = this.accessor.getEyePositon();
         Vector3f newEmitterCenter = new Vector3f(
@@ -38,17 +55,26 @@ public class ExplosionRenderListener extends ExplosionBaseListener implements IS
         );
     }
 
+    private void cleanup() {
+        MagicCircle circle = CircleMap.unregister(this.spell.getId());
+        if (circle != null) {
+            MagicCircleManager.getInstance().removeCircle(circle);
+        }
+
+        ClientEffectManager.getInstance().removeExplosion(this.spell.getId());
+    }
+
     @Override
     public void onEffectTriggered(EffectTriggerPoint triggerPoint) {
     }
 
     @Override
     public void onSpellInterrupted() {
-        ClientEffectManager.getInstance().removeExplosion(this.spell.getId());
+        cleanup();
     }
 
     @Override
     public void onSpellCompleted() {
-        ClientEffectManager.getInstance().removeExplosion(this.spell.getId());
+        cleanup();
     }
 }

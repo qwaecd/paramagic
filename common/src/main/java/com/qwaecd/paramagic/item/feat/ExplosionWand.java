@@ -46,7 +46,7 @@ public class ExplosionWand extends Item {
 
         Spell spell = genSpell(player.getUUID().toString());
         EntityAccessor entityAccessor = new EntityAccessor(player);
-        if (level.isClientSide) {
+        if (level.isClientSide()) {
             EXPLOSION explosion = new EXPLOSION(
                     emitterCenter,
                     eyePosition.toVector3f(),
