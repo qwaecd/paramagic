@@ -1,6 +1,10 @@
 package com.qwaecd.paramagic.entity;
 
+import com.qwaecd.paramagic.Paramagic;
 import com.qwaecd.paramagic.spell.Spell;
+import com.qwaecd.paramagic.spell.listener.ISpellPhaseListener;
+import com.qwaecd.paramagic.spell.state.SpellStateMachine;
+import com.qwaecd.paramagic.spell.state.event.MachineEvent;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
@@ -13,7 +17,9 @@ public class SpellAnchorEntity extends Entity {
     public static final String IDENTIFIER = "spell_anchor";
 
     @Nullable
-    private Spell spell = null;
+    protected Spell spell = null;
+    @Nullable
+    protected SpellStateMachine stateMachine = null;
 
 
     public SpellAnchorEntity(EntityType<?> entityType, Level level) {
@@ -25,11 +31,12 @@ public class SpellAnchorEntity extends Entity {
     @Override
     public void tick() {
         super.tick();
-        if (this.spell == null) {
+        if (this.spell == null || this.stateMachine == null) {
             return;
         }
-        this.spell.tick(1.0f / 20.0f);
-        if (this.spell.isCompleted()) {
+
+        this.stateMachine.update(1.0f / 20.0f);
+        if (this.isSpellCompleted()) {
             this.discard();
         }
     }
@@ -57,5 +64,45 @@ public class SpellAnchorEntity extends Entity {
 
     public void attachSpell(@Nonnull Spell spell) {
         this.spell = spell;
+        this.stateMachine = new SpellStateMachine(spell.getSpellConfig());
+    }
+
+    public void postEvent(MachineEvent event) {
+        if (this.stateMachine == null || this.spell == null) {
+            Paramagic.LOG.error("SpellStateMachine is null, cannot post event.");
+            return;
+        }
+        this.stateMachine.postEvent(event);
+    }
+
+    public boolean isSpellCompleted() {
+        if (this.stateMachine == null || this.spell == null) {
+            return true;
+        }
+        return this.stateMachine.isCompleted();
+    }
+
+    public void interrupt() {
+        if (this.stateMachine == null) {
+            this.discard();
+            return;
+        }
+        this.stateMachine.interrupt();
+    }
+
+    public void forceInterrupt() {
+        if (this.stateMachine == null) {
+            this.discard();
+            return;
+        }
+        this.stateMachine.forceInterrupt();
+    }
+
+    public void addListener(ISpellPhaseListener listener) {
+        if (this.stateMachine == null) {
+            Paramagic.LOG.error("SpellStateMachine is null, cannot add listener.");
+            return;
+        }
+        this.stateMachine.addListener(listener);
     }
 }

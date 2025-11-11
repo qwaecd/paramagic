@@ -1,7 +1,6 @@
 package com.qwaecd.paramagic.spell;
 
 
-import com.qwaecd.paramagic.data.SpellAssets;
 import com.qwaecd.paramagic.spell.listener.ISpellPhaseListener;
 import com.qwaecd.paramagic.spell.state.SpellStateMachine;
 import com.qwaecd.paramagic.spell.state.event.MachineEvent;
@@ -14,14 +13,17 @@ import javax.annotation.Nonnull;
 public class Spell {
     @Getter
     private final String id;
+    @Deprecated
     private final SpellStateMachine stateMachine;
 
+    private final SpellConfiguration spellConfig;
     @Nonnull
     private final SpellAssets spellAssets;
 
     public Spell(String id, @Nonnull SpellAssets spellAssets, SpellConfiguration cfg) {
         this.id = id;
         this.spellAssets = spellAssets;
+        this.spellConfig = cfg;
         this.stateMachine = new SpellStateMachine(cfg);
     }
 
@@ -52,6 +54,10 @@ public class Spell {
     @Nonnull
     public SpellAssets getSpellAssets() {
         return this.spellAssets;
+    }
+
+    public SpellConfiguration getSpellConfig() {
+        return this.spellConfig;
     }
 
     public static class Builder {

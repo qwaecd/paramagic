@@ -1,6 +1,6 @@
-package com.qwaecd.paramagic.data;
+package com.qwaecd.paramagic.spell;
 
-import com.qwaecd.paramagic.data.animation.struct.AnimatorData;
+import com.qwaecd.paramagic.data.animation.struct.AnimationBindingConfig;
 import com.qwaecd.paramagic.data.para.struct.ParaData;
 import lombok.Getter;
 
@@ -13,11 +13,11 @@ public class SpellAssets {
     private final ParaData paraData;
     @Nullable
     @Getter
-    private final AnimatorData animatorData;
+    private final AnimationBindingConfig animBindingConfig;
 
-    public SpellAssets(@Nonnull ParaData paraData, @Nullable AnimatorData animatorData) {
+    public SpellAssets(@Nonnull ParaData paraData, @Nullable AnimationBindingConfig cfg) {
         this.paraData = paraData;
-        this.animatorData = animatorData;
+        this.animBindingConfig = cfg;
     }
 
     public SpellAssets(@Nonnull ParaData paraData) {

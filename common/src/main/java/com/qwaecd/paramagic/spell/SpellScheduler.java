@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
+@Deprecated
 public class SpellScheduler {
     private static SpellScheduler C_INSTANCE;
     private static SpellScheduler S_INSTANCE;
