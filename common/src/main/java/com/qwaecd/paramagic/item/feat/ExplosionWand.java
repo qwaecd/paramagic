@@ -2,10 +2,10 @@ package com.qwaecd.paramagic.item.feat;
 
 import com.qwaecd.paramagic.core.accessor.EntityAccessor;
 import com.qwaecd.paramagic.feature.effect.exposion.EXPLOSION;
+import com.qwaecd.paramagic.feature.effect.exposion.ExplosionAssets;
 import com.qwaecd.paramagic.feature.effect.exposion.listener.ExplosionBaseListener;
 import com.qwaecd.paramagic.feature.effect.exposion.listener.ExplosionRenderListener;
 import com.qwaecd.paramagic.spell.Spell;
-import com.qwaecd.paramagic.spell.SpellScheduler;
 import com.qwaecd.paramagic.spell.state.event.AllMachineEvents;
 import com.qwaecd.paramagic.spell.state.phase.property.PhaseConfig;
 import com.qwaecd.paramagic.spell.state.phase.property.SpellPhaseType;
@@ -58,7 +58,7 @@ public class ExplosionWand extends Item {
 
         spell.postEvent(AllMachineEvents.START_CASTING);
 
-        SpellScheduler.getINSTANCE(level.isClientSide).addSpell(spell);
+//        SpellScheduler.getINSTANCE(level.isClientSide).addSpell(spell);
 
         if (!level.isClientSide) {
             itemstack.getOrCreateTagElement("SpellID").putString("ID", spell.getId());
@@ -83,7 +83,7 @@ public class ExplosionWand extends Item {
                 .addPhase(
                         PhaseConfig.create(SpellPhaseType.COOLDOWN, 0.0f)
                 )
-                .build();
+                .build(ExplosionAssets.create());
         return s;
     }
 
@@ -103,7 +103,7 @@ public class ExplosionWand extends Item {
         CompoundTag spellID = stack.getTagElement("SpellID");
         if (spellID != null) {
             String ID = spellID.getString("ID");
-            SpellScheduler.getINSTANCE(level.isClientSide).removeSpell(ID);
+//            SpellScheduler.getINSTANCE(level.isClientSide).removeSpell(ID);
         }
     }
 

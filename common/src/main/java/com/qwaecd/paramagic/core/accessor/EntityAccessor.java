@@ -10,7 +10,7 @@ public class EntityAccessor {
         this.source = entity;
     }
 
-    public Vector3f getEyePositon() {
+    public Vector3f getEyePosition() {
         return this.source.getEyePosition().toVector3f();
     }
 
