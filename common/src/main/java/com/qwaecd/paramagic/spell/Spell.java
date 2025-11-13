@@ -1,9 +1,6 @@
 package com.qwaecd.paramagic.spell;
 
 
-import com.qwaecd.paramagic.spell.listener.ISpellPhaseListener;
-import com.qwaecd.paramagic.spell.state.SpellStateMachine;
-import com.qwaecd.paramagic.spell.state.event.MachineEvent;
 import com.qwaecd.paramagic.spell.state.phase.property.PhaseConfig;
 import lombok.Getter;
 
@@ -13,8 +10,6 @@ import javax.annotation.Nonnull;
 public class Spell {
     @Getter
     private final String id;
-    @Deprecated
-    private final SpellStateMachine stateMachine;
 
     private final SpellConfiguration spellConfig;
     @Nonnull
@@ -24,31 +19,6 @@ public class Spell {
         this.id = id;
         this.spellAssets = spellAssets;
         this.spellConfig = cfg;
-        this.stateMachine = new SpellStateMachine(cfg);
-    }
-
-    public void postEvent(MachineEvent event) {
-        this.stateMachine.postEvent(event);
-    }
-
-    public void tick(float deltaTime) {
-        this.stateMachine.update(deltaTime);
-    }
-
-    public boolean isCompleted() {
-        return this.stateMachine.isCompleted();
-    }
-
-    public void interrupt() {
-        this.stateMachine.interrupt();
-    }
-
-    public void forceInterrupt() {
-        this.stateMachine.forceInterrupt();
-    }
-
-    public void addListener(ISpellPhaseListener listener) {
-        this.stateMachine.addListener(listener);
     }
 
     @Nonnull

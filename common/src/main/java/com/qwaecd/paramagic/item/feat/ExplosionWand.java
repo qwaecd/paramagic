@@ -5,8 +5,6 @@ import com.qwaecd.paramagic.entity.ModEntityTypes;
 import com.qwaecd.paramagic.entity.SpellAnchorEntity;
 import com.qwaecd.paramagic.feature.effect.exposion.EXPLOSION;
 import com.qwaecd.paramagic.feature.effect.exposion.ExplosionAssets;
-import com.qwaecd.paramagic.feature.effect.exposion.listener.ExplosionBaseListener;
-import com.qwaecd.paramagic.feature.effect.exposion.listener.ExplosionRenderListener;
 import com.qwaecd.paramagic.mixin.LevelEntityAccessor;
 import com.qwaecd.paramagic.spell.Spell;
 import com.qwaecd.paramagic.spell.state.event.AllMachineEvents;
