@@ -31,9 +31,9 @@ public class FabricClient implements ClientModInitializer {
             RenderContextManager.setContext(fabricContext);
         });
 
-        ClientTickEvents.END_CLIENT_TICK.register(
-                client -> SpellScheduler.getINSTANCE(true).tick(1.0f / 20.0f)
-        );
+//        ClientTickEvents.END_CLIENT_TICK.register(
+//                client -> SpellScheduler.getINSTANCE(true).tick(1.0f / 20.0f)
+//        );
     }
 
     private static void registerEntityRenderers() {

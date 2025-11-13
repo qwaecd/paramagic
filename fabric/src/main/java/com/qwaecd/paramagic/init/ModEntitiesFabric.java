@@ -1,5 +1,6 @@
 package com.qwaecd.paramagic.init;
 
+import com.qwaecd.paramagic.entity.ModEntityTypes;
 import com.qwaecd.paramagic.entity.SpellAnchorEntity;
 import com.qwaecd.paramagic.tools.ModRL;
 import net.minecraft.core.Registry;
@@ -8,8 +9,13 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
 
+import java.util.HashMap;
+import java.util.Map;
+
 @SuppressWarnings("SameParameterValue")
-public class ModEntitiesFabric {
+public class ModEntitiesFabric implements ModEntityTypes.EntityTypeGetter {
+    public static ModEntitiesFabric instance;
+    private static final Map<String, EntityType<?>> REGISTERED_TYPES = new HashMap<>();
     public static final EntityType<SpellAnchorEntity> SPELL_ANCHOR_ENTITY =
             register(
                     SpellAnchorEntity.IDENTIFIER, SpellAnchorEntity::new,
@@ -24,17 +30,27 @@ public class ModEntitiesFabric {
     }
 
     private static <T extends Entity> EntityType<T> register(String identifier, EntityType.EntityFactory<T> factory, MobCategory category, EntityTypeModifier<T> modifier) {
-        return Registry.register(
+        EntityType<T> entityType = Registry.register(
                 BuiltInRegistries.ENTITY_TYPE,
                 ModRL.InModSpace(identifier),
                 modifier.modify(EntityType.Builder.of(factory, category)).build(identifier)
         );
+        REGISTERED_TYPES.put(identifier, entityType);
+        return entityType;
     }
 
     public static void registerAll() {
+        if (instance == null) {
+            instance = new ModEntitiesFabric();
+        }
     }
 
-    public interface EntityTypeModifier<T extends Entity> {
+    @Override
+    public EntityType<?> get(String identify) {
+        return REGISTERED_TYPES.get(identify);
+    }
+
+    interface EntityTypeModifier<T extends Entity> {
         EntityType.Builder<T> modify(EntityType.Builder<T> builder);
     }
 }

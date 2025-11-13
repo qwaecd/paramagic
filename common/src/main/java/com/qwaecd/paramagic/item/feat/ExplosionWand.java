@@ -1,17 +1,22 @@
 package com.qwaecd.paramagic.item.feat;
 
 import com.qwaecd.paramagic.core.accessor.EntityAccessor;
+import com.qwaecd.paramagic.entity.ModEntityTypes;
+import com.qwaecd.paramagic.entity.SpellAnchorEntity;
 import com.qwaecd.paramagic.feature.effect.exposion.EXPLOSION;
 import com.qwaecd.paramagic.feature.effect.exposion.ExplosionAssets;
 import com.qwaecd.paramagic.feature.effect.exposion.listener.ExplosionBaseListener;
 import com.qwaecd.paramagic.feature.effect.exposion.listener.ExplosionRenderListener;
+import com.qwaecd.paramagic.mixin.LevelEntityAccessor;
 import com.qwaecd.paramagic.spell.Spell;
 import com.qwaecd.paramagic.spell.state.event.AllMachineEvents;
 import com.qwaecd.paramagic.spell.state.phase.property.PhaseConfig;
 import com.qwaecd.paramagic.spell.state.phase.property.SpellPhaseType;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
@@ -21,6 +26,8 @@ import net.minecraft.world.item.UseAnim;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Vector3f;
+
+import java.util.UUID;
 
 
 public class ExplosionWand extends Item {
@@ -44,27 +51,35 @@ public class ExplosionWand extends Item {
                 (float) eyePosition.z + (float) lookAngle.z * 2.2f
         );
 
-        Spell spell = genSpell(player.getUUID().toString());
         EntityAccessor entityAccessor = new EntityAccessor(player);
+
+
         if (level.isClientSide()) {
             EXPLOSION explosion = new EXPLOSION(
                     emitterCenter,
                     eyePosition.toVector3f(),
                     lookAngle.toVector3f()
             );
-            spell.addListener(new ExplosionRenderListener(spell, explosion, entityAccessor));
+//            spell.addListener(new ExplosionRenderListener(spell, explosion, entityAccessor));
         }
-        spell.addListener(new ExplosionBaseListener(spell, entityAccessor));
+//        spell.addListener(new ExplosionBaseListener(spell, entityAccessor));
 
-        spell.postEvent(AllMachineEvents.START_CASTING);
+//        spell.postEvent(AllMachineEvents.START_CASTING);
 
 //        SpellScheduler.getINSTANCE(level.isClientSide).addSpell(spell);
 
-        if (!level.isClientSide) {
-            itemstack.getOrCreateTagElement("SpellID").putString("ID", spell.getId());
+        if (level instanceof ServerLevel serverLevel) {
+            SpellAnchorEntity spellAnchorEntity = new SpellAnchorEntity(ModEntityTypes.SPELL_ANCHOR_ENTITY, level);
+            Spell spell = genSpell(spellAnchorEntity.getUUID().toString());
+
+            spellAnchorEntity.moveTo(eyePosition.x(), eyePosition.y() - 1.6d, eyePosition.z());
+            spellAnchorEntity.attachSpell(spell);
+            spellAnchorEntity.postEvent(AllMachineEvents.START_CASTING);
+
+            serverLevel.addFreshEntity(spellAnchorEntity);
+
+            itemstack.getOrCreateTagElement("SpellID").putUUID("ID", spellAnchorEntity.getUUID());
         }
-
-
         player.startUsingItem(usedHand);
         return InteractionResultHolder.consume(itemstack);
     }
@@ -99,12 +114,18 @@ public class ExplosionWand extends Item {
 
     @Override
     public void releaseUsing(ItemStack stack, Level level, LivingEntity livingEntity, int timeCharged) {
-        super.releaseUsing(stack, level, livingEntity, timeCharged);
         CompoundTag spellID = stack.getTagElement("SpellID");
-        if (spellID != null) {
-            String ID = spellID.getString("ID");
-//            SpellScheduler.getINSTANCE(level.isClientSide).removeSpell(ID);
+        if (spellID == null) {
+            return;
         }
+        UUID uuid = spellID.getUUID("ID");
+
+        LevelEntityAccessor entityAccessor = (LevelEntityAccessor) level;
+        Entity entity = entityAccessor.getEntities().get(uuid);
+        if (!(entity instanceof SpellAnchorEntity spellAnchorEntity)) {
+            return;
+        }
+        spellAnchorEntity.interrupt();
     }
 
     @Override

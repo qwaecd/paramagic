@@ -1,5 +1,6 @@
 package com.qwaecd.paramagic;
 
+import com.qwaecd.paramagic.entity.ModEntityTypes;
 import com.qwaecd.paramagic.init.ModEntitiesFabric;
 import com.qwaecd.paramagic.init.ModItemsFabric;
 import com.qwaecd.paramagic.spell.SpellScheduler;
@@ -16,6 +17,8 @@ public class ParamagicFabric implements ModInitializer {
         ModItemsFabric.registerAll();
         ModEntitiesFabric.registerAll();
 
+        ModEntityTypes.init(ModEntitiesFabric.instance);
+
         onServerTickEvent();
     }
 
@@ -23,7 +26,7 @@ public class ParamagicFabric implements ModInitializer {
         ServerTickEvents.END_SERVER_TICK.register(
                 server -> {
                     final float deltaTime = 1.0f / 20.0f; // Assuming a fixed tick rate of 20 ticks per second
-                    SpellScheduler.getINSTANCE(false).tick(deltaTime);
+//                    SpellScheduler.getINSTANCE(false).tick(deltaTime);
                 }
         );
     }
