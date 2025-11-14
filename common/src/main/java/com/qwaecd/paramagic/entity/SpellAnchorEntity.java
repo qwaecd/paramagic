@@ -1,7 +1,11 @@
 package com.qwaecd.paramagic.entity;
 
 import com.qwaecd.paramagic.Paramagic;
+import com.qwaecd.paramagic.assembler.AssemblyException;
+import com.qwaecd.paramagic.assembler.ParaComposer;
 import com.qwaecd.paramagic.data.para.struct.ParaData;
+import com.qwaecd.paramagic.feature.circle.MagicCircle;
+import com.qwaecd.paramagic.feature.circle.MagicCircleManager;
 import com.qwaecd.paramagic.network.serializer.AllEntityDataSerializers;
 import com.qwaecd.paramagic.spell.Spell;
 import com.qwaecd.paramagic.spell.listener.ISpellPhaseListener;
@@ -19,6 +23,11 @@ import javax.annotation.Nullable;
 
 public class SpellAnchorEntity extends Entity {
     public static final String IDENTIFIER = "spell_anchor";
+    private static final int MAX_LIFETIME_TICKS = 20 * 3; // 3s
+    /**
+     * 仅应该在服务端, 用于定时清除不存在 spell 的实体.
+     */
+    private int lifetimeTicks = 0;
 
     private static final EntityDataAccessor<ParaData> PARA_DATA = SynchedEntityData.defineId(SpellAnchorEntity.class, AllEntityDataSerializers.PARA_DATA);
 
@@ -36,14 +45,21 @@ public class SpellAnchorEntity extends Entity {
     @Override
     public void tick() {
         super.tick();
-        ParaData paraData = this.entityData.get(PARA_DATA);
-        if (ParaData.EMPTY.equals(paraData)) {
-            System.out.println("ParaData is empty.");
+        //noinspection resource
+        if (this.lifetimeTicks > MAX_LIFETIME_TICKS && !this.level().isClientSide()) {
+            this.discard();
+            return;
         }
+//        ParaData paraData = this.entityData.get(PARA_DATA);
+//        if (ParaData.EMPTY.equals(paraData)) {
+//            System.out.println("ParaData is empty.");
+//        }
         if (this.spell == null) {
+            this.lifetimeTicks++;
             return;
         }
         if (this.stateMachine == null) {
+            this.lifetimeTicks++;
             return;
         }
 
@@ -58,10 +74,27 @@ public class SpellAnchorEntity extends Entity {
         this.entityData.define(PARA_DATA, ParaData.EMPTY);
     }
 
+    // 测试用的临时字段
+    private MagicCircle tmp;
     @Override
     public void onSyncedDataUpdated(@Nonnull EntityDataAccessor<?> key) {
         if (PARA_DATA.equals(key)) {
-
+            ParaData paraData = this.entityData.get(PARA_DATA);
+            if (!this.level().isClientSide) {
+                return;
+            }
+            if (this.tmp != null) {
+                return;
+            }
+            try {
+                MagicCircle circle = ParaComposer.assemble(paraData);
+                MagicCircleManager.getInstance().addCircle(circle);
+                circle.transform
+                        .setPosition((float) this.position().x(), (float) this.position().y(), (float) this.position().z());
+                this.tmp = circle;
+            } catch (AssemblyException e) {
+                Paramagic.LOG.error("Failed to assemble MagicCircle from ParaData in SpellAnchorEntity.", e);
+            }
         }
     }
 
@@ -106,6 +139,9 @@ public class SpellAnchorEntity extends Entity {
     }
 
     public void interrupt() {
+        if (this.level().isClientSide && this.tmp != null) {
+            MagicCircleManager.getInstance().removeCircle(this.tmp);
+        }
         if (this.stateMachine == null) {
             this.discard();
             return;
