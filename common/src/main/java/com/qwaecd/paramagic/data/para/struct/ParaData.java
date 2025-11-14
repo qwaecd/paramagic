@@ -4,6 +4,7 @@ import com.qwaecd.paramagic.data.para.util.ParaComponentBuilder;
 import com.qwaecd.paramagic.network.DataCodec;
 import com.qwaecd.paramagic.network.IDataSerializable;
 
+import javax.annotation.Nonnull;
 import java.util.UUID;
 
 public class ParaData implements IDataSerializable {
@@ -11,6 +12,8 @@ public class ParaData implements IDataSerializable {
     public final String schemaVersion = "1.0";
     public final ParaComponentData rootComponent;
     public static final String PARENT_ID = "root";
+
+    public static final ParaData EMPTY = new ParaData(new ParaComponentBuilder());
 
     public ParaData(ParaComponentBuilder builder) {
         this(builder.build());
@@ -51,5 +54,10 @@ public class ParaData implements IDataSerializable {
         final UUID circleUUID = codec.readUUID("uuid");
         final ParaComponentData rootComponent = codec.readObject("rootComponent", ParaComponentData::fromCodecBase);
         return new ParaData(rootComponent, circleUUID);
+    }
+
+    @Nonnull
+    public ParaData copy() {
+        return new ParaData(this.rootComponent, this.circleUUID);
     }
 }

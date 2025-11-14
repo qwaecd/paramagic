@@ -1,11 +1,15 @@
 package com.qwaecd.paramagic.entity;
 
 import com.qwaecd.paramagic.Paramagic;
+import com.qwaecd.paramagic.data.para.struct.ParaData;
+import com.qwaecd.paramagic.network.serializer.AllEntityDataSerializers;
 import com.qwaecd.paramagic.spell.Spell;
 import com.qwaecd.paramagic.spell.listener.ISpellPhaseListener;
 import com.qwaecd.paramagic.spell.state.SpellStateMachine;
 import com.qwaecd.paramagic.spell.state.event.MachineEvent;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.syncher.EntityDataAccessor;
+import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.Level;
@@ -16,11 +20,12 @@ import javax.annotation.Nullable;
 public class SpellAnchorEntity extends Entity {
     public static final String IDENTIFIER = "spell_anchor";
 
+    private static final EntityDataAccessor<ParaData> PARA_DATA = SynchedEntityData.defineId(SpellAnchorEntity.class, AllEntityDataSerializers.PARA_DATA);
+
     @Nullable
     protected Spell spell = null;
     @Nullable
     protected SpellStateMachine stateMachine = null;
-
 
     public SpellAnchorEntity(EntityType<?> entityType, Level level) {
         super(entityType, level);
@@ -31,7 +36,14 @@ public class SpellAnchorEntity extends Entity {
     @Override
     public void tick() {
         super.tick();
-        if (this.spell == null || this.stateMachine == null) {
+        ParaData paraData = this.entityData.get(PARA_DATA);
+        if (ParaData.EMPTY.equals(paraData)) {
+            System.out.println("ParaData is empty.");
+        }
+        if (this.spell == null) {
+            return;
+        }
+        if (this.stateMachine == null) {
             return;
         }
 
@@ -43,7 +55,14 @@ public class SpellAnchorEntity extends Entity {
 
     @Override
     protected void defineSynchedData() {
+        this.entityData.define(PARA_DATA, ParaData.EMPTY);
+    }
 
+    @Override
+    public void onSyncedDataUpdated(@Nonnull EntityDataAccessor<?> key) {
+        if (PARA_DATA.equals(key)) {
+
+        }
     }
 
     @Override
@@ -65,6 +84,10 @@ public class SpellAnchorEntity extends Entity {
     public void attachSpell(@Nonnull Spell spell) {
         this.spell = spell;
         this.stateMachine = new SpellStateMachine(spell.getSpellConfig());
+        //noinspection resource
+        if (this.level().isClientSide())
+            return;
+        this.entityData.set(PARA_DATA, spell.getSpellAssets().getParaData(), true);
     }
 
     public void postEvent(MachineEvent event) {
