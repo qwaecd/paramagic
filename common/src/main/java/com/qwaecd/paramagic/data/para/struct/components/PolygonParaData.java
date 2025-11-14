@@ -1,6 +1,8 @@
 package com.qwaecd.paramagic.data.para.struct.components;
 
 import com.qwaecd.paramagic.data.para.struct.ParaComponentData;
+import com.qwaecd.paramagic.data.para.struct.ParaComponentType;
+import com.qwaecd.paramagic.network.DataCodec;
 
 public class PolygonParaData extends ParaComponentData {
     /**
@@ -42,6 +44,10 @@ public class PolygonParaData extends ParaComponentData {
      * 如果想要实现 1.0 个方块的边厚度，你需要将 {@code lineWidth} 设置为 2.0。
      */
     public final float lineWidth;
+
+    static {
+        register(ParaComponentType.POLYGON.ID(), PolygonParaData::fromCodec);
+    }
     public PolygonParaData(float radius, int sides, float startAngle, float lineWidth) {
         super();
         this.radius = radius;
@@ -56,5 +62,30 @@ public class PolygonParaData extends ParaComponentData {
         this.sides = Math.max(sides, 3);
         this.startAngle = 0.0f;
         this.lineWidth = 4.0f;
+    }
+
+    @Override
+    public int getComponentType() {
+        return ParaComponentType.POLYGON.ID();
+    }
+
+    public static ParaComponentData fromCodec(DataCodec codec) {
+        float radius = codec.readFloat("r");
+        int sides = codec.readInt("sides");
+        float startAngle = codec.readFloat("startAng");
+        float lineWidth = codec.readFloat("lineW");
+        PolygonParaData polygonParaData = new PolygonParaData(radius, sides, startAngle, lineWidth);
+        polygonParaData.readBase(codec);
+        return polygonParaData;
+    }
+
+    @Override
+    public void write(DataCodec codec) {
+        codec.writeInt("type", this.getComponentType());
+        codec.writeFloat("r", this.radius);
+        codec.writeInt("sides", this.sides);
+        codec.writeFloat("startAng", this.startAngle);
+        codec.writeFloat("lineW", this.lineWidth);
+        super.writeBase(codec);
     }
 }

@@ -112,11 +112,11 @@ public class ExplosionWand extends Item {
 
     @Override
     public void releaseUsing(ItemStack stack, Level level, LivingEntity livingEntity, int timeCharged) {
-        CompoundTag spellID = stack.getTagElement("SpellID");
-        if (spellID == null) {
+        CompoundTag spellIDTag = stack.getTagElement("SpellID");
+        if (spellIDTag == null) {
             return;
         }
-        UUID uuid = spellID.getUUID("ID");
+        UUID uuid = spellIDTag.getUUID("ID");
 
         LevelEntityAccessor entityAccessor = (LevelEntityAccessor) level;
         Entity entity = entityAccessor.getEntities().get(uuid);

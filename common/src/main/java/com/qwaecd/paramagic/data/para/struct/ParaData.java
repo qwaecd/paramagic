@@ -1,10 +1,12 @@
 package com.qwaecd.paramagic.data.para.struct;
 
 import com.qwaecd.paramagic.data.para.util.ParaComponentBuilder;
+import com.qwaecd.paramagic.network.DataCodec;
+import com.qwaecd.paramagic.network.IDataSerializable;
 
 import java.util.UUID;
 
-public class ParaData {
+public class ParaData implements IDataSerializable {
     public final UUID circleUUID;
     public final String schemaVersion = "1.0";
     public final ParaComponentData rootComponent;
@@ -36,5 +38,18 @@ public class ParaData {
             String childId = parentId + "." + i;
             generateComponentIds(child, childId);
         }
+    }
+
+    @Override
+    public void write(DataCodec codec) {
+        // 暂时不写入 schemaVersion
+        codec.writeUUID("uuid", this.circleUUID);
+        codec.writeObject("rootComponent", this.rootComponent);
+    }
+
+    public static ParaData fromCodec(DataCodec codec) {
+        final UUID circleUUID = codec.readUUID("uuid");
+        final ParaComponentData rootComponent = codec.readObject("rootComponent", ParaComponentData::fromCodecBase);
+        return new ParaData(rootComponent, circleUUID);
     }
 }
