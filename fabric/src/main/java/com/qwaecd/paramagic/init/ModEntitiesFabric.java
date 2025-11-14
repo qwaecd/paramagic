@@ -20,7 +20,7 @@ public class ModEntitiesFabric implements ModEntityTypes.EntityTypeGetter {
             register(
                     SpellAnchorEntity.IDENTIFIER, SpellAnchorEntity::new,
                     builder -> {
-                        builder.sized(0.2f, 0.2f);
+                        builder.sized(0.1f, 0.1f);
                         return builder;
                     }
             );

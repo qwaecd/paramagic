@@ -70,7 +70,7 @@ public class ExplosionWand extends Item {
             SpellAnchorEntity spellAnchorEntity = new SpellAnchorEntity(ModEntityTypes.SPELL_ANCHOR_ENTITY, level);
             Spell spell = genSpell(spellAnchorEntity.getUUID().toString());
 
-            spellAnchorEntity.moveTo(eyePosition.x(), eyePosition.y() - 1.6d, eyePosition.z());
+            spellAnchorEntity.moveTo(player.position());
             spellAnchorEntity.attachSpell(spell);
             spellAnchorEntity.postEvent(AllMachineEvents.START_CASTING);
 
