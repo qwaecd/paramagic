@@ -20,6 +20,6 @@ public abstract class EntityDataSerializersMixin {
             at = @At(value = "TAIL")
     )
     private static void registerCustomSerializers(CallbackInfo ci) {
-        registerSerializer(AllEntityDataSerializers.PARA_DATA);
+        registerSerializer(AllEntityDataSerializers.OPTIONAL_SPELL);
     }
 }

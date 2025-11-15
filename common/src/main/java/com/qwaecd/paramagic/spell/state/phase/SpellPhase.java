@@ -3,6 +3,7 @@ package com.qwaecd.paramagic.spell.state.phase;
 import com.qwaecd.paramagic.spell.state.MachineContext;
 import com.qwaecd.paramagic.spell.state.Transition;
 import com.qwaecd.paramagic.spell.state.event.MachineEvent;
+import com.qwaecd.paramagic.spell.state.phase.property.PhaseConfig;
 import com.qwaecd.paramagic.spell.state.phase.property.SpellPhaseType;
 
 public interface SpellPhase {
@@ -11,5 +12,6 @@ public interface SpellPhase {
     void onExit(final MachineContext context);
     void update(final MachineContext context, float deltaTime);
 
+    PhaseConfig getConfig();
     SpellPhaseType getPhaseType();
 }

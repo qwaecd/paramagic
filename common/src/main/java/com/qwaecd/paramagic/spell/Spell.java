@@ -1,13 +1,15 @@
 package com.qwaecd.paramagic.spell;
 
 
+import com.qwaecd.paramagic.network.DataCodec;
+import com.qwaecd.paramagic.network.IDataSerializable;
 import com.qwaecd.paramagic.spell.state.phase.property.PhaseConfig;
 import lombok.Getter;
 
 import javax.annotation.Nonnull;
 
 @SuppressWarnings({"LombokGetterMayBeUsed", "RedundantSuppression"})
-public class Spell {
+public class Spell implements IDataSerializable {
     @Getter
     private final String id;
 
@@ -28,6 +30,24 @@ public class Spell {
 
     public SpellConfiguration getSpellConfig() {
         return this.spellConfig;
+    }
+
+    @Override
+    public void write(DataCodec codec) {
+        codec.writeString("id", this.id);
+        codec.writeObject("spellConfig", this.spellConfig);
+        codec.writeObject("spellAssets", this.spellAssets);
+    }
+
+    public static Spell fromCodec(DataCodec codec) {
+        String id = codec.readString("id");
+        SpellConfiguration spellConfig = codec.readObject("spellConfig", SpellConfiguration::fromCodec);
+        SpellAssets spellAssets = codec.readObject("spellAssets", SpellAssets::fromCodec);
+        return new Spell(id, spellAssets, spellConfig);
+    }
+
+    public Spell copy() {
+        return new Spell(this.id, this.spellAssets, this.spellConfig);
     }
 
     public static class Builder {

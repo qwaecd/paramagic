@@ -4,17 +4,33 @@ public enum SpellPhaseType {
     /**
      * 空闲
      */
-    IDLE,
+    IDLE(0),
     /**
      * 吟唱, 蓄力
      */
-    CASTING,
+    CASTING(1),
     /**
      * 持续触发
      */
-    CHANNELING,
+    CHANNELING(2),
     /**
      * 冷却
      */
-    COOLDOWN
+    COOLDOWN(3);
+    private final int ID;
+    private SpellPhaseType(int id) {
+        this.ID = id;
+    }
+    public int ID() {
+        return this.ID;
+    }
+
+    public static SpellPhaseType fromID(int id) {
+        for (SpellPhaseType type : SpellPhaseType.values()) {
+            if (type.ID() == id) {
+                return type;
+            }
+        }
+        throw new IllegalArgumentException("Unknown SpellPhaseType ID: " + id);
+    }
 }

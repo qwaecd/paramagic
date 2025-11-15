@@ -5,25 +5,21 @@ import com.qwaecd.paramagic.network.PacketByteBufCodec;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.syncher.EntityDataSerializer;
 
-import javax.annotation.Nonnull;
-
 public class ParaDataSerializer implements EntityDataSerializer<ParaData> {
     @Override
-    public void write(@Nonnull FriendlyByteBuf buffer, @Nonnull ParaData value) {
+    public void write(FriendlyByteBuf buffer, ParaData value) {
         PacketByteBufCodec codec = new PacketByteBufCodec(buffer);
         codec.writeObject(null, value);
     }
 
-    @Nonnull
     @Override
-    public ParaData read(@Nonnull FriendlyByteBuf buffer) {
+    public ParaData read(FriendlyByteBuf buffer) {
         PacketByteBufCodec codec = new PacketByteBufCodec(buffer);
         return codec.readObject(null, ParaData::fromCodec);
     }
 
-    @Nonnull
     @Override
-    public ParaData copy(@Nonnull ParaData value) {
+    public ParaData copy(ParaData value) {
         return value.copy();
     }
 }

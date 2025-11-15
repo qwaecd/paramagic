@@ -34,6 +34,11 @@ public abstract class BasePhase implements SpellPhase {
     }
 
     @Override
+    public PhaseConfig getConfig() {
+        return this.config;
+    }
+
+    @Override
     public SpellPhaseType getPhaseType() {
         return this.config.getPhaseType();
     }

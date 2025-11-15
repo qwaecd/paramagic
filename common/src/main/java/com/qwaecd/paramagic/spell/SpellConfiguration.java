@@ -1,5 +1,7 @@
 package com.qwaecd.paramagic.spell;
 
+import com.qwaecd.paramagic.network.DataCodec;
+import com.qwaecd.paramagic.network.IDataSerializable;
 import com.qwaecd.paramagic.spell.state.phase.SpellPhase;
 import com.qwaecd.paramagic.spell.state.phase.property.PhaseConfig;
 import com.qwaecd.paramagic.spell.state.phase.property.SpellPhaseType;
@@ -13,7 +15,7 @@ import javax.annotation.Nonnull;
 import java.util.EnumMap;
 import java.util.Map;
 
-public class SpellConfiguration {
+public class SpellConfiguration implements IDataSerializable {
     @Nonnull
     @Getter
     private final SpellPhase initialPhase;
@@ -38,7 +40,7 @@ public class SpellConfiguration {
 
     public void addPhaseConfig(PhaseConfig phaseConfig) {
         SpellPhase phaseFromConfig = createPhaseFromConfig(phaseConfig);
-        this.phaseInstanceMap.put(phaseConfig.getPhaseType(), phaseFromConfig);
+        this.addPhase(phaseFromConfig);
     }
 
     public static SpellPhase createPhaseFromConfig(PhaseConfig cfg) {
@@ -58,5 +60,37 @@ public class SpellConfiguration {
             }
             default -> throw new IllegalArgumentException("Unknown phase type: " + phaseType);
         }
+    }
+
+    @Override
+    public void write(DataCodec codec) {
+        final int count = this.phaseInstanceMap.size();
+        codec.writeInt("size", count);
+
+        Object[] phases = this.phaseInstanceMap.values().toArray();
+        codec.writeObject("phase_0", this.initialPhase.getConfig());
+        int i = 1;
+        for (Object phase : phases) {
+            if (this.initialPhase.equals(phase)) {
+                continue;
+            }
+            PhaseConfig cfg = ((SpellPhase) phase).getConfig();
+            codec.writeObject("phase_" + i, cfg);
+            i++;
+        }
+    }
+
+    public static SpellConfiguration fromCodec(DataCodec codec) {
+        final int count = codec.readInt("size");
+
+        PhaseConfig[] phaseConfigs = new PhaseConfig[count];
+        for (int i = 0; i < count; i++) {
+            phaseConfigs[i] = codec.readObject("phase_" + i, PhaseConfig::fromCodec);
+        }
+        SpellConfiguration spellConfig = new SpellConfiguration(phaseConfigs[0]);
+        for (int i = 1; i < count; i++) {
+            spellConfig.addPhaseConfig(phaseConfigs[i]);
+        }
+        return spellConfig;
     }
 }

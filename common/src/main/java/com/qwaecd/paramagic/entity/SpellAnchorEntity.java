@@ -3,7 +3,6 @@ package com.qwaecd.paramagic.entity;
 import com.qwaecd.paramagic.Paramagic;
 import com.qwaecd.paramagic.assembler.AssemblyException;
 import com.qwaecd.paramagic.assembler.ParaComposer;
-import com.qwaecd.paramagic.data.para.struct.ParaData;
 import com.qwaecd.paramagic.feature.circle.MagicCircle;
 import com.qwaecd.paramagic.feature.circle.MagicCircleManager;
 import com.qwaecd.paramagic.network.serializer.AllEntityDataSerializers;
@@ -20,6 +19,7 @@ import net.minecraft.world.level.Level;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.Optional;
 
 public class SpellAnchorEntity extends Entity {
     public static final String IDENTIFIER = "spell_anchor";
@@ -29,10 +29,8 @@ public class SpellAnchorEntity extends Entity {
      */
     private int lifetimeTicks = 0;
 
-    private static final EntityDataAccessor<ParaData> PARA_DATA = SynchedEntityData.defineId(SpellAnchorEntity.class, AllEntityDataSerializers.PARA_DATA);
+    private static final EntityDataAccessor<Optional<Spell>> OPTIONAL_SPELL_DATA = SynchedEntityData.defineId(SpellAnchorEntity.class, AllEntityDataSerializers.OPTIONAL_SPELL);
 
-    @Nullable
-    protected Spell spell = null;
     @Nullable
     protected SpellStateMachine stateMachine = null;
 
@@ -54,7 +52,8 @@ public class SpellAnchorEntity extends Entity {
 //        if (ParaData.EMPTY.equals(paraData)) {
 //            System.out.println("ParaData is empty.");
 //        }
-        if (this.spell == null) {
+        Optional<Spell> optionalSpell = this.entityData.get(OPTIONAL_SPELL_DATA);
+        if (optionalSpell.isEmpty()) {
             this.lifetimeTicks++;
             return;
         }
@@ -71,26 +70,30 @@ public class SpellAnchorEntity extends Entity {
 
     @Override
     protected void defineSynchedData() {
-        this.entityData.define(PARA_DATA, ParaData.EMPTY);
+        this.entityData.define(OPTIONAL_SPELL_DATA, Optional.empty());
     }
 
     // 测试用的临时字段
     private MagicCircle tmp;
     @Override
     public void onSyncedDataUpdated(@Nonnull EntityDataAccessor<?> key) {
-        if (PARA_DATA.equals(key)) {
-            ParaData paraData = this.entityData.get(PARA_DATA);
-            if (!this.level().isClientSide) {
+        if (OPTIONAL_SPELL_DATA.equals(key)) {
+            Optional<Spell> optionalSpell = this.entityData.get(OPTIONAL_SPELL_DATA);
+            //noinspection resource
+            if (!this.level().isClientSide()) {
                 return;
             }
             if (this.tmp != null) {
                 return;
             }
+            if (optionalSpell.isEmpty()) {
+                return;
+            }
             try {
-                MagicCircle circle = ParaComposer.assemble(paraData);
+                MagicCircle circle = ParaComposer.assemble(optionalSpell.get().getSpellAssets().getParaData());
                 MagicCircleManager.getInstance().addCircle(circle);
                 circle.transform
-                        .setPosition((float) this.position().x(), (float) this.position().y(), (float) this.position().z());
+                        .setPosition((float) this.position().x(), (float) this.position().y() + 0.01f, (float) this.position().z());
                 this.tmp = circle;
             } catch (AssemblyException e) {
                 Paramagic.LOG.error("Failed to assemble MagicCircle from ParaData in SpellAnchorEntity.", e);
@@ -115,16 +118,15 @@ public class SpellAnchorEntity extends Entity {
     }
 
     public void attachSpell(@Nonnull Spell spell) {
-        this.spell = spell;
         this.stateMachine = new SpellStateMachine(spell.getSpellConfig());
         //noinspection resource
         if (this.level().isClientSide())
             return;
-        this.entityData.set(PARA_DATA, spell.getSpellAssets().getParaData(), true);
+        this.entityData.set(OPTIONAL_SPELL_DATA, Optional.of(spell), true);
     }
 
     public void postEvent(MachineEvent event) {
-        if (this.stateMachine == null || this.spell == null) {
+        if (this.stateMachine == null || !this.containsSpell()) {
             Paramagic.LOG.error("SpellStateMachine is null, cannot post event.");
             return;
         }
@@ -132,14 +134,15 @@ public class SpellAnchorEntity extends Entity {
     }
 
     public boolean isSpellCompleted() {
-        if (this.stateMachine == null || this.spell == null) {
+        if (this.stateMachine == null || !this.containsSpell()) {
             return true;
         }
         return this.stateMachine.isCompleted();
     }
 
     public void interrupt() {
-        if (this.level().isClientSide && this.tmp != null) {
+        //noinspection resource
+        if (this.level().isClientSide() && this.tmp != null) {
             MagicCircleManager.getInstance().removeCircle(this.tmp);
         }
         if (this.stateMachine == null) {
@@ -150,6 +153,10 @@ public class SpellAnchorEntity extends Entity {
     }
 
     public void forceInterrupt() {
+        //noinspection resource
+        if (this.level().isClientSide() && this.tmp != null) {
+            MagicCircleManager.getInstance().removeCircle(this.tmp);
+        }
         if (this.stateMachine == null) {
             this.discard();
             return;
@@ -163,5 +170,10 @@ public class SpellAnchorEntity extends Entity {
             return;
         }
         this.stateMachine.addListener(listener);
+    }
+
+    public boolean containsSpell() {
+        Optional<Spell> optionalSpell = this.entityData.get(OPTIONAL_SPELL_DATA);
+        return optionalSpell.isPresent();
     }
 }
