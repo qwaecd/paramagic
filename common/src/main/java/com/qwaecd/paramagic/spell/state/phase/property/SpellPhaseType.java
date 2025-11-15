@@ -18,7 +18,7 @@ public enum SpellPhaseType {
      */
     COOLDOWN(3);
     private final int ID;
-    private SpellPhaseType(int id) {
+    SpellPhaseType(int id) {
         this.ID = id;
     }
     public int ID() {

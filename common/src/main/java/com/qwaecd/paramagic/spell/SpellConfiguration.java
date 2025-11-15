@@ -25,8 +25,6 @@ public class SpellConfiguration implements IDataSerializable {
     public SpellConfiguration(@Nonnull PhaseConfig initialPhaseCfg) {
         this.initialPhase = createPhaseFromConfig(initialPhaseCfg);
         this.addPhase(this.initialPhase);
-
-        this.addPhaseConfig(initialPhaseCfg);
     }
 
     private void addPhase(SpellPhase phase) {
@@ -71,7 +69,8 @@ public class SpellConfiguration implements IDataSerializable {
         codec.writeObject("phase_0", this.initialPhase.getConfig());
         int i = 1;
         for (Object phase : phases) {
-            if (this.initialPhase.equals(phase)) {
+            // Skip the initial phase by comparing the phase type to avoid instance inequality issues
+            if (((SpellPhase) phase).getPhaseType() == this.initialPhase.getPhaseType()) {
                 continue;
             }
             PhaseConfig cfg = ((SpellPhase) phase).getConfig();

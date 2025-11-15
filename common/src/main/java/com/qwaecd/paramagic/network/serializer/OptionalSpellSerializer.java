@@ -22,7 +22,6 @@ public class OptionalSpellSerializer implements EntityDataSerializer<Optional<Sp
     @Override
     public Optional<Spell> read(FriendlyByteBuf buffer) {
         PacketByteBufCodec codec = new PacketByteBufCodec(buffer);
-        codec.readBoolean("hasSpell");
         if (!codec.readBoolean("hasSpell")) {
             return Optional.empty();
         }

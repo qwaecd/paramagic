@@ -48,10 +48,6 @@ public class SpellAnchorEntity extends Entity {
             this.discard();
             return;
         }
-//        ParaData paraData = this.entityData.get(PARA_DATA);
-//        if (ParaData.EMPTY.equals(paraData)) {
-//            System.out.println("ParaData is empty.");
-//        }
         Optional<Spell> optionalSpell = this.entityData.get(OPTIONAL_SPELL_DATA);
         if (optionalSpell.isEmpty()) {
             this.lifetimeTicks++;
