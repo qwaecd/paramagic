@@ -1,5 +1,7 @@
-package com.qwaecd.paramagic.network;
+package com.qwaecd.paramagic.network.codec;
 
+import com.qwaecd.paramagic.network.DataCodec;
+import com.qwaecd.paramagic.network.IDataSerializable;
 import net.minecraft.network.FriendlyByteBuf;
 
 import java.util.UUID;
