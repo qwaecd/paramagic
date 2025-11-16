@@ -31,6 +31,7 @@ public class KeyframeTrackData<T> extends TrackData<T> implements IDataSerializa
         }
     }
 
+    @SuppressWarnings({"unchecked", "rawtypes"})
     public static KeyframeTrackData<?> fromCodec(DataCodec codec) {
         AnimatableProperty<?> property = codec.readObject("property", AnimatableProperty::fromCodec);
         boolean loop = codec.readBoolean("loop");
@@ -41,6 +42,8 @@ public class KeyframeTrackData<T> extends TrackData<T> implements IDataSerializa
             keyframes[i] = codec.readObject("k_" + i, KeyframeData::fromCodec);
         }
 
-        return new KeyframeTrackData<>(property, Arrays.asList(keyframes), loop);
+        // Convert to list and perform controlled cast to satisfy constructor's generic signature
+        List<KeyframeData<?>> list = Arrays.asList(keyframes);
+        return new KeyframeTrackData(property, list, loop);
     }
 }

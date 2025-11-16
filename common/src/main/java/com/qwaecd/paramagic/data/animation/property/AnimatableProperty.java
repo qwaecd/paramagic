@@ -2,7 +2,6 @@ package com.qwaecd.paramagic.data.animation.property;
 
 
 import com.qwaecd.paramagic.client.animation.AccessorFactory;
-import com.qwaecd.paramagic.network.codec.CodecException;
 import com.qwaecd.paramagic.network.DataCodec;
 import com.qwaecd.paramagic.network.IDataSerializable;
 import lombok.Getter;

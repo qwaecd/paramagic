@@ -1,8 +1,12 @@
 package com.qwaecd.paramagic.data.animation.struct;
 
 import com.qwaecd.paramagic.data.animation.struct.track.TrackData;
+import com.qwaecd.paramagic.data.animation.struct.track.TrackTypeRegistry;
+import com.qwaecd.paramagic.network.DataCodec;
+import com.qwaecd.paramagic.network.IDataSerializable;
 import lombok.Getter;
 
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -11,7 +15,7 @@ import java.util.List;
  * <p>
  * 对需要被动画的 Para 组件的动画数据，包含多条轨道。
  */
-public class AnimatorData {
+public class AnimatorData implements IDataSerializable {
     @Getter
     private final List<TrackData<?>> tracks;
 
@@ -25,5 +29,31 @@ public class AnimatorData {
      */
     public AnimatorData(List<TrackData<?>> tracks) {
         this.tracks = tracks;
+    }
+
+    @Override
+    public void write(DataCodec codec) {
+        // 写入轨道数量
+        codec.writeInt("trackCount", this.tracks.size());
+        // 对每条轨道写入类型 ID 与具体内容
+        for (int i = 0; i < this.tracks.size(); i++) {
+            TrackData<?> track = this.tracks.get(i);
+            @SuppressWarnings("unchecked")
+            Class<? extends TrackData<?>> clazz = (Class<? extends TrackData<?>>) track.getClass();
+            int typeId = TrackTypeRegistry.getTypeId(clazz);
+            codec.writeInt("typeId_" + i, typeId);
+            codec.writeObject("track_" + i, track);
+        }
+    }
+
+    public static AnimatorData fromCodec(DataCodec codec) {
+        int count = codec.readInt("trackCount");
+        List<TrackData<?>> tracks = new ArrayList<>(count);
+        for (int i = 0; i < count; i++) {
+            int typeId = codec.readInt("typeId_" + i);
+            TrackData<?> track = TrackTypeRegistry.getFactory(typeId).apply(codec);
+            tracks.add(track);
+        }
+        return new AnimatorData(tracks);
     }
 }
