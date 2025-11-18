@@ -15,14 +15,14 @@ import javax.annotation.Nonnull;
 import java.util.EnumMap;
 import java.util.Map;
 
-public class SpellConfiguration implements IDataSerializable {
+public class SpellConfig implements IDataSerializable {
     @Nonnull
     @Getter
     private final SpellPhase initialPhase;
 
     private final Map<SpellPhaseType, SpellPhase> phaseInstanceMap = new EnumMap<>(SpellPhaseType.class);
 
-    public SpellConfiguration(@Nonnull PhaseConfig initialPhaseCfg) {
+    public SpellConfig(@Nonnull PhaseConfig initialPhaseCfg) {
         this.initialPhase = createPhaseFromConfig(initialPhaseCfg);
         this.addPhase(this.initialPhase);
     }
@@ -79,14 +79,14 @@ public class SpellConfiguration implements IDataSerializable {
         }
     }
 
-    public static SpellConfiguration fromCodec(DataCodec codec) {
+    public static SpellConfig fromCodec(DataCodec codec) {
         final int count = codec.readInt("size");
 
         PhaseConfig[] phaseConfigs = new PhaseConfig[count];
         for (int i = 0; i < count; i++) {
             phaseConfigs[i] = codec.readObject("phase_" + i, PhaseConfig::fromCodec);
         }
-        SpellConfiguration spellConfig = new SpellConfiguration(phaseConfigs[0]);
+        SpellConfig spellConfig = new SpellConfig(phaseConfigs[0]);
         for (int i = 1; i < count; i++) {
             spellConfig.addPhaseConfig(phaseConfigs[i]);
         }

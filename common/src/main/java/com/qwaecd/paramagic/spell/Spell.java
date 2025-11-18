@@ -13,11 +13,11 @@ public class Spell implements IDataSerializable {
     @Getter
     private final String id;
 
-    private final SpellConfiguration spellConfig;
+    private final SpellConfig spellConfig;
     @Nonnull
     private final SpellAssets spellAssets;
 
-    public Spell(String id, @Nonnull SpellAssets spellAssets, SpellConfiguration cfg) {
+    public Spell(String id, @Nonnull SpellAssets spellAssets, SpellConfig cfg) {
         this.id = id;
         this.spellAssets = spellAssets;
         this.spellConfig = cfg;
@@ -28,7 +28,7 @@ public class Spell implements IDataSerializable {
         return this.spellAssets;
     }
 
-    public SpellConfiguration getSpellConfig() {
+    public SpellConfig getSpellConfig() {
         return this.spellConfig;
     }
 
@@ -41,7 +41,7 @@ public class Spell implements IDataSerializable {
 
     public static Spell fromCodec(DataCodec codec) {
         String id = codec.readString("id");
-        SpellConfiguration spellConfig = codec.readObject("spellConfig", SpellConfiguration::fromCodec);
+        SpellConfig spellConfig = codec.readObject("spellConfig", SpellConfig::fromCodec);
         SpellAssets spellAssets = codec.readObject("spellAssets", SpellAssets::fromCodec);
         return new Spell(id, spellAssets, spellConfig);
     }
@@ -51,7 +51,7 @@ public class Spell implements IDataSerializable {
     }
 
     public static class Builder {
-        private SpellConfiguration spellConfiguration;
+        private SpellConfig spellConfig;
         private final String id;
 
         public Builder(String id) {
@@ -59,16 +59,16 @@ public class Spell implements IDataSerializable {
         }
 
         public Builder addPhase(PhaseConfig cfg) {
-            if (this.spellConfiguration == null) {
-                this.spellConfiguration = new SpellConfiguration(cfg);
+            if (this.spellConfig == null) {
+                this.spellConfig = new SpellConfig(cfg);
             } else {
-                this.spellConfiguration.addPhaseConfig(cfg);
+                this.spellConfig.addPhaseConfig(cfg);
             }
             return this;
         }
 
         public Spell build(SpellAssets spellAssets) {
-            return new Spell(id, spellAssets, this.spellConfiguration);
+            return new Spell(id, spellAssets, this.spellConfig);
         }
     }
 }

@@ -2,7 +2,7 @@ package com.qwaecd.paramagic.spell.state;
 
 import com.qwaecd.paramagic.Paramagic;
 import com.qwaecd.paramagic.spell.EndSpellReason;
-import com.qwaecd.paramagic.spell.SpellConfiguration;
+import com.qwaecd.paramagic.spell.SpellConfig;
 import com.qwaecd.paramagic.spell.listener.ISpellPhaseListener;
 import com.qwaecd.paramagic.spell.state.event.AllMachineEvents;
 import com.qwaecd.paramagic.spell.state.event.MachineEvent;
@@ -25,7 +25,7 @@ public class SpellStateMachine {
     public static final int MAX_EVENTS_PER_TICK = 64;
     @Nullable
     private SpellPhase currentPhase;
-    private final SpellConfiguration spellConfiguration;
+    private final SpellConfig spellConfig;
     private final List<ISpellPhaseListener> listeners;
     private static final SystemEvents systemEvents = new SystemEvents();
     /**
@@ -37,8 +37,8 @@ public class SpellStateMachine {
     private final EventQueue eventQueue = new EventQueue();
     private final MachineContext context;
 
-    public SpellStateMachine(SpellConfiguration cfg) {
-        this.spellConfiguration = cfg;
+    public SpellStateMachine(SpellConfig cfg) {
+        this.spellConfig = cfg;
         this.listeners = new ArrayList<>();
         this.context = new MachineContext(this);
         changePhase(cfg.getInitialPhase());
@@ -155,7 +155,7 @@ public class SpellStateMachine {
         // 当前阶段并没有返回转换到下一个状态的具体状态, 不应该发生转换
         if (targetPhase == null) return;
 
-        SpellPhase newPhase = this.spellConfiguration.getPhase(targetPhase);
+        SpellPhase newPhase = this.spellConfig.getPhase(targetPhase);
         if (newPhase == null) {
             throw new NullPointerException("No phase found for type: " + targetPhase);
         }
