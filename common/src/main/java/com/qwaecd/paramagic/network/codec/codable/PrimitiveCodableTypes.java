@@ -4,7 +4,7 @@ import com.qwaecd.paramagic.network.DataCodec;
 
 import java.util.function.BiFunction;
 
-public class PrimitiveCodableTypes {
+public final class PrimitiveCodableTypes {
     public enum PrimitiveType {
         BYTE    (0, Byte.class),
         SHORT   (1, Short.class),
@@ -65,5 +65,8 @@ public class PrimitiveCodableTypes {
                 return codecTFunction;
             }
         };
+    }
+
+    static void init() {
     }
 }

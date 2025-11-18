@@ -61,6 +61,14 @@ public class PacketByteBufCodec extends DataCodec {
     }
 
     @Override
+    public <T extends IDataSerializable> void writeObjectArray(String key, T[] object) {
+        this.buf.writeInt(object.length);
+        for (T obj : object) {
+            this.writeObject(key, obj);
+        }
+    }
+
+    @Override
     public int readInt(String key) {
         return this.buf.readInt();
     }
@@ -108,5 +116,16 @@ public class PacketByteBufCodec extends DataCodec {
     @Override
     public <T extends IDataSerializable> T readObject(String key, Function<DataCodec, T> factory) {
         return factory.apply(this);
+    }
+
+    @Override
+    public <T extends IDataSerializable> IDataSerializable[] readObjectArray(String key, Function<DataCodec, T> factory) {
+        final int length = this.buf.readInt();
+        @SuppressWarnings("unchecked")
+        T[] array = (T[]) new IDataSerializable[length];
+        for (int j = 0; j < length; j++) {
+            array[j] = this.readObject(key, factory);
+        }
+        return array;
     }
 }

@@ -27,6 +27,11 @@ public class CodableTypeRegistry {
         }
     }
 
+    public static void init() {
+        PrimitiveCodableTypes.init();
+        CommonCodableTypes.init();
+    }
+
     public static BiFunction<DataCodec, String, ?> getDeserializer(int id) {
         CodableEntry<?> entry = idToEntry.get(id);
         if (entry == null) {

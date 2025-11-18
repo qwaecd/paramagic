@@ -2,6 +2,7 @@ package com.qwaecd.paramagic;
 
 import com.qwaecd.paramagic.core.render.ModRenderSystem;
 import com.qwaecd.paramagic.core.render.shader.AllShaders;
+import com.qwaecd.paramagic.network.codec.codable.CodableTypeRegistry;
 import com.qwaecd.paramagic.platform.Services;
 
 // This class is part of the common project meaning it is shared between all supported loaders. Code written here can only
@@ -26,6 +27,7 @@ public class CommonClass {
 
             Paramagic.LOG.debug("Hello to paramagic");
         }
+        CodableTypeRegistry.init();
     }
 
     public static void initOnClient() {

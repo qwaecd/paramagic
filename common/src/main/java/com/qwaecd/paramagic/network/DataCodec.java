@@ -12,6 +12,7 @@ public abstract class DataCodec {
     public abstract void writeFloatArray(String key, float[] values);
     public abstract void writeIntArray(String key, int[] values);
     public abstract <T extends IDataSerializable> void writeObject(String key, T object);
+    public abstract <T extends IDataSerializable> void writeObjectArray(String key, T[] object);
 
 
     public abstract int readInt(String key);
@@ -29,4 +30,5 @@ public abstract class DataCodec {
      * @return 读取并创建的完整对象
      */
     public abstract <T extends IDataSerializable> T readObject(String key, Function<DataCodec, T> factory);
+    public abstract <T extends IDataSerializable> IDataSerializable[] readObjectArray(String key, Function<DataCodec, T> factory);
 }

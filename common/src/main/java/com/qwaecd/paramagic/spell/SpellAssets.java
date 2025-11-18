@@ -28,12 +28,13 @@ public class SpellAssets implements IDataSerializable {
 
     @Override
     public void write(DataCodec codec) {
-        // TODO: 实现 AnimationBindingConfig 的序列化
         codec.writeObject("paraData", this.paraData);
+        codec.writeObject("animBindingConfig", this.animBindingConfig);
     }
 
     public static SpellAssets fromCodec(DataCodec codec) {
         ParaData paraData = codec.readObject("paraData", ParaData::fromCodec);
-        return new SpellAssets(paraData);
+        AnimationBindingConfig config = codec.readObject("animBindingConfig", AnimationBindingConfig::fromCodec);
+        return new SpellAssets(paraData, config);
     }
 }

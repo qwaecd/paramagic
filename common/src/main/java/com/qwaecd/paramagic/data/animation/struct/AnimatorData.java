@@ -5,7 +5,10 @@ import com.qwaecd.paramagic.data.animation.struct.track.TrackTypeRegistry;
 import com.qwaecd.paramagic.network.DataCodec;
 import com.qwaecd.paramagic.network.IDataSerializable;
 import lombok.Getter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,6 +19,7 @@ import java.util.List;
  * 对需要被动画的 Para 组件的动画数据，包含多条轨道。
  */
 public class AnimatorData implements IDataSerializable {
+    private static final Logger LOG = LoggerFactory.getLogger(AnimatorData.class);
     @Getter
     private final List<TrackData<?>> tracks;
 
@@ -46,14 +50,20 @@ public class AnimatorData implements IDataSerializable {
         }
     }
 
+    @Nullable
     public static AnimatorData fromCodec(DataCodec codec) {
-        int count = codec.readInt("trackCount");
-        List<TrackData<?>> tracks = new ArrayList<>(count);
-        for (int i = 0; i < count; i++) {
-            int typeId = codec.readInt("typeId_" + i);
-            TrackData<?> track = TrackTypeRegistry.getFactory(typeId).apply(codec);
-            tracks.add(track);
+        try {
+            int count = codec.readInt("trackCount");
+            List<TrackData<?>> tracks = new ArrayList<>(count);
+            for (int i = 0; i < count; i++) {
+                int typeId = codec.readInt("typeId_" + i);
+                TrackData<?> track = codec.readObject("track_" + i, TrackTypeRegistry.getFactory(typeId));
+                tracks.add(track);
+            }
+            return new AnimatorData(tracks);
+        } catch (Exception e) {
+            LOG.error("Failed to decode AnimatorData from codec", e);
         }
-        return new AnimatorData(tracks);
+        return null;
     }
 }

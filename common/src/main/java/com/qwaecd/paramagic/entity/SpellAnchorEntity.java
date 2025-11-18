@@ -86,7 +86,7 @@ public class SpellAnchorEntity extends Entity {
                 return;
             }
             try {
-                MagicCircle circle = ParaComposer.assemble(optionalSpell.get().getSpellAssets().getParaData());
+                MagicCircle circle = ParaComposer.assemble(optionalSpell.get().getSpellAssets());
                 MagicCircleManager.getInstance().addCircle(circle);
                 circle.transform
                         .setPosition((float) this.position().x(), (float) this.position().y() + 0.01f, (float) this.position().z());

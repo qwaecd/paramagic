@@ -4,7 +4,7 @@ import com.qwaecd.paramagic.data.animation.property.AnimatableProperty;
 import com.qwaecd.paramagic.network.DataCodec;
 import com.qwaecd.paramagic.network.IDataSerializable;
 
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.List;
 
 public class KeyframeTrackData<T> extends TrackData<T> implements IDataSerializable {
@@ -25,25 +25,25 @@ public class KeyframeTrackData<T> extends TrackData<T> implements IDataSerializa
     public void write(DataCodec codec) {
         codec.writeObject("property", this.property);
         codec.writeBoolean("loop", this.loop);
-        codec.writeInt("count", this.keyframes.size());
-        for (int i = 0; i < this.keyframes.size(); i++) {
-            codec.writeObject("k_" + i, this.keyframes.get(i));
-        }
+        codec.writeObjectArray("keyframes", this.keyframes.toArray(new KeyframeData[0]));
     }
 
     @SuppressWarnings({"unchecked", "rawtypes"})
     public static KeyframeTrackData<?> fromCodec(DataCodec codec) {
-        AnimatableProperty<?> property = codec.readObject("property", AnimatableProperty::fromCodec);
-        boolean loop = codec.readBoolean("loop");
-        int count = codec.readInt("count");
-
-        KeyframeData<?>[] keyframes = new KeyframeData<?>[count];
-        for (int i = 0; i < count; i++) {
-            keyframes[i] = codec.readObject("k_" + i, KeyframeData::fromCodec);
+        AnimatableProperty<?> nullableProperty = codec.readObject("property", AnimatableProperty::fromCodec);
+        if (nullableProperty == null) {
+            throw new NullPointerException("AnimatableProperty read from codec is null");
         }
 
-        // Convert to list and perform controlled cast to satisfy constructor's generic signature
-        List<KeyframeData<?>> list = Arrays.asList(keyframes);
-        return new KeyframeTrackData(property, list, loop);
+        boolean loop = codec.readBoolean("loop");
+
+        IDataSerializable[] keyframeArray = codec.readObjectArray("keyframes", KeyframeData::fromCodec);
+
+        List<KeyframeData<?>> list = new ArrayList<>();
+        for (IDataSerializable data : keyframeArray) {
+            list.add((KeyframeData<?>) data);
+        }
+
+        return new KeyframeTrackData(nullableProperty, list, loop);
     }
 }
