@@ -1,6 +1,5 @@
 package com.qwaecd.paramagic.entity;
 
-import com.qwaecd.paramagic.Paramagic;
 import com.qwaecd.paramagic.assembler.AssemblyException;
 import com.qwaecd.paramagic.assembler.ParaComposer;
 import com.qwaecd.paramagic.feature.circle.MagicCircle;
@@ -16,12 +15,16 @@ import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.Level;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Optional;
 
 public class SpellAnchorEntity extends Entity {
+    private static final Logger LOGGER = LoggerFactory.getLogger(SpellAnchorEntity.class);
+
     public static final String IDENTIFIER = "spell_anchor";
     private static final int MAX_LIFETIME_TICKS = 20 * 3; // 3s
     /**
@@ -48,12 +51,7 @@ public class SpellAnchorEntity extends Entity {
             this.discard();
             return;
         }
-        Optional<Spell> optionalSpell = this.entityData.get(OPTIONAL_SPELL_DATA);
-        if (optionalSpell.isEmpty()) {
-            this.lifetimeTicks++;
-            return;
-        }
-        if (this.stateMachine == null) {
+        if (this.stateMachine == null || this.isNoSpell()) {
             this.lifetimeTicks++;
             return;
         }
@@ -92,7 +90,7 @@ public class SpellAnchorEntity extends Entity {
                         .setPosition((float) this.position().x(), (float) this.position().y() + 0.01f, (float) this.position().z());
                 this.tmp = circle;
             } catch (AssemblyException e) {
-                Paramagic.LOG.error("Failed to assemble MagicCircle from ParaData in SpellAnchorEntity.", e);
+                LOGGER.error("Failed to assemble MagicCircle from ParaData in SpellAnchorEntity.", e);
             }
         }
     }
@@ -122,15 +120,15 @@ public class SpellAnchorEntity extends Entity {
     }
 
     public void postEvent(MachineEvent event) {
-        if (this.stateMachine == null || !this.containsSpell()) {
-            Paramagic.LOG.error("SpellStateMachine is null, cannot post event.");
+        if (this.stateMachine == null || this.isNoSpell()) {
+            LOGGER.error("SpellStateMachine is null, cannot post event.");
             return;
         }
         this.stateMachine.postEvent(event);
     }
 
     public boolean isSpellCompleted() {
-        if (this.stateMachine == null || !this.containsSpell()) {
+        if (this.stateMachine == null || this.isNoSpell()) {
             return true;
         }
         return this.stateMachine.isCompleted();
@@ -162,14 +160,22 @@ public class SpellAnchorEntity extends Entity {
 
     public void addListener(ISpellPhaseListener listener) {
         if (this.stateMachine == null) {
-            Paramagic.LOG.error("SpellStateMachine is null, cannot add listener.");
+            LOGGER.error("SpellStateMachine is null, cannot add listener.");
             return;
         }
         this.stateMachine.addListener(listener);
     }
 
-    public boolean containsSpell() {
+    public void removeListener(ISpellPhaseListener listener) {
+        if (this.stateMachine == null) {
+            LOGGER.error("SpellStateMachine is null, cannot remove listener.");
+            return;
+        }
+        this.stateMachine.removeListener(listener);
+    }
+
+    public boolean isNoSpell() {
         Optional<Spell> optionalSpell = this.entityData.get(OPTIONAL_SPELL_DATA);
-        return optionalSpell.isPresent();
+        return optionalSpell.isEmpty();
     }
 }
