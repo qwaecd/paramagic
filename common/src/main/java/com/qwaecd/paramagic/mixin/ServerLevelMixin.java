@@ -1,6 +1,5 @@
 package com.qwaecd.paramagic.mixin;
 
-import com.qwaecd.paramagic.Paramagic;
 import com.qwaecd.paramagic.mixinapi.IServerLevel;
 import net.minecraft.server.level.ServerLevel;
 import org.spongepowered.asm.mixin.Mixin;
@@ -21,12 +20,8 @@ public abstract class ServerLevelMixin implements IServerLevel {
             at = @At("RETURN")
     )
     private void unload(BooleanSupplier hasTimeLeft, CallbackInfo ci) {
-        try {
-            if (this.onLevelTickCallBack$paramagic != null)
-                this.onLevelTickCallBack$paramagic.run();
-        } catch (Exception e) {
-            Paramagic.LOG.error("Exception in ServerLevel tick callback", e);
-        }
+        if (this.onLevelTickCallBack$paramagic != null)
+            this.onLevelTickCallBack$paramagic.run();
     }
 
     @Override

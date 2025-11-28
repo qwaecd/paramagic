@@ -1,5 +1,7 @@
-package com.qwaecd.paramagic.spell.session.manager;
+package com.qwaecd.paramagic.spell.session;
 
+import com.qwaecd.paramagic.spell.session.client.ClientSessionManager;
+import com.qwaecd.paramagic.spell.session.server.ServerSessionManager;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
 
