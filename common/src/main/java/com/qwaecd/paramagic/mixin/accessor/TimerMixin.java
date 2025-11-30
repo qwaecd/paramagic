@@ -1,4 +1,4 @@
-package com.qwaecd.paramagic.mixin;
+package com.qwaecd.paramagic.mixin.accessor;
 
 
 import net.minecraft.client.Timer;

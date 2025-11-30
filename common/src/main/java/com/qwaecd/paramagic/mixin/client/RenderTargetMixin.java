@@ -1,4 +1,4 @@
-package com.qwaecd.paramagic.mixin;
+package com.qwaecd.paramagic.mixin.client;
 
 import com.mojang.blaze3d.pipeline.RenderTarget;
 import com.qwaecd.paramagic.core.render.ModRenderSystem;

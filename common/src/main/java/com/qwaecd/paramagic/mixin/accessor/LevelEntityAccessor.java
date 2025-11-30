@@ -1,4 +1,4 @@
-package com.qwaecd.paramagic.mixin;
+package com.qwaecd.paramagic.mixin.accessor;
 
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;

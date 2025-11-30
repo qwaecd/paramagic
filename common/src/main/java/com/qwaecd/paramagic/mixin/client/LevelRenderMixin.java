@@ -1,4 +1,4 @@
-package com.qwaecd.paramagic.mixin;
+package com.qwaecd.paramagic.mixin.client;
 
 
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -6,6 +6,8 @@ import com.qwaecd.paramagic.core.particle.ParticleManager;
 import com.qwaecd.paramagic.core.render.ModRenderSystem;
 import com.qwaecd.paramagic.core.render.RendererManager;
 import com.qwaecd.paramagic.core.render.context.RenderContextManager;
+import com.qwaecd.paramagic.mixin.accessor.MinecraftMixin;
+import com.qwaecd.paramagic.mixin.accessor.TimerMixin;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.Timer;
