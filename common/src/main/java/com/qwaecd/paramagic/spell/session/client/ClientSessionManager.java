@@ -6,6 +6,7 @@ import com.qwaecd.paramagic.spell.session.SpellSession;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Consumer;
 
 public class ClientSessionManager implements ISessionManager {
     private static ClientSessionManager INSTANCE;
@@ -22,6 +23,19 @@ public class ClientSessionManager implements ISessionManager {
     public static void init() {
         if (INSTANCE == null) {
             INSTANCE = new ClientSessionManager();
+        }
+    }
+
+    public void tickAll() {
+        this.forEachSessionSafe(session -> session.tick(1.0f / 20.0f));
+    }
+
+    private void forEachSessionSafe(Consumer<ClientSession> consumer) {
+        for (var entry : this.sessions.entrySet()) {
+            try {
+                consumer.accept(entry.getValue());
+            } catch (Exception ignored) {
+            }
         }
     }
 

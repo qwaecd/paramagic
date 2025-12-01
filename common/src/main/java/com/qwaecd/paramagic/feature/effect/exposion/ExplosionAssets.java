@@ -1,7 +1,7 @@
 package com.qwaecd.paramagic.feature.effect.exposion;
 
 import com.qwaecd.paramagic.data.para.struct.ParaData;
-import com.qwaecd.paramagic.spell.SpellAssets;
+import com.qwaecd.paramagic.spell.struct.SpellAssets;
 
 public final class ExplosionAssets {
     public static SpellAssets create() {

@@ -1,6 +1,7 @@
 package com.qwaecd.paramagic.spell.session.client;
 
 import com.qwaecd.paramagic.spell.Spell;
+import com.qwaecd.paramagic.spell.session.SessionState;
 import com.qwaecd.paramagic.spell.session.SpellSession;
 import com.qwaecd.paramagic.spell.state.SpellStateMachine;
 
@@ -16,16 +17,27 @@ public class ClientSession extends SpellSession {
 
     @Override
     public void tick(float deltaTime) {
-        this.machine.update(deltaTime);
+        if (!this.machineCompleted())
+            this.machine.update(deltaTime);
+        if (isState(SessionState.INTERRUPTED) || isState(SessionState.FINISHED_LOGICALLY)) {
+            // TODO: 可以实现延迟销毁
+            this.setSessionState(SessionState.DISPOSED);
+        }
     }
 
     @Override
     public void interrupt() {
+        this.setSessionState(SessionState.INTERRUPTED);
         this.machine.interrupt();
     }
 
     @Override
     public void forceInterrupt() {
+        this.setSessionState(SessionState.INTERRUPTED);
         this.machine.forceInterrupt();
+    }
+
+    public boolean machineCompleted() {
+        return this.machine.isCompleted();
     }
 }

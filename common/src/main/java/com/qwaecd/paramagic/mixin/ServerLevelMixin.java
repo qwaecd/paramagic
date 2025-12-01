@@ -19,7 +19,7 @@ public abstract class ServerLevelMixin implements IServerLevel {
             method = "tick",
             at = @At("RETURN")
     )
-    private void unload(BooleanSupplier hasTimeLeft, CallbackInfo ci) {
+    private void onTick(BooleanSupplier hasTimeLeft, CallbackInfo ci) {
         if (this.onLevelTickCallBack$paramagic != null)
             this.onLevelTickCallBack$paramagic.run();
     }

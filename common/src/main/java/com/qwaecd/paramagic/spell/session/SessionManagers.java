@@ -19,4 +19,12 @@ public final class SessionManagers {
             return MAP.computeIfAbsent((ServerLevel) level, ServerSessionManager::new);
         }
     }
+
+    public static ServerSessionManager getForServer(ServerLevel level) {
+        return MAP.computeIfAbsent(level, ServerSessionManager::new);
+    }
+
+    public static ClientSessionManager getForClient() {
+        return ClientSessionManager.instance();
+    }
 }

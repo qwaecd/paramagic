@@ -2,7 +2,7 @@ package com.qwaecd.paramagic.spell.state;
 
 import com.qwaecd.paramagic.Paramagic;
 import com.qwaecd.paramagic.spell.EndSpellReason;
-import com.qwaecd.paramagic.spell.SpellConfig;
+import com.qwaecd.paramagic.spell.struct.SpellConfig;
 import com.qwaecd.paramagic.spell.listener.ISpellPhaseListener;
 import com.qwaecd.paramagic.spell.state.event.AllMachineEvents;
 import com.qwaecd.paramagic.spell.state.event.MachineEvent;

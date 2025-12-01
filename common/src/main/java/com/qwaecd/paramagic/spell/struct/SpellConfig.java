@@ -1,4 +1,4 @@
-package com.qwaecd.paramagic.spell;
+package com.qwaecd.paramagic.spell.struct;
 
 import com.qwaecd.paramagic.network.DataCodec;
 import com.qwaecd.paramagic.network.IDataSerializable;
