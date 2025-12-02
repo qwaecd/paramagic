@@ -74,7 +74,6 @@ public class ExplosionWand extends Item {
 
             SpellSession spellSession = SpellSpawner.spawnOnServer(serverLevel, PlayerCaster.create(player), spell);
             if (spellSession != null) {
-                spellSession.postEvent(AllMachineEvents.START_CASTING);
                 itemstack.getOrCreateTagElement("SpellID").putUUID("ID", spellSession.getSessionId());
             }
         }
@@ -124,7 +123,7 @@ public class ExplosionWand extends Item {
         if (!(entity instanceof SpellAnchorEntity spellAnchorEntity)) {
             return;
         }
-        spellAnchorEntity.interrupt();
+//        spellAnchorEntity.interrupt();
     }
 
     @Override

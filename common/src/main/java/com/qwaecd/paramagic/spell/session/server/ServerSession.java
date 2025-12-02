@@ -15,11 +15,11 @@ import java.util.UUID;
 public class ServerSession extends SpellSession {
     @Nonnull
     @Getter
-    private final SpellCaster caster;
+    private final SpellCaster<?> caster;
     @Nonnull
     private final SpellStateMachine machine;
 
-    public ServerSession(UUID sessionId, @Nonnull SpellCaster caster, @Nonnull Spell spell) {
+    public ServerSession(UUID sessionId, @Nonnull SpellCaster<?> caster, @Nonnull Spell spell) {
         super(sessionId, spell);
         this.caster = caster;
         this.machine = new SpellStateMachine(spell.getSpellConfig());

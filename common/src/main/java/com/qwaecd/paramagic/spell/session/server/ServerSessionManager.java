@@ -38,7 +38,7 @@ public class ServerSessionManager implements ISessionManager {
     }
 
     @Nullable
-    @SuppressWarnings("UnusedReturnValue")
+    @SuppressWarnings({"UnusedReturnValue", "unused"})
     public ServerSession tryCreateSession(ServerLevel level, SpellCaster<?> caster, Spell spell) {
         if (!caster.canStartSession(spell, this)) {
             return null;

@@ -6,9 +6,6 @@ import com.qwaecd.paramagic.feature.circle.MagicCircle;
 import com.qwaecd.paramagic.feature.circle.MagicCircleManager;
 import com.qwaecd.paramagic.network.serializer.AllEntityDataSerializers;
 import com.qwaecd.paramagic.spell.Spell;
-import com.qwaecd.paramagic.spell.listener.ISpellPhaseListener;
-import com.qwaecd.paramagic.spell.state.SpellStateMachine;
-import com.qwaecd.paramagic.spell.state.event.MachineEvent;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.SynchedEntityData;
@@ -19,7 +16,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.Optional;
 
 public class SpellAnchorEntity extends Entity {
@@ -33,9 +29,6 @@ public class SpellAnchorEntity extends Entity {
     private int lifetimeTicks = 0;
 
     private static final EntityDataAccessor<Optional<Spell>> OPTIONAL_SPELL_DATA = SynchedEntityData.defineId(SpellAnchorEntity.class, AllEntityDataSerializers.OPTIONAL_SPELL);
-
-    @Nullable
-    protected SpellStateMachine stateMachine = null;
 
     public SpellAnchorEntity(EntityType<?> entityType, Level level) {
         super(entityType, level);
@@ -51,17 +44,13 @@ public class SpellAnchorEntity extends Entity {
     public void tick() {
         super.tick();
         //noinspection resource
-        if (this.lifetimeTicks > MAX_LIFETIME_TICKS && !this.level().isClientSide()) {
-            this.discard();
+        if (this.level().isClientSide()) {
             return;
         }
-        if (this.stateMachine == null || this.isNoSpell()) {
+        if (this.isNoSpell()) {
             this.lifetimeTicks++;
-            return;
         }
-
-        this.stateMachine.update(1.0f / 20.0f);
-        if (this.isSpellCompleted()) {
+        if (this.lifetimeTicks > MAX_LIFETIME_TICKS) {
             this.discard();
         }
     }
@@ -116,66 +105,10 @@ public class SpellAnchorEntity extends Entity {
     }
 
     public void attachSpell(@Nonnull Spell spell) {
-        this.stateMachine = new SpellStateMachine(spell.getSpellConfig());
         //noinspection resource
         if (this.level().isClientSide())
             return;
         this.entityData.set(OPTIONAL_SPELL_DATA, Optional.of(spell), true);
-    }
-
-    public void postEvent(MachineEvent event) {
-        if (this.stateMachine == null || this.isNoSpell()) {
-            LOGGER.error("SpellStateMachine is null, cannot post event.");
-            return;
-        }
-        this.stateMachine.postEvent(event);
-    }
-
-    public boolean isSpellCompleted() {
-        if (this.stateMachine == null || this.isNoSpell()) {
-            return true;
-        }
-        return this.stateMachine.isCompleted();
-    }
-
-    public void interrupt() {
-        //noinspection resource
-        if (this.level().isClientSide() && this.tmp != null) {
-            MagicCircleManager.getInstance().removeCircle(this.tmp);
-        }
-        if (this.stateMachine == null) {
-            this.discard();
-            return;
-        }
-        this.stateMachine.interrupt();
-    }
-
-    public void forceInterrupt() {
-        //noinspection resource
-        if (this.level().isClientSide() && this.tmp != null) {
-            MagicCircleManager.getInstance().removeCircle(this.tmp);
-        }
-        if (this.stateMachine == null) {
-            this.discard();
-            return;
-        }
-        this.stateMachine.forceInterrupt();
-    }
-
-    public void addListener(ISpellPhaseListener listener) {
-        if (this.stateMachine == null) {
-            LOGGER.error("SpellStateMachine is null, cannot add listener.");
-            return;
-        }
-        this.stateMachine.addListener(listener);
-    }
-
-    public void removeListener(ISpellPhaseListener listener) {
-        if (this.stateMachine == null) {
-            LOGGER.error("SpellStateMachine is null, cannot remove listener.");
-            return;
-        }
-        this.stateMachine.removeListener(listener);
     }
 
     public boolean isNoSpell() {
