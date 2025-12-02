@@ -29,13 +29,15 @@ public final class SpellSpawner {
         ServerSessionManager manager = SessionManagers.getForServer(level);
         ServerSession serverSession = manager.tryCreateSession(level, caster, spell);
 
-        SpellAnchorEntity spellAnchorEntity = new SpellAnchorEntity(ModEntityTypes.SPELL_ANCHOR_ENTITY, level);
+        if (serverSession != null) {
+            SpellAnchorEntity spellAnchorEntity = new SpellAnchorEntity(level);
 
-        spellAnchorEntity.moveTo(caster.position());
-        spellAnchorEntity.attachSpell(spell);
-        spellAnchorEntity.postEvent(AllMachineEvents.START_CASTING);
+            spellAnchorEntity.moveTo(caster.position());
+            spellAnchorEntity.attachSpell(spell);
+            spellAnchorEntity.postEvent(AllMachineEvents.START_CASTING);
 
-        level.addFreshEntity(spellAnchorEntity);
+            level.addFreshEntity(spellAnchorEntity);
+        }
 
         return serverSession;
     }

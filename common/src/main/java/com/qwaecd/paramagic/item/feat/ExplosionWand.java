@@ -70,7 +70,7 @@ public class ExplosionWand extends Item {
 //        SpellScheduler.getINSTANCE(level.isClientSide).addSpell(spell);
 
         if (level instanceof ServerLevel serverLevel) {
-            SpellAnchorEntity spellAnchorEntity = new SpellAnchorEntity(ModEntityTypes.SPELL_ANCHOR_ENTITY, level);
+            SpellAnchorEntity spellAnchorEntity = new SpellAnchorEntity(level);
             Spell spell = genSpell(spellAnchorEntity.getUUID().toString());
 
             SpellSession spellSession = SpellSpawner.spawnOnServer(serverLevel, PlayerCaster.create(player), spell);

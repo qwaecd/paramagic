@@ -43,6 +43,10 @@ public class SpellAnchorEntity extends Entity {
         this.setInvulnerable(true);
     }
 
+    public SpellAnchorEntity(Level level) {
+        this(ModEntityTypes.SPELL_ANCHOR_ENTITY, level);
+    }
+
     @Override
     public void tick() {
         super.tick();
