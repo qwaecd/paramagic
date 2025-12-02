@@ -1,16 +1,14 @@
 package com.qwaecd.paramagic.spell.session.server;
 
 import com.qwaecd.paramagic.mixinapi.IServerLevel;
-import com.qwaecd.paramagic.platform.Services;
 import com.qwaecd.paramagic.spell.Spell;
 import com.qwaecd.paramagic.spell.caster.SpellCaster;
 import com.qwaecd.paramagic.spell.session.ISessionManager;
 import com.qwaecd.paramagic.spell.session.SpellSession;
+import com.qwaecd.paramagic.tools.ConditionalLogger;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -21,7 +19,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.function.Consumer;
 
 public class ServerSessionManager implements ISessionManager {
-    private static final Logger LOGGER = LoggerFactory.getLogger(ServerSessionManager.class);
+    private static final ConditionalLogger LOGGER = ConditionalLogger.create(ServerSessionManager.class);
     private final WeakReference<ServerLevel> levelRef;
     private final ResourceKey<Level> levelKey;
     // sessionId -> ServerSession
@@ -41,7 +39,7 @@ public class ServerSessionManager implements ISessionManager {
 
     @Nullable
     @SuppressWarnings("UnusedReturnValue")
-    public ServerSession tryCreateSession(ServerLevel level, SpellCaster caster, Spell spell) {
+    public ServerSession tryCreateSession(ServerLevel level, SpellCaster<?> caster, Spell spell) {
         if (!caster.canStartSession(spell, this)) {
             return null;
         }
@@ -52,7 +50,7 @@ public class ServerSessionManager implements ISessionManager {
     }
 
     @Nonnull
-    public Set<ServerSession> getSessionsByCaster(SpellCaster caster) {
+    public Set<ServerSession> getSessionsByCaster(SpellCaster<?> caster) {
         Set<ServerSession> sessionSet = this.casterSessions.get(caster.getCasterId());
         if (sessionSet == null) {
             return Set.of();
@@ -77,9 +75,9 @@ public class ServerSessionManager implements ISessionManager {
             try {
                 consumer.accept(entry.getValue());
             } catch (Exception e) {
-                if (Services.PLATFORM.isDevelopmentEnvironment()) {
-                    LOGGER.error("Error while processing spell session {} in level {}", entry.getKey(), this.levelKey, e);
-                }
+                LOGGER.logIfDev(logger ->
+                        logger.error("Error while processing spell session {} in level {}", entry.getKey(), this.levelKey, e)
+                );
             }
         }
     }
@@ -87,7 +85,7 @@ public class ServerSessionManager implements ISessionManager {
     private void removeSession(ServerSession session) {
         this.sessions.remove(session.getSessionId());
 
-        SpellCaster caster = session.getCaster();
+        SpellCaster<?> caster = session.getCaster();
         Set<ServerSession> casterSet = this.casterSessions.get(caster.getCasterId());
         if (casterSet != null) {
             casterSet.remove(session);
@@ -100,7 +98,7 @@ public class ServerSessionManager implements ISessionManager {
     private void addSession(ServerSession session) {
         this.sessions.put(session.getSessionId(), session);
 
-        SpellCaster caster = session.getCaster();
+        SpellCaster<?> caster = session.getCaster();
         this.casterSessions.computeIfAbsent(caster.getCasterId(), uuid -> ConcurrentHashMap.newKeySet()).add(session);
     }
 

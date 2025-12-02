@@ -3,7 +3,7 @@ package com.qwaecd.paramagic.spell.caster;
 
 import java.util.UUID;
 
-public abstract class BaseSpellCaster implements SpellCaster {
+public abstract class BaseSpellCaster<T> implements SpellCaster<T> {
     protected final UUID casterId;
 
     protected BaseSpellCaster(UUID casterId) {

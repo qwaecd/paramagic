@@ -7,6 +7,9 @@ import com.qwaecd.paramagic.feature.effect.exposion.EXPLOSION;
 import com.qwaecd.paramagic.feature.effect.exposion.ExplosionAssets;
 import com.qwaecd.paramagic.mixin.accessor.LevelEntityAccessor;
 import com.qwaecd.paramagic.spell.Spell;
+import com.qwaecd.paramagic.spell.SpellSpawner;
+import com.qwaecd.paramagic.spell.caster.PlayerCaster;
+import com.qwaecd.paramagic.spell.session.SpellSession;
 import com.qwaecd.paramagic.spell.state.event.AllMachineEvents;
 import com.qwaecd.paramagic.spell.state.phase.property.PhaseConfig;
 import com.qwaecd.paramagic.spell.state.phase.property.SpellPhaseType;
@@ -70,18 +73,17 @@ public class ExplosionWand extends Item {
             SpellAnchorEntity spellAnchorEntity = new SpellAnchorEntity(ModEntityTypes.SPELL_ANCHOR_ENTITY, level);
             Spell spell = genSpell(spellAnchorEntity.getUUID().toString());
 
-            spellAnchorEntity.moveTo(player.position());
-            spellAnchorEntity.attachSpell(spell);
-            spellAnchorEntity.postEvent(AllMachineEvents.START_CASTING);
-
-            serverLevel.addFreshEntity(spellAnchorEntity);
-
-            itemstack.getOrCreateTagElement("SpellID").putUUID("ID", spellAnchorEntity.getUUID());
+            SpellSession spellSession = SpellSpawner.spawnOnServer(serverLevel, PlayerCaster.create(player), spell);
+            if (spellSession != null) {
+                spellSession.postEvent(AllMachineEvents.START_CASTING);
+                itemstack.getOrCreateTagElement("SpellID").putUUID("ID", spellSession.getSessionId());
+            }
         }
         player.startUsingItem(usedHand);
         return InteractionResultHolder.consume(itemstack);
     }
 
+    @SuppressWarnings("UnnecessaryLocalVariable")
     private Spell genSpell(String id) {
         Spell s = new Spell.Builder(id)
                 .addPhase(
