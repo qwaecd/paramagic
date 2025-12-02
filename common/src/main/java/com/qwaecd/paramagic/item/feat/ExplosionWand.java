@@ -1,7 +1,6 @@
 package com.qwaecd.paramagic.item.feat;
 
 import com.qwaecd.paramagic.core.accessor.EntityAccessor;
-import com.qwaecd.paramagic.entity.ModEntityTypes;
 import com.qwaecd.paramagic.entity.SpellAnchorEntity;
 import com.qwaecd.paramagic.feature.effect.exposion.EXPLOSION;
 import com.qwaecd.paramagic.feature.effect.exposion.ExplosionAssets;

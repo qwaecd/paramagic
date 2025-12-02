@@ -1,6 +1,5 @@
 package com.qwaecd.paramagic.spell;
 
-import com.qwaecd.paramagic.entity.ModEntityTypes;
 import com.qwaecd.paramagic.entity.SpellAnchorEntity;
 import com.qwaecd.paramagic.spell.caster.SpellCaster;
 import com.qwaecd.paramagic.spell.session.SessionManagers;

@@ -2,7 +2,6 @@ package com.qwaecd.paramagic.spell.state;
 
 import com.qwaecd.paramagic.Paramagic;
 import com.qwaecd.paramagic.spell.EndSpellReason;
-import com.qwaecd.paramagic.spell.struct.SpellConfig;
 import com.qwaecd.paramagic.spell.listener.ISpellPhaseListener;
 import com.qwaecd.paramagic.spell.state.event.AllMachineEvents;
 import com.qwaecd.paramagic.spell.state.event.MachineEvent;
@@ -11,6 +10,7 @@ import com.qwaecd.paramagic.spell.state.event.queue.MachineEventEnvelope;
 import com.qwaecd.paramagic.spell.state.phase.EffectTriggerPoint;
 import com.qwaecd.paramagic.spell.state.phase.SpellPhase;
 import com.qwaecd.paramagic.spell.state.phase.property.SpellPhaseType;
+import com.qwaecd.paramagic.spell.struct.SpellConfig;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
