@@ -37,6 +37,8 @@ public final class SpellSpawner {
             spellAnchorEntity.attachSpell(spell);
 
             level.addFreshEntity(spellAnchorEntity);
+
+            serverSession.connectAnchor(spellAnchorEntity);
         }
 
         return serverSession;

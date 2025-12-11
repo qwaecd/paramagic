@@ -98,7 +98,6 @@ public class SpellAnchorEntity extends Entity {
 
     }
 
-    @SuppressWarnings("RedundantMethodOverride")
     @Override
     public boolean isPushable() {
         return false;

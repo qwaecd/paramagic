@@ -89,6 +89,7 @@ public class ServerSessionManager implements ISessionManager {
         Set<ServerSession> casterSet = this.casterSessions.get(caster.getCasterId());
         if (casterSet != null) {
             casterSet.remove(session);
+            session.close();
             if (casterSet.isEmpty()) {
                 this.casterSessions.remove(caster.getCasterId());
             }

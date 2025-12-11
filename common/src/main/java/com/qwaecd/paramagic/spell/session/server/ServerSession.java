@@ -1,5 +1,6 @@
 package com.qwaecd.paramagic.spell.session.server;
 
+import com.qwaecd.paramagic.entity.SpellAnchorEntity;
 import com.qwaecd.paramagic.spell.Spell;
 import com.qwaecd.paramagic.spell.caster.SpellCaster;
 import com.qwaecd.paramagic.spell.listener.ISpellPhaseListener;
@@ -7,17 +8,23 @@ import com.qwaecd.paramagic.spell.session.SessionState;
 import com.qwaecd.paramagic.spell.session.SpellSession;
 import com.qwaecd.paramagic.spell.state.SpellStateMachine;
 import com.qwaecd.paramagic.spell.state.event.MachineEvent;
+import com.qwaecd.paramagic.tools.ConditionalLogger;
 import lombok.Getter;
 
 import javax.annotation.Nonnull;
-import java.util.UUID;
+import java.lang.ref.WeakReference;
+import java.util.*;
 
-public class ServerSession extends SpellSession {
+public class ServerSession extends SpellSession implements AutoCloseable {
+    private static final ConditionalLogger LOGGER = ConditionalLogger.create(ServerSession.class);
+
     @Nonnull
     @Getter
     private final SpellCaster<?> caster;
     @Nonnull
     private final SpellStateMachine machine;
+
+    private final List<WeakReference<SpellAnchorEntity>> anchors = new ArrayList<>();
 
     public ServerSession(UUID sessionId, @Nonnull SpellCaster<?> caster, @Nonnull Spell spell) {
         super(sessionId, spell);
@@ -75,5 +82,19 @@ public class ServerSession extends SpellSession {
     @Override
     public boolean canRemoveFromManager() {
         return super.canRemoveFromManager();
+    }
+
+    public void connectAnchor(@Nonnull SpellAnchorEntity anchor) {
+        this.anchors.add(new WeakReference<>(anchor));
+    }
+
+    @Override
+    public void close() {
+        for (WeakReference<SpellAnchorEntity> anchorRef : this.anchors) {
+            Optional.ofNullable(anchorRef.get()).ifPresentOrElse(SpellAnchorEntity::discard, () ->
+                    LOGGER.logIfDev(l -> l.warn("SpellAnchorEntity has been garbage collected before session close."))
+            );
+        }
+        this.anchors.clear();
     }
 }

@@ -6,7 +6,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.function.Consumer;
 
-@SuppressWarnings("ClassCanBeRecord")
+@SuppressWarnings({"ClassCanBeRecord", "unused"})
 public class ConditionalLogger {
     private final Logger logger;
     public ConditionalLogger(Logger logger) {
@@ -17,6 +17,16 @@ public class ConditionalLogger {
         if (Services.PLATFORM.isDevelopmentEnvironment()) {
             logAction.accept(this.logger);
         }
+    }
+
+    public void logIf(boolean condition, Consumer<Logger> logAction) {
+        if (condition) {
+            logAction.accept(this.logger);
+        }
+    }
+
+    public Logger get() {
+        return this.logger;
     }
 
     public static ConditionalLogger create(Logger logger) {

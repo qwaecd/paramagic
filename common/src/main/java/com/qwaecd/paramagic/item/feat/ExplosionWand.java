@@ -9,7 +9,6 @@ import com.qwaecd.paramagic.spell.Spell;
 import com.qwaecd.paramagic.spell.SpellSpawner;
 import com.qwaecd.paramagic.spell.caster.PlayerCaster;
 import com.qwaecd.paramagic.spell.session.SpellSession;
-import com.qwaecd.paramagic.spell.state.event.AllMachineEvents;
 import com.qwaecd.paramagic.spell.state.phase.property.PhaseConfig;
 import com.qwaecd.paramagic.spell.state.phase.property.SpellPhaseType;
 import net.minecraft.nbt.CompoundTag;
