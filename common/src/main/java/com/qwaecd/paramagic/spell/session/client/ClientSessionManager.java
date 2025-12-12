@@ -1,14 +1,19 @@
 package com.qwaecd.paramagic.spell.session.client;
 
+import com.qwaecd.paramagic.spell.Spell;
 import com.qwaecd.paramagic.spell.session.ISessionManager;
 import com.qwaecd.paramagic.spell.session.SpellSession;
+import com.qwaecd.paramagic.tools.ConditionalLogger;
 
+import javax.annotation.Nonnull;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 
 public class ClientSessionManager implements ISessionManager {
+    private static final ConditionalLogger LOGGER = ConditionalLogger.create(ClientSessionManager.class);
+
     private static ClientSessionManager INSTANCE;
 
     private final Map<UUID, ClientSession> sessions = new ConcurrentHashMap<>();
@@ -34,13 +39,34 @@ public class ClientSessionManager implements ISessionManager {
         for (var entry : this.sessions.entrySet()) {
             try {
                 consumer.accept(entry.getValue());
-            } catch (Exception ignored) {
+            } catch (Exception e) {
+                LOGGER.logIfDev(l ->
+                        l.error("Error while ticking session {}: {}", entry.getKey(), e)
+                );
             }
         }
     }
 
+    public ClientSession createSession(@Nonnull Spell spell) {
+        ClientSession clientSession = new ClientSession(UUID.randomUUID(), spell);
+        this.addSession(clientSession);
+        return clientSession;
+    }
+
+    private void addSession(ClientSession session) {
+        this.sessions.put(session.getSessionId(), session);
+    }
+
+    private void removeSession(ClientSession session) {
+        this.removeSession(session.getSessionId());
+    }
+
+    private void removeSession(UUID sessionId) {
+        this.sessions.remove(sessionId);
+    }
+
     @Override
     public SpellSession getSession(UUID sessionId) {
-        return INSTANCE.getSession(sessionId);
+        return this.sessions.get(sessionId);
     }
 }

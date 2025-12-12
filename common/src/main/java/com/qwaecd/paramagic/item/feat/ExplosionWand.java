@@ -8,7 +8,10 @@ import com.qwaecd.paramagic.mixin.accessor.LevelEntityAccessor;
 import com.qwaecd.paramagic.spell.Spell;
 import com.qwaecd.paramagic.spell.SpellSpawner;
 import com.qwaecd.paramagic.spell.caster.PlayerCaster;
+import com.qwaecd.paramagic.spell.session.SessionManagers;
 import com.qwaecd.paramagic.spell.session.SpellSession;
+import com.qwaecd.paramagic.spell.session.server.ServerSession;
+import com.qwaecd.paramagic.spell.session.server.ServerSessionManager;
 import com.qwaecd.paramagic.spell.state.phase.property.PhaseConfig;
 import com.qwaecd.paramagic.spell.state.phase.property.SpellPhaseType;
 import net.minecraft.nbt.CompoundTag;
@@ -71,10 +74,10 @@ public class ExplosionWand extends Item {
             SpellAnchorEntity spellAnchorEntity = new SpellAnchorEntity(level);
             Spell spell = genSpell(spellAnchorEntity.getUUID().toString());
 
-            SpellSession spellSession = SpellSpawner.spawnOnServer(serverLevel, PlayerCaster.create(player), spell);
-            if (spellSession != null) {
-                itemstack.getOrCreateTagElement("SpellID").putUUID("ID", spellSession.getSessionId());
-            }
+            SpellSpawner.spawnOnServer(serverLevel, PlayerCaster.create(player), spell);
+//            if (spellSession != null) {
+//                itemstack.getOrCreateTagElement("SpellID").putUUID("ID", spellSession.getSessionId());
+//            }
         }
         player.startUsingItem(usedHand);
         return InteractionResultHolder.consume(itemstack);
@@ -111,17 +114,25 @@ public class ExplosionWand extends Item {
 
     @Override
     public void releaseUsing(ItemStack stack, Level level, LivingEntity livingEntity, int timeCharged) {
-        CompoundTag spellIDTag = stack.getTagElement("SpellID");
-        if (spellIDTag == null) {
-            return;
+        UUID casterId = livingEntity.getUUID();
+        if (level instanceof ServerLevel serverLevel) {
+            ServerSessionManager sm = SessionManagers.getForServer(serverLevel);
+            for (ServerSession serverSession : sm.getSessionsByUUID(casterId)) {
+                serverSession.interrupt();
+            }
         }
-        UUID uuid = spellIDTag.getUUID("ID");
 
-        LevelEntityAccessor entityAccessor = (LevelEntityAccessor) level;
-        Entity entity = entityAccessor.getEntities().get(uuid);
-        if (!(entity instanceof SpellAnchorEntity spellAnchorEntity)) {
-            return;
-        }
+//        CompoundTag spellIDTag = stack.getTagElement("SpellID");
+//        if (spellIDTag == null) {
+//            return;
+//        }
+//        UUID uuid = spellIDTag.getUUID("ID");
+//
+//        LevelEntityAccessor entityAccessor = (LevelEntityAccessor) level;
+//        Entity entity = entityAccessor.getEntities().get(uuid);
+//        if (!(entity instanceof SpellAnchorEntity spellAnchorEntity)) {
+//            return;
+//        }
 //        spellAnchorEntity.interrupt();
     }
 

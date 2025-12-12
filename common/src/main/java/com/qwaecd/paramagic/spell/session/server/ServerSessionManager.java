@@ -51,7 +51,12 @@ public class ServerSessionManager implements ISessionManager {
 
     @Nonnull
     public Set<ServerSession> getSessionsByCaster(SpellCaster<?> caster) {
-        Set<ServerSession> sessionSet = this.casterSessions.get(caster.getCasterId());
+        return this.getSessionsByUUID(caster.getCasterId());
+    }
+
+    @Nonnull
+    public Set<ServerSession> getSessionsByUUID(UUID casterId) {
+        Set<ServerSession> sessionSet = this.casterSessions.get(casterId);
         if (sessionSet == null) {
             return Set.of();
         }

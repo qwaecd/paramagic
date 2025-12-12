@@ -5,9 +5,11 @@ import com.qwaecd.paramagic.spell.caster.SpellCaster;
 import com.qwaecd.paramagic.spell.session.SessionManagers;
 import com.qwaecd.paramagic.spell.session.SpellSession;
 import com.qwaecd.paramagic.spell.session.client.ClientSession;
+import com.qwaecd.paramagic.spell.session.client.ClientSessionManager;
 import com.qwaecd.paramagic.spell.session.server.ServerSession;
 import com.qwaecd.paramagic.spell.session.server.ServerSessionManager;
 import com.qwaecd.paramagic.spell.state.event.AllMachineEvents;
+import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
 
@@ -18,7 +20,7 @@ public final class SpellSpawner {
     @SuppressWarnings("UnusedReturnValue")
     public static SpellSession spawnSpell(Level level, SpellCaster<?> caster, Spell spell) {
         if (level.isClientSide()) {
-            return spawnOnClient(level, caster, spell);
+            return spawnOnClient(level, spell);
         } else {
             return spawnOnServer((ServerLevel) level, caster, spell);
         }
@@ -45,7 +47,12 @@ public final class SpellSpawner {
     }
 
     @Nullable
-    public static ClientSession spawnOnClient(Level level, SpellCaster<?> caster, Spell spell) {
+    public static ClientSession spawnOnClient(Level level, Spell spell) {
+        ClientSessionManager manager = SessionManagers.getForClient();
+        ClientLevel clientLevel = (ClientLevel) level;
+
+        ClientSession session = manager.createSession(spell);
+
         return null;
     }
 }

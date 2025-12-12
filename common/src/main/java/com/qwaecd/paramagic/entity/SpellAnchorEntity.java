@@ -5,7 +5,12 @@ import com.qwaecd.paramagic.assembler.ParaComposer;
 import com.qwaecd.paramagic.feature.circle.MagicCircle;
 import com.qwaecd.paramagic.feature.circle.MagicCircleManager;
 import com.qwaecd.paramagic.network.serializer.AllEntityDataSerializers;
+import com.qwaecd.paramagic.platform.annotation.PlatformScope;
+import com.qwaecd.paramagic.platform.annotation.PlatformScopeType;
 import com.qwaecd.paramagic.spell.Spell;
+import com.qwaecd.paramagic.spell.SpellSpawner;
+import com.qwaecd.paramagic.spell.session.SpellSessionRef;
+import com.qwaecd.paramagic.spell.session.client.ClientSession;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.SynchedEntityData;
@@ -29,6 +34,7 @@ public class SpellAnchorEntity extends Entity {
     private int lifetimeTicks = 0;
 
     private static final EntityDataAccessor<Optional<Spell>> OPTIONAL_SPELL_DATA = SynchedEntityData.defineId(SpellAnchorEntity.class, AllEntityDataSerializers.OPTIONAL_SPELL);
+    private static final EntityDataAccessor<Optional<SpellSessionRef>> OPTIONAL_SESSION_REF = SynchedEntityData.defineId(SpellAnchorEntity.class, AllEntityDataSerializers.SPELL_SESSION_REF);
 
     public SpellAnchorEntity(EntityType<?> entityType, Level level) {
         super(entityType, level);
@@ -58,6 +64,7 @@ public class SpellAnchorEntity extends Entity {
     @Override
     protected void defineSynchedData() {
         this.entityData.define(OPTIONAL_SPELL_DATA, Optional.empty());
+        this.entityData.define(OPTIONAL_SESSION_REF, Optional.empty());
     }
 
     // 测试用的临时字段
@@ -76,15 +83,22 @@ public class SpellAnchorEntity extends Entity {
             if (optionalSpell.isEmpty()) {
                 return;
             }
-            try {
-                MagicCircle circle = ParaComposer.assemble(optionalSpell.get().getSpellAssets());
-                MagicCircleManager.getInstance().addCircle(circle);
-                circle.transform
-                        .setPosition((float) this.position().x(), (float) this.position().y() + 0.01f, (float) this.position().z());
-                this.tmp = circle;
-            } catch (AssemblyException e) {
-                LOGGER.error("Failed to assemble MagicCircle from ParaData in SpellAnchorEntity.", e);
-            }
+            this.onLoadEntity(optionalSpell.get());
+        }
+    }
+
+
+    @PlatformScope(PlatformScopeType.CLIENT)
+    private void onLoadEntity(@Nonnull Spell spell) {
+        ClientSession clientSession = SpellSpawner.spawnOnClient(this.level(), spell);
+        try {
+            MagicCircle circle = ParaComposer.assemble(spell.getSpellAssets());
+            MagicCircleManager.getInstance().addCircle(circle);
+            circle.transform
+                    .setPosition((float) this.position().x(), (float) this.position().y() + 0.01f, (float) this.position().z());
+            this.tmp = circle;
+        } catch (AssemblyException e) {
+            LOGGER.error("Failed to assemble MagicCircle from ParaData in SpellAnchorEntity.", e);
         }
     }
 
@@ -98,15 +112,15 @@ public class SpellAnchorEntity extends Entity {
 
     }
 
+    @SuppressWarnings("RedundantMethodOverride")
     @Override
     public boolean isPushable() {
         return false;
     }
 
+
+    @PlatformScope(PlatformScopeType.SERVER)
     public void attachSpell(@Nonnull Spell spell) {
-        //noinspection resource
-        if (this.level().isClientSide())
-            return;
         this.entityData.set(OPTIONAL_SPELL_DATA, Optional.of(spell), true);
     }
 
