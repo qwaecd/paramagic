@@ -34,7 +34,7 @@ public class ServerSessionManager implements ISessionManager {
         this.levelKey = level.dimension();
 
         IServerLevel callbackRegister = (IServerLevel) level;
-        callbackRegister.registerOnLevelTick(() -> this.tickAll(1.0f / 20.0f));
+        callbackRegister.registerOnLevelTick(serverLevel -> this.tickAll(serverLevel, 1.0f / 20.0f));
     }
 
     @Nullable
@@ -59,11 +59,11 @@ public class ServerSessionManager implements ISessionManager {
     }
 
     @SuppressWarnings("SameParameterValue")
-    private void tickAll(final float deltaTime) {
+    private void tickAll(final ServerLevel serverLevel, final float deltaTime) {
         this.flushPendingRemovals();
 
         this.forEachSessionSafe(session -> {
-            session.tick(deltaTime);
+            session.tickOnLevel(serverLevel, deltaTime);
             if (session.canRemoveFromManager()) {
                 this.pendingRemovals.add(session);
             }

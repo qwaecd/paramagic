@@ -10,6 +10,7 @@ import com.qwaecd.paramagic.spell.state.SpellStateMachine;
 import com.qwaecd.paramagic.spell.state.event.MachineEvent;
 import com.qwaecd.paramagic.tools.ConditionalLogger;
 import lombok.Getter;
+import net.minecraft.server.level.ServerLevel;
 
 import javax.annotation.Nonnull;
 import java.lang.ref.WeakReference;
@@ -36,8 +37,12 @@ public class ServerSession extends SpellSession implements AutoCloseable {
         return this.machine.isCompleted();
     }
 
-    @Override
-    public void tick(float deltaTime) {
+    public void tickOnLevel(ServerLevel level, float deltaTime) {
+        this.tick(level, deltaTime);
+    }
+
+    @SuppressWarnings("unused")
+    private void tick(ServerLevel level, float deltaTime) {
         if (!this.machineCompleted()) {
             this.machine.update(deltaTime);
         } else {

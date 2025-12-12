@@ -17,7 +17,6 @@ public class ClientSession extends SpellSession {
         this.machine = new SpellStateMachine(spell.getSpellConfig());
     }
 
-    @Override
     public void tick(float deltaTime) {
         if (!this.machineCompleted()) {
             this.machine.update(deltaTime);

@@ -9,23 +9,24 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.function.BooleanSupplier;
+import java.util.function.Consumer;
 
 @Mixin(ServerLevel.class)
 public abstract class ServerLevelMixin implements IServerLevel {
     @Unique
-    private Runnable onLevelTickCallBack$paramagic;
+    private Consumer<ServerLevel> onLevelTickCallBack$paramagic;
 
     @Inject(
             method = "tick",
-            at = @At("RETURN")
+            at = @At("TAIL")
     )
     private void onTick(BooleanSupplier hasTimeLeft, CallbackInfo ci) {
         if (this.onLevelTickCallBack$paramagic != null)
-            this.onLevelTickCallBack$paramagic.run();
+            this.onLevelTickCallBack$paramagic.accept((ServerLevel) (Object)this);
     }
 
     @Override
-    public void registerOnLevelTick$paramagic(Runnable runnable) {
-        this.onLevelTickCallBack$paramagic = runnable;
+    public void registerOnLevelTick$paramagic(Consumer<ServerLevel> callback) {
+        this.onLevelTickCallBack$paramagic = callback;
     }
 }

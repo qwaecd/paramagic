@@ -28,8 +28,6 @@ public abstract class SpellSession {
         this.sessionState = SessionState.RUNNING;
     }
 
-    public abstract void tick(float deltaTime);
-
     public abstract void interrupt();
 
     public abstract void forceInterrupt();
