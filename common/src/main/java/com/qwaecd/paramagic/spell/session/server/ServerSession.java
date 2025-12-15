@@ -14,7 +14,10 @@ import net.minecraft.server.level.ServerLevel;
 
 import javax.annotation.Nonnull;
 import java.lang.ref.WeakReference;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 public class ServerSession extends SpellSession implements AutoCloseable {
     private static final ConditionalLogger LOGGER = ConditionalLogger.create(ServerSession.class);

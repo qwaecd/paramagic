@@ -8,6 +8,7 @@ public class TransformSample {
     public final Vector3f position;
     public final Vector3f forward;
     public final Vector3f eyePosition;
+    // TODO: 需要注意 up 与 y 轴平行的情况
     public final Vector3f up;
 
     public TransformSample(
