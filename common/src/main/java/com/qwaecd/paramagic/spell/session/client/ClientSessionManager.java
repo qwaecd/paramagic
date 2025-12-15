@@ -55,10 +55,6 @@ public class ClientSessionManager implements ISessionManager {
 
     @Nullable
     public ClientSession createSession(Level level, SpellSessionRef sessionRef, @Nonnull Spell spell) {
-        if (Minecraft.getInstance().level == null) {
-            return null;
-        }
-
         CasterTransformSource casterSource = CasterUtils.tryFindCaster(level, sessionRef);
         if (casterSource == null) {
             LOGGER.logIfDev(l ->
