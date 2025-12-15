@@ -23,6 +23,11 @@ public class PlayerCaster extends BaseSpellCaster<Player> implements SpellCaster
     }
 
     @Override
+    public int getEntityNetworkId() {
+        return this.source.getId();
+    }
+
+    @Override
     public boolean canStartSession(Spell spell, ServerSessionManager manager) {
         Set<ServerSession> sessionSet = manager.getSessionsByCaster(this);
         return sessionSet.isEmpty();

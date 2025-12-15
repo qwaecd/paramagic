@@ -6,15 +6,22 @@ import com.qwaecd.paramagic.spell.session.SessionState;
 import com.qwaecd.paramagic.spell.session.SpellSession;
 import com.qwaecd.paramagic.spell.state.SpellStateMachine;
 import com.qwaecd.paramagic.spell.state.event.MachineEvent;
+import com.qwaecd.paramagic.spell.view.CasterTransformSource;
+import lombok.Getter;
 
+import javax.annotation.Nonnull;
 import java.util.UUID;
 
 public class ClientSession extends SpellSession {
     private final SpellStateMachine machine;
+    @Nonnull
+    @Getter
+    private final CasterTransformSource casterSource;
 
-    public ClientSession(UUID sessionId, Spell spell) {
+    public ClientSession(UUID sessionId, Spell spell, @Nonnull CasterTransformSource casterSource) {
         super(sessionId, spell);
         this.machine = new SpellStateMachine(spell.getSpellConfig());
+        this.casterSource = casterSource;
     }
 
     public void tick(float deltaTime) {
@@ -28,6 +35,9 @@ public class ClientSession extends SpellSession {
             // TODO: 可以实现延迟销毁
             this.setSessionState(SessionState.DISPOSED);
         }
+    }
+
+    public void upsertCasterSource(@Nonnull CasterTransformSource source) {
     }
 
     @Override

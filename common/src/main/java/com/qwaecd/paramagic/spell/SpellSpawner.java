@@ -4,28 +4,22 @@ import com.qwaecd.paramagic.entity.SpellAnchorEntity;
 import com.qwaecd.paramagic.spell.caster.SpellCaster;
 import com.qwaecd.paramagic.spell.session.SessionManagers;
 import com.qwaecd.paramagic.spell.session.SpellSession;
+import com.qwaecd.paramagic.spell.session.SpellSessionRef;
 import com.qwaecd.paramagic.spell.session.client.ClientSession;
 import com.qwaecd.paramagic.spell.session.client.ClientSessionManager;
 import com.qwaecd.paramagic.spell.session.server.ServerSession;
 import com.qwaecd.paramagic.spell.session.server.ServerSessionManager;
 import com.qwaecd.paramagic.spell.state.event.AllMachineEvents;
+import com.qwaecd.paramagic.spell.view.CasterTransformSource;
+import com.qwaecd.paramagic.tools.CasterUtils;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
 
 import javax.annotation.Nullable;
 
+@SuppressWarnings("UnusedReturnValue")
 public final class SpellSpawner {
-    @Nullable
-    @SuppressWarnings("UnusedReturnValue")
-    public static SpellSession spawnSpell(Level level, SpellCaster<?> caster, Spell spell) {
-        if (level.isClientSide()) {
-            return spawnOnClient(level, spell);
-        } else {
-            return spawnOnServer((ServerLevel) level, caster, spell);
-        }
-    }
-
     @Nullable
     public static ServerSession spawnOnServer(ServerLevel level, SpellCaster<?> caster, Spell spell) {
         ServerSessionManager manager = SessionManagers.getForServer(level);
@@ -35,24 +29,39 @@ public final class SpellSpawner {
             serverSession.postEvent(AllMachineEvents.START_CASTING);
 
             SpellAnchorEntity spellAnchorEntity = new SpellAnchorEntity(level);
+            connect(serverSession, spellAnchorEntity);
+
             spellAnchorEntity.moveTo(caster.position());
-            spellAnchorEntity.attachSpell(spell);
-
             level.addFreshEntity(spellAnchorEntity);
-
-            serverSession.connectAnchor(spellAnchorEntity);
         }
 
         return serverSession;
     }
 
+    private static void connect(ServerSession session, SpellAnchorEntity entity) {
+        session.connectAnchor(entity);
+        entity.attachSession(session);
+    }
+
     @Nullable
-    public static ClientSession spawnOnClient(Level level, Spell spell) {
+    public static ClientSession spawnOnClient(Level level, SpellSessionRef sessionRef, Spell spell) {
         ClientSessionManager manager = SessionManagers.getForClient();
         ClientLevel clientLevel = (ClientLevel) level;
 
-        ClientSession session = manager.createSession(spell);
+        ClientSession session = (ClientSession) manager.getSession(sessionRef.serverSessionId);
+        if (session == null) {
+            session = manager.createSession(clientLevel, sessionRef, spell);
+        } else {
+            tryUpsertCasterSource(clientLevel, session, sessionRef);
+        }
 
-        return null;
+        return session;
+    }
+
+    private static void tryUpsertCasterSource(Level level, ClientSession session, SpellSessionRef sessionRef) {
+        CasterTransformSource casterSource = CasterUtils.tryFindCaster(level, sessionRef);
+        if (casterSource != null) {
+            session.upsertCasterSource(casterSource);
+        }
     }
 }

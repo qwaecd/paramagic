@@ -3,9 +3,15 @@ package com.qwaecd.paramagic.spell.session.client;
 import com.qwaecd.paramagic.spell.Spell;
 import com.qwaecd.paramagic.spell.session.ISessionManager;
 import com.qwaecd.paramagic.spell.session.SpellSession;
+import com.qwaecd.paramagic.spell.session.SpellSessionRef;
+import com.qwaecd.paramagic.spell.view.CasterTransformSource;
+import com.qwaecd.paramagic.tools.CasterUtils;
 import com.qwaecd.paramagic.tools.ConditionalLogger;
+import net.minecraft.client.Minecraft;
+import net.minecraft.world.level.Level;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -47,8 +53,24 @@ public class ClientSessionManager implements ISessionManager {
         }
     }
 
-    public ClientSession createSession(@Nonnull Spell spell) {
-        ClientSession clientSession = new ClientSession(UUID.randomUUID(), spell);
+    @Nullable
+    public ClientSession createSession(Level level, SpellSessionRef sessionRef, @Nonnull Spell spell) {
+        if (Minecraft.getInstance().level == null) {
+            return null;
+        }
+
+        CasterTransformSource casterSource = CasterUtils.tryFindCaster(level, sessionRef);
+        if (casterSource == null) {
+            LOGGER.logIfDev(l ->
+                    l.warn("Failed to find caster for session {}: casterEntityUuid={}, casterNetworkId={}",
+                            sessionRef.serverSessionId,
+                            sessionRef.casterEntityUuid,
+                            sessionRef.casterNetworkId
+                    )
+            );
+            casterSource = CasterUtils.EMPTY_SOURCE;
+        }
+        ClientSession clientSession = new ClientSession(sessionRef.serverSessionId, spell, casterSource);
         this.addSession(clientSession);
         return clientSession;
     }

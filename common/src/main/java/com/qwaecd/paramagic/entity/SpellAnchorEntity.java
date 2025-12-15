@@ -9,14 +9,19 @@ import com.qwaecd.paramagic.platform.annotation.PlatformScope;
 import com.qwaecd.paramagic.platform.annotation.PlatformScopeType;
 import com.qwaecd.paramagic.spell.Spell;
 import com.qwaecd.paramagic.spell.SpellSpawner;
+import com.qwaecd.paramagic.spell.view.CasterTransformSource;
+import com.qwaecd.paramagic.spell.session.SessionManagers;
+import com.qwaecd.paramagic.spell.session.SpellSession;
 import com.qwaecd.paramagic.spell.session.SpellSessionRef;
 import com.qwaecd.paramagic.spell.session.client.ClientSession;
+import com.qwaecd.paramagic.spell.session.server.ServerSession;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.Vec3;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,6 +36,7 @@ public class SpellAnchorEntity extends Entity {
     /**
      * 仅应该在服务端, 用于定时清除不存在 spell 的实体.
      */
+    @PlatformScope(PlatformScopeType.SERVER)
     private int lifetimeTicks = 0;
 
     private static final EntityDataAccessor<Optional<Spell>> OPTIONAL_SPELL_DATA = SynchedEntityData.defineId(SpellAnchorEntity.class, AllEntityDataSerializers.OPTIONAL_SPELL);
@@ -49,7 +55,6 @@ public class SpellAnchorEntity extends Entity {
     @Override
     public void tick() {
         super.tick();
-        //noinspection resource
         if (this.level().isClientSide()) {
             return;
         }
@@ -83,14 +88,24 @@ public class SpellAnchorEntity extends Entity {
             if (optionalSpell.isEmpty()) {
                 return;
             }
-            this.onLoadEntity(optionalSpell.get());
+            this.onUpdateEntityData();
         }
     }
 
-
     @PlatformScope(PlatformScopeType.CLIENT)
-    private void onLoadEntity(@Nonnull Spell spell) {
-        ClientSession clientSession = SpellSpawner.spawnOnClient(this.level(), spell);
+    private void onUpdateEntityData() {
+        if (!this.tryEnsureClientSession()) {
+            return;
+        }
+        // assert not null
+        Spell spell = this.entityData.get(OPTIONAL_SPELL_DATA).orElseThrow();
+        SpellSessionRef sessionRef = this.entityData.get(OPTIONAL_SESSION_REF).orElseThrow();
+
+        SpellSession existSession = SessionManagers.getForClient().getSession(sessionRef.serverSessionId);
+        if (existSession != null)
+            return;
+
+        ClientSession clientSession = SpellSpawner.spawnOnClient(this.level(), sessionRef, spell);
         try {
             MagicCircle circle = ParaComposer.assemble(spell.getSpellAssets());
             MagicCircleManager.getInstance().addCircle(circle);
@@ -120,12 +135,23 @@ public class SpellAnchorEntity extends Entity {
 
 
     @PlatformScope(PlatformScopeType.SERVER)
-    public void attachSpell(@Nonnull Spell spell) {
-        this.entityData.set(OPTIONAL_SPELL_DATA, Optional.of(spell), true);
+    public void attachSession(@Nonnull ServerSession session) {
+        this.entityData.set(OPTIONAL_SPELL_DATA, Optional.of(session.getSpell()), true);
+        this.entityData.set(OPTIONAL_SESSION_REF, Optional.of(SpellSessionRef.fromSession(session)), true);
     }
 
     public boolean isNoSpell() {
-        Optional<Spell> optionalSpell = this.entityData.get(OPTIONAL_SPELL_DATA);
-        return optionalSpell.isEmpty();
+        return this.entityData.get(OPTIONAL_SPELL_DATA).isEmpty();
+    }
+
+    public boolean hasSessionRef() {
+        return this.entityData.get(OPTIONAL_SESSION_REF).isEmpty();
+    }
+
+
+    @PlatformScope(PlatformScopeType.CLIENT)
+    private boolean tryEnsureClientSession() {
+        // 存在 spell 且 存在 sessionRef
+        return !this.isNoSpell() && this.hasSessionRef();
     }
 }
