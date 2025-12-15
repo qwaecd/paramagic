@@ -9,8 +9,6 @@ import net.minecraft.world.level.Level;
 import javax.annotation.Nullable;
 
 public final class CasterUtils {
-    public static final EntityTFSource EMPTY_SOURCE = EntityTFSource.create(null);
-
     @Nullable
     public static CasterTransformSource tryFindCaster(Level level, SpellSessionRef sessionRef) {
         Entity entity = level.getEntity(sessionRef.casterNetworkId);

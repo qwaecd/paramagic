@@ -14,6 +14,7 @@ import com.qwaecd.paramagic.spell.session.SpellSession;
 import com.qwaecd.paramagic.spell.session.SpellSessionRef;
 import com.qwaecd.paramagic.spell.session.client.ClientSession;
 import com.qwaecd.paramagic.spell.session.server.ServerSession;
+import com.qwaecd.paramagic.spell.view.EntityTFSource;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.SynchedEntityData;
@@ -103,7 +104,7 @@ public class SpellAnchorEntity extends Entity {
         if (existSession != null)
             return;
 
-        ClientSession clientSession = SpellSpawner.spawnOnClient(this.level(), sessionRef, spell);
+        ClientSession clientSession = SpellSpawner.spawnOnClient(this.level(), sessionRef, spell, EntityTFSource.create(this));
         try {
             MagicCircle circle = ParaComposer.assemble(spell.getSpellAssets());
             MagicCircleManager.getInstance().addCircle(circle);

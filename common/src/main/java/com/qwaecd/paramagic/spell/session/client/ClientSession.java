@@ -7,6 +7,7 @@ import com.qwaecd.paramagic.spell.session.SpellSession;
 import com.qwaecd.paramagic.spell.state.SpellStateMachine;
 import com.qwaecd.paramagic.spell.state.event.MachineEvent;
 import com.qwaecd.paramagic.spell.view.CasterTransformSource;
+import com.qwaecd.paramagic.spell.view.HybridCasterSource;
 import lombok.Getter;
 
 import javax.annotation.Nonnull;
@@ -16,9 +17,9 @@ public class ClientSession extends SpellSession {
     private final SpellStateMachine machine;
     @Nonnull
     @Getter
-    private final CasterTransformSource casterSource;
+    private final HybridCasterSource casterSource;
 
-    public ClientSession(UUID sessionId, Spell spell, @Nonnull CasterTransformSource casterSource) {
+    public ClientSession(UUID sessionId, Spell spell, @Nonnull HybridCasterSource casterSource) {
         super(sessionId, spell);
         this.machine = new SpellStateMachine(spell.getSpellConfig());
         this.casterSource = casterSource;
@@ -38,6 +39,7 @@ public class ClientSession extends SpellSession {
     }
 
     public void upsertCasterSource(@Nonnull CasterTransformSource source) {
+        this.casterSource.setPrimary(source);
     }
 
     @Override

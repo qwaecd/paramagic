@@ -16,6 +16,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
 
 import javax.annotation.Nullable;
+import java.util.function.Supplier;
 
 @SuppressWarnings("UnusedReturnValue")
 public final class SpellSpawner {
@@ -43,13 +44,18 @@ public final class SpellSpawner {
     }
 
     @Nullable
-    public static ClientSession spawnOnClient(Level level, SpellSessionRef sessionRef, Spell spell) {
+    public static ClientSession spawnOnClient(
+            Level level,
+            SpellSessionRef sessionRef,
+            Spell spell,
+            CasterTransformSource fallbackSource
+    ) {
         ClientSessionManager manager = SessionManagers.getForClient();
         ClientLevel clientLevel = (ClientLevel) level;
 
         ClientSession session = (ClientSession) manager.getSession(sessionRef.serverSessionId);
         if (session == null) {
-            session = manager.createSession(clientLevel, sessionRef, spell);
+            session = manager.createSession(clientLevel, sessionRef, spell, fallbackSource);
         } else {
             tryUpsertCasterSource(clientLevel, session, sessionRef);
         }

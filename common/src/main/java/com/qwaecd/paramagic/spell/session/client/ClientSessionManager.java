@@ -5,9 +5,9 @@ import com.qwaecd.paramagic.spell.session.ISessionManager;
 import com.qwaecd.paramagic.spell.session.SpellSession;
 import com.qwaecd.paramagic.spell.session.SpellSessionRef;
 import com.qwaecd.paramagic.spell.view.CasterTransformSource;
+import com.qwaecd.paramagic.spell.view.HybridCasterSource;
 import com.qwaecd.paramagic.tools.CasterUtils;
 import com.qwaecd.paramagic.tools.ConditionalLogger;
-import net.minecraft.client.Minecraft;
 import net.minecraft.world.level.Level;
 
 import javax.annotation.Nonnull;
@@ -54,7 +54,7 @@ public class ClientSessionManager implements ISessionManager {
     }
 
     @Nullable
-    public ClientSession createSession(Level level, SpellSessionRef sessionRef, @Nonnull Spell spell) {
+    public ClientSession createSession(Level level, SpellSessionRef sessionRef, @Nonnull Spell spell, CasterTransformSource fallbackSource) {
         CasterTransformSource casterSource = CasterUtils.tryFindCaster(level, sessionRef);
         if (casterSource == null) {
             LOGGER.logIfDev(l ->
@@ -64,9 +64,9 @@ public class ClientSessionManager implements ISessionManager {
                             sessionRef.casterNetworkId
                     )
             );
-            casterSource = CasterUtils.EMPTY_SOURCE;
         }
-        ClientSession clientSession = new ClientSession(sessionRef.serverSessionId, spell, casterSource);
+        HybridCasterSource hybridCasterSource = HybridCasterSource.create(casterSource, fallbackSource);
+        ClientSession clientSession = new ClientSession(sessionRef.serverSessionId, spell, hybridCasterSource);
         this.addSession(clientSession);
         return clientSession;
     }
