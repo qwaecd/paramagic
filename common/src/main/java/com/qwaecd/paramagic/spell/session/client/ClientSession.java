@@ -9,11 +9,12 @@ import com.qwaecd.paramagic.spell.state.event.MachineEvent;
 import com.qwaecd.paramagic.spell.view.CasterTransformSource;
 import com.qwaecd.paramagic.spell.view.HybridCasterSource;
 import lombok.Getter;
+import net.minecraft.world.entity.Entity;
 
 import javax.annotation.Nonnull;
 import java.util.UUID;
 
-public class ClientSession extends SpellSession {
+public class ClientSession extends SpellSession implements ClientSessionView, AutoCloseable {
     private final SpellStateMachine machine;
     @Nonnull
     @Getter
@@ -38,13 +39,16 @@ public class ClientSession extends SpellSession {
         }
     }
 
-    public void upsertCasterSource(@Nonnull CasterTransformSource source) {
+    public void upsertCasterSource(@Nonnull Entity source) {
         this.casterSource.setPrimary(source);
     }
 
     @Override
     public void registerListener(ISpellPhaseListener listener) {
         super.registerListener(listener);
+        if (listener instanceof ClientSessionListener clientListener) {
+            clientListener.bind(this);
+        }
         this.machine.addListener(listener);
     }
 
@@ -73,5 +77,15 @@ public class ClientSession extends SpellSession {
 
     public boolean machineCompleted() {
         return this.machine.isCompleted();
+    }
+
+    @Override
+    public CasterTransformSource casterSource() {
+        return this.casterSource;
+    }
+
+    @Override
+    public void close() {
+
     }
 }

@@ -13,10 +13,11 @@ import com.qwaecd.paramagic.spell.view.CasterTransformSource;
 import com.qwaecd.paramagic.tools.CasterUtils;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.function.Supplier;
 
 @SuppressWarnings("UnusedReturnValue")
 public final class SpellSpawner {
@@ -48,7 +49,7 @@ public final class SpellSpawner {
             Level level,
             SpellSessionRef sessionRef,
             Spell spell,
-            CasterTransformSource fallbackSource
+            Entity fallbackSource
     ) {
         ClientSessionManager manager = SessionManagers.getForClient();
         ClientLevel clientLevel = (ClientLevel) level;
@@ -56,6 +57,9 @@ public final class SpellSpawner {
         ClientSession session = (ClientSession) manager.getSession(sessionRef.serverSessionId);
         if (session == null) {
             session = manager.createSession(clientLevel, sessionRef, spell, fallbackSource);
+            if (session != null) {
+                session.postEvent(AllMachineEvents.START_CASTING);
+            }
         } else {
             tryUpsertCasterSource(clientLevel, session, sessionRef);
         }
@@ -63,8 +67,8 @@ public final class SpellSpawner {
         return session;
     }
 
-    private static void tryUpsertCasterSource(Level level, ClientSession session, SpellSessionRef sessionRef) {
-        CasterTransformSource casterSource = CasterUtils.tryFindCaster(level, sessionRef);
+    private static void tryUpsertCasterSource(@Nonnull Level level, ClientSession session, SpellSessionRef sessionRef) {
+        Entity casterSource = CasterUtils.tryFindCaster(level, sessionRef);
         if (casterSource != null) {
             session.upsertCasterSource(casterSource);
         }

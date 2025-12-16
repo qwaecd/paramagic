@@ -31,16 +31,16 @@ public class TransformSample {
     }
 
     public void set(TransformSample that) {
-        that.position.set(position);
-        that.forward.set(forward);
-        that.eyePosition.set(eyePosition);
-        that.up.set(up);
+        position.set(that.position);
+        forward.set(that.forward);
+        eyePosition.set(that.eyePosition);
+        up.set(that.up);
     }
 
     public void fromEntity(Entity e) {
         this.position.set(e.position().toVector3f());
-        this.position.set(e.getLookAngle().toVector3f());
-        this.position.set(e.getLookAngle().toVector3f());
+        this.forward.set(e.getLookAngle().toVector3f());
+        this.eyePosition.set(e.getEyePosition().toVector3f());
         this.up.set(0.0f, 1.0f, 0.0f);
     }
 }

@@ -1,0 +1,7 @@
+package com.qwaecd.paramagic.spell.session.client;
+
+import com.qwaecd.paramagic.spell.view.CasterTransformSource;
+
+public interface ClientSessionView {
+    CasterTransformSource casterSource();
+}

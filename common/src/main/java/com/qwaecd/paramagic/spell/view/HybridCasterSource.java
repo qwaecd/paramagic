@@ -1,46 +1,47 @@
 package com.qwaecd.paramagic.spell.view;
 
 import com.qwaecd.paramagic.core.render.TransformSample;
+import net.minecraft.world.entity.Entity;
 
 import javax.annotation.Nullable;
 
 @SuppressWarnings({"LombokSetterMayBeUsed"})
 public class HybridCasterSource implements CasterTransformSource {
-    private CasterTransformSource fallback;
+    private Entity fallback;
     @Nullable
-    private CasterTransformSource primary;
+    private Entity primary;
 
     private final TransformSample last = new TransformSample();
 
-    public HybridCasterSource(@Nullable CasterTransformSource primary, CasterTransformSource fallback) {
+    public HybridCasterSource(@Nullable Entity primary, Entity fallback) {
         this.primary = primary;
         this.fallback = fallback;
         if (primary != null) {
-            primary.applyTo(this.last);
+            this.last.fromEntity(primary);
         } else if (fallback != null) {
-            fallback.applyTo(this.last);
+            this.last.fromEntity(fallback);
         }
     }
 
-    public void setPrimary(@Nullable CasterTransformSource primary) {
+    public void setPrimary(@Nullable Entity primary) {
         this.primary = primary;
     }
 
-    public void setFallback(CasterTransformSource fallback) {
+    public void setFallback(Entity fallback) {
         this.fallback = fallback;
     }
 
     @Override
     public void applyTo(TransformSample dist) {
-        if (this.primary != null) {
-            this.primary.applyTo(this.last);
-        } else if (this.fallback != null) {
-            this.fallback.applyTo(this.last);
+        if (primary != null) {
+            this.last.fromEntity(primary);
+        } else if (fallback != null) {
+            this.last.fromEntity(fallback);
         }
         dist.set(this.last);
     }
 
-    public static HybridCasterSource create(@Nullable CasterTransformSource primary, CasterTransformSource fallback) {
+    public static HybridCasterSource create(@Nullable Entity primary, Entity fallback) {
         return new HybridCasterSource(primary, fallback);
     }
 }

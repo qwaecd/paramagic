@@ -8,13 +8,16 @@ import com.qwaecd.paramagic.spell.view.CasterTransformSource;
 import com.qwaecd.paramagic.spell.view.HybridCasterSource;
 import com.qwaecd.paramagic.tools.CasterUtils;
 import com.qwaecd.paramagic.tools.ConditionalLogger;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Map;
+import java.util.Queue;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.function.Consumer;
 
 public class ClientSessionManager implements ISessionManager {
@@ -23,6 +26,7 @@ public class ClientSessionManager implements ISessionManager {
     private static ClientSessionManager INSTANCE;
 
     private final Map<UUID, ClientSession> sessions = new ConcurrentHashMap<>();
+    private final Queue<ClientSession> pendingRemovals = new ConcurrentLinkedQueue<>();
 
     public static ClientSessionManager instance() {
         if (INSTANCE == null) {
@@ -38,7 +42,13 @@ public class ClientSessionManager implements ISessionManager {
     }
 
     public void tickAll() {
-        this.forEachSessionSafe(session -> session.tick(1.0f / 20.0f));
+        this.flushPendingRemovals();
+        this.forEachSessionSafe(session -> {
+            session.tick(1.0f / 20.0f);
+            if (session.canRemoveFromManager()) {
+                this.pendingRemovals.add(session);
+            }
+        });
     }
 
     private void forEachSessionSafe(Consumer<ClientSession> consumer) {
@@ -54,8 +64,8 @@ public class ClientSessionManager implements ISessionManager {
     }
 
     @Nullable
-    public ClientSession createSession(Level level, SpellSessionRef sessionRef, @Nonnull Spell spell, CasterTransformSource fallbackSource) {
-        CasterTransformSource casterSource = CasterUtils.tryFindCaster(level, sessionRef);
+    public ClientSession createSession(Level level, SpellSessionRef sessionRef, @Nonnull Spell spell, Entity fallbackSource) {
+        Entity casterSource = CasterUtils.tryFindCaster(level, sessionRef);
         if (casterSource == null) {
             LOGGER.logIfDev(l ->
                     l.warn("Failed to find caster for session {}: casterEntityUuid={}, casterNetworkId={}",
@@ -75,16 +85,23 @@ public class ClientSessionManager implements ISessionManager {
         this.sessions.put(session.getSessionId(), session);
     }
 
-    private void removeSession(ClientSession session) {
-        this.removeSession(session.getSessionId());
-    }
-
     private void removeSession(UUID sessionId) {
         this.sessions.remove(sessionId);
+    }
+
+    private void removeSession(ClientSession session) {
+        this.removeSession(session.getSessionId());
     }
 
     @Override
     public SpellSession getSession(UUID sessionId) {
         return this.sessions.get(sessionId);
+    }
+
+    private void flushPendingRemovals() {
+        ClientSession session;
+        while ((session = this.pendingRemovals.poll()) != null) {
+            this.removeSession(session);
+        }
     }
 }

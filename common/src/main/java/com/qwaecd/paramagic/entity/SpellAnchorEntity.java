@@ -1,20 +1,18 @@
 package com.qwaecd.paramagic.entity;
 
-import com.qwaecd.paramagic.assembler.AssemblyException;
-import com.qwaecd.paramagic.assembler.ParaComposer;
 import com.qwaecd.paramagic.feature.circle.MagicCircle;
-import com.qwaecd.paramagic.feature.circle.MagicCircleManager;
 import com.qwaecd.paramagic.network.serializer.AllEntityDataSerializers;
 import com.qwaecd.paramagic.platform.annotation.PlatformScope;
 import com.qwaecd.paramagic.platform.annotation.PlatformScopeType;
 import com.qwaecd.paramagic.spell.Spell;
 import com.qwaecd.paramagic.spell.SpellSpawner;
+import com.qwaecd.paramagic.spell.listener.SpellRenderListener;
 import com.qwaecd.paramagic.spell.session.SessionManagers;
 import com.qwaecd.paramagic.spell.session.SpellSession;
 import com.qwaecd.paramagic.spell.session.SpellSessionRef;
 import com.qwaecd.paramagic.spell.session.client.ClientSession;
 import com.qwaecd.paramagic.spell.session.server.ServerSession;
-import com.qwaecd.paramagic.spell.view.EntityTFSource;
+import com.qwaecd.paramagic.spell.state.phase.property.SpellPhaseType;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.SynchedEntityData;
@@ -54,6 +52,8 @@ public class SpellAnchorEntity extends Entity {
     @Override
     public void tick() {
         super.tick();
+//        System.out.println("session ref: " + this.entityData.get(OPTIONAL_SESSION_REF).isEmpty());
+//        System.out.println("spell: " + this.entityData.get(OPTIONAL_SPELL_DATA).isEmpty());
         if (this.level().isClientSide()) {
             return;
         }
@@ -71,20 +71,27 @@ public class SpellAnchorEntity extends Entity {
         this.entityData.define(OPTIONAL_SESSION_REF, Optional.empty());
     }
 
-    // 测试用的临时字段
-    private MagicCircle tmp;
     @Override
     public void onSyncedDataUpdated(@Nonnull EntityDataAccessor<?> key) {
         if (OPTIONAL_SPELL_DATA.equals(key)) {
             Optional<Spell> optionalSpell = this.entityData.get(OPTIONAL_SPELL_DATA);
-            //noinspection resource
             if (!this.level().isClientSide()) {
                 return;
             }
-            if (this.tmp != null) {
+            if (optionalSpell.isEmpty()) {
+                System.out.println("spell is empty");
                 return;
             }
-            if (optionalSpell.isEmpty()) {
+            this.onUpdateEntityData();
+            return;
+        }
+        if (OPTIONAL_SESSION_REF.equals(key)) {
+            Optional<SpellSessionRef> optionalSessionRef = this.entityData.get(OPTIONAL_SESSION_REF);
+            if (!this.level().isClientSide()) {
+                return;
+            }
+            if (optionalSessionRef.isEmpty()) {
+                System.out.println("session ref is empty");
                 return;
             }
             this.onUpdateEntityData();
@@ -104,8 +111,12 @@ public class SpellAnchorEntity extends Entity {
         if (existSession != null)
             return;
 
-        ClientSession clientSession = SpellSpawner.spawnOnClient(this.level(), sessionRef, spell, EntityTFSource.create(this));
-        try {
+        ClientSession clientSession = SpellSpawner.spawnOnClient(this.level(), sessionRef, spell, this);
+        if (clientSession != null) {
+            SpellRenderListener renderListener = new SpellRenderListener((old, current) -> old.equals(SpellPhaseType.IDLE) && current.equals(SpellPhaseType.CASTING), spell);
+            clientSession.registerListener(renderListener);
+        }
+/*        try {
             MagicCircle circle = ParaComposer.assemble(spell.getSpellAssets());
             MagicCircleManager.getInstance().addCircle(circle);
             circle.transform
@@ -113,7 +124,7 @@ public class SpellAnchorEntity extends Entity {
             this.tmp = circle;
         } catch (AssemblyException e) {
             LOGGER.error("Failed to assemble MagicCircle from ParaData in SpellAnchorEntity.", e);
-        }
+        }*/
     }
 
     @Override
@@ -144,7 +155,7 @@ public class SpellAnchorEntity extends Entity {
     }
 
     public boolean hasSessionRef() {
-        return this.entityData.get(OPTIONAL_SESSION_REF).isEmpty();
+        return this.entityData.get(OPTIONAL_SESSION_REF).isPresent();
     }
 
 
