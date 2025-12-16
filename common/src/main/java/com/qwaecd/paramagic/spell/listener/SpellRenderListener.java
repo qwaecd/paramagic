@@ -44,7 +44,7 @@ public class SpellRenderListener implements ClientSessionListener {
             }
             if (magicCircle != null) {
                 flushTFSource();
-                magicCircle.transform.setPosition(this.tmpSample.position);
+                magicCircle.transform.setPosition(tmpSample.position.x, tmpSample.position.y + 0.01f, tmpSample.position.z);
                 MagicCircleManager.getInstance().addCircle(this.magicCircle);
             }
         }
@@ -52,10 +52,6 @@ public class SpellRenderListener implements ClientSessionListener {
 
     @Override
     public void onTick(SpellPhaseType currentPhase, float deltaTime) {
-        if (this.magicCircle != null) {
-            flushTFSource();
-            this.magicCircle.transform.setPosition(this.tmpSample.position);
-        }
     }
 
     @Override

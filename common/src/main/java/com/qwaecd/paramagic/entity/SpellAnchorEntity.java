@@ -1,11 +1,11 @@
 package com.qwaecd.paramagic.entity;
 
-import com.qwaecd.paramagic.feature.circle.MagicCircle;
 import com.qwaecd.paramagic.network.serializer.AllEntityDataSerializers;
 import com.qwaecd.paramagic.platform.annotation.PlatformScope;
 import com.qwaecd.paramagic.platform.annotation.PlatformScopeType;
 import com.qwaecd.paramagic.spell.Spell;
 import com.qwaecd.paramagic.spell.SpellSpawner;
+import com.qwaecd.paramagic.spell.SpellSpawnerClient;
 import com.qwaecd.paramagic.spell.listener.SpellRenderListener;
 import com.qwaecd.paramagic.spell.session.SessionManagers;
 import com.qwaecd.paramagic.spell.session.SpellSession;
@@ -79,7 +79,6 @@ public class SpellAnchorEntity extends Entity {
                 return;
             }
             if (optionalSpell.isEmpty()) {
-                System.out.println("spell is empty");
                 return;
             }
             this.onUpdateEntityData();
@@ -91,7 +90,6 @@ public class SpellAnchorEntity extends Entity {
                 return;
             }
             if (optionalSessionRef.isEmpty()) {
-                System.out.println("session ref is empty");
                 return;
             }
             this.onUpdateEntityData();
@@ -111,20 +109,23 @@ public class SpellAnchorEntity extends Entity {
         if (existSession != null)
             return;
 
-        ClientSession clientSession = SpellSpawner.spawnOnClient(this.level(), sessionRef, spell, this);
+        ClientSession clientSession = SpellSpawnerClient.spawnOnClient(this.level(), sessionRef, spell, this);
         if (clientSession != null) {
             SpellRenderListener renderListener = new SpellRenderListener((old, current) -> old.equals(SpellPhaseType.IDLE) && current.equals(SpellPhaseType.CASTING), spell);
             clientSession.registerListener(renderListener);
         }
-/*        try {
-            MagicCircle circle = ParaComposer.assemble(spell.getSpellAssets());
-            MagicCircleManager.getInstance().addCircle(circle);
-            circle.transform
-                    .setPosition((float) this.position().x(), (float) this.position().y() + 0.01f, (float) this.position().z());
-            this.tmp = circle;
-        } catch (AssemblyException e) {
-            LOGGER.error("Failed to assemble MagicCircle from ParaData in SpellAnchorEntity.", e);
-        }*/
+    }
+
+    @Override
+    public void onClientRemoval() {
+        Optional<SpellSessionRef> spellSessionRef = this.entityData.get(OPTIONAL_SESSION_REF);
+        if (spellSessionRef.isEmpty()) {
+            return;
+        }
+        ClientSession session = (ClientSession) SessionManagers.getForClient().getSession(spellSessionRef.get().serverSessionId);
+        if (session != null) {
+            session.interrupt();
+        }
     }
 
     @Override

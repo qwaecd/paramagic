@@ -4,7 +4,6 @@ import com.qwaecd.paramagic.spell.Spell;
 import com.qwaecd.paramagic.spell.session.ISessionManager;
 import com.qwaecd.paramagic.spell.session.SpellSession;
 import com.qwaecd.paramagic.spell.session.SpellSessionRef;
-import com.qwaecd.paramagic.spell.view.CasterTransformSource;
 import com.qwaecd.paramagic.spell.view.HybridCasterSource;
 import com.qwaecd.paramagic.tools.CasterUtils;
 import com.qwaecd.paramagic.tools.ConditionalLogger;
