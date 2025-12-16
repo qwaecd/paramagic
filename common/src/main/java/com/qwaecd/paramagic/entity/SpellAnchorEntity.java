@@ -4,7 +4,6 @@ import com.qwaecd.paramagic.network.serializer.AllEntityDataSerializers;
 import com.qwaecd.paramagic.platform.annotation.PlatformScope;
 import com.qwaecd.paramagic.platform.annotation.PlatformScopeType;
 import com.qwaecd.paramagic.spell.Spell;
-import com.qwaecd.paramagic.spell.SpellSpawner;
 import com.qwaecd.paramagic.spell.SpellSpawnerClient;
 import com.qwaecd.paramagic.spell.listener.SpellRenderListener;
 import com.qwaecd.paramagic.spell.session.SessionManagers;
