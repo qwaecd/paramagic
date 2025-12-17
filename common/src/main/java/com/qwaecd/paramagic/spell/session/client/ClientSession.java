@@ -27,15 +27,15 @@ public class ClientSession extends SpellSession implements ClientSessionView, Au
     }
 
     public void tick(float deltaTime) {
+        if (isState(SessionState.INTERRUPTED) || isState(SessionState.FINISHED_LOGICALLY)) {
+            // TODO: 可以实现延迟销毁
+            this.setSessionState(SessionState.DISPOSED);
+            return;
+        }
         if (!this.machineCompleted()) {
             this.machine.update(deltaTime);
         } else {
             this.setSessionState(SessionState.FINISHED_LOGICALLY);
-            return;
-        }
-        if (isState(SessionState.INTERRUPTED) || isState(SessionState.FINISHED_LOGICALLY)) {
-            // TODO: 可以实现延迟销毁
-            this.setSessionState(SessionState.DISPOSED);
         }
     }
 
@@ -86,6 +86,10 @@ public class ClientSession extends SpellSession implements ClientSessionView, Au
 
     @Override
     public void close() {
-
+        for (ISpellPhaseListener listener : this.listeners) {
+            if (listener instanceof ClientSessionListener clientListener) {
+                clientListener.onSessionClose();
+            }
+        }
     }
 }

@@ -111,6 +111,7 @@ public class ServerSessionManager implements ISessionManager {
     private void flushPendingRemovals() {
         ServerSession session;
         while ((session = this.pendingRemovals.poll()) != null) {
+//            System.out.println("Removing session " + session.getSessionId() + " from level " + this.levelKey);
             this.removeSession(session);
         }
     }

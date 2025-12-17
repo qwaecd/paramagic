@@ -46,15 +46,15 @@ public class ServerSession extends SpellSession implements AutoCloseable {
 
     @SuppressWarnings("unused")
     private void tick(ServerLevel level, float deltaTime) {
+        if (isState(SessionState.INTERRUPTED) || isState(SessionState.FINISHED_LOGICALLY)) {
+            // TODO: 可以实现延迟销毁
+            this.setSessionState(SessionState.DISPOSED);
+            return;
+        }
         if (!this.machineCompleted()) {
             this.machine.update(deltaTime);
         } else {
             this.setSessionState(SessionState.FINISHED_LOGICALLY);
-            return;
-        }
-        if (isState(SessionState.INTERRUPTED) || isState(SessionState.FINISHED_LOGICALLY)) {
-            // TODO: 可以实现延迟销毁
-            this.setSessionState(SessionState.DISPOSED);
         }
     }
 

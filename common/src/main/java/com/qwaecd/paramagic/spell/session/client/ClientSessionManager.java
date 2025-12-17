@@ -85,11 +85,16 @@ public class ClientSessionManager implements ISessionManager {
     }
 
     private void removeSession(UUID sessionId) {
-        this.sessions.remove(sessionId);
+        ClientSession clientSession = this.sessions.get(sessionId);
+        if (clientSession == null) {
+            return;
+        }
+        this.removeSession(clientSession);
     }
 
     private void removeSession(ClientSession session) {
-        this.removeSession(session.getSessionId());
+        session.close();
+        this.sessions.remove(session.getSessionId());
     }
 
     @Override

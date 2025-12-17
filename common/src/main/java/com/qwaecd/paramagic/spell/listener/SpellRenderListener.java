@@ -76,6 +76,11 @@ public class SpellRenderListener implements ClientSessionListener {
         this.view = Objects.requireNonNull(view);
     }
 
+    @Override
+    public void onSessionClose() {
+        MagicCircleManager.getInstance().removeCircle(this.magicCircle);
+    }
+
     private ClientSessionView v() {
         if (view == null)
             throw new NullPointerException("not bound yet");

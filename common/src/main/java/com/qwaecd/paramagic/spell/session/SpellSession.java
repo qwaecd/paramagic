@@ -3,7 +3,6 @@ package com.qwaecd.paramagic.spell.session;
 import com.qwaecd.paramagic.spell.Spell;
 import com.qwaecd.paramagic.spell.listener.ISpellPhaseListener;
 import com.qwaecd.paramagic.spell.state.event.MachineEvent;
-import com.qwaecd.paramagic.tools.ConditionalLogger;
 import lombok.Getter;
 
 import javax.annotation.Nonnull;
@@ -12,7 +11,6 @@ import java.util.List;
 import java.util.UUID;
 
 public abstract class SpellSession {
-    private static final ConditionalLogger LOGGER = ConditionalLogger.create(SpellSession.class);
     @Getter
     protected final UUID sessionId;
     @Getter

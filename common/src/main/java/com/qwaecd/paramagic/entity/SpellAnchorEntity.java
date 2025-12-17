@@ -105,8 +105,9 @@ public class SpellAnchorEntity extends Entity {
         SpellSessionRef sessionRef = this.entityData.get(OPTIONAL_SESSION_REF).orElseThrow();
 
         SpellSession existSession = SessionManagers.getForClient().getSession(sessionRef.serverSessionId);
-        if (existSession != null)
+        if (existSession != null) {
             return;
+        }
 
         ClientSession clientSession = SpellSpawnerClient.spawnOnClient(this.level(), sessionRef, spell, this);
         if (clientSession != null) {
