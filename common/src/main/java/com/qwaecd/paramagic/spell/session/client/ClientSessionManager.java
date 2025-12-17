@@ -7,6 +7,7 @@ import com.qwaecd.paramagic.spell.session.SpellSessionRef;
 import com.qwaecd.paramagic.spell.view.HybridCasterSource;
 import com.qwaecd.paramagic.tools.CasterUtils;
 import com.qwaecd.paramagic.tools.ConditionalLogger;
+import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
 
@@ -40,10 +41,11 @@ public class ClientSessionManager implements ISessionManager {
         }
     }
 
-    public void tickAll() {
+    @SuppressWarnings("unused")
+    public void tickAll(final ClientLevel clientLevel, final float deltaTime) {
         this.flushPendingRemovals();
         this.forEachSessionSafe(session -> {
-            session.tick(1.0f / 20.0f);
+            session.tick(deltaTime);
             if (session.canRemoveFromManager()) {
                 this.pendingRemovals.add(session);
             }

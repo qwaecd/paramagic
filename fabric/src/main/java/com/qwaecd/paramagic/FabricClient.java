@@ -31,7 +31,7 @@ public class FabricClient implements ClientModInitializer {
             RenderContextManager.setContext(fabricContext);
         });
 
-        ClientTickEvents.END_CLIENT_TICK.register(level -> SessionManagers.getForClient().tickAll());
+        ClientTickEvents.END_CLIENT_TICK.register(mc -> SessionManagers.getForClient().tickAll(mc.level, 1.0f / 20.0f));
     }
     private static void registerEntityRenderers() {
         EntityRendererRegistry.register(ModEntitiesFabric.SPELL_ANCHOR_ENTITY, SpellAnchorEntityRenderer::new);
