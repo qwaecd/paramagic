@@ -1,7 +1,10 @@
 package com.qwaecd.paramagic.data.para;
 
 
-import com.qwaecd.paramagic.data.para.struct.components.*;
+import com.qwaecd.paramagic.data.para.struct.components.CurvyStarParaData;
+import com.qwaecd.paramagic.data.para.struct.components.PolygonParaData;
+import com.qwaecd.paramagic.data.para.struct.components.RingParaData;
+import com.qwaecd.paramagic.data.para.struct.components.VoidParaData;
 
 public final class AllParaComponentData {
     public static void registerAll() {
