@@ -5,8 +5,8 @@ import com.qwaecd.paramagic.spell.state.Transition;
 import com.qwaecd.paramagic.spell.state.event.AllMachineEvents;
 import com.qwaecd.paramagic.spell.state.event.MachineEvent;
 import com.qwaecd.paramagic.spell.state.phase.SpellPhase;
-import com.qwaecd.paramagic.spell.state.phase.property.PhaseConfig;
-import com.qwaecd.paramagic.spell.state.phase.property.SpellPhaseType;
+import com.qwaecd.paramagic.spell.state.phase.struct.PhaseConfig;
+import com.qwaecd.paramagic.spell.state.phase.struct.SpellPhaseType;
 import com.qwaecd.paramagic.spell.state.phase.struct.BasePhase;
 
 public class CastingPhase extends BasePhase implements SpellPhase {

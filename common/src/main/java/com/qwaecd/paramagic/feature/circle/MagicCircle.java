@@ -2,13 +2,18 @@ package com.qwaecd.paramagic.feature.circle;
 
 
 import com.qwaecd.paramagic.client.renderer.MagicCircleRenderer;
+import com.qwaecd.paramagic.core.render.Transform;
 import org.joml.Matrix4f;
 
 import javax.annotation.Nullable;
 import java.util.*;
+import java.util.function.Consumer;
 
 public class MagicCircle extends MagicNode {
     private final MagicNodeRegistry nodeRegistry = new MagicNodeRegistry();
+
+    @Nullable
+    private Consumer<Transform> transformModifier = null;
 
     public MagicCircle() {
         super(null, null);
@@ -27,6 +32,9 @@ public class MagicCircle extends MagicNode {
 
     @Override
     public void draw(Matrix4f parentWorldTransform, MagicCircleRenderer renderer) {
+        if (this.transformModifier != null) {
+            this.transformModifier.accept(this.transform);
+        }
         super.draw(parentWorldTransform, renderer);
     }
 
@@ -73,6 +81,10 @@ public class MagicCircle extends MagicNode {
      */
     public Set<String> getRegisteredComponentIds() {
         return this.nodeRegistry.getRegisteredComponentIds();
+    }
+
+    public void registerModifyTransform(Consumer<Transform> modifier) {
+        this.transformModifier = modifier;
     }
 
     static class MagicNodeRegistry {

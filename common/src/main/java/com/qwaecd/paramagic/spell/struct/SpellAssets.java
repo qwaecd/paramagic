@@ -29,12 +29,12 @@ public class SpellAssets implements IDataSerializable {
     @Override
     public void write(DataCodec codec) {
         codec.writeObject("paraData", this.paraData);
-        codec.writeObject("animBindingConfig", this.animBindingConfig);
+        codec.writeObjectNullable("animBindingConfig", this.animBindingConfig);
     }
 
     public static SpellAssets fromCodec(DataCodec codec) {
         ParaData paraData = codec.readObject("paraData", ParaData::fromCodec);
-        AnimationBindingConfig config = codec.readObject("animBindingConfig", AnimationBindingConfig::fromCodec);
+        AnimationBindingConfig config = codec.readObjectNullable("animBindingConfig", AnimationBindingConfig::fromCodec);
         return new SpellAssets(paraData, config);
     }
 }

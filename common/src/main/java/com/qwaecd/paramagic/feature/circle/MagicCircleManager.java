@@ -5,10 +5,7 @@ import com.qwaecd.paramagic.core.render.ModRenderSystem;
 import com.qwaecd.paramagic.core.render.api.IRenderable;
 import org.joml.Matrix4f;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class MagicCircleManager {
@@ -29,6 +26,10 @@ public class MagicCircleManager {
     }
     public void removeCircle(MagicCircle circle) {
         pendingRemove.add(circle);
+    }
+
+    public void removeCircle(Collection<MagicCircle> circles) {
+        pendingRemove.addAll(circles);
     }
 
     public void removeAllCircles() {

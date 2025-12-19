@@ -1,5 +1,8 @@
 package com.qwaecd.paramagic.network;
 
+import org.joml.Vector3f;
+
+import javax.annotation.Nullable;
 import java.util.UUID;
 import java.util.function.Function;
 
@@ -13,7 +16,10 @@ public abstract class DataCodec {
     public abstract void writeIntArray(String key, int[] values);
     public abstract <T extends IDataSerializable> void writeObject(String key, T object);
     public abstract <T extends IDataSerializable> void writeObjectArray(String key, T[] object);
-
+    public void writeVector3f(String key, Vector3f v) {
+        this.writeFloatArray(key, new float[]{v.x, v.y, v.z});
+    }
+    public abstract <T extends IDataSerializable> void writeObjectNullable(String key, @Nullable T object);
 
     public abstract int readInt(String key);
     public abstract String readString(String key);
@@ -31,4 +37,10 @@ public abstract class DataCodec {
      */
     public abstract <T extends IDataSerializable> T readObject(String key, Function<DataCodec, T> factory);
     public abstract <T extends IDataSerializable> IDataSerializable[] readObjectArray(String key, Function<DataCodec, T> factory);
+    public Vector3f readVector3f(String key) {
+        float[] arr = this.readFloatArray(key);
+        return new Vector3f(arr[0], arr[1], arr[2]);
+    }
+    @Nullable
+    public abstract  <T extends IDataSerializable> T readObjectNullable(String key, Function<DataCodec, T> factory);
 }

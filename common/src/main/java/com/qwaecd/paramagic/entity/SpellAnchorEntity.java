@@ -5,13 +5,13 @@ import com.qwaecd.paramagic.platform.annotation.PlatformScope;
 import com.qwaecd.paramagic.platform.annotation.PlatformScopeType;
 import com.qwaecd.paramagic.spell.Spell;
 import com.qwaecd.paramagic.spell.SpellSpawnerClient;
-import com.qwaecd.paramagic.spell.listener.SpellRenderListener;
+import com.qwaecd.paramagic.spell.listener.ISpellPhaseListener;
+import com.qwaecd.paramagic.spell.listener.ListenerFactoryClient;
 import com.qwaecd.paramagic.spell.session.SessionManagers;
 import com.qwaecd.paramagic.spell.session.SpellSession;
 import com.qwaecd.paramagic.spell.session.SpellSessionRef;
 import com.qwaecd.paramagic.spell.session.client.ClientSession;
 import com.qwaecd.paramagic.spell.session.server.ServerSession;
-import com.qwaecd.paramagic.spell.state.phase.property.SpellPhaseType;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.SynchedEntityData;
@@ -22,6 +22,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
+import java.util.List;
 import java.util.Optional;
 
 public class SpellAnchorEntity extends Entity {
@@ -111,8 +112,8 @@ public class SpellAnchorEntity extends Entity {
 
         ClientSession clientSession = SpellSpawnerClient.spawnOnClient(this.level(), sessionRef, spell, this);
         if (clientSession != null) {
-            SpellRenderListener renderListener = new SpellRenderListener((old, current) -> old.equals(SpellPhaseType.IDLE) && current.equals(SpellPhaseType.CASTING), spell);
-            clientSession.registerListener(renderListener);
+            List<ISpellPhaseListener> listeners = ListenerFactoryClient.createListenersFromConfig(spell.getSpellConfig());
+            listeners.forEach(clientSession::registerListener);
         }
     }
 

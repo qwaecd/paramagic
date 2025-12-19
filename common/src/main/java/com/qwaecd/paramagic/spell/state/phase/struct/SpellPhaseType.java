@@ -1,4 +1,4 @@
-package com.qwaecd.paramagic.spell.state.phase.property;
+package com.qwaecd.paramagic.spell.state.phase.struct;
 
 public enum SpellPhaseType {
     /**

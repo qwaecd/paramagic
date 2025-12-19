@@ -1,6 +1,6 @@
 package com.qwaecd.paramagic.spell.state;
 
-import com.qwaecd.paramagic.spell.state.phase.property.SpellPhaseType;
+import com.qwaecd.paramagic.spell.state.phase.struct.SpellPhaseType;
 import lombok.Getter;
 
 import javax.annotation.Nonnull;

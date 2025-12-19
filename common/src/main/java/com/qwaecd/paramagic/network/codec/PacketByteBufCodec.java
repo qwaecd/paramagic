@@ -3,6 +3,7 @@ package com.qwaecd.paramagic.network.codec;
 import com.qwaecd.paramagic.network.DataCodec;
 import com.qwaecd.paramagic.network.IDataSerializable;
 import net.minecraft.network.FriendlyByteBuf;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.UUID;
 import java.util.function.Function;
@@ -69,6 +70,16 @@ public class PacketByteBufCodec extends DataCodec {
     }
 
     @Override
+    public <T extends IDataSerializable> void writeObjectNullable(String key, @Nullable T object) {
+        if (object == null) {
+            this.buf.writeBoolean(false);
+            return;
+        }
+        this.buf.writeBoolean(true);
+        this.writeObject(key, object);
+    }
+
+    @Override
     public int readInt(String key) {
         return this.buf.readInt();
     }
@@ -127,5 +138,14 @@ public class PacketByteBufCodec extends DataCodec {
             array[j] = this.readObject(key, factory);
         }
         return array;
+    }
+
+    @Override
+    public @Nullable <T extends IDataSerializable> T readObjectNullable(String key, Function<DataCodec, T> factory) {
+        boolean hasValue = this.buf.readBoolean();
+        if (hasValue) {
+            return this.readObject(key, factory);
+        }
+        return null;
     }
 }

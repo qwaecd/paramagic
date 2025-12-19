@@ -9,7 +9,7 @@ import com.qwaecd.paramagic.spell.state.event.queue.EventQueue;
 import com.qwaecd.paramagic.spell.state.event.queue.MachineEventEnvelope;
 import com.qwaecd.paramagic.spell.state.phase.EffectTriggerPoint;
 import com.qwaecd.paramagic.spell.state.phase.SpellPhase;
-import com.qwaecd.paramagic.spell.state.phase.property.SpellPhaseType;
+import com.qwaecd.paramagic.spell.state.phase.struct.SpellPhaseType;
 import com.qwaecd.paramagic.spell.struct.SpellConfig;
 
 import javax.annotation.Nonnull;

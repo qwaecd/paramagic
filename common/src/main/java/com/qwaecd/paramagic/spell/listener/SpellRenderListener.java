@@ -9,13 +9,14 @@ import com.qwaecd.paramagic.spell.Spell;
 import com.qwaecd.paramagic.spell.session.client.ClientSessionListener;
 import com.qwaecd.paramagic.spell.session.client.ClientSessionView;
 import com.qwaecd.paramagic.spell.state.phase.EffectTriggerPoint;
-import com.qwaecd.paramagic.spell.state.phase.property.SpellPhaseType;
+import com.qwaecd.paramagic.spell.state.phase.struct.SpellPhaseType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
 import java.util.Objects;
 
+@Deprecated
 public class SpellRenderListener implements ClientSessionListener {
     private static final Logger logger = LoggerFactory.getLogger(SpellRenderListener.class);
     private final Spell spell;
@@ -35,28 +36,23 @@ public class SpellRenderListener implements ClientSessionListener {
 
     @Override
     public void onPhaseChanged(SpellPhaseType oldPhase, SpellPhaseType currentPhase) {
-        if (this.renderCondition.shouldRender(oldPhase, currentPhase)) {
-            try {
-                this.magicCircle = ParaComposer.assemble(spell.getSpellAssets());
-            } catch (AssemblyException e) {
-                logger.warn("Failed to assemble spell assets for rendering", e);
-                return;
-            }
-            if (magicCircle != null) {
-                flushTFSource();
-                magicCircle.transform.setPosition(tmpSample.position.x, tmpSample.position.y + 0.01f, tmpSample.position.z);
-                MagicCircleManager.getInstance().addCircle(this.magicCircle);
-            }
-        }
+//        if (this.renderCondition.shouldRender(oldPhase, currentPhase)) {
+//            try {
+//                this.magicCircle = ParaComposer.assemble(spell.getSpellAssets());
+//            } catch (AssemblyException e) {
+//                logger.warn("Failed to assemble spell assets for rendering", e);
+//                return;
+//            }
+//            if (magicCircle != null) {
+//                flushTFSource();
+//                magicCircle.transform.setPosition(tmpSample.position.x, tmpSample.position.y + 0.01f, tmpSample.position.z);
+//                MagicCircleManager.getInstance().addCircle(this.magicCircle);
+//            }
+//        }
     }
 
     @Override
     public void onTick(SpellPhaseType currentPhase, float deltaTime) {
-    }
-
-    @Override
-    public void onEffectTriggered(EffectTriggerPoint triggerPoint) {
-
     }
 
     @Override
@@ -78,7 +74,8 @@ public class SpellRenderListener implements ClientSessionListener {
 
     @Override
     public void onSessionClose() {
-        MagicCircleManager.getInstance().removeCircle(this.magicCircle);
+        if (this.magicCircle != null)
+            MagicCircleManager.getInstance().removeCircle(this.magicCircle);
     }
 
     private ClientSessionView v() {
