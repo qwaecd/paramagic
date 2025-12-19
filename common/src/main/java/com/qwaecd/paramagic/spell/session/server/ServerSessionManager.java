@@ -39,7 +39,7 @@ public class ServerSessionManager implements ISessionManager {
 
     @Nullable
     @SuppressWarnings({"UnusedReturnValue", "unused"})
-    public ServerSession tryCreateSession(ServerLevel level, SpellCaster<?> caster, Spell spell) {
+    public ServerSession tryCreateSession(ServerLevel level, SpellCaster caster, Spell spell) {
         if (!caster.canStartSession(spell, this)) {
             return null;
         }
@@ -50,7 +50,7 @@ public class ServerSessionManager implements ISessionManager {
     }
 
     @Nonnull
-    public Set<ServerSession> getSessionsByCaster(SpellCaster<?> caster) {
+    public Set<ServerSession> getSessionsByCaster(SpellCaster caster) {
         return this.getSessionsByUUID(caster.getCasterId());
     }
 
@@ -90,7 +90,7 @@ public class ServerSessionManager implements ISessionManager {
     private void removeSession(ServerSession session) {
         this.sessions.remove(session.getSessionId());
 
-        SpellCaster<?> caster = session.getCaster();
+        SpellCaster caster = session.getCaster();
         Set<ServerSession> casterSet = this.casterSessions.get(caster.getCasterId());
         if (casterSet != null) {
             casterSet.remove(session);
@@ -104,7 +104,7 @@ public class ServerSessionManager implements ISessionManager {
     private void addSession(ServerSession session) {
         this.sessions.put(session.getSessionId(), session);
 
-        SpellCaster<?> caster = session.getCaster();
+        SpellCaster caster = session.getCaster();
         this.casterSessions.computeIfAbsent(caster.getCasterId(), uuid -> ConcurrentHashMap.newKeySet()).add(session);
     }
 

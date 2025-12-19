@@ -17,7 +17,7 @@ import javax.annotation.Nullable;
 @PlatformScope(PlatformScopeType.SERVER)
 public class SpellSpawner {
     @Nullable
-    public static ServerSession spawnOnServer(ServerLevel level, SpellCaster<?> caster, Spell spell) {
+    public static ServerSession spawnOnServer(ServerLevel level, SpellCaster caster, Spell spell) {
         ServerSessionManager manager = SessionManagers.getForServer(level);
         ServerSession serverSession = manager.tryCreateSession(level, caster, spell);
 

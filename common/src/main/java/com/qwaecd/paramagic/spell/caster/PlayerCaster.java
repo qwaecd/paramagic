@@ -9,17 +9,12 @@ import net.minecraft.world.phys.Vec3;
 import java.util.Set;
 
 
-public class PlayerCaster extends BaseSpellCaster<Player> implements SpellCaster<Player> {
+public class PlayerCaster extends BaseSpellCaster implements SpellCaster {
     private final Player source;
 
     protected PlayerCaster(Player player) {
         super(player.getUUID());
         this.source = player;
-    }
-
-    @Override
-    public Player get() {
-        return this.source;
     }
 
     @Override

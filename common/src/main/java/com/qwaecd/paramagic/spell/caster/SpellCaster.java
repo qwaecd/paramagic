@@ -6,8 +6,7 @@ import net.minecraft.world.phys.Vec3;
 
 import java.util.UUID;
 
-public interface SpellCaster<T> {
-    T get();
+public interface SpellCaster {
     UUID getCasterId();
     default int getEntityNetworkId() {
         return -1;
