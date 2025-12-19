@@ -5,6 +5,7 @@ import com.qwaecd.paramagic.platform.annotation.PlatformScope;
 import com.qwaecd.paramagic.platform.annotation.PlatformScopeType;
 import com.qwaecd.paramagic.spell.core.Spell;
 import com.qwaecd.paramagic.spell.SpellSpawnerClient;
+import com.qwaecd.paramagic.spell.core.SpellDefinition;
 import com.qwaecd.paramagic.spell.listener.ISpellPhaseListener;
 import com.qwaecd.paramagic.spell.listener.ListenerFactoryClient;
 import com.qwaecd.paramagic.spell.session.SessionManagers;
@@ -36,7 +37,7 @@ public class SpellAnchorEntity extends Entity {
     @PlatformScope(PlatformScopeType.SERVER)
     private int lifetimeTicks = 0;
 
-    private static final EntityDataAccessor<Optional<Spell>> OPTIONAL_SPELL_DATA = SynchedEntityData.defineId(SpellAnchorEntity.class, AllEntityDataSerializers.OPTIONAL_SPELL);
+    private static final EntityDataAccessor<Optional<SpellDefinition>> OPTIONAL_SPELL_DATA = SynchedEntityData.defineId(SpellAnchorEntity.class, AllEntityDataSerializers.OPTIONAL_SPELL_DEF);
     private static final EntityDataAccessor<Optional<SpellSessionRef>> OPTIONAL_SESSION_REF = SynchedEntityData.defineId(SpellAnchorEntity.class, AllEntityDataSerializers.SPELL_SESSION_REF);
 
     public SpellAnchorEntity(EntityType<?> entityType, Level level) {
@@ -74,7 +75,7 @@ public class SpellAnchorEntity extends Entity {
     @Override
     public void onSyncedDataUpdated(@Nonnull EntityDataAccessor<?> key) {
         if (OPTIONAL_SPELL_DATA.equals(key)) {
-            Optional<Spell> optionalSpell = this.entityData.get(OPTIONAL_SPELL_DATA);
+            Optional<SpellDefinition> optionalSpell = this.entityData.get(OPTIONAL_SPELL_DATA);
             if (!this.level().isClientSide()) {
                 return;
             }
@@ -102,7 +103,7 @@ public class SpellAnchorEntity extends Entity {
             return;
         }
         // assert not null
-        Spell spell = this.entityData.get(OPTIONAL_SPELL_DATA).orElseThrow();
+        SpellDefinition spellDefinition = this.entityData.get(OPTIONAL_SPELL_DATA).orElseThrow();
         SpellSessionRef sessionRef = this.entityData.get(OPTIONAL_SESSION_REF).orElseThrow();
 
         SpellSession existSession = SessionManagers.getForClient().getSession(sessionRef.serverSessionId);
@@ -110,9 +111,9 @@ public class SpellAnchorEntity extends Entity {
             return;
         }
 
-        ClientSession clientSession = SpellSpawnerClient.spawnOnClient(this.level(), sessionRef, spell, this);
+        ClientSession clientSession = SpellSpawnerClient.spawnOnClient(this.level(), sessionRef, Spell.create(spellDefinition), this);
         if (clientSession != null) {
-            List<ISpellPhaseListener> listeners = ListenerFactoryClient.createListenersFromConfig(spell.getSpellConfig());
+            List<ISpellPhaseListener> listeners = ListenerFactoryClient.createListenersFromConfig(spellDefinition);
             listeners.forEach(clientSession::registerListener);
         }
     }
@@ -131,12 +132,10 @@ public class SpellAnchorEntity extends Entity {
 
     @Override
     protected void readAdditionalSaveData(@Nonnull CompoundTag compound) {
-
     }
 
     @Override
     protected void addAdditionalSaveData(@Nonnull CompoundTag compound) {
-
     }
 
     @SuppressWarnings("RedundantMethodOverride")
@@ -148,7 +147,7 @@ public class SpellAnchorEntity extends Entity {
 
     @PlatformScope(PlatformScopeType.SERVER)
     public void attachSession(@Nonnull ServerSession session) {
-        this.entityData.set(OPTIONAL_SPELL_DATA, Optional.of(session.getSpell()), true);
+        this.entityData.set(OPTIONAL_SPELL_DATA, Optional.of(session.getSpell().definition), true);
         this.entityData.set(OPTIONAL_SESSION_REF, Optional.of(SpellSessionRef.fromSession(session)), true);
     }
 

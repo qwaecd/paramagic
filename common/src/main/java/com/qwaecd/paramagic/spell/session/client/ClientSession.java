@@ -22,7 +22,7 @@ public class ClientSession extends SpellSession implements ClientSessionView, Au
 
     public ClientSession(UUID sessionId, Spell spell, @Nonnull HybridCasterSource casterSource) {
         super(sessionId, spell);
-        this.machine = new SpellStateMachine(spell.getSpellConfig());
+        this.machine = new SpellStateMachine(spell.definition);
         this.casterSource = casterSource;
     }
 

@@ -2,14 +2,15 @@ package com.qwaecd.paramagic.network.serializer;
 
 import com.qwaecd.paramagic.network.codec.PacketByteBufCodec;
 import com.qwaecd.paramagic.spell.core.Spell;
+import com.qwaecd.paramagic.spell.core.SpellDefinition;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.syncher.EntityDataSerializer;
 
 import java.util.Optional;
 
-public class OptionalSpellSerializer implements EntityDataSerializer<Optional<Spell>> {
+public class OptionalSpellDefSerializer implements EntityDataSerializer<Optional<SpellDefinition>> {
     @Override
-    public void write(FriendlyByteBuf buffer, Optional<Spell> value) {
+    public void write(FriendlyByteBuf buffer, Optional<SpellDefinition> value) {
         PacketByteBufCodec codec = new PacketByteBufCodec(buffer);
         if (value.isEmpty()) {
             codec.writeBoolean("hasSpell", false);
@@ -20,17 +21,17 @@ public class OptionalSpellSerializer implements EntityDataSerializer<Optional<Sp
     }
 
     @Override
-    public Optional<Spell> read(FriendlyByteBuf buffer) {
+    public Optional<SpellDefinition> read(FriendlyByteBuf buffer) {
         PacketByteBufCodec codec = new PacketByteBufCodec(buffer);
         if (!codec.readBoolean("hasSpell")) {
             return Optional.empty();
         }
-        Spell spell = codec.readObject("spell", Spell::fromCodec);
+        SpellDefinition spell = codec.readObject("spell", SpellDefinition::fromCodec);
         return Optional.of(spell);
     }
 
     @Override
-    public Optional<Spell> copy(Optional<Spell> value) {
-        return value.map(Spell::copy);
+    public Optional<SpellDefinition> copy(Optional<SpellDefinition> value) {
+        return value.map(SpellDefinition::copy);
     }
 }

@@ -2,16 +2,18 @@ package com.qwaecd.paramagic.item.feat;
 
 import com.qwaecd.paramagic.entity.SpellAnchorEntity;
 import com.qwaecd.paramagic.feature.effect.exposion.ExplosionAssets;
+import com.qwaecd.paramagic.spell.config.SpellMetaConfig;
 import com.qwaecd.paramagic.spell.core.Spell;
 import com.qwaecd.paramagic.spell.SpellSpawner;
 import com.qwaecd.paramagic.spell.caster.PlayerCaster;
+import com.qwaecd.paramagic.spell.core.SpellDefinition;
 import com.qwaecd.paramagic.spell.session.SessionManagers;
 import com.qwaecd.paramagic.spell.session.server.ServerSession;
 import com.qwaecd.paramagic.spell.session.server.ServerSessionManager;
-import com.qwaecd.paramagic.spell.config.PhaseConfig;
+import com.qwaecd.paramagic.spell.config.phase.PhaseConfig;
 import com.qwaecd.paramagic.spell.phase.SpellPhaseType;
 import com.qwaecd.paramagic.spell.config.CircleTransformConfig;
-import com.qwaecd.paramagic.spell.config.PhaseAssetConfig;
+import com.qwaecd.paramagic.spell.config.phase.PhaseAssetConfig;
 import com.qwaecd.paramagic.spell.view.position.CirclePositionRule;
 import com.qwaecd.paramagic.spell.view.position.PositionRuleType;
 import net.minecraft.server.level.ServerLevel;
@@ -73,7 +75,7 @@ public class ExplosionWand extends Item {
                         forwardPosRule,
                         new CircleTransformConfig(new Vector3f(0.3f), new Vector3f())
                 );
-        Spell s = new Spell.Builder(id)
+        SpellDefinition sd = new SpellDefinition.Builder(id)
                 .addPhase(
                         PhaseConfig.create(SpellPhaseType.IDLE, 0.1f)
                 )
@@ -86,8 +88,8 @@ public class ExplosionWand extends Item {
                 .addPhase(
                         PhaseConfig.create(SpellPhaseType.COOLDOWN, 0.0f)
                 )
-                .build();
-        return s;
+                .build(new SpellMetaConfig());
+        return Spell.create(sd);
     }
 
     @Override

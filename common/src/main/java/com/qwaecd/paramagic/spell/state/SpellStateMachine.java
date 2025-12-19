@@ -2,7 +2,9 @@ package com.qwaecd.paramagic.spell.state;
 
 import com.qwaecd.paramagic.Paramagic;
 import com.qwaecd.paramagic.spell.EndSpellReason;
+import com.qwaecd.paramagic.spell.core.SpellDefinition;
 import com.qwaecd.paramagic.spell.listener.ISpellPhaseListener;
+import com.qwaecd.paramagic.spell.phase.PhaseFactory;
 import com.qwaecd.paramagic.spell.state.event.AllMachineEvents;
 import com.qwaecd.paramagic.spell.state.event.MachineEvent;
 import com.qwaecd.paramagic.spell.state.event.queue.EventQueue;
@@ -10,7 +12,6 @@ import com.qwaecd.paramagic.spell.state.event.queue.MachineEventEnvelope;
 import com.qwaecd.paramagic.spell.phase.EffectTriggerPoint;
 import com.qwaecd.paramagic.spell.phase.SpellPhase;
 import com.qwaecd.paramagic.spell.phase.SpellPhaseType;
-import com.qwaecd.paramagic.spell.config.SpellConfig;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -25,7 +26,7 @@ public class SpellStateMachine {
     public static final int MAX_EVENTS_PER_TICK = 64;
     @Nullable
     private SpellPhase currentPhase;
-    private final SpellConfig spellConfig;
+    private final SpellDefinition spellDefinition;
     private final List<ISpellPhaseListener> listeners;
     private static final SystemEvents systemEvents = new SystemEvents();
     /**
@@ -37,11 +38,12 @@ public class SpellStateMachine {
     private final EventQueue eventQueue = new EventQueue();
     private final MachineContext context;
 
-    public SpellStateMachine(SpellConfig cfg) {
-        this.spellConfig = cfg;
+    public SpellStateMachine(SpellDefinition spellDefinition) {
+        this.spellDefinition = spellDefinition;
         this.listeners = new ArrayList<>();
         this.context = new MachineContext(this);
-        changePhase(cfg.getInitialPhase());
+        SpellPhase phase = PhaseFactory.createPhaseFromConfig(spellDefinition.phases.getInitialPhaseConfig());
+        changePhase(phase);
     }
 
     /**
@@ -153,12 +155,10 @@ public class SpellStateMachine {
 
         SpellPhaseType targetPhase = transition.getTargetPhase();
         // 当前阶段并没有返回转换到下一个状态的具体状态, 不应该发生转换
-        if (targetPhase == null) return;
+        if (targetPhase == null)
+            return;
 
-        SpellPhase newPhase = this.spellConfig.getPhase(targetPhase);
-        if (newPhase == null) {
-            throw new NullPointerException("No phase found for type: " + targetPhase);
-        }
+        SpellPhase newPhase = PhaseFactory.createPhaseFromConfig(this.spellDefinition.phases.getPhaseConfig(targetPhase));
 
         changePhase(newPhase);
     }

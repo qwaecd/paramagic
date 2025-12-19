@@ -7,13 +7,14 @@ import com.qwaecd.paramagic.feature.circle.MagicCircle;
 import com.qwaecd.paramagic.feature.circle.MagicCircleManager;
 import com.qwaecd.paramagic.platform.annotation.PlatformScope;
 import com.qwaecd.paramagic.platform.annotation.PlatformScopeType;
+import com.qwaecd.paramagic.spell.core.SpellDefinition;
+import com.qwaecd.paramagic.spell.phase.PhaseFactory;
 import com.qwaecd.paramagic.spell.session.client.ClientSessionListener;
 import com.qwaecd.paramagic.spell.session.client.ClientSessionView;
 import com.qwaecd.paramagic.spell.phase.SpellPhase;
 import com.qwaecd.paramagic.spell.phase.SpellPhaseType;
-import com.qwaecd.paramagic.spell.config.SpellConfig;
 import com.qwaecd.paramagic.spell.config.CircleTransformConfig;
-import com.qwaecd.paramagic.spell.config.PhaseAssetConfig;
+import com.qwaecd.paramagic.spell.config.phase.PhaseAssetConfig;
 import com.qwaecd.paramagic.spell.view.position.CirclePositionRule;
 import org.joml.Vector3f;
 import org.slf4j.Logger;
@@ -27,7 +28,7 @@ import java.util.Map;
 @PlatformScope(PlatformScopeType.CLIENT)
 public class MultiPhaseRenderListener implements ClientSessionListener {
     private static final Logger logger = LoggerFactory.getLogger(MultiPhaseRenderListener.class);
-    private final SpellConfig spellConfig;
+    private final SpellDefinition spellDefinition;
 
     @Nullable
     private ClientSessionView view;
@@ -35,12 +36,12 @@ public class MultiPhaseRenderListener implements ClientSessionListener {
 
     private final TransformSample tmpSample = new TransformSample();
 
-    public MultiPhaseRenderListener(SpellConfig spellConfig) {
-        this.spellConfig = spellConfig;
+    public MultiPhaseRenderListener(SpellDefinition spellDefinition) {
+        this.spellDefinition = spellDefinition;
     }
 
     private void createPhaseCircle(SpellPhaseType phaseType) {
-        SpellPhase phase = spellConfig.getPhase(phaseType);
+        SpellPhase phase = PhaseFactory.createPhaseFromConfig(spellDefinition.phases.getPhaseConfig(phaseType));
         if (phase == null) {
             logger.warn("Phase {} not found in spell config", phaseType);
             return;

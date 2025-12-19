@@ -33,7 +33,7 @@ public class ServerSession extends SpellSession implements AutoCloseable {
     public ServerSession(UUID sessionId, @Nonnull SpellCaster<?> caster, @Nonnull Spell spell) {
         super(sessionId, spell);
         this.caster = caster;
-        this.machine = new SpellStateMachine(spell.getSpellConfig());
+        this.machine = new SpellStateMachine(spell.definition);
     }
 
     public boolean machineCompleted() {

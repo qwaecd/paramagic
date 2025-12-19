@@ -5,7 +5,7 @@ import com.qwaecd.paramagic.spell.state.Transition;
 import com.qwaecd.paramagic.spell.state.event.AllMachineEvents;
 import com.qwaecd.paramagic.spell.state.event.MachineEvent;
 import com.qwaecd.paramagic.spell.phase.SpellPhase;
-import com.qwaecd.paramagic.spell.config.PhaseConfig;
+import com.qwaecd.paramagic.spell.config.phase.PhaseConfig;
 import com.qwaecd.paramagic.spell.phase.SpellPhaseType;
 import com.qwaecd.paramagic.spell.phase.BasePhase;
 

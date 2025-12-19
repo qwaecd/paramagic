@@ -1,7 +1,9 @@
-package com.qwaecd.paramagic.spell.config;
+package com.qwaecd.paramagic.spell.config.phase;
 
 import com.qwaecd.paramagic.network.DataCodec;
 import com.qwaecd.paramagic.network.IDataSerializable;
+import com.qwaecd.paramagic.spell.config.CircleAssets;
+import com.qwaecd.paramagic.spell.config.CircleTransformConfig;
 import com.qwaecd.paramagic.spell.view.position.CirclePositionRule;
 
 import javax.annotation.Nullable;
