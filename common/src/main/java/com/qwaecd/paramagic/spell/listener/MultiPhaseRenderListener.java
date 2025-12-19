@@ -9,9 +9,8 @@ import com.qwaecd.paramagic.platform.annotation.PlatformScope;
 import com.qwaecd.paramagic.platform.annotation.PlatformScopeType;
 import com.qwaecd.paramagic.spell.config.CircleTransformConfig;
 import com.qwaecd.paramagic.spell.config.phase.PhaseAssetConfig;
+import com.qwaecd.paramagic.spell.config.phase.PhaseConfig;
 import com.qwaecd.paramagic.spell.core.SpellDefinition;
-import com.qwaecd.paramagic.spell.phase.PhaseFactory;
-import com.qwaecd.paramagic.spell.phase.SpellPhase;
 import com.qwaecd.paramagic.spell.phase.SpellPhaseType;
 import com.qwaecd.paramagic.spell.session.client.ClientSessionListener;
 import com.qwaecd.paramagic.spell.session.client.ClientSessionView;
@@ -41,13 +40,9 @@ public class MultiPhaseRenderListener implements ClientSessionListener {
     }
 
     private void createPhaseCircle(SpellPhaseType phaseType) {
-        SpellPhase phase = PhaseFactory.createPhaseFromConfig(spellDefinition.phases.getPhaseConfig(phaseType));
-        if (phase == null) {
-            logger.warn("Phase {} not found in spell config", phaseType);
-            return;
-        }
+        PhaseConfig phaseConfig = spellDefinition.phases.getPhaseConfig(phaseType);
 
-        PhaseAssetConfig assetConfig = phase.getConfig().getAssetConfig();
+        PhaseAssetConfig assetConfig = phaseConfig.getAssetConfig();
         if (assetConfig == null || assetConfig.getSpellAssets() == null) {
             return;
         }
