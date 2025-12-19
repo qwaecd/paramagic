@@ -4,6 +4,7 @@ import com.qwaecd.paramagic.entity.SpellAnchorEntity;
 import com.qwaecd.paramagic.platform.annotation.PlatformScope;
 import com.qwaecd.paramagic.platform.annotation.PlatformScopeType;
 import com.qwaecd.paramagic.spell.caster.SpellCaster;
+import com.qwaecd.paramagic.spell.core.Spell;
 import com.qwaecd.paramagic.spell.session.SessionManagers;
 import com.qwaecd.paramagic.spell.session.server.ServerSession;
 import com.qwaecd.paramagic.spell.session.server.ServerSessionManager;
@@ -14,7 +15,7 @@ import javax.annotation.Nullable;
 
 @SuppressWarnings("UnusedReturnValue")
 @PlatformScope(PlatformScopeType.SERVER)
-public final class SpellSpawner {
+public class SpellSpawner {
     @Nullable
     public static ServerSession spawnOnServer(ServerLevel level, SpellCaster<?> caster, Spell spell) {
         ServerSessionManager manager = SessionManagers.getForServer(level);

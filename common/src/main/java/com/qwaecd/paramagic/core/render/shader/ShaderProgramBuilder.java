@@ -1,7 +1,7 @@
 package com.qwaecd.paramagic.core.render.shader;
 
 import com.qwaecd.paramagic.core.exception.ShaderException;
-import com.qwaecd.paramagic.tools.ShaderTools;
+import com.qwaecd.paramagic.tools.shader.ShaderTools;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -1,9 +1,10 @@
-package com.qwaecd.paramagic.tools;
+package com.qwaecd.paramagic.tools.shader;
 
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.qwaecd.paramagic.Paramagic;
 import com.qwaecd.paramagic.core.exception.ShaderException;
 import com.qwaecd.paramagic.core.render.shader.ShaderType;
+import com.qwaecd.paramagic.tools.ModRL;
 import net.minecraft.client.Minecraft;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.Resource;

@@ -1,4 +1,4 @@
-package com.qwaecd.paramagic.spell.struct;
+package com.qwaecd.paramagic.spell.config;
 
 import com.qwaecd.paramagic.data.animation.struct.AnimationBindingConfig;
 import com.qwaecd.paramagic.data.para.struct.ParaData;
@@ -9,7 +9,7 @@ import lombok.Getter;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-public class SpellAssets implements IDataSerializable {
+public class CircleAssets implements IDataSerializable {
     @Nonnull
     @Getter
     private final ParaData paraData;
@@ -17,12 +17,12 @@ public class SpellAssets implements IDataSerializable {
     @Getter
     private final AnimationBindingConfig animBindingConfig;
 
-    public SpellAssets(@Nonnull ParaData paraData, @Nullable AnimationBindingConfig cfg) {
+    public CircleAssets(@Nonnull ParaData paraData, @Nullable AnimationBindingConfig cfg) {
         this.paraData = paraData;
         this.animBindingConfig = cfg;
     }
 
-    public SpellAssets(@Nonnull ParaData paraData) {
+    public CircleAssets(@Nonnull ParaData paraData) {
         this(paraData, null);
     }
 
@@ -32,9 +32,9 @@ public class SpellAssets implements IDataSerializable {
         codec.writeObjectNullable("animBindingConfig", this.animBindingConfig);
     }
 
-    public static SpellAssets fromCodec(DataCodec codec) {
+    public static CircleAssets fromCodec(DataCodec codec) {
         ParaData paraData = codec.readObject("paraData", ParaData::fromCodec);
         AnimationBindingConfig config = codec.readObjectNullable("animBindingConfig", AnimationBindingConfig::fromCodec);
-        return new SpellAssets(paraData, config);
+        return new CircleAssets(paraData, config);
     }
 }

@@ -1,6 +1,6 @@
 package com.qwaecd.paramagic.spell.session.client;
 
-import com.qwaecd.paramagic.spell.Spell;
+import com.qwaecd.paramagic.spell.core.Spell;
 import com.qwaecd.paramagic.spell.listener.ISpellPhaseListener;
 import com.qwaecd.paramagic.spell.session.SessionState;
 import com.qwaecd.paramagic.spell.session.SpellSession;

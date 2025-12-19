@@ -1,6 +1,6 @@
 package com.qwaecd.paramagic.spell.listener;
 
-import com.qwaecd.paramagic.spell.state.phase.struct.SpellPhaseType;
+import com.qwaecd.paramagic.spell.phase.SpellPhaseType;
 
 @FunctionalInterface
 public interface RenderCondition {

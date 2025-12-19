@@ -1,6 +1,6 @@
 package com.qwaecd.paramagic.spell.caster;
 
-import com.qwaecd.paramagic.spell.Spell;
+import com.qwaecd.paramagic.spell.core.Spell;
 import com.qwaecd.paramagic.spell.session.server.ServerSession;
 import com.qwaecd.paramagic.spell.session.server.ServerSessionManager;
 import net.minecraft.world.entity.player.Player;

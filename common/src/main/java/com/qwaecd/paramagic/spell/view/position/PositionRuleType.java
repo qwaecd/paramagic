@@ -1,4 +1,4 @@
-package com.qwaecd.paramagic.spell.struct.position;
+package com.qwaecd.paramagic.spell.view.position;
 
 public enum PositionRuleType {
     FOLLOW_CASTER_FEET(0),      // 跟随施法者脚底

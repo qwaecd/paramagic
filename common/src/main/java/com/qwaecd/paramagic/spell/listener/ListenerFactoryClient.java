@@ -2,10 +2,10 @@ package com.qwaecd.paramagic.spell.listener;
 
 import com.qwaecd.paramagic.platform.annotation.PlatformScope;
 import com.qwaecd.paramagic.platform.annotation.PlatformScopeType;
-import com.qwaecd.paramagic.spell.state.phase.SpellPhase;
-import com.qwaecd.paramagic.spell.state.phase.struct.SpellPhaseType;
-import com.qwaecd.paramagic.spell.struct.SpellConfig;
-import com.qwaecd.paramagic.spell.struct.phase.PhaseAssetConfig;
+import com.qwaecd.paramagic.spell.phase.SpellPhase;
+import com.qwaecd.paramagic.spell.phase.SpellPhaseType;
+import com.qwaecd.paramagic.spell.config.SpellConfig;
+import com.qwaecd.paramagic.spell.config.PhaseAssetConfig;
 
 import java.util.ArrayList;
 import java.util.List;

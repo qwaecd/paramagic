@@ -1,14 +1,13 @@
-package com.qwaecd.paramagic.spell.struct;
+package com.qwaecd.paramagic.spell.config;
 
 import com.qwaecd.paramagic.network.DataCodec;
 import com.qwaecd.paramagic.network.IDataSerializable;
-import com.qwaecd.paramagic.spell.state.phase.SpellPhase;
-import com.qwaecd.paramagic.spell.state.phase.struct.PhaseConfig;
-import com.qwaecd.paramagic.spell.state.phase.struct.SpellPhaseType;
-import com.qwaecd.paramagic.spell.state.phase.struct.impl.CastingPhase;
-import com.qwaecd.paramagic.spell.state.phase.struct.impl.ChannelingPhase;
-import com.qwaecd.paramagic.spell.state.phase.struct.impl.CooldownPhase;
-import com.qwaecd.paramagic.spell.state.phase.struct.impl.IdlePhase;
+import com.qwaecd.paramagic.spell.phase.SpellPhase;
+import com.qwaecd.paramagic.spell.phase.SpellPhaseType;
+import com.qwaecd.paramagic.spell.phase.impl.CastingPhase;
+import com.qwaecd.paramagic.spell.phase.impl.ChannelingPhase;
+import com.qwaecd.paramagic.spell.phase.impl.CooldownPhase;
+import com.qwaecd.paramagic.spell.phase.impl.IdlePhase;
 import lombok.Getter;
 
 import javax.annotation.Nonnull;

@@ -1,4 +1,4 @@
-package com.qwaecd.paramagic.spell.state.phase;
+package com.qwaecd.paramagic.spell.phase;
 
 public enum EffectTriggerPoint {
     ON_ENTER,

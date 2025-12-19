@@ -1,7 +1,7 @@
 package com.qwaecd.paramagic.spell.listener;
 
-import com.qwaecd.paramagic.spell.state.phase.EffectTriggerPoint;
-import com.qwaecd.paramagic.spell.state.phase.struct.SpellPhaseType;
+import com.qwaecd.paramagic.spell.phase.EffectTriggerPoint;
+import com.qwaecd.paramagic.spell.phase.SpellPhaseType;
 
 public interface ISpellPhaseListener {
     void onPhaseChanged(SpellPhaseType oldPhase, SpellPhaseType currentPhase);

@@ -1,4 +1,4 @@
-package com.qwaecd.paramagic.tools;
+package com.qwaecd.paramagic.tools.shader;
 
 import com.qwaecd.paramagic.Paramagic;
 import org.lwjgl.opengl.GL;

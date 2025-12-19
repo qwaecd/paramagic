@@ -1,6 +1,6 @@
 package com.qwaecd.paramagic.client.animation;
 
-import com.qwaecd.paramagic.tools.Interpolation;
+import com.qwaecd.paramagic.tools.anim.Interpolation;
 import lombok.Getter;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;

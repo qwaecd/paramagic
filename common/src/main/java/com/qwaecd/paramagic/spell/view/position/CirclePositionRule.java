@@ -1,4 +1,4 @@
-package com.qwaecd.paramagic.spell.struct.position;
+package com.qwaecd.paramagic.spell.view.position;
 
 import com.qwaecd.paramagic.core.render.TransformSample;
 import com.qwaecd.paramagic.feature.circle.MagicCircle;

@@ -1,7 +1,7 @@
 package com.qwaecd.paramagic.spell.session.server;
 
 import com.qwaecd.paramagic.mixinapi.IServerLevel;
-import com.qwaecd.paramagic.spell.Spell;
+import com.qwaecd.paramagic.spell.core.Spell;
 import com.qwaecd.paramagic.spell.caster.SpellCaster;
 import com.qwaecd.paramagic.spell.session.ISessionManager;
 import com.qwaecd.paramagic.spell.session.SpellSession;

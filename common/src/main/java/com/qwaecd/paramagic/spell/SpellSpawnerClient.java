@@ -2,12 +2,13 @@ package com.qwaecd.paramagic.spell;
 
 import com.qwaecd.paramagic.platform.annotation.PlatformScope;
 import com.qwaecd.paramagic.platform.annotation.PlatformScopeType;
+import com.qwaecd.paramagic.spell.core.Spell;
+import com.qwaecd.paramagic.spell.util.CasterUtils;
 import com.qwaecd.paramagic.spell.session.SessionManagers;
 import com.qwaecd.paramagic.spell.session.SpellSessionRef;
 import com.qwaecd.paramagic.spell.session.client.ClientSession;
 import com.qwaecd.paramagic.spell.session.client.ClientSessionManager;
 import com.qwaecd.paramagic.spell.state.event.AllMachineEvents;
-import com.qwaecd.paramagic.tools.CasterUtils;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
 

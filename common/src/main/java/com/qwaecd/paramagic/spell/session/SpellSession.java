@@ -1,6 +1,6 @@
 package com.qwaecd.paramagic.spell.session;
 
-import com.qwaecd.paramagic.spell.Spell;
+import com.qwaecd.paramagic.spell.core.Spell;
 import com.qwaecd.paramagic.spell.listener.ISpellPhaseListener;
 import com.qwaecd.paramagic.spell.state.event.MachineEvent;
 import lombok.Getter;

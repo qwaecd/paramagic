@@ -1,4 +1,4 @@
-package com.qwaecd.paramagic.tools;
+package com.qwaecd.paramagic.spell.util;
 
 import com.qwaecd.paramagic.spell.session.SpellSessionRef;
 import net.minecraft.world.entity.Entity;

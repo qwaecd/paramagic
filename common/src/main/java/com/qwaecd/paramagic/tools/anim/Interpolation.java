@@ -1,4 +1,4 @@
-package com.qwaecd.paramagic.tools;
+package com.qwaecd.paramagic.tools.anim;
 
 import lombok.experimental.UtilityClass;
 import org.joml.Quaternionf;

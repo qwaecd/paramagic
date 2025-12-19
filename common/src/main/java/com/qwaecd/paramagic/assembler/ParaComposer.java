@@ -7,7 +7,7 @@ import com.qwaecd.paramagic.data.para.converter.ConversionException;
 import com.qwaecd.paramagic.data.para.converter.ParaConverters;
 import com.qwaecd.paramagic.data.para.struct.ParaData;
 import com.qwaecd.paramagic.feature.circle.MagicCircle;
-import com.qwaecd.paramagic.spell.struct.SpellAssets;
+import com.qwaecd.paramagic.spell.config.CircleAssets;
 import lombok.Getter;
 
 
@@ -36,7 +36,7 @@ public class ParaComposer {
         return INSTANCE.assemble(skeletonData, null, null);
     }
 
-    public static MagicCircle assemble(SpellAssets assets) throws AssemblyException {
+    public static MagicCircle assemble(CircleAssets assets) throws AssemblyException {
         return INSTANCE.assemble(assets.getParaData(), assets.getAnimBindingConfig(), null);
     }
 

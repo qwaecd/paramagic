@@ -1,8 +1,8 @@
-package com.qwaecd.paramagic.spell.state.phase.struct;
+package com.qwaecd.paramagic.spell.config;
 
 import com.qwaecd.paramagic.network.DataCodec;
 import com.qwaecd.paramagic.network.IDataSerializable;
-import com.qwaecd.paramagic.spell.struct.phase.PhaseAssetConfig;
+import com.qwaecd.paramagic.spell.phase.SpellPhaseType;
 import lombok.Getter;
 
 import javax.annotation.Nullable;

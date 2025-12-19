@@ -1,10 +1,10 @@
-package com.qwaecd.paramagic.spell;
+package com.qwaecd.paramagic.spell.core;
 
 
 import com.qwaecd.paramagic.network.DataCodec;
 import com.qwaecd.paramagic.network.IDataSerializable;
-import com.qwaecd.paramagic.spell.state.phase.struct.PhaseConfig;
-import com.qwaecd.paramagic.spell.struct.SpellConfig;
+import com.qwaecd.paramagic.spell.config.PhaseConfig;
+import com.qwaecd.paramagic.spell.config.SpellConfig;
 import lombok.Getter;
 
 import javax.annotation.Nonnull;

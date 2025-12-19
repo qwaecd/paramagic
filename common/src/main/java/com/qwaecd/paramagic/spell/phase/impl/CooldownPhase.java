@@ -1,13 +1,13 @@
-package com.qwaecd.paramagic.spell.state.phase.struct.impl;
+package com.qwaecd.paramagic.spell.phase.impl;
 
 import com.qwaecd.paramagic.spell.state.MachineContext;
 import com.qwaecd.paramagic.spell.state.Transition;
 import com.qwaecd.paramagic.spell.state.event.AllMachineEvents;
 import com.qwaecd.paramagic.spell.state.event.MachineEvent;
-import com.qwaecd.paramagic.spell.state.phase.SpellPhase;
-import com.qwaecd.paramagic.spell.state.phase.struct.PhaseConfig;
-import com.qwaecd.paramagic.spell.state.phase.struct.SpellPhaseType;
-import com.qwaecd.paramagic.spell.state.phase.struct.BasePhase;
+import com.qwaecd.paramagic.spell.phase.SpellPhase;
+import com.qwaecd.paramagic.spell.config.PhaseConfig;
+import com.qwaecd.paramagic.spell.phase.SpellPhaseType;
+import com.qwaecd.paramagic.spell.phase.BasePhase;
 
 public class CooldownPhase extends BasePhase implements SpellPhase {
     public CooldownPhase(PhaseConfig cfg) {

@@ -1,6 +1,6 @@
 package com.qwaecd.paramagic.network.serializer;
 
-import com.qwaecd.paramagic.spell.Spell;
+import com.qwaecd.paramagic.spell.core.Spell;
 import com.qwaecd.paramagic.spell.session.SpellSessionRef;
 import net.minecraft.network.syncher.EntityDataSerializer;
 

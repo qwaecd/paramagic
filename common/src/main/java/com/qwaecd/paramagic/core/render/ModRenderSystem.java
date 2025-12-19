@@ -20,7 +20,7 @@ import com.qwaecd.paramagic.core.render.texture.AbstractMaterial;
 import com.qwaecd.paramagic.core.render.things.IMatrixStackProvider;
 import com.qwaecd.paramagic.core.render.vertex.Mesh;
 import com.qwaecd.paramagic.data.para.converter.ParaConverters;
-import com.qwaecd.paramagic.tools.ShaderCapabilityChecker;
+import com.qwaecd.paramagic.tools.shader.ShaderCapabilityChecker;
 import lombok.Getter;
 import net.minecraft.client.Minecraft;
 import org.joml.Matrix4f;

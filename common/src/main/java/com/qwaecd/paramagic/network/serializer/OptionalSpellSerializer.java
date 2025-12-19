@@ -1,7 +1,7 @@
 package com.qwaecd.paramagic.network.serializer;
 
 import com.qwaecd.paramagic.network.codec.PacketByteBufCodec;
-import com.qwaecd.paramagic.spell.Spell;
+import com.qwaecd.paramagic.spell.core.Spell;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.syncher.EntityDataSerializer;
 

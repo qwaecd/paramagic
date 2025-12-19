@@ -1,11 +1,11 @@
 package com.qwaecd.paramagic.spell.session.client;
 
-import com.qwaecd.paramagic.spell.Spell;
+import com.qwaecd.paramagic.spell.core.Spell;
 import com.qwaecd.paramagic.spell.session.ISessionManager;
 import com.qwaecd.paramagic.spell.session.SpellSession;
 import com.qwaecd.paramagic.spell.session.SpellSessionRef;
 import com.qwaecd.paramagic.spell.view.HybridCasterSource;
-import com.qwaecd.paramagic.tools.CasterUtils;
+import com.qwaecd.paramagic.spell.util.CasterUtils;
 import com.qwaecd.paramagic.tools.ConditionalLogger;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.world.entity.Entity;

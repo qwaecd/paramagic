@@ -3,7 +3,7 @@ package com.qwaecd.paramagic.entity;
 import com.qwaecd.paramagic.network.serializer.AllEntityDataSerializers;
 import com.qwaecd.paramagic.platform.annotation.PlatformScope;
 import com.qwaecd.paramagic.platform.annotation.PlatformScopeType;
-import com.qwaecd.paramagic.spell.Spell;
+import com.qwaecd.paramagic.spell.core.Spell;
 import com.qwaecd.paramagic.spell.SpellSpawnerClient;
 import com.qwaecd.paramagic.spell.listener.ISpellPhaseListener;
 import com.qwaecd.paramagic.spell.listener.ListenerFactoryClient;
