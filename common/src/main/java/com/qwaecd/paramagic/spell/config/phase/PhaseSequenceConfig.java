@@ -53,7 +53,7 @@ public class PhaseSequenceConfig implements IDataSerializable {
     public static PhaseSequenceConfig fromCodec(DataCodec codec) {
         int initialTypeId = codec.readInt("initialType");
         SpellPhaseType initialType = SpellPhaseType.fromID(initialTypeId);
-        IDataSerializable[] phaseConfigs = codec.readObjectArray("phaseConfigs", PhaseSequenceConfig::fromCodec);
+        IDataSerializable[] phaseConfigs = codec.readObjectArray("phaseConfigs", PhaseConfig::fromCodec);
 
         var phaseConfigMap = new EnumMap<SpellPhaseType, PhaseConfig>(SpellPhaseType.class);
         for (IDataSerializable obj : phaseConfigs) {
