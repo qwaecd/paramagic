@@ -20,6 +20,7 @@ public abstract class DataCodec {
         this.writeFloatArray(key, new float[]{v.x, v.y, v.z});
     }
     public abstract <T extends IDataSerializable> void writeObjectNullable(String key, @Nullable T object);
+    public abstract void writeStringNullable(String key, @Nullable String value);
 
     public abstract int readInt(String key);
     public abstract String readString(String key);
@@ -42,5 +43,6 @@ public abstract class DataCodec {
         return new Vector3f(arr[0], arr[1], arr[2]);
     }
     @Nullable
-    public abstract  <T extends IDataSerializable> T readObjectNullable(String key, Function<DataCodec, T> factory);
+    public abstract <T extends IDataSerializable> T readObjectNullable(String key, Function<DataCodec, T> factory);
+    public abstract @Nullable String readStringNullable(String key);
 }

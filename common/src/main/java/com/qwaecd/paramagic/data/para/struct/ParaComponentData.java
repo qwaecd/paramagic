@@ -85,32 +85,25 @@ public abstract class ParaComponentData implements IDataSerializable {
         // 写入 type 的数据在子类的 write 方法的开头完成
 //        codec.writeInt("type", this.getComponentType());
 
-        if (this.name == null || this.name.isEmpty()) {
-            codec.writeBoolean("hasName", false);
-        } else {
-            codec.writeBoolean("hasName", true);
-            codec.writeString("name", this.name);
-        }
+        codec.writeStringNullable("name", this.name);
         codec.writeFloatArray("pos",   new float[]{this.position.x, this.position.y, this.position.z});
         codec.writeFloatArray("rot",   new float[]{this.rotation.x, this.rotation.y, this.rotation.z, this.rotation.w});
         codec.writeFloatArray("scale", new float[]{this.scale.x, this.scale.y, this.scale.z});
         codec.writeFloatArray("color", new float[]{this.color.x, this.color.y, this.color.z, this.color.w});
         codec.writeFloat("intensity", this.intensity);
 
-        final int childCount = this.children.size();
-        codec.writeInt("child", childCount);
-        for (int i = 0; i < childCount; i++) {
-            ParaComponentData child = this.children.get(i);
-            codec.writeObject("ch_" + i, child);
-        }
+//        final int childCount = this.children.size();
+//        codec.writeInt("child", childCount);
+//        for (int i = 0; i < childCount; i++) {
+//            ParaComponentData child = this.children.get(i);
+//            codec.writeObject("ch_" + i, child);
+//        }
+        ParaComponentData[] childrenArray = this.children.toArray(new ParaComponentData[0]);
+        codec.writeObjectArray("children", childrenArray);
     }
 
     protected void readBase(DataCodec codec) {
-        if (codec.readBoolean("hasName")) {
-            this.name = codec.readString("name");
-        } else {
-            this.name = null;
-        }
+        this.name = codec.readStringNullable("name");
         float[] pos = codec.readFloatArray("pos");
         this.position.set(pos[0], pos[1], pos[2]);
         float[] rot = codec.readFloatArray("rot");
@@ -121,10 +114,14 @@ public abstract class ParaComponentData implements IDataSerializable {
         this.color.set(color[0], color[1], color[2], color[3]);
         this.intensity = codec.readFloat("intensity");
 
-        final int childCount = codec.readInt("child");
-        for (int i = 0; i < childCount; i++) {
-            ParaComponentData child = codec.readObject("ch_" + i, ParaComponentData::fromCodecBase);
-            this.children.add(child);
+//        final int childCount = codec.readInt("child");
+//        for (int i = 0; i < childCount; i++) {
+//            ParaComponentData child = codec.readObject("ch_" + i, ParaComponentData::fromCodecBase);
+//            this.children.add(child);
+//        }
+        IDataSerializable[] childrenArr = codec.readObjectArray("children", ParaComponentData::fromCodecBase);
+        for (IDataSerializable child : childrenArr) {
+            this.children.add((ParaComponentData) child);
         }
     }
 

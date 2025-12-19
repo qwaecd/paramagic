@@ -80,6 +80,16 @@ public class PacketByteBufCodec extends DataCodec {
     }
 
     @Override
+    public void writeStringNullable(String key, @Nullable String value) {
+        if (value == null) {
+            this.buf.writeBoolean(false);
+            return;
+        }
+        this.buf.writeBoolean(true);
+        this.writeString(key, value);
+    }
+
+    @Override
     public int readInt(String key) {
         return this.buf.readInt();
     }
@@ -145,6 +155,15 @@ public class PacketByteBufCodec extends DataCodec {
         boolean hasValue = this.buf.readBoolean();
         if (hasValue) {
             return this.readObject(key, factory);
+        }
+        return null;
+    }
+
+    @Override
+    public @Nullable String readStringNullable(String key) {
+        boolean hasValue = this.buf.readBoolean();
+        if (hasValue) {
+            return this.readString(key);
         }
         return null;
     }
