@@ -4,7 +4,7 @@ import com.qwaecd.paramagic.feature.effect.exposion.ExplosionAssets;
 import com.qwaecd.paramagic.spell.SpellSpawner;
 import com.qwaecd.paramagic.spell.caster.PlayerCaster;
 import com.qwaecd.paramagic.spell.config.SpellMetaConfig;
-import com.qwaecd.paramagic.spell.config.builder.SpellDefBuilder;
+import com.qwaecd.paramagic.spell.builder.SpellDefBuilder;
 import com.qwaecd.paramagic.spell.core.Spell;
 import com.qwaecd.paramagic.spell.core.SpellDefinition;
 import com.qwaecd.paramagic.spell.phase.SpellPhaseType;

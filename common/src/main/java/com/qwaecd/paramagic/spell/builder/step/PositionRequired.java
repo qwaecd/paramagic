@@ -1,4 +1,4 @@
-package com.qwaecd.paramagic.spell.config.builder.step;
+package com.qwaecd.paramagic.spell.builder.step;
 
 import com.qwaecd.paramagic.spell.config.CircleTransformConfig;
 import org.joml.Vector3f;

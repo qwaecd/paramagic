@@ -1,4 +1,4 @@
-package com.qwaecd.paramagic.spell.config.builder.step;
+package com.qwaecd.paramagic.spell.builder.step;
 
 import com.qwaecd.paramagic.spell.core.SpellDefinition;
 import com.qwaecd.paramagic.spell.phase.SpellPhaseType;

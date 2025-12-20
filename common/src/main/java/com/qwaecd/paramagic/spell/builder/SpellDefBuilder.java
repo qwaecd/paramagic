@@ -1,9 +1,10 @@
-package com.qwaecd.paramagic.spell.config.builder;
+package com.qwaecd.paramagic.spell.builder;
 
+import com.qwaecd.paramagic.spell.builder.step.*;
 import com.qwaecd.paramagic.spell.config.CircleAssets;
 import com.qwaecd.paramagic.spell.config.CircleTransformConfig;
 import com.qwaecd.paramagic.spell.config.SpellMetaConfig;
-import com.qwaecd.paramagic.spell.config.builder.step.*;
+import com.qwaecd.paramagic.spell.builder.step.*;
 import com.qwaecd.paramagic.spell.config.phase.PhaseAssetConfig;
 import com.qwaecd.paramagic.spell.config.phase.PhaseConfig;
 import com.qwaecd.paramagic.spell.config.phase.PhaseSequenceConfig;
@@ -13,7 +14,7 @@ import com.qwaecd.paramagic.spell.view.position.CirclePositionRule;
 
 import java.util.Objects;
 
-public class SpellDefBuilder implements MetaStep, PhaseStep  {
+public class SpellDefBuilder implements MetaStep, PhaseStep {
     private final String spellId;
     private SpellMetaConfig meta;
     private PhaseSequenceConfig phases;
