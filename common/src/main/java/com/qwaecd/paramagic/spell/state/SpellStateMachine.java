@@ -3,7 +3,7 @@ package com.qwaecd.paramagic.spell.state;
 import com.qwaecd.paramagic.Paramagic;
 import com.qwaecd.paramagic.spell.EndSpellReason;
 import com.qwaecd.paramagic.spell.core.SpellDefinition;
-import com.qwaecd.paramagic.spell.listener.ISpellPhaseListener;
+import com.qwaecd.paramagic.spell.listener.SpellPhaseListener;
 import com.qwaecd.paramagic.spell.phase.EffectTriggerPoint;
 import com.qwaecd.paramagic.spell.phase.PhaseFactory;
 import com.qwaecd.paramagic.spell.phase.SpellPhase;
@@ -27,7 +27,7 @@ public class SpellStateMachine {
     @Nullable
     private SpellPhase currentPhase;
     private final SpellDefinition spellDefinition;
-    private final List<ISpellPhaseListener> listeners;
+    private final List<SpellPhaseListener> listeners;
     private static final SystemEvents systemEvents = new SystemEvents();
     /**
      * 当状态切换时, phaseGeneration 会增加 1.
@@ -121,11 +121,11 @@ public class SpellStateMachine {
         this.endSpell(EndSpellReason.INTERRUPTED);
     }
 
-    public void addListener(ISpellPhaseListener listener) {
+    public void addListener(SpellPhaseListener listener) {
         this.listeners.add(listener);
     }
 
-    public void removeListener(ISpellPhaseListener listener) {
+    public void removeListener(SpellPhaseListener listener) {
         this.listeners.remove(listener);
     }
 
@@ -172,13 +172,13 @@ public class SpellStateMachine {
 
         switch (reason) {
             case COMPLETED: {
-                forEachListenerSafe(ISpellPhaseListener::onSpellCompleted);
+                forEachListenerSafe(SpellPhaseListener::onSpellCompleted);
                 break;
             }
             case INTERRUPTED:
             case FAILED:
             default: {
-                forEachListenerSafe(ISpellPhaseListener::onSpellInterrupted);
+                forEachListenerSafe(SpellPhaseListener::onSpellInterrupted);
                 break;
             }
         }
@@ -201,8 +201,8 @@ public class SpellStateMachine {
         }
     }
 
-    private void forEachListenerSafe(Consumer<ISpellPhaseListener> action) {
-        for (ISpellPhaseListener listener : this.listeners) {
+    private void forEachListenerSafe(Consumer<SpellPhaseListener> action) {
+        for (SpellPhaseListener listener : this.listeners) {
             try {
                 action.accept(listener);
             } catch (Exception e) {

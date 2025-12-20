@@ -1,7 +1,7 @@
 package com.qwaecd.paramagic.spell.session;
 
 import com.qwaecd.paramagic.spell.core.Spell;
-import com.qwaecd.paramagic.spell.listener.ISpellPhaseListener;
+import com.qwaecd.paramagic.spell.listener.SpellPhaseListener;
 import com.qwaecd.paramagic.spell.state.event.MachineEvent;
 import lombok.Getter;
 
@@ -18,7 +18,7 @@ public abstract class SpellSession {
     @Nonnull
     protected SessionState sessionState;
 
-    protected final List<ISpellPhaseListener> listeners = new ArrayList<>();
+    protected final List<SpellPhaseListener> listeners = new ArrayList<>();
 
     protected SpellSession(UUID sessionId, Spell spell) {
         this.sessionId = sessionId;
@@ -36,11 +36,11 @@ public abstract class SpellSession {
         return this.isState(SessionState.DISPOSED);
     }
 
-    public void unregisterListener(ISpellPhaseListener listener) {
+    public void unregisterListener(SpellPhaseListener listener) {
         this.listeners.remove(listener);
     }
 
-    public void registerListener(ISpellPhaseListener listener) {
+    public void registerListener(SpellPhaseListener listener) {
         this.listeners.add(listener);
     }
 

@@ -3,7 +3,7 @@ package com.qwaecd.paramagic.spell.session.server;
 import com.qwaecd.paramagic.entity.SpellAnchorEntity;
 import com.qwaecd.paramagic.spell.caster.SpellCaster;
 import com.qwaecd.paramagic.spell.core.Spell;
-import com.qwaecd.paramagic.spell.listener.ISpellPhaseListener;
+import com.qwaecd.paramagic.spell.listener.SpellPhaseListener;
 import com.qwaecd.paramagic.spell.session.SessionState;
 import com.qwaecd.paramagic.spell.session.SpellSession;
 import com.qwaecd.paramagic.spell.state.SpellStateMachine;
@@ -59,7 +59,7 @@ public class ServerSession extends SpellSession implements AutoCloseable {
     }
 
     @Override
-    public void registerListener(ISpellPhaseListener listener) {
+    public void registerListener(SpellPhaseListener listener) {
         super.registerListener(listener);
         this.machine.addListener(listener);
     }
@@ -70,7 +70,7 @@ public class ServerSession extends SpellSession implements AutoCloseable {
     }
 
     @Override
-    public void unregisterListener(ISpellPhaseListener listener) {
+    public void unregisterListener(SpellPhaseListener listener) {
         super.unregisterListener(listener);
         this.machine.removeListener(listener);
     }

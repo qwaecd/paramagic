@@ -1,5 +1,8 @@
 package com.qwaecd.paramagic.core.render;
 
+import com.qwaecd.paramagic.mixin.accessor.MinecraftMixin;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.Timer;
 import net.minecraft.world.entity.Entity;
 import org.joml.Vector3f;
 
@@ -38,9 +41,10 @@ public class TransformSample {
     }
 
     public void fromEntity(Entity e) {
-        this.position.set(e.position().toVector3f());
+        Timer timer = ((MinecraftMixin) Minecraft.getInstance()).getTimer();
+        this.position.set(e.getPosition(timer.partialTick).toVector3f());
         this.forward.set(e.getLookAngle().toVector3f());
-        this.eyePosition.set(e.getEyePosition().toVector3f());
+        this.eyePosition.set(e.getEyePosition(timer.partialTick).toVector3f());
         this.up.set(0.0f, 1.0f, 0.0f);
     }
 }

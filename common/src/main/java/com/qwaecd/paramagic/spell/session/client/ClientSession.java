@@ -1,7 +1,7 @@
 package com.qwaecd.paramagic.spell.session.client;
 
 import com.qwaecd.paramagic.spell.core.Spell;
-import com.qwaecd.paramagic.spell.listener.ISpellPhaseListener;
+import com.qwaecd.paramagic.spell.listener.SpellPhaseListener;
 import com.qwaecd.paramagic.spell.session.SessionState;
 import com.qwaecd.paramagic.spell.session.SpellSession;
 import com.qwaecd.paramagic.spell.state.SpellStateMachine;
@@ -44,7 +44,7 @@ public class ClientSession extends SpellSession implements ClientSessionView, Au
     }
 
     @Override
-    public void registerListener(ISpellPhaseListener listener) {
+    public void registerListener(SpellPhaseListener listener) {
         super.registerListener(listener);
         if (listener instanceof ClientSessionListener clientListener) {
             clientListener.bind(this);
@@ -58,7 +58,7 @@ public class ClientSession extends SpellSession implements ClientSessionView, Au
     }
 
     @Override
-    public void unregisterListener(ISpellPhaseListener listener) {
+    public void unregisterListener(SpellPhaseListener listener) {
         super.unregisterListener(listener);
         this.machine.removeListener(listener);
     }
@@ -86,7 +86,7 @@ public class ClientSession extends SpellSession implements ClientSessionView, Au
 
     @Override
     public void close() {
-        for (ISpellPhaseListener listener : this.listeners) {
+        for (SpellPhaseListener listener : this.listeners) {
             if (listener instanceof ClientSessionListener clientListener) {
                 clientListener.onSessionClose();
             }

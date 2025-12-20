@@ -12,8 +12,8 @@ import java.util.List;
 
 @PlatformScope(PlatformScopeType.CLIENT)
 public class ListenerFactoryClient {
-    public static List<ISpellPhaseListener> createListenersFromConfig(SpellDefinition definition) {
-        List<ISpellPhaseListener> listeners = new ArrayList<>();
+    public static List<SpellPhaseListener> createListenersFromConfig(SpellDefinition definition) {
+        List<SpellPhaseListener> listeners = new ArrayList<>();
 
         boolean hasAnyPhaseAssets = false;
         for (SpellPhaseType type : SpellPhaseType.values()) {

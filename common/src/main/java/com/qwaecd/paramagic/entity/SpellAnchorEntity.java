@@ -6,7 +6,7 @@ import com.qwaecd.paramagic.platform.annotation.PlatformScopeType;
 import com.qwaecd.paramagic.spell.SpellSpawnerClient;
 import com.qwaecd.paramagic.spell.core.Spell;
 import com.qwaecd.paramagic.spell.core.SpellDefinition;
-import com.qwaecd.paramagic.spell.listener.ISpellPhaseListener;
+import com.qwaecd.paramagic.spell.listener.SpellPhaseListener;
 import com.qwaecd.paramagic.spell.listener.ListenerFactoryClient;
 import com.qwaecd.paramagic.spell.session.SessionManagers;
 import com.qwaecd.paramagic.spell.session.SpellSession;
@@ -113,7 +113,7 @@ public class SpellAnchorEntity extends Entity {
 
         ClientSession clientSession = SpellSpawnerClient.spawnOnClient(this.level(), sessionRef, Spell.create(spellDefinition), this);
         if (clientSession != null) {
-            List<ISpellPhaseListener> listeners = ListenerFactoryClient.createListenersFromConfig(spellDefinition);
+            List<SpellPhaseListener> listeners = ListenerFactoryClient.createListenersFromConfig(spellDefinition);
             listeners.forEach(clientSession::registerListener);
         }
     }
