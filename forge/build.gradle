@@ -56,3 +56,9 @@ jar {
             "MixinConfigs": "${mod_id}.mixins.json,${mod_id}.forge.mixins.json"
     ])
 }
+tasks.withType(Javadoc).configureEach {
+    options.encoding = 'UTF-8'       // 源码与注释读取编码
+    options.docEncoding = 'UTF-8'    // 生成文档文件编码
+    options.charSet = 'UTF-8'        // HTML meta charset
+    options.addStringOption('Xdoclint:none', '-quiet')
+}

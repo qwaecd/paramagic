@@ -75,7 +75,7 @@ public class CirclePositionRule implements IDataSerializable {
         }
     }
 
-    public boolean shouldUpdatePerTick() {
+    public boolean shouldUpdatePerFrame() {
         return type == PositionRuleType.FOLLOW_CASTER_FEET
                 || type == PositionRuleType.FOLLOW_CASTER_EYE
                 || (type == PositionRuleType.IN_FRONT_OF_CASTER && !lockRotation);

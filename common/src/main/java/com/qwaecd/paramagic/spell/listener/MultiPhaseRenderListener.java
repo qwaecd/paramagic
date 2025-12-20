@@ -118,7 +118,7 @@ public class MultiPhaseRenderListener implements ClientSessionListener {
     }
 
     private void registerModifier(@Nonnull PhaseAssetConfig assetConfig, @Nonnull MagicCircle circle) {
-        if (assetConfig.getPositionRule().shouldUpdatePerTick()) {
+        if (assetConfig.getPositionRule().shouldUpdatePerFrame()) {
             CirclePositionRule positionRule = assetConfig.getPositionRule();
             circle.registerModifyTransform(transform -> {
                 this.flushTFSource();
