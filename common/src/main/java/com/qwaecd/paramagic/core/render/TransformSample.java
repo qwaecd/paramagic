@@ -45,6 +45,12 @@ public class TransformSample {
         this.position.set(e.getPosition(timer.partialTick).toVector3f());
         this.forward.set(e.getLookAngle().toVector3f());
         this.eyePosition.set(e.getEyePosition(timer.partialTick).toVector3f());
-        this.up.set(0.0f, 1.0f, 0.0f);
+
+        if (Math.abs(this.up.dot(forward)) > 0.99f) {
+            // 避免 up 与 forward 平行的情况
+            this.up.set(1.0f, 0.0f, 0.0f);
+        } else {
+            this.up.set(0.0f, 1.0f, 0.0f);
+        }
     }
 }

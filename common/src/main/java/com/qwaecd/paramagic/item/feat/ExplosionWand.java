@@ -67,7 +67,7 @@ public class ExplosionWand extends Item {
                 PositionRuleType.IN_FRONT_OF_CASTER,
                 new Vector3f(2.0f),
                 false,
-                new Vector3f((float) Math.toRadians(0.0f), (float) Math.toRadians(0.0f), (float) Math.toRadians(90.0f))
+                new Vector3f((float) Math.toRadians(0.0f), (float) Math.toRadians(0.0f), (float) Math.toRadians(89.0f))
         );
         PhaseAssetConfig forward =
                 new PhaseAssetConfig(
