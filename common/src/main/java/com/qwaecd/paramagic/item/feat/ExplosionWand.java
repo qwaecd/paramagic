@@ -1,13 +1,10 @@
 package com.qwaecd.paramagic.item.feat;
 
-import com.qwaecd.paramagic.entity.SpellAnchorEntity;
 import com.qwaecd.paramagic.feature.effect.exposion.ExplosionAssets;
 import com.qwaecd.paramagic.spell.SpellSpawner;
 import com.qwaecd.paramagic.spell.caster.PlayerCaster;
-import com.qwaecd.paramagic.spell.config.CircleTransformConfig;
 import com.qwaecd.paramagic.spell.config.SpellMetaConfig;
-import com.qwaecd.paramagic.spell.config.phase.PhaseAssetConfig;
-import com.qwaecd.paramagic.spell.config.phase.PhaseConfig;
+import com.qwaecd.paramagic.spell.config.builder.SpellDefBuilder;
 import com.qwaecd.paramagic.spell.core.Spell;
 import com.qwaecd.paramagic.spell.core.SpellDefinition;
 import com.qwaecd.paramagic.spell.phase.SpellPhaseType;
@@ -46,50 +43,34 @@ public class ExplosionWand extends Item {
         ItemStack itemstack = player.getItemInHand(usedHand);
 
         if (level instanceof ServerLevel serverLevel) {
-            SpellAnchorEntity spellAnchorEntity = new SpellAnchorEntity(level);
-            Spell spell = genSpell(spellAnchorEntity.getUUID().toString());
-
+            Spell spell = Spell.create(definition("explosion"));
             SpellSpawner.spawnOnServer(serverLevel, PlayerCaster.create(player), spell);
         }
         player.startUsingItem(usedHand);
         return InteractionResultHolder.consume(itemstack);
     }
 
-    @SuppressWarnings("UnnecessaryLocalVariable")
-    private Spell genSpell(String id) {
-        PhaseAssetConfig underFeet =
-                new PhaseAssetConfig(
-                        ExplosionAssets.create(),
-                        CirclePositionRule.fixedAtCasterFeet,
-                        new CircleTransformConfig(new Vector3f(1.0f), new Vector3f())
-                );
-        CirclePositionRule forwardPosRule = new CirclePositionRule(
-                PositionRuleType.IN_FRONT_OF_CASTER,
-                new Vector3f(2.0f),
-                false,
-                new Vector3f((float) Math.toRadians(0.0f), (float) Math.toRadians(0.0f), (float) Math.toRadians(89.0f))
-        );
-        PhaseAssetConfig forward =
-                new PhaseAssetConfig(
-                        ExplosionAssets.create(),
-                        forwardPosRule,
-                        new CircleTransformConfig(new Vector3f(0.3f), new Vector3f())
-                );
-        SpellDefinition sd = new SpellDefinition.Builder(id)
-                .addPhase(
-                        PhaseConfig.create(SpellPhaseType.IDLE, 0.1f)
-                )
-                .addPhase(
-                        PhaseConfig.create(SpellPhaseType.CASTING, 3.0f, underFeet)
-                )
-                .addPhase(
-                        PhaseConfig.create(SpellPhaseType.CHANNELING, -1.0f, forward)
-                )
-                .addPhase(
-                        PhaseConfig.create(SpellPhaseType.COOLDOWN, 0.0f)
-                )
-                .build(new SpellMetaConfig());
-        return Spell.create(sd);
+    @SuppressWarnings("SameParameterValue")
+    private static SpellDefinition definition(String spellId) {
+        return SpellDefBuilder
+                .withSpellId(spellId)
+                .withMeta(new SpellMetaConfig())
+                .phase(SpellPhaseType.IDLE, 0.1f)
+                .phaseWithAssets(SpellPhaseType.CASTING, 3.0f).circleAssets(ExplosionAssets.create())
+                    .positionRule(CirclePositionRule.fixedAtCasterFeet)
+                    .transformConfig(new Vector3f(1.0f), new Vector3f())
+                .endAsset()
+                .phaseWithAssets(SpellPhaseType.CHANNELING, -1.0f).circleAssets(ExplosionAssets.create())
+                    .positionRule(
+                            PositionRuleType.IN_FRONT_OF_CASTER,
+                            new Vector3f(2.0f),
+                            false,
+                            new Vector3f((float) Math.toRadians(0.0f), (float) Math.toRadians(0.0f), (float) Math.toRadians(89.0f))
+                    )
+                    .transformConfig(new Vector3f(0.3f), new Vector3f())
+                .endAsset()
+                .phase(SpellPhaseType.COOLDOWN, 0.0f)
+                .build();
     }
 
     @Override
