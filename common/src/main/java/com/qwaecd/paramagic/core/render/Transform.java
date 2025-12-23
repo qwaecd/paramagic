@@ -1,17 +1,13 @@
 package com.qwaecd.paramagic.core.render;
 
-import lombok.Getter;
 import org.joml.Matrix4f;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
 @SuppressWarnings("UnusedReturnValue")
 public class Transform {
-    @Getter
     private final Vector3f position;
-    @Getter
     private final Quaternionf rotation;
-    @Getter
     private final Vector3f scale;
 
     private final Matrix4f modelMatrix;
@@ -23,6 +19,18 @@ public class Transform {
         this.scale = new Vector3f(1, 1, 1);
         this.modelMatrix = new Matrix4f().identity();
         this.isDirty = false;
+    }
+
+    public Vector3f getPosition(Vector3f dest) {
+        return dest.set(this.position);
+    }
+
+    public Quaternionf getRotation(Quaternionf dest) {
+        return dest.set(this.rotation);
+    }
+
+    public Vector3f getScale(Vector3f dest) {
+        return dest.set(this.scale);
     }
 
     /**

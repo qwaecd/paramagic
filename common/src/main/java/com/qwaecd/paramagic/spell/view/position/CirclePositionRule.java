@@ -1,5 +1,6 @@
 package com.qwaecd.paramagic.spell.view.position;
 
+import com.qwaecd.paramagic.core.render.Transform;
 import com.qwaecd.paramagic.core.render.TransformSample;
 import com.qwaecd.paramagic.feature.circle.MagicCircle;
 import com.qwaecd.paramagic.network.DataCodec;
@@ -21,6 +22,8 @@ public class CirclePositionRule implements IDataSerializable {
     private final boolean lockRotation;
 
     private final Vector3f rotationOffset;
+
+    private final TempValue temp = new TempValue();
 
     public CirclePositionRule(
             PositionRuleType type,
@@ -63,13 +66,17 @@ public class CirclePositionRule implements IDataSerializable {
                         );
                 if (!lockRotation) {
                     float yaw = (float) Math.atan2(lookDir.z, lookDir.x);
-                    circle.getTransform().setRotation(
-                            new Quaternionf().rotateY(-yaw).rotateYXZ(
-                                    rotationOffset.y,
-                                    rotationOffset.x,
-                                    rotationOffset.z
-                            )
-                    );
+                    Transform transform = circle.getTransform();
+                    transform.getRotation(this.temp.quat);
+                    this.temp.quat.rotationTo(0, 1, 0, lookDir.x, lookDir.y, lookDir.z);
+                    transform.setRotation(this.temp.quat);
+//                    transform.setRotation(
+//                            new Quaternionf().rotateY(-yaw).rotateYXZ(
+//                                    rotationOffset.y,
+//                                    rotationOffset.x,
+//                                    rotationOffset.z
+//                            )
+//                    );
                 }
             }
         }
@@ -96,5 +103,9 @@ public class CirclePositionRule implements IDataSerializable {
         boolean lockRotation = codec.readBoolean("lockRotation");
         Vector3f rotationOffset = codec.readVector3f("rotationOffset");
         return new CirclePositionRule(type, offset, lockRotation, rotationOffset);
+    }
+
+    private static class TempValue {
+        private final Quaternionf quat = new Quaternionf();
     }
 }
