@@ -6,7 +6,7 @@ import com.qwaecd.paramagic.spell.phase.SpellPhase;
 import com.qwaecd.paramagic.spell.phase.SpellPhaseType;
 import com.qwaecd.paramagic.spell.state.MachineContext;
 import com.qwaecd.paramagic.spell.state.Transition;
-import com.qwaecd.paramagic.spell.state.event.AllMachineEvents;
+import com.qwaecd.paramagic.spell.state.AllMachineEvents;
 import com.qwaecd.paramagic.spell.state.event.MachineEvent;
 
 public class CooldownPhase extends BasePhase implements SpellPhase {

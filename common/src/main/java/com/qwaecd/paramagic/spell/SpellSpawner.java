@@ -5,10 +5,11 @@ import com.qwaecd.paramagic.platform.annotation.PlatformScope;
 import com.qwaecd.paramagic.platform.annotation.PlatformScopeType;
 import com.qwaecd.paramagic.spell.caster.SpellCaster;
 import com.qwaecd.paramagic.spell.core.Spell;
+import com.qwaecd.paramagic.spell.listener.ExecutionListener;
 import com.qwaecd.paramagic.spell.session.SessionManagers;
 import com.qwaecd.paramagic.spell.session.server.ServerSession;
 import com.qwaecd.paramagic.spell.session.server.ServerSessionManager;
-import com.qwaecd.paramagic.spell.state.event.AllMachineEvents;
+import com.qwaecd.paramagic.spell.state.AllMachineEvents;
 import net.minecraft.server.level.ServerLevel;
 
 import javax.annotation.Nullable;
@@ -29,6 +30,7 @@ public class SpellSpawner {
 
             spellAnchorEntity.moveTo(caster.position());
             level.addFreshEntity(spellAnchorEntity);
+            createListener(serverSession);
         }
 
         return serverSession;
@@ -37,5 +39,10 @@ public class SpellSpawner {
     private static void connect(ServerSession session, SpellAnchorEntity entity) {
         session.connectAnchor(entity);
         entity.attachSession(session);
+    }
+
+    private static void createListener(ServerSession session) {
+        ExecutionListener executionListener = new ExecutionListener();
+        session.registerListener(executionListener);
     }
 }

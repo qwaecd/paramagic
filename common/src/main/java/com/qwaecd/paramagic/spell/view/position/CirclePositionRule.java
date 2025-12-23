@@ -8,6 +8,8 @@ import com.qwaecd.paramagic.network.IDataSerializable;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
+
+// TODO: 这什么石山, 有空重新架构一下
 public class CirclePositionRule implements IDataSerializable {
     public static final CirclePositionRule fixedAtCasterFeet = new CirclePositionRule(
             PositionRuleType.FIXED_AT_CASTER_FEET,

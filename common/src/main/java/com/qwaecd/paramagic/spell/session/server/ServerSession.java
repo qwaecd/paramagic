@@ -18,9 +18,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.function.Consumer;
 
-public class ServerSession extends SpellSession implements AutoCloseable {
+public class ServerSession extends SpellSession implements AutoCloseable, ServerSessionView {
     private static final ConditionalLogger LOGGER = ConditionalLogger.create(ServerSession.class);
+
+    private final ServerLevel level;
 
     @Nonnull
     @Getter
@@ -30,10 +33,11 @@ public class ServerSession extends SpellSession implements AutoCloseable {
 
     private final List<WeakReference<SpellAnchorEntity>> anchors = new ArrayList<>();
 
-    public ServerSession(UUID sessionId, @Nonnull SpellCaster caster, @Nonnull Spell spell) {
+    public ServerSession(UUID sessionId, @Nonnull SpellCaster caster, @Nonnull Spell spell, ServerLevel level) {
         super(sessionId, spell);
         this.caster = caster;
         this.machine = new SpellStateMachine(spell.definition);
+        this.level = level;
     }
 
     public boolean machineCompleted() {
@@ -60,6 +64,9 @@ public class ServerSession extends SpellSession implements AutoCloseable {
 
     @Override
     public void registerListener(SpellPhaseListener listener) {
+        if (listener instanceof ServerSessionListener sessionListener) {
+            sessionListener.bind(this);
+        }
         super.registerListener(listener);
         this.machine.addListener(listener);
     }
@@ -104,5 +111,25 @@ public class ServerSession extends SpellSession implements AutoCloseable {
             );
         }
         this.anchors.clear();
+        this.forEachListenerSafe(listener -> {
+            if (listener instanceof ServerSessionListener sessionListener) {
+                sessionListener.onSessionClose();
+            }
+        });
+    }
+
+    private void forEachListenerSafe(Consumer<SpellPhaseListener> action) {
+        for (SpellPhaseListener listener : this.listeners) {
+            try {
+                action.accept(listener);
+            } catch (Exception e) {
+                LOGGER.get().warn("Exception occurred while notifying listener: {}", listener.getClass().getName(), e);
+            }
+        }
+    }
+
+    @Override
+    public ServerLevel getLevel() {
+        return this.level;
     }
 }

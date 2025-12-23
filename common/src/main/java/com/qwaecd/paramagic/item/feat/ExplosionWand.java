@@ -52,22 +52,23 @@ public class ExplosionWand extends Item {
 
     @SuppressWarnings("SameParameterValue")
     private static SpellDefinition definition(String spellId) {
+        SpellMetaConfig meta = new SpellMetaConfig(SpellPhaseType.COOLDOWN);
         return SpellDefBuilder
                 .withSpellId(spellId)
-                .withMeta(new SpellMetaConfig())
+                .withMeta(meta)
                 .phase(SpellPhaseType.IDLE, 0.1f)
                 .phaseWithAssets(SpellPhaseType.CASTING, 3.0f).circleAssets(ExplosionAssets.create())
                     .positionRule(CirclePositionRule.fixedAtCasterFeet)
                     .transformConfig(new Vector3f(1.0f), new Vector3f())
                 .endAsset()
-                .phaseWithAssets(SpellPhaseType.CHANNELING, -1.0f).circleAssets(ExplosionAssets.create())
+                .phaseWithAssets(SpellPhaseType.CHANNELING, 2.0f).circleAssets(ExplosionAssets.create())
                     .positionRule(
                             PositionRuleType.IN_FRONT_OF_CASTER,
-                            new Vector3f(2.0f),
+                            new Vector3f(0.4f),
                             false,
                             new Vector3f((float) Math.toRadians(0.0f), (float) Math.toRadians(0.0f), (float) Math.toRadians(89.0f))
                     )
-                    .transformConfig(new Vector3f(0.3f), new Vector3f())
+                    .transformConfig(new Vector3f(0.15f), new Vector3f())
                 .endAsset()
                 .phase(SpellPhaseType.COOLDOWN, 0.0f)
                 .build();

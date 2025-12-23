@@ -42,6 +42,11 @@ public abstract class DataCodec {
         float[] arr = this.readFloatArray(key);
         return new Vector3f(arr[0], arr[1], arr[2]);
     }
+
+    /**
+     * 从编码器中读取一个可为空的子对象。
+     * @param factory 仅处理非空子编码器的函数
+     */
     @Nullable
     public abstract <T extends IDataSerializable> T readObjectNullable(String key, Function<DataCodec, T> factory);
     public abstract @Nullable String readStringNullable(String key);

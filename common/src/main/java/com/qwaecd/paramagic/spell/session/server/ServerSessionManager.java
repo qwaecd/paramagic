@@ -44,7 +44,7 @@ public class ServerSessionManager implements ISessionManager {
             return null;
         }
 
-        ServerSession serverSession = new ServerSession(UUID.randomUUID(), caster, spell);
+        ServerSession serverSession = new ServerSession(UUID.randomUUID(), caster, spell, level);
         this.addSession(serverSession);
         return serverSession;
     }

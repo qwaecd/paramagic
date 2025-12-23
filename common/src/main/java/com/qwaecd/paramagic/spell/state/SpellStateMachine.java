@@ -8,7 +8,6 @@ import com.qwaecd.paramagic.spell.phase.EffectTriggerPoint;
 import com.qwaecd.paramagic.spell.phase.PhaseFactory;
 import com.qwaecd.paramagic.spell.phase.SpellPhase;
 import com.qwaecd.paramagic.spell.phase.SpellPhaseType;
-import com.qwaecd.paramagic.spell.state.event.AllMachineEvents;
 import com.qwaecd.paramagic.spell.state.event.MachineEvent;
 import com.qwaecd.paramagic.spell.state.event.queue.EventQueue;
 import com.qwaecd.paramagic.spell.state.event.queue.MachineEventEnvelope;
@@ -130,13 +129,18 @@ public class SpellStateMachine {
     }
 
     public void triggerEffect(EffectTriggerPoint triggerPoint) {
+        final SpellPhaseType type;
+        if (currentPhase != null) {
+            type = this.currentPhase.getPhaseType();
+        } else {
+            type = null;
+        }
         switch (triggerPoint) {
             case ON_ENTER, ON_EXIT ->
-                    forEachListenerSafe(listener -> listener.onEffectTriggered(triggerPoint));
+                    forEachListenerSafe(listener -> listener.onEffectTriggered(triggerPoint, type));
             default -> {
             }
         }
-
     }
 
     public boolean isCompleted() {
