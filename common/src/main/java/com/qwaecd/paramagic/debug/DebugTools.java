@@ -5,7 +5,7 @@ import com.qwaecd.paramagic.assembler.AssemblyException;
 import com.qwaecd.paramagic.assembler.ParaComposer;
 import com.qwaecd.paramagic.client.obj.sun.Sun;
 import com.qwaecd.paramagic.client.renderbase.factory.SphereFactory;
-import com.qwaecd.paramagic.core.particle.ParticleManager;
+import com.qwaecd.paramagic.core.particle.ParticleSystem;
 import com.qwaecd.paramagic.core.particle.builder.PhysicsParamBuilder;
 import com.qwaecd.paramagic.core.particle.effect.GPUParticleEffect;
 import com.qwaecd.paramagic.core.particle.emitter.ParticleBurst;
@@ -144,14 +144,14 @@ public class DebugTools {
                 600.0f,
                 physicsParamBuilder.build()
         );
-        if (ParticleManager.getInstance().spawnEffect(effect)) {
+        if (ParticleSystem.getInstance().spawnEffect(effect)) {
             testEffects.add(effect);
         }
     }
 
     public static void clearTestEffects() {
         for (GPUParticleEffect testEffect : testEffects) {
-            ParticleManager.getInstance().removeEffect(testEffect);
+            ParticleSystem.getInstance().removeEffect(testEffect);
         }
         testEffects.clear();
     }

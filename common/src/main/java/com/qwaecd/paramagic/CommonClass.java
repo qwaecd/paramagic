@@ -1,9 +1,11 @@
 package com.qwaecd.paramagic;
 
+import com.qwaecd.paramagic.core.particle.emitter.property.key.AllEmitterProperties;
 import com.qwaecd.paramagic.core.render.ModRenderSystem;
 import com.qwaecd.paramagic.core.render.shader.AllShaders;
 import com.qwaecd.paramagic.data.para.AllParaComponentData;
 import com.qwaecd.paramagic.network.codec.codable.CodableTypeRegistry;
+import com.qwaecd.paramagic.network.particle.api.EffectTypeRegistry;
 import com.qwaecd.paramagic.platform.Services;
 import com.qwaecd.paramagic.spell.session.client.ClientSessionManager;
 
@@ -31,6 +33,8 @@ public class CommonClass {
         }
         CodableTypeRegistry.init();
         AllParaComponentData.registerAll();
+        EffectTypeRegistry.registerAll();
+        AllEmitterProperties.registerAll();
     }
 
     public static void initOnClient() {

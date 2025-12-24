@@ -14,6 +14,8 @@ import com.qwaecd.paramagic.core.particle.request.ParticleEmissionProcessor;
 import com.qwaecd.paramagic.core.render.context.RenderContext;
 import com.qwaecd.paramagic.core.render.shader.Shader;
 import com.qwaecd.paramagic.core.render.shader.ShaderManager;
+import com.qwaecd.paramagic.platform.annotation.PlatformScope;
+import com.qwaecd.paramagic.platform.annotation.PlatformScopeType;
 import org.joml.Matrix4f;
 import org.joml.Vector3d;
 import org.lwjgl.system.MemoryStack;
@@ -36,10 +38,11 @@ import static org.lwjgl.opengl.GL42.glMemoryBarrier;
 import static org.lwjgl.opengl.GL43.GL_SHADER_STORAGE_BARRIER_BIT;
 import static org.lwjgl.opengl.GL43.GL_SHADER_STORAGE_BUFFER;
 
-public class ParticleManager {
+@PlatformScope(PlatformScopeType.CLIENT)
+public class ParticleSystem {
     public  final int MAX_PARTICLES = 1_000_000;
     public  final int MAX_EFFECT_COUNT = 64;
-    private static ParticleManager INSTANCE;
+    private static ParticleSystem INSTANCE;
 
     private final ParticleMemoryManager memoryManager;
     private final EffectManager effectManager;
@@ -56,7 +59,7 @@ public class ParticleManager {
     private final ConcurrentLinkedQueue<GPUParticleEffect> killedEffects = new ConcurrentLinkedQueue<>();
     private final int emptyVao;
 
-    private ParticleManager(boolean canUseComputeShader, boolean canUseGeometryShader) {
+    private ParticleSystem(boolean canUseComputeShader, boolean canUseGeometryShader) {
         this.canUseComputeShader = canUseComputeShader;
         this.canUseGeometryShader = canUseGeometryShader;
         this.memoryManager = new ParticleMemoryManager(MAX_PARTICLES, MAX_EFFECT_COUNT);
@@ -72,7 +75,7 @@ public class ParticleManager {
         glEnable(GL_PROGRAM_POINT_SIZE);
     }
 
-    public static ParticleManager getInstance() {
+    public static ParticleSystem getInstance() {
         if (INSTANCE == null) {
             throw new IllegalStateException("ParticleManager has not been initialized.");
         }
@@ -84,7 +87,7 @@ public class ParticleManager {
             Paramagic.LOG.warn("ParticleManager is already initialized.");
             return;
         }
-        INSTANCE = new ParticleManager(canUseComputeShader, canUseGeometryShader);
+        INSTANCE = new ParticleSystem(canUseComputeShader, canUseGeometryShader);
         if (canUseComputeShader && canUseGeometryShader) {
             INSTANCE.memoryManager.init();
         } else {

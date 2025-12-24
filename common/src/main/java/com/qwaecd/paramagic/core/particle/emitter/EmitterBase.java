@@ -3,10 +3,10 @@ package com.qwaecd.paramagic.core.particle.emitter;
 import com.qwaecd.paramagic.core.particle.data.EmissionRequest;
 import com.qwaecd.paramagic.core.particle.emitter.property.EmitterProperty;
 import com.qwaecd.paramagic.core.particle.emitter.property.key.PropertyKey;
-import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
 
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -56,7 +56,7 @@ public abstract class EmitterBase implements Emitter {
 
         this.request = new EmissionRequest(
                 0,
-                emitterType.ID,
+                emitterType.id,
                 -1,
                 new Vector4f(),
                 new Vector4f(),

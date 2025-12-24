@@ -6,30 +6,46 @@ import org.joml.Vector2f;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
 
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
 public final class AllEmitterProperties {
+    private static final Map<String, PropertyKey<?>> PROPERTY_KEY_MAP = new ConcurrentHashMap<>();
     private AllEmitterProperties() {}
 
-    public static final PropertyKey<Vector3f> POSITION = new PropertyKey<>("position", new Vector3f());
-    public static final PropertyKey<Vector3f> BASE_VELOCITY = new PropertyKey<>("base_velocity", new Vector3f());
-    public static final PropertyKey<Float> VELOCITY_SPREAD = new PropertyKey<>("velocity_spread", 180.0f);
-    public static final PropertyKey<Vector4f> COLOR = new PropertyKey<>("color", new Vector4f(1f));
-    public static final PropertyKey<Vector2f> LIFE_TIME_RANGE = new PropertyKey<>("lifetime_range", new Vector2f(0.1f));
-    public static final PropertyKey<Vector2f> SIZE_RANGE = new PropertyKey<>("size_range", new Vector2f(1.0f));
-    public static final PropertyKey<Float> SPHERE_RADIUS = new PropertyKey<>("sphere_radius", 1.0f);
-    public static final PropertyKey<Float> BLOOM_INTENSITY = new PropertyKey<>("bloom_intensity", 0.0f);
+    public static final PropertyKey<Vector3f> POSITION = register("position", new Vector3f());
+    public static final PropertyKey<Vector3f> BASE_VELOCITY = register("base_velocity", new Vector3f());
+    public static final PropertyKey<Float> VELOCITY_SPREAD = register("velocity_spread", 180.0f);
+    public static final PropertyKey<Vector4f> COLOR = register("color", new Vector4f(1f));
+    public static final PropertyKey<Vector2f> LIFE_TIME_RANGE = register("lifetime_range", new Vector2f(0.1f));
+    public static final PropertyKey<Vector2f> SIZE_RANGE = register("size_range", new Vector2f(1.0f));
+    public static final PropertyKey<Float> SPHERE_RADIUS = register("sphere_radius", 1.0f);
+    public static final PropertyKey<Float> BLOOM_INTENSITY = register("bloom_intensity", 0.0f);
 
-    public static final PropertyKey<Boolean> EMIT_FROM_VOLUME = new PropertyKey<>("emit_from_volume", true);
-    public static final PropertyKey<CubeAABB> CUBE_AABB = new PropertyKey<>("cube_aabb", new CubeAABB());
-    public static final PropertyKey<VelocityModeStates> VELOCITY_MODE = new PropertyKey<>("velocity_mode", VelocityModeStates.RANDOM);
+    public static final PropertyKey<Boolean> EMIT_FROM_VOLUME = register("emit_from_volume", true);
+    public static final PropertyKey<CubeAABB> CUBE_AABB = register("cube_aabb", new CubeAABB());
+    public static final PropertyKey<VelocityModeStates> VELOCITY_MODE = register("velocity_mode", VelocityModeStates.RANDOM);
 
     /**
      * For LineEmitter: The end position of the line segment.
      */
-    public static final PropertyKey<Vector3f> END_POSITION = new PropertyKey<>("end_position", new Vector3f(1.0f));
+    public static final PropertyKey<Vector3f> END_POSITION = register("end_position", new Vector3f(1.0f));
 
     /**
      * For CircleEmitter: The inner and outer radius of the circle.
      */
-    public static final PropertyKey<Vector2f> INNER_OUTER_RADIUS = new PropertyKey<>("inner_outer_radius", new Vector2f(0.5f, 1.0f));
-    public static final PropertyKey<Vector3f> NORMAL = new PropertyKey<>("normal", new Vector3f(0.0f, 1.0f, 0.0f));
+    public static final PropertyKey<Vector2f> INNER_OUTER_RADIUS = register("inner_outer_radius", new Vector2f(0.5f, 1.0f));
+    public static final PropertyKey<Vector3f> NORMAL = register("normal", new Vector3f(0.0f, 1.0f, 0.0f));
+
+    public static <T> PropertyKey<T> register(String name, T defaultValue) {
+        PropertyKey<T> key = new PropertyKey<>(name, defaultValue);
+        if (PROPERTY_KEY_MAP.putIfAbsent(name, key) != null) {
+            throw new IllegalStateException("PropertyKey with name " + name + " is already registered.");
+        }
+        return key;
+    }
+
+    public static void registerAll() {
+        // auto register all static fields
+    }
 }

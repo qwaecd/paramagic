@@ -1,10 +1,12 @@
 package com.qwaecd.paramagic.network;
 
 import org.joml.Vector3f;
+import org.joml.Vector4f;
 
 import javax.annotation.Nullable;
 import java.util.UUID;
 import java.util.function.Function;
+import java.util.function.IntFunction;
 
 public abstract class DataCodec {
     public abstract void writeInt(String key, int value);
@@ -14,10 +16,14 @@ public abstract class DataCodec {
     public abstract void writeBoolean(String key, boolean value);
     public abstract void writeFloatArray(String key, float[] values);
     public abstract void writeIntArray(String key, int[] values);
+    public abstract void writeLong(String key, long value);
     public abstract <T extends IDataSerializable> void writeObject(String key, T object);
     public abstract <T extends IDataSerializable> void writeObjectArray(String key, T[] object);
     public void writeVector3f(String key, Vector3f v) {
         this.writeFloatArray(key, new float[]{v.x, v.y, v.z});
+    }
+    public void writeVector4f(String key, Vector4f v) {
+        this.writeFloatArray(key, new float[]{v.x, v.y, v.z, v.w});
     }
     public abstract <T extends IDataSerializable> void writeObjectNullable(String key, @Nullable T object);
     public abstract void writeStringNullable(String key, @Nullable String value);
@@ -29,6 +35,7 @@ public abstract class DataCodec {
     public abstract boolean readBoolean(String key);
     public abstract float[] readFloatArray(String key);
     public abstract int[] readIntArray(String key);
+    public abstract long readLong(String key);
     /**
      * 从编码器中读取一个子对象。
      * @param key 对象的键
@@ -42,6 +49,10 @@ public abstract class DataCodec {
         float[] arr = this.readFloatArray(key);
         return new Vector3f(arr[0], arr[1], arr[2]);
     }
+    public Vector4f readVector4f(String key) {
+        float[] arr = this.readFloatArray(key);
+        return new Vector4f(arr[0], arr[1], arr[2], arr[3]);
+    }
 
     /**
      * 从编码器中读取一个可为空的子对象。
@@ -50,4 +61,13 @@ public abstract class DataCodec {
     @Nullable
     public abstract <T extends IDataSerializable> T readObjectNullable(String key, Function<DataCodec, T> factory);
     public abstract @Nullable String readStringNullable(String key);
+
+    @SuppressWarnings("unchecked")
+    public static <T extends IDataSerializable> T[] castObjectArray(IDataSerializable[] dataArray, IntFunction<T[]> arrayCreator) {
+        T[] resultArray = arrayCreator.apply(dataArray.length);
+        for (int i = 0; i < dataArray.length; i++) {
+            resultArray[i] = (T) dataArray[i];
+        }
+        return resultArray;
+    }
 }

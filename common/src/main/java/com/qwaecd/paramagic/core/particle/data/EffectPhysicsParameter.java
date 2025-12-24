@@ -1,5 +1,7 @@
 package com.qwaecd.paramagic.core.particle.data;
 
+import com.qwaecd.paramagic.network.DataCodec;
+import com.qwaecd.paramagic.network.IDataSerializable;
 import lombok.Getter;
 import lombok.Setter;
 import org.joml.Vector3f;
@@ -25,16 +27,15 @@ import java.nio.ByteBuffer;
  */
 @Getter
 @Setter
-@SuppressWarnings({"unused", "FieldMayBeFinal"})
-public final class EffectPhysicsParameter {
-    private Vector4f primaryForce;
-    private Vector4f secondaryForce;
+public final class EffectPhysicsParameter implements IDataSerializable {
+    private final Vector4f primaryForce;
+    private final Vector4f secondaryForce;
 
-    private Vector4f sinusoidalForce;
-    private Vector4f sinusoidalExtra;
+    private final Vector4f sinusoidalForce;
+    private final Vector4f sinusoidalExtra;
 
-    private Vector4f centerForcePos;
-    private Vector4f linearForce;
+    private final Vector4f centerForcePos;
+    private final Vector4f linearForce;
 
     private boolean modified = true;
 
@@ -82,6 +83,16 @@ public final class EffectPhysicsParameter {
         this.centerForcePos = centerForcePos;
         this.linearForce = linearForce;
         this.modified = modified;
+    }
+
+    public void applyFrom(EffectPhysicsParameter other) {
+        this.primaryForce   .set(other.primaryForce);
+        this.secondaryForce .set(other.secondaryForce);
+        this.sinusoidalForce.set(other.sinusoidalForce);
+        this.sinusoidalExtra.set(other.sinusoidalExtra);
+        this.centerForcePos .set(other.centerForcePos);
+        this.linearForce    .set(other.linearForce);
+        this.modified = true;
     }
 
     public void setCFPos(float x, float y, float z) {
@@ -209,4 +220,32 @@ public final class EffectPhysicsParameter {
 
     private static final int structMembers = 6;
     public static final int SIZE_IN_BYTES = structMembers * Float.BYTES * 4;
+
+    @Override
+    public void write(DataCodec codec) {
+        codec.writeVector4f("primaryForce", this.primaryForce);
+        codec.writeVector4f("secondaryForce", this.secondaryForce);
+        codec.writeVector4f("sinusoidalForce", this.sinusoidalForce);
+        codec.writeVector4f("sinusoidalExtra", this.sinusoidalExtra);
+        codec.writeVector4f("centerForcePos", this.centerForcePos);
+        codec.writeVector4f("linearForce", this.linearForce);
+    }
+
+    public static EffectPhysicsParameter fromCodec(DataCodec codec) {
+        Vector4f primaryForce = codec.readVector4f("primaryForce");
+        Vector4f secondaryForce = codec.readVector4f("secondaryForce");
+        Vector4f sinusoidalForce = codec.readVector4f("sinusoidalForce");
+        Vector4f sinusoidalExtra = codec.readVector4f("sinusoidalExtra");
+        Vector4f centerForcePos = codec.readVector4f("centerForcePos");
+        Vector4f linearForce = codec.readVector4f("linearForce");
+        return new EffectPhysicsParameter(
+                primaryForce,
+                secondaryForce,
+                sinusoidalForce,
+                sinusoidalExtra,
+                centerForcePos,
+                linearForce,
+                true
+        );
+    }
 }

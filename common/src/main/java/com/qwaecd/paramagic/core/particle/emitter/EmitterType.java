@@ -5,13 +5,22 @@ public enum EmitterType {
     LINE(2, "lineEmitterInitializer"),
     SPHERE(3, "sphereEmitterInitializer"),
     CUBE(4, "cubeEmitterInitializer"),
-    CIRCLE(5, "circleEmitterInitializer"),;
+    CIRCLE(5, "circleEmitterInitializer");
 
-    public final int ID;
+    public final int id;
     public final String NAME = this.name();
     public final String SubroutineName;
     EmitterType(int id, String subroutineName) {
-        this.ID = id;
+        this.id = id;
         this.SubroutineName = subroutineName;
+    }
+
+    public static EmitterType fromId(int id) {
+        for (EmitterType type : values()) {
+            if (type.id == id) {
+                return type;
+            }
+        }
+        throw new IllegalArgumentException("Invalid EmitterType id: " + id);
     }
 }

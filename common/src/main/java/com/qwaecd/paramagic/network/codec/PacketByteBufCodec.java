@@ -57,6 +57,11 @@ public class PacketByteBufCodec extends DataCodec {
     }
 
     @Override
+    public void writeLong(String key, long value) {
+        this.buf.writeLong(value);
+    }
+
+    @Override
     public <T extends IDataSerializable> void writeObject(String key, T object) {
         object.write(this);
     }
@@ -132,6 +137,11 @@ public class PacketByteBufCodec extends DataCodec {
             ints[j] = this.buf.readInt();
         }
         return ints;
+    }
+
+    @Override
+    public long readLong(String key) {
+        return this.buf.readLong();
     }
 
     @Override

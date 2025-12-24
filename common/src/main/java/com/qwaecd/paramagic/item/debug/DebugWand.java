@@ -1,6 +1,6 @@
 package com.qwaecd.paramagic.item.debug;
 
-import com.qwaecd.paramagic.core.particle.ParticleManager;
+import com.qwaecd.paramagic.core.particle.ParticleSystem;
 import com.qwaecd.paramagic.core.particle.builder.PhysicsParamBuilder;
 import com.qwaecd.paramagic.core.particle.effect.GPUParticleEffect;
 import com.qwaecd.paramagic.core.particle.emitter.ParticleBurst;
@@ -104,6 +104,6 @@ public class DebugWand extends Item {
                 physicsParamBuilder.build()
         );
 
-        ParticleManager.getInstance().spawnEffect(effect);
+        ParticleSystem.getInstance().spawnEffect(effect);
     }
 }

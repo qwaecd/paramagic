@@ -3,7 +3,7 @@ package com.qwaecd.paramagic.core.render;
 import com.qwaecd.paramagic.Paramagic;
 import com.qwaecd.paramagic.client.renderbase.BaseObjectManager;
 import com.qwaecd.paramagic.client.renderbase.factory.FullScreenQuadFactory;
-import com.qwaecd.paramagic.core.particle.ParticleManager;
+import com.qwaecd.paramagic.core.particle.ParticleSystem;
 import com.qwaecd.paramagic.core.render.api.IRenderable;
 import com.qwaecd.paramagic.core.render.context.RenderContext;
 import com.qwaecd.paramagic.core.render.post.PostProcessingManager;
@@ -51,7 +51,7 @@ public class ModRenderSystem extends AbstractRenderSystem{
     @Getter
     private RendererManager rendererManager;
     @Getter
-    private ParticleManager particleManager;
+    private ParticleSystem particleSystem;
     private boolean canUseComputeShader = false;
     private boolean canUseGeometryShader = false;
 
@@ -83,14 +83,14 @@ public class ModRenderSystem extends AbstractRenderSystem{
 
         ShaderManager.init();
         BaseObjectManager.init();
-        ParticleManager.init(instance.canUseComputeShader, instance.canUseGeometryShader);
+        ParticleSystem.init(instance.canUseComputeShader, instance.canUseGeometryShader);
         ParaConverters.init();
 
 
         instance.initializePostProcessing();
         instance.fullscreenQuad = FullScreenQuadFactory.createFullscreenQuad();
         instance.rendererManager = new RendererManager();
-        instance.particleManager = ParticleManager.getInstance();
+        instance.particleSystem = ParticleSystem.getInstance();
         Paramagic.LOG.info("Render system initialized.");
     }
 
@@ -217,7 +217,7 @@ public class ModRenderSystem extends AbstractRenderSystem{
         }
 
         stateCache.apply(RenderState.ADDITIVE);
-        this.particleManager.renderParticles(context);
+        this.particleSystem.renderParticles(context);
 
         mainFbo.unbind();
     }
