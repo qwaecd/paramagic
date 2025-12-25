@@ -1,9 +1,11 @@
 package com.qwaecd.paramagic.core.particle.emitter.property.type;
 
+import com.qwaecd.paramagic.network.DataCodec;
+import com.qwaecd.paramagic.network.IDataSerializable;
 import org.joml.Vector3f;
 import org.joml.Vector3fc;
 
-public class CubeAABB {
+public class CubeAABB implements IDataSerializable {
     private final Vector3f min;
     private final Vector3f max;
 
@@ -76,5 +78,17 @@ public class CubeAABB {
                 Math.max(minY, maxY),
                 Math.max(minZ, maxZ)
         );
+    }
+
+    @Override
+    public void write(DataCodec codec) {
+        codec.writeVector3f("min", this.min);
+        codec.writeVector3f("max", this.max);
+    }
+
+    public static CubeAABB fromCodec(DataCodec codec) {
+        Vector3f min = codec.readVector3f("min");
+        Vector3f max = codec.readVector3f("max");
+        return new CubeAABB(min, max);
     }
 }

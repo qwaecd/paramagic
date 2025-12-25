@@ -24,8 +24,9 @@ public final class PrimitiveCodableTypes {
 
     public static final ICodableType<Byte>      BYTE_TYPE   =  register(PrimitiveType.BYTE,     ((codec, k) -> (byte) codec.readInt(k)),  ((codec, k, v) -> codec.writeInt(k, v)));
     public static final ICodableType<Short>     SHORT_TYPE  =  register(PrimitiveType.SHORT,    ((codec, k) -> (short) codec.readInt(k)), ((codec, k, v) -> codec.writeInt(k, v)));
-    public static final ICodableType<Float>     FLOAT_TYPE  =  register(PrimitiveType.FLOAT,    DataCodec::readFloat, DataCodec::writeFloat);
     public static final ICodableType<Integer>   INT_TYPE    =  register(PrimitiveType.INT,      DataCodec::readInt, DataCodec::writeInt);
+    public static final ICodableType<Long>      LONG_TYPE   =  register(PrimitiveType.LONG,     DataCodec::readLong, DataCodec::writeLong);
+    public static final ICodableType<Float>     FLOAT_TYPE  =  register(PrimitiveType.FLOAT,    DataCodec::readFloat, DataCodec::writeFloat);
     public static final ICodableType<Boolean>   BOOL_TYPE   =  register(PrimitiveType.BOOLEAN,  DataCodec::readBoolean, DataCodec::writeBoolean);
 
     private static <T> ICodableType<T> register(

@@ -1,7 +1,10 @@
 package com.qwaecd.paramagic.core.particle.emitter.property.type;
 
+import com.qwaecd.paramagic.network.DataCodec;
+import com.qwaecd.paramagic.network.IDataSerializable;
+
 @SuppressWarnings("PointlessBitwiseExpression")
-public enum VelocityModeStates {
+public enum VelocityModeStates implements IDataSerializable {
     /**
      * bit 001<br>
      * 锥形发射，从给定 baseVelocity 方向为轴的锥体内发射，偏离轴线的最大角度由 velocitySpread 控制。
@@ -27,5 +30,23 @@ public enum VelocityModeStates {
     public final int bit;
     VelocityModeStates(int bit) {
         this.bit = bit;
+    }
+
+    public static VelocityModeStates fromBit(int bit) {
+        for (VelocityModeStates state : values()) {
+            if (state.bit == bit) {
+                return state;
+            }
+        }
+        throw new IllegalArgumentException("Unknown VelocityModeStates bit: " + bit);
+    }
+
+    @Override
+    public void write(DataCodec codec) {
+        codec.writeInt("velocityMode", this.bit);
+    }
+
+    public static VelocityModeStates fromCodec(DataCodec codec) {
+        return fromBit(codec.readInt("velocityMode"));
     }
 }

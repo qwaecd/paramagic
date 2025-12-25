@@ -1,5 +1,7 @@
 package com.qwaecd.paramagic.network.codec.codable;
 
+import com.qwaecd.paramagic.core.particle.emitter.property.type.CubeAABB;
+import com.qwaecd.paramagic.core.particle.emitter.property.type.VelocityModeStates;
 import com.qwaecd.paramagic.network.DataCodec;
 import org.joml.Quaternionf;
 import org.joml.Vector2f;
@@ -8,6 +10,7 @@ import org.joml.Vector4f;
 
 import java.util.function.BiFunction;
 
+@SuppressWarnings("unused")
 public final class CommonCodableTypes {
     public enum CommonType {
 //        BYTE    (0, Byte.class),
@@ -30,6 +33,7 @@ public final class CommonCodableTypes {
         }
     }
 
+    // Useful common types (20 ~ 39)
     public static final ICodableType<Vector2f> VEC_2F = register(CommonType.VEC_2F,
             ((codec, k) -> {
                 final float[] floats = codec.readFloatArray(k);
@@ -59,6 +63,27 @@ public final class CommonCodableTypes {
             (codec, k, v) -> codec.writeFloatArray(k, new float[]{v.x, v.y, v.z, v.w})
     );
 
+    // Custom types below
+    public static final ICodableType<CubeAABB> CUBE_AABB = registerWithClass(30, CubeAABB.class,
+            (codec, k) -> codec.readObject(k, CubeAABB::fromCodec),
+            (DataCodec::writeObject)
+    );
+    public static final ICodableType<VelocityModeStates> VELOCITY_MODE = registerWithClass(31, VelocityModeStates.class,
+            ((codec, k) -> codec.readObject(k, VelocityModeStates::fromCodec)),
+            (DataCodec::writeObject)
+    );
+
+    public static <T> ICodableType<T> registerWithClass(
+            int typeId,
+            Class<T> typeClass,
+            BiFunction<DataCodec, String, T> codecTFunction,
+            WriteConsumer<T> codecConsumer
+    ) {
+        ICodableType<T> tiCodableType = forValueWithClass(typeId, typeClass, codecTFunction, codecConsumer);
+        CodableTypeRegistry.register(tiCodableType);
+        return tiCodableType;
+    }
+
     private static <T> ICodableType<T> register(
             CommonType commonType,
             BiFunction<DataCodec, String, T> codecTFunction,
@@ -84,6 +109,35 @@ public final class CommonCodableTypes {
             @Override
             public Class<T> getTypeClass() {
                 return (Class<T>) commonType.typeClass;
+            }
+
+            @Override
+            public WriteConsumer<T> serializer() {
+                return codecConsumer;
+            }
+
+            @Override
+            public BiFunction<DataCodec, String, T> deserializer() {
+                return codecTFunction;
+            }
+        };
+    }
+
+    private static <T> ICodableType<T> forValueWithClass(
+            int typeId,
+            Class<T> typeClass,
+            BiFunction<DataCodec, String, T> codecTFunction,
+            WriteConsumer<T> codecConsumer
+    ) {
+        return new ICodableType<>() {
+            @Override
+            public int getTypeId() {
+                return typeId;
+            }
+
+            @Override
+            public Class<T> getTypeClass() {
+                return typeClass;
             }
 
             @Override
