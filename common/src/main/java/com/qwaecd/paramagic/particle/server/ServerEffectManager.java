@@ -1,6 +1,6 @@
 package com.qwaecd.paramagic.particle.server;
 
-import com.qwaecd.paramagic.network.particle.EffectSpawnData;
+import com.qwaecd.paramagic.particle.EffectSpawnBuilder;
 
 import javax.annotation.Nullable;
 import java.util.HashMap;
@@ -31,9 +31,9 @@ public class ServerEffectManager {
     }
 
     @Nullable
-    public ServerEffect spawnEffect(EffectSpawnData data) {
+    public ServerEffect createEffect(EffectSpawnBuilder builder) {
         final int netId = this.atomicCounter.getAndIncrement();
-        ServerEffect effect = new ServerEffect(netId, data);
+        ServerEffect effect = new ServerEffect(netId, builder.build(netId));
 
         this.activeEffects.put(netId, effect);
         return effect;

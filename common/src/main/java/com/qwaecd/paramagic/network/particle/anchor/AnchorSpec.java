@@ -10,6 +10,7 @@ import javax.annotation.Nullable;
 import java.util.Objects;
 
 public class AnchorSpec implements IDataSerializable {
+    public static final AnchorSpec STATIC_ORIGIN = new AnchorSpec(AnchorType.STATIC_POS, new Vector3f(0, 0, 0));
     @Getter
     public final AnchorType type;
 
@@ -27,6 +28,18 @@ public class AnchorSpec implements IDataSerializable {
         this.type = type;
         this.entityId = entityId;
         this.position = null;
+    }
+
+    public static AnchorSpec forStaticPosition(@Nonnull Vector3f position) {
+        return new AnchorSpec(AnchorType.STATIC_POS, position);
+    }
+
+    public static AnchorSpec forBlockPosition(@Nonnull Vector3f position) {
+        return new AnchorSpec(AnchorType.BLOCK, position);
+    }
+
+    public static AnchorSpec forEntity(int entityId) {
+        return new AnchorSpec(AnchorType.ENTITY, entityId);
     }
 
     @Override

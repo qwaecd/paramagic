@@ -10,7 +10,7 @@ import net.minecraft.server.level.ServerPlayer;
 public class FabricNetworking implements PlatformNetworking {
     @Override
     public void sendToPlayer(ServerPlayer target, Packet<?> packet) {
-        FriendlyByteBuf buf = PacketByteBufs.empty();
+        FriendlyByteBuf buf = PacketByteBufs.create();
         PacketByteBufCodec codec = new PacketByteBufCodec(buf);
         packet.encode(codec);
         ServerPlayNetworking.send(target, packet.getIdentifier().id, codec.getBuf());
@@ -24,7 +24,8 @@ public class FabricNetworking implements PlatformNetworking {
             ClientNetworkRegister.register(key, packetClass, factory, handler);
         } else {
             ServerPlayNetworking.registerGlobalReceiver(key.id, (server, player, handler_, buf, responseSender) -> {
-                handler.handle(factory.decode(new PacketByteBufCodec(buf)), new FabricNetworkContext(server, player, handler_, buf, responseSender));
+                T decode = factory.decode(new PacketByteBufCodec(buf));
+                server.execute(() -> handler.handle(decode, new FabricNetworkContext(server, player, handler_, buf, responseSender)));
             });
         }
     }

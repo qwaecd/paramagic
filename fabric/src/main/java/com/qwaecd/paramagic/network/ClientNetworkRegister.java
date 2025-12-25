@@ -9,7 +9,8 @@ public class ClientNetworkRegister {
             PacketIdentifier key, Class<T> packetClass, PacketFactory<T> factory, PacketHandler<T> handler
     ) {
         ClientPlayNetworking.registerGlobalReceiver(key.id, (client, handler_, buf, responseSender) -> {
-            handler.handle(factory.decode(new PacketByteBufCodec(buf)), new NetworkContext());
+            T decode = factory.decode(new PacketByteBufCodec(buf));
+            client.execute(() -> handler.handle(decode, new NetworkContext()));
         });
     }
 }

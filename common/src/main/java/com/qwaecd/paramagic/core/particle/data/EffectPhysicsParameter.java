@@ -2,6 +2,8 @@ package com.qwaecd.paramagic.core.particle.data;
 
 import com.qwaecd.paramagic.network.DataCodec;
 import com.qwaecd.paramagic.network.IDataSerializable;
+import com.qwaecd.paramagic.platform.annotation.PlatformScope;
+import com.qwaecd.paramagic.platform.annotation.PlatformScopeType;
 import lombok.Getter;
 import lombok.Setter;
 import org.joml.Vector3f;
@@ -27,6 +29,7 @@ import java.nio.ByteBuffer;
  */
 @Getter
 @Setter
+@PlatformScope(PlatformScopeType.COMMON)
 public final class EffectPhysicsParameter implements IDataSerializable {
     private final Vector4f primaryForce;
     private final Vector4f secondaryForce;
