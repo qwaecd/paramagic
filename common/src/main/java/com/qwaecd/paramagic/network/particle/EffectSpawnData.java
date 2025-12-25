@@ -7,7 +7,7 @@ import com.qwaecd.paramagic.network.particle.emitter.EmitterConfig;
 import lombok.Getter;
 
 @SuppressWarnings("ClassCanBeRecord")
-public class EffectDefinition implements IDataSerializable {
+public class EffectSpawnData implements IDataSerializable {
     @Getter
     public final int netId;
     @Getter
@@ -20,7 +20,7 @@ public class EffectDefinition implements IDataSerializable {
     @Getter
     public final AnchorSpec anchorSpec;
 
-    public EffectDefinition(
+    public EffectSpawnData(
             int netId,
             long seed,
             EmitterConfig[] emitterConfig,
@@ -43,13 +43,13 @@ public class EffectDefinition implements IDataSerializable {
         codec.writeObject("anchorSpec", this.anchorSpec);
     }
 
-    public static EffectDefinition fromCodec(DataCodec codec) {
+    public static EffectSpawnData fromCodec(DataCodec codec) {
         int netId = codec.readInt("netId");
         IDataSerializable[] dataArray = codec.readObjectArray("emitterConfig", EmitterConfig::fromCodec);
         EmitterConfig[] emitterConfig = DataCodec.castObjectArray(dataArray, EmitterConfig[]::new);
         long seed = codec.readLong("seed");
         var physicsSnapshot = codec.readObject("physicsSnapshot", EffectPhysicsSnapshot::fromCodec);
         AnchorSpec anchorSpec = codec.readObject("anchorSpec", AnchorSpec::fromCodec);
-        return new EffectDefinition(netId, seed, emitterConfig, physicsSnapshot, anchorSpec);
+        return new EffectSpawnData(netId, seed, emitterConfig, physicsSnapshot, anchorSpec);
     }
 }

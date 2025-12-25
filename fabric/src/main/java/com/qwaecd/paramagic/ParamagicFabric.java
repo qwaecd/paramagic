@@ -3,6 +3,8 @@ package com.qwaecd.paramagic;
 import com.qwaecd.paramagic.entity.ModEntityTypes;
 import com.qwaecd.paramagic.init.ModEntitiesFabric;
 import com.qwaecd.paramagic.init.ModItemsFabric;
+import com.qwaecd.paramagic.network.FabricNetworking;
+import com.qwaecd.paramagic.network.Networking;
 import net.fabricmc.api.ModInitializer;
 
 
@@ -16,5 +18,7 @@ public class ParamagicFabric implements ModInitializer {
         ModEntitiesFabric.registerAll();
 
         ModEntityTypes.init(ModEntitiesFabric.instance);
+
+        Networking.init(new FabricNetworking());
     }
 }

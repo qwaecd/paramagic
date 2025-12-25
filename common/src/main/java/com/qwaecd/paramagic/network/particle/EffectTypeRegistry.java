@@ -1,4 +1,4 @@
-package com.qwaecd.paramagic.network.particle.api;
+package com.qwaecd.paramagic.network.particle;
 
 import com.qwaecd.paramagic.core.particle.emitter.Emitter;
 import com.qwaecd.paramagic.core.particle.emitter.EmitterBase;

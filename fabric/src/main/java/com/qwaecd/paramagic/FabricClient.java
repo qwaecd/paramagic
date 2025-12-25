@@ -7,6 +7,9 @@ import com.qwaecd.paramagic.core.render.context.RenderContextManager;
 import com.qwaecd.paramagic.debug.DebugTools;
 import com.qwaecd.paramagic.feature.circle.MagicCircleManager;
 import com.qwaecd.paramagic.init.ModEntitiesFabric;
+import com.qwaecd.paramagic.network.ClientNetworking;
+import com.qwaecd.paramagic.network.FabricNetworking;
+import com.qwaecd.paramagic.network.Networking;
 import com.qwaecd.paramagic.platform.Services;
 import com.qwaecd.paramagic.spell.session.SessionManagers;
 import net.fabricmc.api.ClientModInitializer;
@@ -25,6 +28,8 @@ public class FabricClient implements ClientModInitializer {
         Services.PLATFORM.initializeOpenGL();
         registerClientCommands();
         registerEntityRenderers();
+
+        ClientNetworking.registerOnClient(Networking.get());
 
         WorldRenderEvents.LAST.register(context -> {
             FabricRenderContext fabricContext = new FabricRenderContext(context);

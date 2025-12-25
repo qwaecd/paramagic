@@ -8,11 +8,16 @@ import org.jetbrains.annotations.Nullable;
 import java.util.UUID;
 import java.util.function.Function;
 
+@SuppressWarnings("LombokGetterMayBeUsed")
 public class PacketByteBufCodec extends DataCodec {
     private final FriendlyByteBuf buf;
 
     public PacketByteBufCodec(FriendlyByteBuf buf) {
         this.buf = buf;
+    }
+
+    public FriendlyByteBuf getBuf() {
+        return buf;
     }
 
     @Override
