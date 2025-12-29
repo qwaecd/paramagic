@@ -5,16 +5,24 @@ import com.qwaecd.paramagic.core.particle.emitter.property.key.PropertyKey;
 import com.qwaecd.paramagic.network.DataCodec;
 import com.qwaecd.paramagic.network.IDataSerializable;
 import com.qwaecd.paramagic.network.codec.codable.CodableTypeRegistry;
+import lombok.Getter;
 
 import java.util.function.BiFunction;
 
-public class EmitterPropertyValue<T> implements IDataSerializable {
-    private final PropertyKey<T> propertyKey;
-    private final T value;
+@SuppressWarnings("ClassCanBeRecord")
+public final class EmitterPropertyValue<T> implements IDataSerializable {
+    @Getter
+    public final PropertyKey<T> propertyKey;
+    @Getter
+    public final T value;
 
     public EmitterPropertyValue(PropertyKey<T> propertyKey, T value) {
         this.propertyKey = propertyKey;
         this.value = value;
+    }
+
+    public static <T> EmitterPropertyValue<T> of(PropertyKey<T> propertyKey, T value) {
+        return new EmitterPropertyValue<>(propertyKey, value);
     }
 
     @Override

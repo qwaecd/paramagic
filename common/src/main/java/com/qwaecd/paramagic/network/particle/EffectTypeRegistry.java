@@ -1,5 +1,7 @@
 package com.qwaecd.paramagic.network.particle;
 
+import com.qwaecd.paramagic.Paramagic;
+import com.qwaecd.paramagic.core.exception.EmitterPropertyTypeException;
 import com.qwaecd.paramagic.core.particle.emitter.Emitter;
 import com.qwaecd.paramagic.core.particle.emitter.EmitterBase;
 import com.qwaecd.paramagic.core.particle.emitter.EmitterType;
@@ -7,6 +9,7 @@ import com.qwaecd.paramagic.core.particle.emitter.ParticleBurst;
 import com.qwaecd.paramagic.core.particle.emitter.impl.*;
 import com.qwaecd.paramagic.network.particle.emitter.EmitterConfig;
 import com.qwaecd.paramagic.network.particle.emitter.EmitterFactory;
+import com.qwaecd.paramagic.network.particle.emitter.EmitterPropertyConfig;
 
 import javax.annotation.Nullable;
 import java.util.EnumMap;
@@ -53,15 +56,26 @@ public class EffectTypeRegistry {
             if (builder == null) {
                 throw new IllegalStateException("No default emitter builder registered for type: " + type);
             }
-            register(type, config -> createWithBursts(config, builder));
+            register(type, config -> createWithConfig(config, builder));
         }
     }
 
-    private static Emitter createWithBursts(EmitterConfig config, Function<EmitterConfig, EmitterBase> builder) {
+    private static Emitter createWithConfig(EmitterConfig config, Function<EmitterConfig, EmitterBase> builder) {
         EmitterBase emitter = builder.apply(config);
         if (config.bursts != null) {
             for (ParticleBurst burst : config.bursts) {
                 emitter.addBurst(burst);
+            }
+        }
+
+        EmitterPropertyConfig propertyConfig = config.propertyConfig;
+        if (propertyConfig != null) {
+            for (var propertyValue : propertyConfig.properties) {
+                try {
+                    emitter.setPropertyUnsafe(propertyValue.propertyKey, propertyValue.value);
+                } catch (EmitterPropertyTypeException e) {
+                    Paramagic.LOG.warn("Failed to set property '{}' on emitter type {}: {}", propertyValue.propertyKey.getName(), EmitterType.fromId(config.emitterType), e.getMessage());
+                }
             }
         }
         return emitter;

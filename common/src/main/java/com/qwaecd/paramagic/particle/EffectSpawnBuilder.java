@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+@SuppressWarnings("UnusedReturnValue")
 public class EffectSpawnBuilder {
     private static final Random random = new Random();
     private int maxParticles = 1;

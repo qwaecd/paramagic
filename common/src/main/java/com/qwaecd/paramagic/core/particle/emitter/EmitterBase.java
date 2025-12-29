@@ -1,5 +1,6 @@
 package com.qwaecd.paramagic.core.particle.emitter;
 
+import com.qwaecd.paramagic.core.exception.EmitterPropertyTypeException;
 import com.qwaecd.paramagic.core.particle.data.EmissionRequest;
 import com.qwaecd.paramagic.core.particle.emitter.property.EmitterProperty;
 import com.qwaecd.paramagic.core.particle.emitter.property.key.PropertyKey;
@@ -81,6 +82,19 @@ public abstract class EmitterBase implements Emitter {
         }
     }
 
+    @SuppressWarnings("unchecked")
+    public void setPropertyUnsafe(PropertyKey<?> key, Object value) {
+        try {
+            EmitterProperty<Object> prop = this.getProperty((PropertyKey<Object>) key);
+            // prop can be null if the property is not supported by this emitter
+            prop.set(value);
+        } catch(NullPointerException e) {
+            throw new EmitterPropertyTypeException("Property " + key.getName() + " not found on this emitter.");
+        } catch (Exception e) {
+            throw new EmitterPropertyTypeException("Failed to set property " + key.getName() + ": " + e.getMessage(), e);
+        }
+    }
+
     @Override
     @SuppressWarnings("unchecked")
     public <T> EmitterProperty<T> getProperty(PropertyKey<T> key) {
@@ -141,4 +155,5 @@ public abstract class EmitterBase implements Emitter {
         this.bursts.clear();
         this.nextBurstIndex = 0;
     }
+
 }

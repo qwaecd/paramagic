@@ -10,23 +10,38 @@ import javax.annotation.Nullable;
 import java.util.Arrays;
 
 @SuppressWarnings("ClassCanBeRecord")
-public class EmitterConfig implements IDataSerializable {
+public final class EmitterConfig implements IDataSerializable {
     public final int emitterType;
     public final float particlesPerSecond;
     public final Vector3f emitterPosition;
+    @Nullable
+    public final EmitterPropertyConfig propertyConfig;
 
     @Nullable
     public final ParticleBurst[] bursts;
 
-    public EmitterConfig(int emitterType, float particlesPerSecond, Vector3f emitterPosition, @Nullable ParticleBurst[] bursts) {
+    public EmitterConfig(
+            int emitterType,
+            float particlesPerSecond,
+            Vector3f emitterPosition,
+            @Nullable EmitterPropertyConfig propertyConfig,
+            @Nullable ParticleBurst[] bursts
+    ) {
         this.emitterType = emitterType;
         this.particlesPerSecond = particlesPerSecond;
         this.emitterPosition = emitterPosition;
+        this.propertyConfig = propertyConfig;
         this.bursts = bursts;
     }
 
-    public EmitterConfig(EmitterType emitterType, float particlesPerSecond, Vector3f emitterPosition, ParticleBurst[] bursts) {
-        this(emitterType.id, particlesPerSecond, emitterPosition, bursts);
+    public EmitterConfig(
+            EmitterType emitterType,
+            float particlesPerSecond,
+            Vector3f emitterPosition,
+            EmitterPropertyConfig propertyConfig,
+            ParticleBurst[] bursts
+    ) {
+        this(emitterType.id, particlesPerSecond, emitterPosition, propertyConfig, bursts);
     }
 
     @Override
@@ -34,6 +49,7 @@ public class EmitterConfig implements IDataSerializable {
         codec.writeInt("emitterType", emitterType);
         codec.writeFloat("particlesPerSecond", particlesPerSecond);
         codec.writeVector3f("emitterPosition", emitterPosition);
+        codec.writeObjectNullable("propertyConfig", propertyConfig);
         if (this.bursts == null) {
             codec.writeBoolean("hasBursts", false);
         } else {
@@ -49,6 +65,7 @@ public class EmitterConfig implements IDataSerializable {
 
         float particlesPerSecond = codec.readFloat("particlesPerSecond");
         Vector3f emitterPosition = codec.readVector3f("emitterPosition");
+        EmitterPropertyConfig propertyConfig = codec.readObjectNullable("propertyConfig", EmitterPropertyConfig::fromCodec);
         ParticleBurst[] bursts;
         boolean hasBursts = codec.readBoolean("hasBursts");
         if (hasBursts) {
@@ -58,7 +75,7 @@ public class EmitterConfig implements IDataSerializable {
         } else {
             bursts = null;
         }
-        return new EmitterConfig(emitterType, particlesPerSecond, emitterPosition, bursts);
+        return new EmitterConfig(emitterType, particlesPerSecond, emitterPosition, propertyConfig, bursts);
     }
 
     private static class BurstWrapper implements IDataSerializable {
