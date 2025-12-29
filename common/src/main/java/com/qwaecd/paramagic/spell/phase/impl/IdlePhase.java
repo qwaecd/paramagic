@@ -4,9 +4,9 @@ import com.qwaecd.paramagic.spell.config.phase.PhaseConfig;
 import com.qwaecd.paramagic.spell.phase.BasePhase;
 import com.qwaecd.paramagic.spell.phase.SpellPhase;
 import com.qwaecd.paramagic.spell.phase.SpellPhaseType;
+import com.qwaecd.paramagic.spell.state.AllMachineEvents;
 import com.qwaecd.paramagic.spell.state.MachineContext;
 import com.qwaecd.paramagic.spell.state.Transition;
-import com.qwaecd.paramagic.spell.state.AllMachineEvents;
 import com.qwaecd.paramagic.spell.state.event.MachineEvent;
 
 public class IdlePhase extends BasePhase implements SpellPhase {

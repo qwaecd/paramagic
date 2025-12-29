@@ -1,5 +1,6 @@
 package com.qwaecd.paramagic.spell.core;
 
+import com.qwaecd.paramagic.core.particle.builder.PhysicsParamBuilder;
 import com.qwaecd.paramagic.core.particle.emitter.EmitterType;
 import com.qwaecd.paramagic.core.particle.emitter.ParticleBurst;
 import com.qwaecd.paramagic.core.particle.emitter.property.key.AllEmitterProperties;
@@ -16,7 +17,6 @@ import com.qwaecd.paramagic.spell.logic.ExecutionContext;
 import lombok.Getter;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.HitResult;
 import org.joml.Vector2f;
@@ -67,8 +67,14 @@ public class Spell {
         }
         Vector3f pos = result.getLocation().toVector3f();
         EffectSpawnBuilder builder = new EffectSpawnBuilder();
+        PhysicsParamBuilder physicsBuilder = new PhysicsParamBuilder();
+        physicsBuilder
+                .dragCoefficient(1.0f)
+                .linearForce(0.0f, -0.98f, 0.0f)
+                .linearForceEnabled(true);
 
         builder
+                .setEffectPhysicsParameter(physicsBuilder.build())
                 .setMaxParticles(6_0000)
                 .setMaxLifetime(5.0f)
                 .setAnchorSpec(AnchorSpec.forStaticPosition(pos));
@@ -82,9 +88,9 @@ public class Spell {
                     .addProperty(AllEmitterProperties.LIFE_TIME_RANGE, new Vector2f(0.3f, 5.0f))
                     .addProperty(AllEmitterProperties.VELOCITY_SPREAD, 180.0f)
                     .addProperty(AllEmitterProperties.EMIT_FROM_VOLUME, true)
-                    .addProperty(AllEmitterProperties.SPHERE_RADIUS, 8.0f)
-                    .addProperty(AllEmitterProperties.VELOCITY_MODE, VelocityModeStates.RADIAL_FROM_CENTER)
-                    .addProperty(AllEmitterProperties.BASE_VELOCITY, new Vector3f(4.0f))
+                    .addProperty(AllEmitterProperties.SPHERE_RADIUS, 2.0f)
+                    .addProperty(AllEmitterProperties.VELOCITY_MODE, VelocityModeStates.CONE)
+                    .addProperty(AllEmitterProperties.BASE_VELOCITY, new Vector3f(0, 24.0f, 0))
                     .build();
 
             EmitterConfig config = new EmitterConfig(
