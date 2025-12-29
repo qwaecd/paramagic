@@ -1,6 +1,7 @@
 package com.qwaecd.paramagic.core.render.queue;
 
 import com.qwaecd.paramagic.core.render.api.IRenderable;
+import org.joml.Matrix4f;
 import org.joml.Vector3d;
 
 public class RenderItem {
@@ -14,7 +15,8 @@ public class RenderItem {
     public void update(IRenderable renderable, RenderType renderType, Vector3d cameraPos) {
         this.renderable = renderable;
         this.renderType = renderType;
-        var m = renderable.getTransform().getModelMatrix();
+        Matrix4f m = renderable.getPrecomputedWorldTransform()
+                .orElseGet(() -> renderable.getTransform().getModelMatrix());
         double dx = m.m30() - cameraPos.x;
         double dy = m.m31() - cameraPos.y;
         double dz = m.m32() - cameraPos.z;
