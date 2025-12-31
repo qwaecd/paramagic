@@ -1,5 +1,6 @@
 package com.qwaecd.paramagic.spell.core;
 
+import com.mojang.datafixers.TypeRewriteRule;
 import com.qwaecd.paramagic.core.particle.builder.PhysicsParamBuilder;
 import com.qwaecd.paramagic.core.particle.emitter.EmitterType;
 import com.qwaecd.paramagic.core.particle.emitter.ParticleBurst;
@@ -21,6 +22,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.HitResult;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
+import org.joml.Vector4f;
 
 import javax.annotation.Nonnull;
 
@@ -69,7 +71,7 @@ public class Spell {
         EffectSpawnBuilder builder = new EffectSpawnBuilder();
         PhysicsParamBuilder physicsBuilder = new PhysicsParamBuilder();
         physicsBuilder
-                .dragCoefficient(1.0f)
+                .dragCoefficient(0.8f)
                 .linearForce(0.0f, -0.98f, 0.0f)
                 .linearForceEnabled(true);
 
@@ -80,21 +82,45 @@ public class Spell {
                 .setAnchorSpec(AnchorSpec.forStaticPosition(pos));
         {
             ParticleBurst[] bursts = new ParticleBurst[] {
-                    new ParticleBurst(0.0f, 3_0000),
-                    new ParticleBurst(0.1f, 3_0000)
+                    new ParticleBurst(0.0f, 3_0000)
             };
             EmitterPropertyConfig propConfig = new EmitterPropertyConfig.Builder()
                     .addProperty(AllEmitterProperties.BLOOM_INTENSITY, 3.2f)
                     .addProperty(AllEmitterProperties.LIFE_TIME_RANGE, new Vector2f(0.3f, 5.0f))
-                    .addProperty(AllEmitterProperties.VELOCITY_SPREAD, 180.0f)
+                    .addProperty(AllEmitterProperties.SIZE_RANGE, new Vector2f(0.1f, 3.0f))
                     .addProperty(AllEmitterProperties.EMIT_FROM_VOLUME, true)
-                    .addProperty(AllEmitterProperties.SPHERE_RADIUS, 2.0f)
-                    .addProperty(AllEmitterProperties.VELOCITY_MODE, VelocityModeStates.CONE)
-                    .addProperty(AllEmitterProperties.BASE_VELOCITY, new Vector3f(0, 24.0f, 0))
+                    .addProperty(AllEmitterProperties.SPHERE_RADIUS, 1.0f)
+                    .addProperty(AllEmitterProperties.VELOCITY_MODE, VelocityModeStates.RANDOM)
+                    .addProperty(AllEmitterProperties.BASE_VELOCITY, new Vector3f(0, 2.0f, 0))
+                    .addProperty(AllEmitterProperties.POSITION, new Vector3f(pos.x, pos.y + 0.5f, pos.z))
+                    .addProperty(AllEmitterProperties.END_POSITION, new Vector3f(pos.x, pos.y + 10.0f, pos.z))
                     .build();
 
             EmitterConfig config = new EmitterConfig(
                     EmitterType.SPHERE,
+                    0.0f,
+                    pos,
+                    propConfig,
+                    bursts
+            );
+            builder.addEmitterConfig(config);
+        }
+        {
+            ParticleBurst[] bursts = new ParticleBurst[] {
+                    new ParticleBurst(0.0f, 3_0000)
+            };
+            EmitterPropertyConfig propConfig = new EmitterPropertyConfig.Builder()
+                    .addProperty(AllEmitterProperties.BLOOM_INTENSITY, 3.2f)
+                    .addProperty(AllEmitterProperties.COLOR, new Vector4f(2.0f, 0.5f, 1.0f, 1.0f))
+                    .addProperty(AllEmitterProperties.LIFE_TIME_RANGE, new Vector2f(0.3f, 5.0f))
+                    .addProperty(AllEmitterProperties.SIZE_RANGE, new Vector2f(0.1f, 3.0f))
+                    .addProperty(AllEmitterProperties.VELOCITY_MODE, VelocityModeStates.RANDOM)
+                    .addProperty(AllEmitterProperties.BASE_VELOCITY, new Vector3f(0, 2.0f, 0))
+                    .addProperty(AllEmitterProperties.END_POSITION, new Vector3f(pos.x, pos.y + 5.0f, pos.z))
+                    .build();
+
+            EmitterConfig config = new EmitterConfig(
+                    EmitterType.LINE,
                     0.0f,
                     pos,
                     propConfig,

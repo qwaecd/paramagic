@@ -60,8 +60,8 @@ public final class EffectPhysicsParameter implements IDataSerializable {
      * </pre>
      */
     public EffectPhysicsParameter() {
-        this.primaryForce    = new Vector4f(0.0f, 0.0f, 0.0f, 0.0f);
-        this.secondaryForce    = new Vector4f(0.0f, 0.0f, 0.0f, 0.0f);
+        this.primaryForce       = new Vector4f(0.0f, 0.0f, Float.MAX_VALUE, 0.0f);
+        this.secondaryForce     = new Vector4f(0.0f, 0.0f, Float.MAX_VALUE, 0.0f);
 
         this.sinusoidalForce    = new Vector4f(0.0f, 0.0f, 0.0f, 0.0f);
         this.sinusoidalExtra    = new Vector4f(0.0f, 0.0f, 0.0f, 0.0f);
@@ -110,7 +110,9 @@ public final class EffectPhysicsParameter implements IDataSerializable {
     }
 
     /**
-     * {@code F(r) = A * pow(r, B) ... ;}
+     * {@code F(r) = A * pow(r, B) ... ;}<br>
+     * A > 0 为引力，A < 0 为斥力<br>
+     * A > 0 is attractive force, A < 0 is repulsive force
      */
     public void setPrimaryForceParam(float A, float B) {
         this.primaryForce.x = A;
@@ -119,7 +121,9 @@ public final class EffectPhysicsParameter implements IDataSerializable {
     }
 
     /**
-     * {@code F(r) = ... C * pow(r, D) ... ;}
+     * {@code F(r) = ... C * pow(r, D) ... ;}<br>
+     * C > 0 为引力，C < 0 为斥力<br>
+     * C > 0 is attractive force, C < 0 is repulsive force
      */
     public void setSecondaryForceParam(float C, float D) {
         this.secondaryForce.x = C;

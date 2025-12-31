@@ -22,7 +22,9 @@ public class PhysicsParamBuilder {
     }
 
     /**
-     * Set center force parameters {@code F(r) = A * pow(r, B) ...;}
+     * Set center force parameters {@code F(r) = A * pow(r, B) ...;}<br>
+     * A > 0 为引力，A < 0 为斥力<br>
+     * A > 0 is attractive force, A < 0 is repulsive force
      */
     public PhysicsParamBuilder primaryForceParam(float A, float B) {
         this.param.setPrimaryForceParam(A, B);
