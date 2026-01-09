@@ -12,7 +12,7 @@ public interface BuiltinSpell {
     SpellIdentifier getSpellId();
     SpellDefinition definition();
     default Spell create() {
-        return Spell.create(this.definition());
+        return new Spell(this.definition(), true);
     }
 
     /**

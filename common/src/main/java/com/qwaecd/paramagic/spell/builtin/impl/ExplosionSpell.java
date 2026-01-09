@@ -76,11 +76,6 @@ public class ExplosionSpell implements BuiltinSpell {
     }
 
     @Override
-    public Spell create() {
-        return new Spell(explosionSpellDefinition, true);
-    }
-
-    @Override
     @PlatformScope(PlatformScopeType.SERVER)
     public void execute(ExecutionContext context) {
         ServerLevel level = context.level;
