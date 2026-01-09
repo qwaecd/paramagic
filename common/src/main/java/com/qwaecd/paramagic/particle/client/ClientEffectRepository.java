@@ -5,9 +5,9 @@ import com.qwaecd.paramagic.core.particle.data.EffectPhysicsParameter;
 import com.qwaecd.paramagic.core.particle.effect.GPUParticleEffect;
 import com.qwaecd.paramagic.core.particle.emitter.Emitter;
 import com.qwaecd.paramagic.network.particle.EffectSpawnData;
-import com.qwaecd.paramagic.particle.api.EmitterFactoryRegistry;
 import com.qwaecd.paramagic.network.particle.emitter.EmitterConfig;
 import com.qwaecd.paramagic.network.particle.emitter.EmitterFactory;
+import com.qwaecd.paramagic.particle.api.EmitterFactoryRegistry;
 import com.qwaecd.paramagic.platform.annotation.PlatformScope;
 import com.qwaecd.paramagic.platform.annotation.PlatformScopeType;
 
