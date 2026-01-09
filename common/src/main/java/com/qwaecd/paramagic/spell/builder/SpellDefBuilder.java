@@ -1,5 +1,6 @@
 package com.qwaecd.paramagic.spell.builder;
 
+import com.qwaecd.paramagic.spell.SpellIdentifier;
 import com.qwaecd.paramagic.spell.builder.step.*;
 import com.qwaecd.paramagic.spell.config.CircleAssets;
 import com.qwaecd.paramagic.spell.config.CircleTransformConfig;
@@ -14,17 +15,17 @@ import com.qwaecd.paramagic.spell.view.position.CirclePositionRule;
 import java.util.Objects;
 
 public class SpellDefBuilder implements MetaStep, PhaseStep {
-    private final String spellId;
+    private final SpellIdentifier spellId;
     private SpellMetaConfig meta;
     private PhaseSequenceConfig phases;
 
     private boolean hasPhase = false;
 
-    private SpellDefBuilder(String spellId) {
+    private SpellDefBuilder(SpellIdentifier spellId) {
         this.spellId = spellId;
     }
 
-    public static MetaStep withSpellId(String spellId) {
+    public static MetaStep withSpellId(SpellIdentifier spellId) {
         return new SpellDefBuilder(spellId);
     }
 

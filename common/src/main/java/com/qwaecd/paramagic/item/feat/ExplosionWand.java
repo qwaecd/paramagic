@@ -1,18 +1,14 @@
 package com.qwaecd.paramagic.item.feat;
 
-import com.qwaecd.paramagic.feature.effect.exposion.ExplosionAssets;
+import com.qwaecd.paramagic.Paramagic;
 import com.qwaecd.paramagic.spell.SpellSpawner;
-import com.qwaecd.paramagic.spell.builder.SpellDefBuilder;
+import com.qwaecd.paramagic.spell.builtin.BuiltinSpell;
+import com.qwaecd.paramagic.spell.builtin.BuiltinSpellRegistry;
+import com.qwaecd.paramagic.spell.builtin.impl.ExplosionSpell;
 import com.qwaecd.paramagic.spell.caster.PlayerCaster;
-import com.qwaecd.paramagic.spell.config.SpellMetaConfig;
-import com.qwaecd.paramagic.spell.core.Spell;
-import com.qwaecd.paramagic.spell.core.SpellDefinition;
-import com.qwaecd.paramagic.spell.phase.SpellPhaseType;
 import com.qwaecd.paramagic.spell.session.SessionManagers;
 import com.qwaecd.paramagic.spell.session.server.ServerSession;
 import com.qwaecd.paramagic.spell.session.server.ServerSessionManager;
-import com.qwaecd.paramagic.spell.view.position.CirclePositionRule;
-import com.qwaecd.paramagic.spell.view.position.PositionRuleType;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
@@ -23,7 +19,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Rarity;
 import net.minecraft.world.item.UseAnim;
 import net.minecraft.world.level.Level;
-import org.joml.Vector3f;
 
 import java.util.UUID;
 
@@ -43,35 +38,15 @@ public class ExplosionWand extends Item {
         ItemStack itemstack = player.getItemInHand(usedHand);
 
         if (level instanceof ServerLevel serverLevel) {
-            Spell spell = Spell.create(definition("explosion"));
-            SpellSpawner.spawnOnServer(serverLevel, PlayerCaster.create(player), spell);
+            BuiltinSpell builtinSpell = BuiltinSpellRegistry.getSpell(ExplosionSpell.SPELL_ID);
+            if (builtinSpell == null) {
+                Paramagic.LOG.error("Failed to get Built-in Spell: {} from BuiltinSpellRegistry.", ExplosionSpell.SPELL_ID);
+                return InteractionResultHolder.fail(itemstack);
+            }
+            SpellSpawner.spawnOnServer(serverLevel, PlayerCaster.create(player), builtinSpell.create());
         }
         player.startUsingItem(usedHand);
         return InteractionResultHolder.consume(itemstack);
-    }
-
-    @SuppressWarnings("SameParameterValue")
-    private static SpellDefinition definition(String spellId) {
-        SpellMetaConfig meta = new SpellMetaConfig(SpellPhaseType.COOLDOWN);
-        return SpellDefBuilder
-                .withSpellId(spellId)
-                .withMeta(meta)
-                .phase(SpellPhaseType.IDLE, 0.1f)
-                .phaseWithAssets(SpellPhaseType.CASTING, 3.0f).circleAssets(ExplosionAssets.create())
-                    .positionRule(CirclePositionRule.fixedAtCasterFeet)
-                    .transformConfig(new Vector3f(1.0f), new Vector3f())
-                .endAsset()
-                .phaseWithAssets(SpellPhaseType.CHANNELING, 2.0f).circleAssets(ExplosionAssets.create())
-                    .positionRule(
-                            PositionRuleType.IN_FRONT_OF_CASTER,
-                            new Vector3f(0.4f),
-                            false,
-                            new Vector3f((float) Math.toRadians(0.0f), (float) Math.toRadians(0.0f), (float) Math.toRadians(89.0f))
-                    )
-                    .transformConfig(new Vector3f(0.15f), new Vector3f())
-                .endAsset()
-                .phase(SpellPhaseType.COOLDOWN, 0.0f)
-                .build();
     }
 
     @Override

@@ -9,6 +9,7 @@ import com.qwaecd.paramagic.particle.api.EmitterFactoryRegistry;
 import com.qwaecd.paramagic.particle.client.ClientEffectRepository;
 import com.qwaecd.paramagic.particle.server.ServerEffectManager;
 import com.qwaecd.paramagic.platform.Services;
+import com.qwaecd.paramagic.spell.builtin.BuiltinSpellRegistry;
 import com.qwaecd.paramagic.spell.session.client.ClientSessionManager;
 
 // This class is part of the common project meaning it is shared between all supported loaders. Code written here can only
@@ -37,6 +38,7 @@ public class CommonClass {
         AllParaComponentData.registerAll();
         AllEmitterProperties.registerAll();
         ServerEffectManager.init();
+        BuiltinSpellRegistry.init();
     }
 
     public static void initOnClient() {
