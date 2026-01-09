@@ -1,6 +1,7 @@
 package com.qwaecd.paramagic.network.handler;
 
 import com.qwaecd.paramagic.network.api.NetworkContext;
+import com.qwaecd.paramagic.network.packet.particle.S2CEffectKill;
 import com.qwaecd.paramagic.network.packet.particle.S2CEffectSpawn;
 import com.qwaecd.paramagic.network.particle.EffectSpawnData;
 import com.qwaecd.paramagic.particle.client.ClientEffectRepository;
@@ -12,6 +13,11 @@ public class ClientEffectHandlers {
     public static void spawnOnClient(S2CEffectSpawn packet, NetworkContext context) {
         EffectSpawnData spawnData = packet.getSpawnData();
         ClientEffectRepository.getInstance().spawnEffect(spawnData);
+    }
+
+    public static void killEffect(S2CEffectKill packet, NetworkContext context) {
+        int netId = packet.getKillData().getNetId();
+        ClientEffectRepository.getInstance().removeEffect(netId);
     }
 }
 
