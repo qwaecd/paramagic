@@ -5,7 +5,7 @@ import com.qwaecd.paramagic.core.render.ModRenderSystem;
 import com.qwaecd.paramagic.core.render.shader.AllShaders;
 import com.qwaecd.paramagic.data.para.AllParaComponentData;
 import com.qwaecd.paramagic.network.codec.codable.CodableTypeRegistry;
-import com.qwaecd.paramagic.network.particle.EffectTypeRegistry;
+import com.qwaecd.paramagic.particle.api.EmitterFactoryRegistry;
 import com.qwaecd.paramagic.particle.client.ClientEffectRepository;
 import com.qwaecd.paramagic.particle.server.ServerEffectManager;
 import com.qwaecd.paramagic.platform.Services;
@@ -35,12 +35,12 @@ public class CommonClass {
         }
         CodableTypeRegistry.init();
         AllParaComponentData.registerAll();
-        EffectTypeRegistry.registerAll();
         AllEmitterProperties.registerAll();
         ServerEffectManager.init();
     }
 
     public static void initOnClient() {
+        EmitterFactoryRegistry.registerAll();
         AllShaders.registerAllShaders();
         ModRenderSystem.init();
         ClientSessionManager.init();

@@ -1,4 +1,4 @@
-package com.qwaecd.paramagic.network.packet.particle;
+package com.qwaecd.paramagic.network.packet.effect;
 
 import com.qwaecd.paramagic.network.DataCodec;
 import com.qwaecd.paramagic.network.api.Packet;

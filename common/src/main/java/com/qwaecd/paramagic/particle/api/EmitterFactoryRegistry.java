@@ -1,4 +1,4 @@
-package com.qwaecd.paramagic.network.particle;
+package com.qwaecd.paramagic.particle.api;
 
 import com.qwaecd.paramagic.Paramagic;
 import com.qwaecd.paramagic.core.exception.EmitterPropertyTypeException;
@@ -10,6 +10,8 @@ import com.qwaecd.paramagic.core.particle.emitter.impl.*;
 import com.qwaecd.paramagic.network.particle.emitter.EmitterConfig;
 import com.qwaecd.paramagic.network.particle.emitter.EmitterFactory;
 import com.qwaecd.paramagic.network.particle.emitter.EmitterPropertyConfig;
+import com.qwaecd.paramagic.platform.annotation.PlatformScope;
+import com.qwaecd.paramagic.platform.annotation.PlatformScopeType;
 
 import javax.annotation.Nullable;
 import java.util.EnumMap;
@@ -17,7 +19,13 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 
-public class EffectTypeRegistry {
+/**
+ * 用于将已经注册的 {@link EmitterFactory} 与 {@link EmitterType} 或 int 关联起来的注册表。<br>
+ * emitterType.id -> EmitterFactory<br>
+ * 在服务端上不存在该注册表，因为发射器的创建仅在客户端进行。
+ */
+@PlatformScope(PlatformScopeType.CLIENT)
+public class EmitterFactoryRegistry {
     private static final Map<Integer, EmitterFactory> EMITTER_FACTORIES = new ConcurrentHashMap<>();
 
     /**

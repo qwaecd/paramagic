@@ -6,7 +6,7 @@ import com.qwaecd.paramagic.core.particle.emitter.ParticleBurst;
 import com.qwaecd.paramagic.core.particle.emitter.property.key.AllEmitterProperties;
 import com.qwaecd.paramagic.core.particle.emitter.property.type.VelocityModeStates;
 import com.qwaecd.paramagic.network.Networking;
-import com.qwaecd.paramagic.network.packet.particle.S2CEffectSpawn;
+import com.qwaecd.paramagic.network.packet.effect.S2CEffectSpawn;
 import com.qwaecd.paramagic.network.particle.anchor.AnchorSpec;
 import com.qwaecd.paramagic.network.particle.emitter.EmitterConfig;
 import com.qwaecd.paramagic.network.particle.emitter.EmitterPropertyConfig;
@@ -142,7 +142,7 @@ public class Spell {
                     .addProperty(AllEmitterProperties.LIFE_TIME_RANGE, new Vector2f(0.3f, 5.0f))
                     .addProperty(AllEmitterProperties.SIZE_RANGE, new Vector2f(0.1f, 2.0f))
                     .addProperty(AllEmitterProperties.VELOCITY_MODE, VelocityModeStates.RADIAL_FROM_CENTER)
-                    .addProperty(AllEmitterProperties.BASE_VELOCITY, new Vector3f(0, 20.0f, 0))
+                    .addProperty(AllEmitterProperties.BASE_VELOCITY, new Vector3f(0, 10.0f, 0))
                     .build();
 
             EmitterConfig config = new EmitterConfig(
