@@ -1,7 +1,7 @@
 package com.qwaecd.paramagic.init;
 
-import com.qwaecd.paramagic.entity.ModEntityTypes;
-import com.qwaecd.paramagic.entity.SpellAnchorEntity;
+import com.qwaecd.paramagic.world.entity.ModEntityTypes;
+import com.qwaecd.paramagic.world.entity.SpellAnchorEntity;
 import com.qwaecd.paramagic.tools.ModRL;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;

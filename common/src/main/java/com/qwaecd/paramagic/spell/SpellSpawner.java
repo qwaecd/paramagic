@@ -1,6 +1,6 @@
 package com.qwaecd.paramagic.spell;
 
-import com.qwaecd.paramagic.entity.SpellAnchorEntity;
+import com.qwaecd.paramagic.world.entity.SpellAnchorEntity;
 import com.qwaecd.paramagic.platform.annotation.PlatformScope;
 import com.qwaecd.paramagic.platform.annotation.PlatformScopeType;
 import com.qwaecd.paramagic.spell.caster.SpellCaster;

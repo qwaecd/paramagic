@@ -1,7 +1,7 @@
 package com.qwaecd.paramagic.init;
 
-import com.qwaecd.paramagic.item.debug.DebugWand;
-import com.qwaecd.paramagic.item.feat.ExplosionWand;
+import com.qwaecd.paramagic.world.item.debug.DebugWand;
+import com.qwaecd.paramagic.world.item.feat.ExplosionWand;
 import com.qwaecd.paramagic.tools.ModRL;
 import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroup;
 import net.minecraft.core.Registry;

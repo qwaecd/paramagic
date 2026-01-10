@@ -1,4 +1,4 @@
-package com.qwaecd.paramagic.item.feat;
+package com.qwaecd.paramagic.world.item.feat;
 
 import com.qwaecd.paramagic.Paramagic;
 import com.qwaecd.paramagic.spell.SpellSpawner;

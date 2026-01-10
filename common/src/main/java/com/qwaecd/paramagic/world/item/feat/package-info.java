@@ -1,6 +1,6 @@
 @ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault
-package com.qwaecd.paramagic.item.feat;
+package com.qwaecd.paramagic.world.item.feat;
 
 import net.minecraft.MethodsReturnNonnullByDefault;
 

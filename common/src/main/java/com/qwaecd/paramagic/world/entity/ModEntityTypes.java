@@ -1,4 +1,4 @@
-package com.qwaecd.paramagic.entity;
+package com.qwaecd.paramagic.world.entity;
 
 import net.minecraft.world.entity.EntityType;
 

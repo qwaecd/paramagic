@@ -1,6 +1,6 @@
 package com.qwaecd.paramagic.spell.session.server;
 
-import com.qwaecd.paramagic.entity.SpellAnchorEntity;
+import com.qwaecd.paramagic.world.entity.SpellAnchorEntity;
 import com.qwaecd.paramagic.spell.caster.SpellCaster;
 import com.qwaecd.paramagic.spell.core.Spell;
 import com.qwaecd.paramagic.spell.listener.SpellPhaseListener;

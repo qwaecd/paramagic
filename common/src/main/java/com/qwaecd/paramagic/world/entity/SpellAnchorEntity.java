@@ -1,4 +1,4 @@
-package com.qwaecd.paramagic.entity;
+package com.qwaecd.paramagic.world.entity;
 
 import com.qwaecd.paramagic.network.serializer.AllEntityDataSerializers;
 import com.qwaecd.paramagic.platform.annotation.PlatformScope;

@@ -1,4 +1,4 @@
-package com.qwaecd.paramagic.item.debug;
+package com.qwaecd.paramagic.world.item.debug;
 
 import com.qwaecd.paramagic.core.particle.ParticleSystem;
 import com.qwaecd.paramagic.core.particle.builder.PhysicsParamBuilder;

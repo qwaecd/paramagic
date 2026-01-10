@@ -1,6 +1,6 @@
 package com.qwaecd.paramagic;
 
-import com.qwaecd.paramagic.entity.ModEntityTypes;
+import com.qwaecd.paramagic.world.entity.ModEntityTypes;
 import com.qwaecd.paramagic.init.ModEntitiesFabric;
 import com.qwaecd.paramagic.init.ModItemsFabric;
 import com.qwaecd.paramagic.network.FabricNetworking;
