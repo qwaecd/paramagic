@@ -22,7 +22,7 @@ import net.minecraft.network.chat.Component;
 public class FabricClient implements ClientModInitializer {
     @Override
     public void onInitializeClient() {
-        CommonClass.initOnClient();
+        ParamagicClient.initOnClient();
 
         Services.PLATFORM.initializeOpenGL();
         registerClientCommands();

@@ -19,7 +19,7 @@
             "com.qwaecd.paramagic.ParamagicFabric"
         ],
         "client": [
-              "com.qwaecd.paramagic.FabricClient"
+            "com.qwaecd.paramagic.FabricClient"
         ]
     },
     "mixins": [
@@ -36,4 +36,3 @@
         "another-mod": "*"
     }
 }
-  

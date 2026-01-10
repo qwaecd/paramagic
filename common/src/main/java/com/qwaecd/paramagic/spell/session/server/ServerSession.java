@@ -1,6 +1,5 @@
 package com.qwaecd.paramagic.spell.session.server;
 
-import com.qwaecd.paramagic.world.entity.SpellAnchorEntity;
 import com.qwaecd.paramagic.spell.caster.SpellCaster;
 import com.qwaecd.paramagic.spell.core.Spell;
 import com.qwaecd.paramagic.spell.listener.SpellPhaseListener;
@@ -9,6 +8,7 @@ import com.qwaecd.paramagic.spell.session.SpellSession;
 import com.qwaecd.paramagic.spell.state.SpellStateMachine;
 import com.qwaecd.paramagic.spell.state.event.MachineEvent;
 import com.qwaecd.paramagic.tools.ConditionalLogger;
+import com.qwaecd.paramagic.world.entity.SpellAnchorEntity;
 import lombok.Getter;
 import net.minecraft.server.level.ServerLevel;
 

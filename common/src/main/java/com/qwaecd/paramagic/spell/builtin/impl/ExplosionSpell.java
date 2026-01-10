@@ -21,7 +21,6 @@ import com.qwaecd.paramagic.spell.SpellIdentifier;
 import com.qwaecd.paramagic.spell.builder.SpellDefBuilder;
 import com.qwaecd.paramagic.spell.builtin.BuiltinSpell;
 import com.qwaecd.paramagic.spell.config.SpellMetaConfig;
-import com.qwaecd.paramagic.spell.core.Spell;
 import com.qwaecd.paramagic.spell.core.SpellDefinition;
 import com.qwaecd.paramagic.spell.logic.ExecutionContext;
 import com.qwaecd.paramagic.spell.phase.SpellPhaseType;

@@ -13,7 +13,7 @@ public class ParamagicFabric implements ModInitializer {
     @Override
     public void onInitialize() {
         Paramagic.LOG.info("Hello Fabric world!");
-        CommonClass.init();
+        Paramagic.init();
         ModItemsFabric.registerAll();
         ModEntitiesFabric.registerAll();
 

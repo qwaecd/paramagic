@@ -7,7 +7,6 @@ public class ParamagicForge {
     
     public ParamagicForge() {
         Paramagic.LOG.info("Hello Forge world!");
-        CommonClass.init();
-        
+        Paramagic.init();
     }
 }

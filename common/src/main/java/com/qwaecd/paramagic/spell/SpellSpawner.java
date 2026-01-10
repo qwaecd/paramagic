@@ -1,6 +1,5 @@
 package com.qwaecd.paramagic.spell;
 
-import com.qwaecd.paramagic.world.entity.SpellAnchorEntity;
 import com.qwaecd.paramagic.platform.annotation.PlatformScope;
 import com.qwaecd.paramagic.platform.annotation.PlatformScopeType;
 import com.qwaecd.paramagic.spell.caster.SpellCaster;
@@ -10,6 +9,7 @@ import com.qwaecd.paramagic.spell.session.SessionManagers;
 import com.qwaecd.paramagic.spell.session.server.ServerSession;
 import com.qwaecd.paramagic.spell.session.server.ServerSessionManager;
 import com.qwaecd.paramagic.spell.state.AllMachineEvents;
+import com.qwaecd.paramagic.world.entity.SpellAnchorEntity;
 import net.minecraft.server.level.ServerLevel;
 
 import javax.annotation.Nullable;
