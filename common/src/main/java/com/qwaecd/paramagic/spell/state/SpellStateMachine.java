@@ -50,6 +50,9 @@ public class SpellStateMachine {
      * @param deltaTime 距离上一次调用该函数的时间间隔，单位为秒.
      */
     public void update(float deltaTime) {
+        if (this.isCompleted) {
+            return;
+        }
         int processed = 0;
         while(processed < MAX_EVENTS_PER_TICK) {
             MachineEventEnvelope envelope = this.eventQueue.pollOne();
