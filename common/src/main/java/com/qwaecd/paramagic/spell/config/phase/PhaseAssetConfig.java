@@ -4,7 +4,7 @@ import com.qwaecd.paramagic.network.DataCodec;
 import com.qwaecd.paramagic.network.IDataSerializable;
 import com.qwaecd.paramagic.spell.config.CircleAssets;
 import com.qwaecd.paramagic.spell.config.CircleTransformConfig;
-import com.qwaecd.paramagic.spell.view.position.CirclePositionRule;
+import com.qwaecd.paramagic.spell.view.position.PositionRuleSpec;
 
 import javax.annotation.Nullable;
 
@@ -13,13 +13,13 @@ public class PhaseAssetConfig implements IDataSerializable {
     @Nullable
     private final CircleAssets circleAssets;
 
-    private final CirclePositionRule positionRule;
+    private final PositionRuleSpec positionRule;
 
     private final CircleTransformConfig transformConfig;
 
     public PhaseAssetConfig(
             @Nullable CircleAssets circleAssets,
-            CirclePositionRule positionRule,
+            PositionRuleSpec positionRule,
             CircleTransformConfig transformConfig
     ) {
         this.circleAssets = circleAssets;
@@ -32,7 +32,7 @@ public class PhaseAssetConfig implements IDataSerializable {
         return this.circleAssets;
     }
 
-    public CirclePositionRule getPositionRule() {
+    public PositionRuleSpec getPositionRule() {
         return this.positionRule;
     }
 
@@ -49,7 +49,7 @@ public class PhaseAssetConfig implements IDataSerializable {
 
     public static PhaseAssetConfig fromCodec(DataCodec codec) {
         CircleAssets assets = codec.readObjectNullable("assets", CircleAssets::fromCodec);
-        CirclePositionRule rule = codec.readObject("positionRule", CirclePositionRule::fromCodec);
+        PositionRuleSpec rule = codec.readObject("positionRule", PositionRuleSpec::fromCodec);
         CircleTransformConfig config = codec.readObject("transformConfig", CircleTransformConfig::fromCodec);
         return new PhaseAssetConfig(assets, rule, config);
     }

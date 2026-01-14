@@ -14,7 +14,10 @@ import com.qwaecd.paramagic.spell.core.SpellDefinition;
 import com.qwaecd.paramagic.spell.phase.SpellPhaseType;
 import com.qwaecd.paramagic.spell.session.client.ClientSessionListener;
 import com.qwaecd.paramagic.spell.session.client.ClientSessionView;
-import com.qwaecd.paramagic.spell.view.position.CirclePositionRule;
+import com.qwaecd.paramagic.spell.view.position.PositionRule;
+import com.qwaecd.paramagic.spell.view.position.PositionRuleContext;
+import com.qwaecd.paramagic.spell.view.PositionRuleRegistry;
+import com.qwaecd.paramagic.spell.view.position.PositionRuleSpec;
 import org.joml.Vector3f;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,20 +43,24 @@ public class MultiPhaseRenderListener implements ClientSessionListener {
     }
 
     private void createPhaseCircle(SpellPhaseType phaseType) {
-        PhaseConfig phaseConfig = spellDefinition.phases.getPhaseConfig(phaseType);
+        PhaseConfig phaseConfig = this.spellDefinition.phases.getPhaseConfig(phaseType);
 
         PhaseAssetConfig assetConfig = phaseConfig.getAssetConfig();
         if (assetConfig == null || assetConfig.getSpellAssets() == null) {
+            // 本阶段没有需要渲染的魔法阵
             return;
         }
 
         try {
             MagicCircle circle = ParaComposer.assemble(assetConfig.getSpellAssets());
 
-            flushTFSource();
+            PositionRuleSpec positionRuleSpec = assetConfig.getPositionRule();
+            PositionRule positionRule = PositionRuleRegistry.create(positionRuleSpec);
 
-            CirclePositionRule positionRule = assetConfig.getPositionRule();
-            positionRule.applyPosition(circle, tmpSample);
+            flushTFSource();
+            PositionRuleContext positionContext = new PositionRuleContext(circle, this.tmpSample, positionRuleSpec);
+            positionRule.onAttach(positionContext);
+            positionRule.apply(positionContext);
 
             CircleTransformConfig transformConfig = assetConfig.getTransformConfig();
             Vector3f scale = transformConfig.getInitialScale();
@@ -62,7 +69,7 @@ public class MultiPhaseRenderListener implements ClientSessionListener {
                     .setScale(scale)
                     .setRotationRadians(rotation.x, rotation.y, rotation.z);
 
-            this.registerModifier(assetConfig, circle);
+            this.registerModifier(circle, positionRule, positionContext);
 
             MagicCircleManager.getInstance().addCircle(circle);
             activeCircles.put(phaseType, circle);
@@ -99,7 +106,7 @@ public class MultiPhaseRenderListener implements ClientSessionListener {
     }
 
     private void cleanupPhaseCircle(SpellPhaseType phaseType) {
-        MagicCircle circle = activeCircles.remove(phaseType);
+        MagicCircle circle = this.activeCircles.remove(phaseType);
         if (circle != null) {
             MagicCircleManager.getInstance().removeCircle(circle);
         }
@@ -107,7 +114,7 @@ public class MultiPhaseRenderListener implements ClientSessionListener {
 
     private void cleanupAllCircles() {
         MagicCircleManager.getInstance().removeCircle(this.activeCircles.values());
-        activeCircles.clear();
+        this.activeCircles.clear();
     }
 
     private ClientSessionView v() {
@@ -117,14 +124,19 @@ public class MultiPhaseRenderListener implements ClientSessionListener {
         return view;
     }
 
-    private void registerModifier(@Nonnull PhaseAssetConfig assetConfig, @Nonnull MagicCircle circle) {
-        if (assetConfig.getPositionRule().shouldUpdatePerFrame()) {
-            CirclePositionRule positionRule = assetConfig.getPositionRule();
-            circle.registerModifyTransform(transform -> {
-                this.flushTFSource();
-                positionRule.applyPosition(circle, this.tmpSample);
-            });
+    private void registerModifier(
+            @Nonnull MagicCircle circle,
+            @Nonnull PositionRule positionRule,
+            @Nonnull PositionRuleContext context
+    ) {
+        if (!positionRule.needsContinuousUpdate()) {
+            return;
         }
+        circle.registerModifyTransform(transform -> {
+            this.flushTFSource();
+            context.setCasterTransform(this.tmpSample);
+            positionRule.apply(context);
+        });
     }
 
     private void flushTFSource() {

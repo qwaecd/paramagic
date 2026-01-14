@@ -24,7 +24,7 @@ import com.qwaecd.paramagic.spell.config.SpellMetaConfig;
 import com.qwaecd.paramagic.spell.core.SpellDefinition;
 import com.qwaecd.paramagic.spell.logic.ExecutionContext;
 import com.qwaecd.paramagic.spell.phase.SpellPhaseType;
-import com.qwaecd.paramagic.spell.view.position.CirclePositionRule;
+import com.qwaecd.paramagic.spell.view.position.PositionRuleSpec;
 import com.qwaecd.paramagic.spell.view.position.PositionRuleType;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -45,17 +45,17 @@ public class ExplosionSpell implements BuiltinSpell {
                 .withMeta(meta)
                 .phase(SpellPhaseType.IDLE, 0.1f)
                 .phaseWithAssets(SpellPhaseType.CASTING, 3.0f).circleAssets(ExplosionAssets.create())
-                .positionRule(CirclePositionRule.fixedAtCasterFeet)
+                .positionRule(PositionRuleSpec.fixedAtCasterFeet())
                 .transformConfig(new Vector3f(1.0f), new Vector3f())
                 .endAsset()
-                .phaseWithAssets(SpellPhaseType.CHANNELING, 2.0f).circleAssets(ExplosionAssets.create())
+                .phaseWithAssets(SpellPhaseType.CHANNELING, -2.0f).circleAssets(ExplosionAssets.create())
                 .positionRule(
                         PositionRuleType.IN_FRONT_OF_CASTER,
                         new Vector3f(0.4f),
                         false,
-                        new Vector3f(0.0f, 0.0f, (float) Math.toRadians(89.0f))
+                        new Vector3f(0, (float) Math.toRadians(89.0d), 0.0f)
                 )
-                .transformConfig(new Vector3f(0.15f), new Vector3f())
+                .transformConfig(new Vector3f(0.15f), new Vector3f(0, (float) Math.toRadians(89.0d), 0.0f))
                 .endAsset()
                 .phase(SpellPhaseType.COOLDOWN, 0.0f)
                 .build();

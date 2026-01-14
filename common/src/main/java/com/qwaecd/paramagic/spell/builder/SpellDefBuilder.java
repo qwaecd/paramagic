@@ -10,7 +10,7 @@ import com.qwaecd.paramagic.spell.config.phase.PhaseConfig;
 import com.qwaecd.paramagic.spell.config.phase.PhaseSequenceConfig;
 import com.qwaecd.paramagic.spell.core.SpellDefinition;
 import com.qwaecd.paramagic.spell.phase.SpellPhaseType;
-import com.qwaecd.paramagic.spell.view.position.CirclePositionRule;
+import com.qwaecd.paramagic.spell.view.position.PositionRuleSpec;
 
 import java.util.Objects;
 
@@ -72,7 +72,7 @@ public class SpellDefBuilder implements MetaStep, PhaseStep {
         private final PhaseConfig basePhase;
 
         private CircleAssets circleAssets;
-        private CirclePositionRule positionRule;
+        private PositionRuleSpec positionRule;
         private CircleTransformConfig transformConfig;
 
         AssetBuilder(SpellDefBuilder parent, PhaseConfig basePhase) {
@@ -88,7 +88,7 @@ public class SpellDefBuilder implements MetaStep, PhaseStep {
         }
 
         @Override
-        public PositionRequired positionRule(CirclePositionRule rule) {
+        public PositionRequired positionRule(PositionRuleSpec rule) {
             this.positionRule = Objects.requireNonNull(rule, "positionRule required");
             return this;
         }
