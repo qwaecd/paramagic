@@ -1,5 +1,8 @@
 package com.qwaecd.paramagic.spell.session.client;
 
+import com.qwaecd.paramagic.spell.SpellIdentifier;
+import com.qwaecd.paramagic.spell.builtin.BuiltinSpellVisual;
+import com.qwaecd.paramagic.spell.builtin.BuiltinSpellVisualRegistry;
 import com.qwaecd.paramagic.spell.core.Spell;
 import com.qwaecd.paramagic.spell.listener.SpellPhaseListener;
 import com.qwaecd.paramagic.spell.session.SessionState;
@@ -27,15 +30,16 @@ public class ClientSession extends SpellSession implements ClientSessionView, Au
     }
 
     public void tick(float deltaTime) {
+        this.machine.update(deltaTime);
+        // 当前 tick ，状态机已经完成运行，则标记为逻辑完成
+        if (this.machineCompleted() && !isState(SessionState.FINISHED_LOGICALLY)) {
+            this.setSessionState(SessionState.FINISHED_LOGICALLY);
+            return;
+        }
+
         if (isState(SessionState.INTERRUPTED) || isState(SessionState.FINISHED_LOGICALLY)) {
             // TODO: 可以实现延迟销毁
             this.setSessionState(SessionState.DISPOSED);
-            return;
-        }
-        if (!this.machineCompleted()) {
-            this.machine.update(deltaTime);
-        } else {
-            this.setSessionState(SessionState.FINISHED_LOGICALLY);
         }
     }
 
@@ -85,7 +89,18 @@ public class ClientSession extends SpellSession implements ClientSessionView, Au
     }
 
     @Override
+    public int casterNetId() throws NullPointerException {
+        return this.casterSource.getCasterNetId();
+    }
+
+    @Override
     public void close() {
+        SpellIdentifier spellId = this.spell.definition.spellId;
+        BuiltinSpellVisual visual = BuiltinSpellVisualRegistry.getSpell(spellId);
+        if (visual != null) {
+            visual.onClose(this);
+        }
+
         for (SpellPhaseListener listener : this.listeners) {
             if (listener instanceof ClientSessionListener clientListener) {
                 clientListener.onSessionClose();

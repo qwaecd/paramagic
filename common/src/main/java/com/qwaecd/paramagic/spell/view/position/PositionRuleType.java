@@ -5,6 +5,7 @@ public enum PositionRuleType {
     FOLLOW_CASTER_EYE(1),       // 跟随施法者眼睛位置
     FIXED_AT_CASTER_FEET(2),    // 固定在施法者脚底（施法开始时的位置）
     IN_FRONT_OF_CASTER(3),      // 在施法者面前（视线方向）
+    // TODO: 该类别还未实现接口
     CUSTOM(99);                 // 自定义规则
 
     public final int id;

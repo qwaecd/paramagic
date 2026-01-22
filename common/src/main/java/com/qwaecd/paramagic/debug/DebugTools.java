@@ -128,14 +128,14 @@ public class DebugTools {
                 centerForcePos,
                 1000.0f
         );
-        circleEmitter.getProperty(BASE_VELOCITY).modify(v -> v.set(0.0f, 1.0f, 0.0f));
+        circleEmitter.getProperty(BASE_VELOCITY).modify(v -> v.set(1.0f, 0.0f, 0.0f));
         circleEmitter.getProperty(LIFE_TIME_RANGE).modify(v -> v.set(0.2f, 1.6f));
         circleEmitter.getProperty(COLOR).modify(v -> v.set(1.0f, 0.0f, 0.4f, 1.0f));
         circleEmitter.getProperty(SIZE_RANGE).modify(v -> v.set(1.1f, 2.3f));
         circleEmitter.getProperty(BLOOM_INTENSITY).set(2.0f);
-        circleEmitter.getProperty(VELOCITY_MODE).set(VelocityModeStates.DIRECT);
+        circleEmitter.getProperty(VELOCITY_MODE).set(VelocityModeStates.RADIAL_FROM_CENTER);
         circleEmitter.getProperty(NORMAL).modify(v -> v.set(0.0f, 1.0f, 0.0f));
-        circleEmitter.getProperty(INNER_OUTER_RADIUS).modify(v -> v.set(0.5f, 0.7f));
+        circleEmitter.getProperty(INNER_OUTER_RADIUS).modify(v -> v.set(0.5f, 1.0f));
 
         // effect
         GPUParticleEffect effect = new GPUParticleEffect(

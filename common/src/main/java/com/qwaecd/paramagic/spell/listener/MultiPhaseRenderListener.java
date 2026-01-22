@@ -52,11 +52,14 @@ public class MultiPhaseRenderListener implements ClientSessionListener {
         }
 
         try {
+            // 从给定的资源配置组装魔法阵
             MagicCircle circle = ParaComposer.assemble(assetConfig.getSpellAssets());
 
+            // 从给定位置规则创建规则实例
             PositionRuleSpec positionRuleSpec = assetConfig.getPositionRule();
             PositionRule positionRule = PositionRuleRegistry.create(positionRuleSpec);
 
+            // 应用初始变换
             flushTFSource();
             PositionRuleContext positionContext = new PositionRuleContext(circle, this.tmpSample, positionRuleSpec);
             positionRule.onAttach(positionContext);
@@ -69,11 +72,12 @@ public class MultiPhaseRenderListener implements ClientSessionListener {
                     .setScale(scale)
                     .setRotationRadians(rotation.x, rotation.y, rotation.z);
 
+            // 注册位置规则回调器
             this.registerModifier(circle, positionRule, positionContext);
 
+            // 提交 MagicCircle
             MagicCircleManager.getInstance().addCircle(circle);
             activeCircles.put(phaseType, circle);
-
         } catch (AssemblyException e) {
             logger.warn("Failed to assemble spell assets for phase {}", phaseType, e);
         }
@@ -119,7 +123,7 @@ public class MultiPhaseRenderListener implements ClientSessionListener {
 
     private ClientSessionView v() {
         if (view == null) {
-            throw new NullPointerException("not bound yet");
+            throw new NullPointerException("Client session not bound yet");
         }
         return view;
     }

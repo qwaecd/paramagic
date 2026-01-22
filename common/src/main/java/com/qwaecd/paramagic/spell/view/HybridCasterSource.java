@@ -23,6 +23,15 @@ public class HybridCasterSource implements CasterTransformSource {
         }
     }
 
+    public int getCasterNetId() {
+        if (primary != null) {
+            return primary.getId();
+        } else if (fallback != null) {
+            return fallback.getId();
+        }
+        throw new NullPointerException("Both primary and fallback caster sources are null");
+    }
+
     public void setPrimary(@Nullable Entity primary) {
         this.primary = primary;
     }

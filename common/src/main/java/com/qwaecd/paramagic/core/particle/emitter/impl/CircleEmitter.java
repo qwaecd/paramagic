@@ -52,7 +52,7 @@ public class CircleEmitter extends EmitterBase implements Emitter {
                 }));
         // param5: bloom_intensity (w)
         registerProperty(BLOOM_INTENSITY, new EmitterProperty<>(0.0f,
-                (req, v) -> req.getParam5().z = v
+                (req, v) -> req.getParam5().w = v
         ));
         // param6: 圆环内外径(xy)
         registerProperty(INNER_OUTER_RADIUS, new EmitterProperty<>(INNER_OUTER_RADIUS.getDefaultValue(),

@@ -4,4 +4,5 @@ import com.qwaecd.paramagic.spell.view.CasterTransformSource;
 
 public interface ClientSessionView {
     CasterTransformSource casterSource();
+    int casterNetId() throws NullPointerException;
 }

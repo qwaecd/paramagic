@@ -50,15 +50,16 @@ public class ServerSession extends SpellSession implements AutoCloseable, Server
 
     @SuppressWarnings("unused")
     private void tick(ServerLevel level, float deltaTime) {
+        this.machine.update(deltaTime);
+        // 当前 tick ，状态机已经完成运行，则标记为逻辑完成
+        if (this.machineCompleted() && !isState(SessionState.FINISHED_LOGICALLY)) {
+            this.setSessionState(SessionState.FINISHED_LOGICALLY);
+            return;
+        }
+
         if (isState(SessionState.INTERRUPTED) || isState(SessionState.FINISHED_LOGICALLY)) {
             // TODO: 可以实现延迟销毁
             this.setSessionState(SessionState.DISPOSED);
-            return;
-        }
-        if (!this.machineCompleted()) {
-            this.machine.update(deltaTime);
-        } else {
-            this.setSessionState(SessionState.FINISHED_LOGICALLY);
         }
     }
 

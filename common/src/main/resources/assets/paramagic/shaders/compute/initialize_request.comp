@@ -66,9 +66,10 @@ layout(std430, binding = BINDING_EMISSION_TASKS) buffer Tasks {
 };
 
 uniform float u_randomSeed;
-
+/**
 subroutine void EmitterInitializer(uint particleIndex, EmissionRequest req);
 subroutine uniform EmitterInitializer u_emitterInitializerFunc;
+*/
 
 // emitter types
 const int POINT_EMITTER = 1;
@@ -147,7 +148,7 @@ void buildOrthonormalBasis(vec3 a_axis, out vec3 out_axis_x, out vec3 out_axis_y
     out_axis_z = normalize(a_axis);
 
     vec3 temp_up;
-    if (abs(out_axis_z.y) > 0.999) {
+    if (abs(out_axis_z.y) > 0.99) {
         temp_up = vec3(1.0, 0.0, 0.0);
     } else {
         temp_up = vec3(0.0, 1.0, 0.0);
@@ -395,9 +396,9 @@ void circleEmitter(uint particleIndex, EmissionRequest req, uint unique_ID) {
     float r = sqrt(innerRadius * innerRadius + (outerRadius * outerRadius - innerRadius * innerRadius) * randomVec2.x);
     float theta = randomVec2.y * 2.0 * PI;
     vec2 localPos = vec2(r * cos(theta), r * sin(theta));
-    // I don't know why -normal is needed here, but it works
-    vec3 randomPosWorld = localPos.x * axisX + localPos.y * axisY + axisZ - normal;
-    particlePosition = req.param1.xyz + randomPosWorld;
+
+    vec3 randomPosLocal = localPos.x * axisX + localPos.y * axisY;
+    particlePosition = req.param1.xyz + randomPosLocal;
 
     // gen velocity
     uint emitterFlags = floatBitsToUint(req.param1.w);
@@ -410,7 +411,7 @@ void circleEmitter(uint particleIndex, EmissionRequest req, uint unique_ID) {
             break;
         }
         case EMITTER_FLAGS_VELOCITY_MODE_RADIAL_FROM_CENTER: {
-            vec3 v_dir = normalize(randomPosWorld);
+            vec3 v_dir = normalize(randomPosLocal);
             initial_velocity = v_dir * length(req.param2.xyz);
             break;
         }
@@ -455,6 +456,7 @@ void main() {
         }
     }
 }
+/**
 
 subroutine(EmitterInitializer)
 void pointEmitterInitializer(uint particleIndex, EmissionRequest req) {
@@ -480,3 +482,4 @@ subroutine(EmitterInitializer)
 void circleEmitterInitializer(uint particleIndex, EmissionRequest req) {
     return;
 }
+*/

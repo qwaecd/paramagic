@@ -48,14 +48,9 @@ public class ExplosionSpell implements BuiltinSpell {
                 .positionRule(PositionRuleSpec.fixedAtCasterFeet())
                 .transformConfig(new Vector3f(1.0f), new Vector3f())
                 .endAsset()
-                .phaseWithAssets(SpellPhaseType.CHANNELING, -2.0f).circleAssets(ExplosionAssets.create())
-                .positionRule(
-                        PositionRuleType.IN_FRONT_OF_CASTER,
-                        new Vector3f(0.4f),
-                        false,
-                        new Vector3f(0, (float) Math.toRadians(89.0d), 0.0f)
-                )
-                .transformConfig(new Vector3f(0.15f), new Vector3f(0, (float) Math.toRadians(89.0d), 0.0f))
+                .phaseWithAssets(SpellPhaseType.CHANNELING, 2.0f).circleAssets(ExplosionAssets.create())
+                .positionRule(PositionRuleType.IN_FRONT_OF_CASTER, new Vector3f(0.5f), false, new Vector3f())
+                .transformConfig(new Vector3f(0.15f), new Vector3f())
                 .endAsset()
                 .phase(SpellPhaseType.COOLDOWN, 0.0f)
                 .build();

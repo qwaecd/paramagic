@@ -4,29 +4,30 @@ import com.qwaecd.paramagic.platform.annotation.PlatformScope;
 import com.qwaecd.paramagic.platform.annotation.PlatformScopeType;
 import com.qwaecd.paramagic.spell.SpellIdentifier;
 import com.qwaecd.paramagic.spell.builtin.impl.ExplosionSpell;
+import com.qwaecd.paramagic.spell.builtin.impl.ExplosionSpellVisual;
 
 import javax.annotation.Nullable;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-@PlatformScope(PlatformScopeType.COMMON)
-public class BuiltinSpellRegistry {
-    private static BuiltinSpellRegistry INSTANCE;
+@PlatformScope(PlatformScopeType.CLIENT)
+public class BuiltinSpellVisualRegistry {
+    private static BuiltinSpellVisualRegistry INSTANCE;
 
-    private final Map<SpellIdentifier, BuiltinSpell> registry = new ConcurrentHashMap<>();
+    private final Map<SpellIdentifier, BuiltinSpellVisual> registry = new ConcurrentHashMap<>();
 
     public static void init() {
         if (INSTANCE == null) {
-            INSTANCE = new BuiltinSpellRegistry();
+            INSTANCE = new BuiltinSpellVisualRegistry();
             registerAll();
         }
     }
 
     private static void registerAll() {
-        register(ExplosionSpell.SPELL_ID, new ExplosionSpell());
+        register(ExplosionSpell.SPELL_ID, new ExplosionSpellVisual());
     }
 
-    public static void register(SpellIdentifier spellId, BuiltinSpell spell) {
+    public static void register(SpellIdentifier spellId, BuiltinSpellVisual spell) {
         INSTANCE.registry.put(spellId, spell);
     }
 
@@ -35,7 +36,7 @@ public class BuiltinSpellRegistry {
     }
 
     @Nullable
-    public static BuiltinSpell getSpell(SpellIdentifier spellId) {
+    public static BuiltinSpellVisual getSpell(SpellIdentifier spellId) {
         return INSTANCE.registry.get(spellId);
     }
 
