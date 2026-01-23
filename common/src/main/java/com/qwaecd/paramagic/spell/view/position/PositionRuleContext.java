@@ -2,7 +2,6 @@ package com.qwaecd.paramagic.spell.view.position;
 
 import com.qwaecd.paramagic.core.render.TransformSample;
 import com.qwaecd.paramagic.feature.circle.MagicCircle;
-import lombok.Setter;
 import org.joml.Quaternionf;
 
 @SuppressWarnings("LombokSetterMayBeUsed")
