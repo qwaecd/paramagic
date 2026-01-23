@@ -3,6 +3,7 @@ package com.qwaecd.paramagic.spell.listener;
 import com.qwaecd.paramagic.spell.core.SpellDefinition;
 import com.qwaecd.paramagic.spell.logic.ExecutionContext;
 import com.qwaecd.paramagic.spell.phase.SpellPhaseType;
+import com.qwaecd.paramagic.spell.session.server.ServerSession;
 import com.qwaecd.paramagic.spell.session.server.ServerSessionListener;
 import com.qwaecd.paramagic.spell.session.server.ServerSessionView;
 
@@ -26,7 +27,7 @@ public class ExecutionListener implements ServerSessionListener {
         ServerSessionView view = this.v();
         SpellDefinition definition = view.getSpell().definition;
         if (currentPhase == definition.meta.executePhase) {
-            ExecutionContext context = new ExecutionContext(view.getLevel(), view.getCaster());
+            ExecutionContext context = new ExecutionContext((ServerSession) view, view.getLevel(), view.getCaster());
             view.getSpell().execute(context);
         }
     }

@@ -35,7 +35,7 @@ public class SessionDataSyncPayload implements IDataSerializable {
 
     @Override
     public void write(DataCodec codec) {
-        codec.writeString("sessionId", this.sessionId.toString());
+        codec.writeUUID("sessionId", this.sessionId);
         codec.writeInt("entryCount", this.entries.size());
         for (Entry entry : this.entries) {
             entry.write(codec);
@@ -43,7 +43,7 @@ public class SessionDataSyncPayload implements IDataSerializable {
     }
 
     public static SessionDataSyncPayload fromCodec(DataCodec codec) {
-        final UUID sessionId = UUID.fromString(codec.readString("sessionId"));
+        final UUID sessionId = codec.readUUID("sessionId");
         final int entryCount = codec.readInt("entryCount");
         List<Entry> entries = new ArrayList<>(entryCount);
         for (int i = 0; i < entryCount; i++) {

@@ -1,29 +1,34 @@
 package com.qwaecd.paramagic.spell.session.server;
 
+import com.qwaecd.paramagic.network.Networking;
+import com.qwaecd.paramagic.network.packet.session.S2CSessionDataSyncPacket;
 import com.qwaecd.paramagic.spell.caster.SpellCaster;
 import com.qwaecd.paramagic.spell.core.Spell;
 import com.qwaecd.paramagic.spell.listener.SpellPhaseListener;
 import com.qwaecd.paramagic.spell.session.SessionState;
 import com.qwaecd.paramagic.spell.session.SpellSession;
+import com.qwaecd.paramagic.spell.session.store.SessionDataStore;
+import com.qwaecd.paramagic.spell.session.store.SessionDataSyncPayload;
+import com.qwaecd.paramagic.spell.session.store.SessionDataValue;
 import com.qwaecd.paramagic.spell.state.SpellStateMachine;
 import com.qwaecd.paramagic.spell.state.event.MachineEvent;
 import com.qwaecd.paramagic.tools.ConditionalLogger;
 import com.qwaecd.paramagic.world.entity.SpellAnchorEntity;
 import lombok.Getter;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.players.PlayerList;
 
 import javax.annotation.Nonnull;
 import java.lang.ref.WeakReference;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.function.Consumer;
 
 public class ServerSession extends SpellSession implements AutoCloseable, ServerSessionView {
     private static final ConditionalLogger LOGGER = ConditionalLogger.create(ServerSession.class);
 
     private final ServerLevel level;
+    private final int trackingDistance;
 
     @Nonnull
     @Getter
@@ -33,11 +38,14 @@ public class ServerSession extends SpellSession implements AutoCloseable, Server
 
     private final List<WeakReference<SpellAnchorEntity>> anchors = new ArrayList<>();
 
+    private final Set<UUID> trackingPlayers = new HashSet<>();
+
     public ServerSession(UUID sessionId, @Nonnull SpellCaster caster, @Nonnull Spell spell, ServerLevel level) {
         super(sessionId, spell);
         this.caster = caster;
         this.machine = new SpellStateMachine(spell.definition);
         this.level = level;
+        this.trackingDistance = this.level.getServer().getPlayerList().getSimulationDistance() * 16;
     }
 
     public boolean machineCompleted() {
@@ -101,7 +109,49 @@ public class ServerSession extends SpellSession implements AutoCloseable, Server
     }
 
     public void connectAnchor(@Nonnull SpellAnchorEntity anchor) {
+        List<ServerPlayer> players = this.level.getPlayers(player -> (player.distanceToSqr(anchor) < this.trackingDistance * this.trackingDistance));
+        players.forEach(player -> this.trackingPlayers.add(player.getUUID()));
         this.anchors.add(new WeakReference<>(anchor));
+    }
+
+    public void syncDataStore() {
+        this.forEachTrackingPlayer(player -> Networking.get().sendToPlayer(player, this.createFullSyncPacket()));
+    }
+
+    private void forEachTrackingPlayer(Consumer<ServerPlayer> action) {
+        PlayerList playerList = this.level.getServer().getPlayerList();
+        this.trackingPlayers.forEach(uuid -> {
+            ServerPlayer player = playerList.getPlayer(uuid);
+            if (player != null) {
+                action.accept(player);
+            }
+        });
+    }
+
+    public void setDataValueSync(int dataId, @Nonnull SessionDataValue<?> value) {
+        this.dataStore.setValue(dataId, value);
+        SessionDataStore.DataValue<?> dataValue = this.dataStore.getDataValue(dataId);
+        if (dataValue == null) {
+            return;
+        }
+        SessionDataSyncPayload payload = new SessionDataSyncPayload(
+                this.sessionId,
+                dataId,
+                dataValue.getSequenceNumber(),
+                dataValue.get()
+        );
+        final S2CSessionDataSyncPacket packet = new S2CSessionDataSyncPacket(payload);
+        this.forEachTrackingPlayer(player -> Networking.get().sendToPlayer(player, packet));
+    }
+
+    private S2CSessionDataSyncPacket createFullSyncPacket() {
+        List<SessionDataSyncPayload.Entry> entries = new ArrayList<>();
+        this.dataStore.forEachEntry(
+                (dataId, dataValue) -> entries.add(
+                        new SessionDataSyncPayload.Entry(dataId, dataValue.getSequenceNumber(), dataValue.get())
+                )
+        );
+        return new S2CSessionDataSyncPacket(new SessionDataSyncPayload(this.sessionId, entries));
     }
 
     @Override

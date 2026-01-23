@@ -2,18 +2,21 @@ package com.qwaecd.paramagic.spell.session.store;
 
 import com.qwaecd.paramagic.network.DataCodec;
 import com.qwaecd.paramagic.network.IDataSerializable;
+import lombok.Getter;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.BiConsumer;
 
 @SuppressWarnings("LombokGetterMayBeUsed")
 public class SessionDataStore implements IDataSerializable {
     private final Map<Integer, DataValue<?>> dataMap = new ConcurrentHashMap<>();
 
     @SuppressWarnings("ClassCanBeRecord")
-    static class DataValue<T> implements IDataSerializable {
+    public static class DataValue<T> implements IDataSerializable {
+        @Getter
         final int sequenceNumber;
         @Nonnull
         final SessionDataValue<T> value;
@@ -69,6 +72,11 @@ public class SessionDataStore implements IDataSerializable {
     }
 
     @Nullable
+    public DataValue<?> getDataValue(int dataId) {
+        return this.dataMap.get(dataId);
+    }
+
+    @Nullable
     public SessionDataValue<?> removeValue(int dataId) {
         DataValue<?> removed = this.dataMap.remove(dataId);
         if (removed != null) {
@@ -76,6 +84,10 @@ public class SessionDataStore implements IDataSerializable {
             return removed.value;
         }
         return null;
+    }
+
+    public void forEachEntry(BiConsumer<Integer, DataValue<?>> action) {
+        this.dataMap.forEach(action);
     }
 
     public SessionDataValue<?> removeValue(SessionDataKey<?> sessionDataKey) {
@@ -100,9 +112,6 @@ public class SessionDataStore implements IDataSerializable {
         for (var entry : dataMap.entrySet()) {
             int dataId = entry.getKey();
             DataValue<?> value = entry.getValue();
-            if (value == null) {
-                continue;
-            }
             codec.writeInt("dataId", dataId);
             codec.writeObject("value", value);
         }

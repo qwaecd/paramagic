@@ -24,12 +24,14 @@ import com.qwaecd.paramagic.spell.config.SpellMetaConfig;
 import com.qwaecd.paramagic.spell.core.SpellDefinition;
 import com.qwaecd.paramagic.spell.logic.ExecutionContext;
 import com.qwaecd.paramagic.spell.phase.SpellPhaseType;
+import com.qwaecd.paramagic.spell.session.server.ServerSession;
+import com.qwaecd.paramagic.spell.session.store.AllSessionDataKeys;
+import com.qwaecd.paramagic.spell.session.store.SessionDataValue;
 import com.qwaecd.paramagic.spell.view.position.PositionRuleSpec;
 import com.qwaecd.paramagic.spell.view.position.PositionRuleType;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.phys.HitResult;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
@@ -77,26 +79,29 @@ public class ExplosionSpell implements BuiltinSpell {
         if (casterEntity == null) {
             return;
         }
-        final float partialTicks = 0.0f;
-        final double hitDistance = 24.0D;
-        HitResult hitResult = casterEntity.pick(hitDistance, partialTicks, false);
+
+        ServerSession session = context.getServerSession();
+        SessionDataValue<Vector3f> value = session.getDataStore().getValue(AllSessionDataKeys.firstPosition);
+        if (value == null) {
+            return;
+        }
+        Vector3f pos = value.value;
         level.explode(
                 casterEntity,
-                hitResult.getLocation().x,
-                hitResult.getLocation().y,
-                hitResult.getLocation().z,
+                pos.x,
+                pos.y,
+                pos.z,
                 128.0f,
                 false,
                 ServerLevel.ExplosionInteraction.BLOCK
         );
-        genParticleData(hitResult, casterEntity, level);
+        genParticleData(pos, casterEntity, level);
     }
 
-    private void genParticleData(HitResult result, Entity casterEntity, ServerLevel level) {
+    private void genParticleData(Vector3f pos, Entity casterEntity, ServerLevel level) {
         if (!(casterEntity instanceof ServerPlayer)) {
             return;
         }
-        Vector3f pos = result.getLocation().toVector3f();
         EffectSpawnBuilder builder = new EffectSpawnBuilder();
         PhysicsParamBuilder physicsBuilder = new PhysicsParamBuilder();
         physicsBuilder
@@ -191,7 +196,7 @@ public class ExplosionSpell implements BuiltinSpell {
 
         final double distance = 64.0D;
         for (ServerPlayer player : level.players()) {
-            if (player.distanceToSqr(result.getLocation()) < distance * distance) {
+            if (player.distanceToSqr(pos.x, pos.y, pos.z) < distance * distance) {
                 Networking.get().sendToPlayer(player, new S2CEffectSpawn(serverEffect.spawnData));
             }
         }

@@ -13,10 +13,13 @@ import com.qwaecd.paramagic.spell.session.SpellSessionRef;
 import com.qwaecd.paramagic.spell.session.client.ClientSession;
 import com.qwaecd.paramagic.spell.session.client.ClientSessionListener;
 import com.qwaecd.paramagic.spell.session.client.ClientSessionView;
+import com.qwaecd.paramagic.spell.session.store.AllSessionDataKeys;
+import com.qwaecd.paramagic.spell.session.store.SessionDataStore;
+import com.qwaecd.paramagic.spell.session.store.SessionDataValue;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.phys.HitResult;
+import org.joml.Vector3f;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -64,15 +67,19 @@ public class ExplosionSpellVisual implements BuiltinSpellVisual {
 
             try {
                 int netId = this.v().casterNetId();
-                Entity cater = level.getEntity(netId);
-                if (cater == null) {
+                Entity caster = level.getEntity(netId);
+                if (caster == null) {
                     return;
                 }
+                SessionDataStore dataStore = this.v().getDataStore();
+                SessionDataValue<Vector3f> value = dataStore.getValue(AllSessionDataKeys.firstPosition);
+                if (value == null) {
+                    return;
+                }
+                Vector3f pos = value.value;
                 this.circle = ParaComposer.assemble(ExplosionAssets.create());
 
-                HitResult hitResult = cater.pick(256d, 0.0f, false);
-
-                this.circle.getTransform().setPosition(hitResult.getLocation().toVector3f());
+                this.circle.getTransform().setPosition(pos);
             } catch (Exception e) {
                 LOGGER.error("Failed to create {} spell visual: ", ExplosionSpell.SPELL_ID, e);
                 return;
