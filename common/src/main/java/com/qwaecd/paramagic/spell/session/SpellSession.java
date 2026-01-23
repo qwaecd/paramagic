@@ -2,6 +2,7 @@ package com.qwaecd.paramagic.spell.session;
 
 import com.qwaecd.paramagic.spell.core.Spell;
 import com.qwaecd.paramagic.spell.listener.SpellPhaseListener;
+import com.qwaecd.paramagic.spell.session.store.SessionDataStore;
 import com.qwaecd.paramagic.spell.state.event.MachineEvent;
 import lombok.Getter;
 
@@ -17,6 +18,10 @@ public abstract class SpellSession {
     protected final Spell spell;
     @Nonnull
     protected SessionState sessionState;
+
+    @Getter
+    protected final SessionDataStore dataStore = new SessionDataStore();
+
 
     protected final List<SpellPhaseListener> listeners = new ArrayList<>();
 

@@ -2,8 +2,10 @@ package com.qwaecd.paramagic.network;
 
 import com.qwaecd.paramagic.network.api.PlatformNetworking;
 import com.qwaecd.paramagic.network.handler.ClientEffectHandlers;
+import com.qwaecd.paramagic.network.handler.ClientSessionDataHandlers;
 import com.qwaecd.paramagic.network.packet.effect.S2CEffectKill;
 import com.qwaecd.paramagic.network.packet.effect.S2CEffectSpawn;
+import com.qwaecd.paramagic.network.packet.session.S2CSessionDataSyncPacket;
 import com.qwaecd.paramagic.platform.annotation.PlatformScope;
 import com.qwaecd.paramagic.platform.annotation.PlatformScopeType;
 
@@ -12,5 +14,6 @@ public class ClientNetworking {
     public static void registerAllOnClient(PlatformNetworking networking) {
         networking.register(S2CEffectSpawn.IDENTIFIER, S2CEffectSpawn.class, S2CEffectSpawn::decode, ClientEffectHandlers::spawnOnClient);
         networking.register(S2CEffectKill.IDENTIFIER, S2CEffectKill.class, S2CEffectKill::decode, ClientEffectHandlers::killEffect);
+        networking.register(S2CSessionDataSyncPacket.IDENTIFIER, S2CSessionDataSyncPacket.class, S2CSessionDataSyncPacket::decode, ClientSessionDataHandlers::syncSessionData);
     }
 }
