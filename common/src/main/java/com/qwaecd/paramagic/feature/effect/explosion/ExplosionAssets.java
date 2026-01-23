@@ -1,4 +1,4 @@
-package com.qwaecd.paramagic.feature.effect.exposion;
+package com.qwaecd.paramagic.feature.effect.explosion;
 
 import com.qwaecd.paramagic.data.para.struct.ParaData;
 import com.qwaecd.paramagic.spell.config.CircleAssets;

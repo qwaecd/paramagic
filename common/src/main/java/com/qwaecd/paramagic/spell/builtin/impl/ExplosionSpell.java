@@ -6,7 +6,7 @@ import com.qwaecd.paramagic.core.particle.emitter.EmitterType;
 import com.qwaecd.paramagic.core.particle.emitter.ParticleBurst;
 import com.qwaecd.paramagic.core.particle.emitter.property.key.AllEmitterProperties;
 import com.qwaecd.paramagic.core.particle.emitter.property.type.VelocityModeStates;
-import com.qwaecd.paramagic.feature.effect.exposion.ExplosionAssets;
+import com.qwaecd.paramagic.feature.effect.explosion.ExplosionAssets;
 import com.qwaecd.paramagic.network.Networking;
 import com.qwaecd.paramagic.network.packet.effect.S2CEffectSpawn;
 import com.qwaecd.paramagic.network.particle.anchor.AnchorSpec;
@@ -50,7 +50,7 @@ public class ExplosionSpell implements BuiltinSpell {
                 .positionRule(PositionRuleSpec.fixedAtCasterFeet())
                 .transformConfig(new Vector3f(1.0f), new Vector3f())
                 .endAsset()
-                .phaseWithAssets(SpellPhaseType.CHANNELING, 2.0f).circleAssets(ExplosionAssets.create())
+                .phaseWithAssets(SpellPhaseType.CHANNELING, 4.0f).circleAssets(ExplosionAssets.create())
                 .positionRule(PositionRuleType.IN_FRONT_OF_CASTER, new Vector3f(0.5f), false, new Vector3f())
                 .transformConfig(new Vector3f(0.15f), new Vector3f())
                 .endAsset()
@@ -89,7 +89,7 @@ public class ExplosionSpell implements BuiltinSpell {
         level.explode(
                 casterEntity,
                 pos.x,
-                pos.y,
+                pos.y + 12.0f,
                 pos.z,
                 128.0f,
                 false,
@@ -99,13 +99,14 @@ public class ExplosionSpell implements BuiltinSpell {
     }
 
     private void genParticleData(Vector3f pos, Entity casterEntity, ServerLevel level) {
+        Vector3f position = new Vector3f(pos.x, pos.y + 12.0f, pos.z);
         if (!(casterEntity instanceof ServerPlayer)) {
             return;
         }
         EffectSpawnBuilder builder = new EffectSpawnBuilder();
         PhysicsParamBuilder physicsBuilder = new PhysicsParamBuilder();
         physicsBuilder
-                .centerForcePos(pos)
+                .centerForcePos(position)
                 .primaryForceEnabled(true)
                 .primaryForceParam(-20.0f, -2.0f)
                 .dragCoefficient(0.8f)
@@ -116,7 +117,7 @@ public class ExplosionSpell implements BuiltinSpell {
                 .setEffectPhysicsParameter(physicsBuilder.build())
                 .setMaxParticles(9_0000)
                 .setMaxLifetime(5.0f)
-                .setAnchorSpec(AnchorSpec.forStaticPosition(pos));
+                .setAnchorSpec(AnchorSpec.forStaticPosition(position));
         {
             ParticleBurst[] bursts = new ParticleBurst[] {
                     new ParticleBurst(0.0f, 3_0000)
@@ -129,13 +130,13 @@ public class ExplosionSpell implements BuiltinSpell {
                     .addProperty(AllEmitterProperties.SPHERE_RADIUS, 1.0f)
                     .addProperty(AllEmitterProperties.VELOCITY_MODE, VelocityModeStates.RANDOM)
                     .addProperty(AllEmitterProperties.BASE_VELOCITY, new Vector3f(0, 2.0f, 0))
-                    .addProperty(AllEmitterProperties.POSITION, new Vector3f(pos.x, pos.y + 0.5f, pos.z))
+                    .addProperty(AllEmitterProperties.POSITION, new Vector3f(position.x, position.y + 0.5f, position.z))
                     .build();
 
             EmitterConfig config = new EmitterConfig(
                     EmitterType.SPHERE,
                     0.0f,
-                    pos,
+                    position,
                     propConfig,
                     bursts
             );
@@ -153,14 +154,14 @@ public class ExplosionSpell implements BuiltinSpell {
                     .addProperty(AllEmitterProperties.SIZE_RANGE, new Vector2f(0.1f, 3.0f))
                     .addProperty(AllEmitterProperties.VELOCITY_MODE, VelocityModeStates.RANDOM)
                     .addProperty(AllEmitterProperties.BASE_VELOCITY, new Vector3f(0, 2.0f, 0))
-                    .addProperty(AllEmitterProperties.POSITION, new Vector3f(pos.x, pos.y - 5.0f, pos.z))
-                    .addProperty(AllEmitterProperties.END_POSITION, new Vector3f(pos.x, pos.y + 5.0f, pos.z))
+                    .addProperty(AllEmitterProperties.POSITION, new Vector3f(position.x, position.y - 5.0f, position.z))
+                    .addProperty(AllEmitterProperties.END_POSITION, new Vector3f(position.x, position.y + 5.0f, position.z))
                     .build();
 
             EmitterConfig config = new EmitterConfig(
                     EmitterType.LINE,
                     0.0f,
-                    pos,
+                    position,
                     propConfig,
                     bursts
             );
@@ -183,7 +184,7 @@ public class ExplosionSpell implements BuiltinSpell {
             EmitterConfig config = new EmitterConfig(
                     EmitterType.CIRCLE,
                     0.0f,
-                    pos,
+                    position,
                     propConfig,
                     bursts
             );
@@ -196,7 +197,7 @@ public class ExplosionSpell implements BuiltinSpell {
 
         final double distance = 64.0D;
         for (ServerPlayer player : level.players()) {
-            if (player.distanceToSqr(pos.x, pos.y, pos.z) < distance * distance) {
+            if (player.distanceToSqr(position.x, position.y, position.z) < distance * distance) {
                 Networking.get().sendToPlayer(player, new S2CEffectSpawn(serverEffect.spawnData));
             }
         }

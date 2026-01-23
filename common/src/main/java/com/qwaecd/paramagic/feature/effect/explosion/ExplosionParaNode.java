@@ -1,4 +1,4 @@
-package com.qwaecd.paramagic.feature.effect.exposion;
+package com.qwaecd.paramagic.feature.effect.explosion;
 
 import com.qwaecd.paramagic.data.animation.property.AllAnimatableProperties;
 import com.qwaecd.paramagic.data.animation.struct.AnimationBinding;

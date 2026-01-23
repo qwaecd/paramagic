@@ -1,4 +1,4 @@
-package com.qwaecd.paramagic.feature.effect.exposion;
+package com.qwaecd.paramagic.feature.effect.explosion;
 
 import com.qwaecd.paramagic.Paramagic;
 import com.qwaecd.paramagic.assembler.AssemblyException;
