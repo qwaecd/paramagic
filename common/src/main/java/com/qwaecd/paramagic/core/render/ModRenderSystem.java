@@ -261,11 +261,14 @@ public class ModRenderSystem extends AbstractRenderSystem{
     }
 
     public void onWindowResize(int newWidth, int newHeight) {
-        if (mainFbo != null) {
-            mainFbo.resize(newWidth, newHeight);
+        if (this.mainFbo != null) {
+            this.mainFbo.resize(newWidth, newHeight);
         }
-        if (postProcessingManager != null) {
-            postProcessingManager.onResize(newWidth, newHeight);
+        if (this.postProcessingManager != null) {
+            this.postProcessingManager.onResize(newWidth, newHeight);
+        }
+        if (this.sceneCopyFBO != null) {
+            this.sceneCopyFBO.resize(newWidth, newHeight);
         }
     }
 
