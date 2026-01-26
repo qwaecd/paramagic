@@ -1,6 +1,22 @@
 {
-  "parent": "minecraft:item/handheld",
+  "parent": "item/generated",
   "textures": {
     "layer0": "paramagic:item/feat/explosion_wand"
+  },
+  "display": {
+    "thirdperson_righthand": {
+      "rotation": [-45, -90, 0],
+      "translation": [0.25, 0.25, 0.25],
+      "scale": [1.72, 1.82, 1]
+    },
+    "thirdperson_lefthand": {
+      "rotation": [-45, 90, 0],
+      "translation": [0.25, 0.25, 0.25],
+      "scale": [1.72, 1.82, 1]
+    },
+    "fixed": {
+      "rotation": [180, 0, 180],
+      "scale": [1.19, 1.19, 1.19]
+    }
   }
 }

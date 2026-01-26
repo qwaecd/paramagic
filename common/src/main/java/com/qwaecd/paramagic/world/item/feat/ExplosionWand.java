@@ -71,11 +71,6 @@ public class ExplosionWand extends Item {
     }
 
     @Override
-    public boolean isFoil(ItemStack stack) {
-        return true;
-    }
-
-    @Override
     public Rarity getRarity(ItemStack stack) {
         return Rarity.EPIC;
     }
