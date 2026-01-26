@@ -1,6 +1,7 @@
 package com.qwaecd.paramagic.core.para.material;
 
 import com.qwaecd.paramagic.core.render.api.EmissiveMutable;
+import com.qwaecd.paramagic.core.render.queue.RenderType;
 import com.qwaecd.paramagic.core.render.shader.Shader;
 import com.qwaecd.paramagic.core.render.texture.AbstractMaterial;
 import org.joml.Vector3f;
@@ -54,5 +55,10 @@ public abstract class ParaMaterial extends AbstractMaterial implements EmissiveM
     @Override
     public void setEmissiveIntensity(float intensity) {
         this.emissiveIntensity = intensity;
+    }
+
+    @Override
+    public RenderType getRenderType() {
+        return RenderType.ADDITIVE;
     }
 }

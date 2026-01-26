@@ -1,5 +1,6 @@
 package com.qwaecd.paramagic.core.render;
 
+import com.mojang.blaze3d.pipeline.RenderTarget;
 import com.qwaecd.paramagic.Paramagic;
 import com.qwaecd.paramagic.client.renderbase.BaseObjectManager;
 import com.qwaecd.paramagic.client.renderbase.factory.FullScreenQuadFactory;
@@ -8,6 +9,7 @@ import com.qwaecd.paramagic.core.render.api.IRenderable;
 import com.qwaecd.paramagic.core.render.context.RenderContext;
 import com.qwaecd.paramagic.core.render.post.PostProcessingManager;
 import com.qwaecd.paramagic.core.render.post.buffer.FramebufferUtils;
+import com.qwaecd.paramagic.core.render.post.buffer.SceneCopyFBO;
 import com.qwaecd.paramagic.core.render.post.buffer.SceneMRTFramebuffer;
 import com.qwaecd.paramagic.core.render.queue.RenderItem;
 import com.qwaecd.paramagic.core.render.queue.RenderQueue;
@@ -45,6 +47,7 @@ public class ModRenderSystem extends AbstractRenderSystem{
     private final ConcurrentLinkedQueue<Collection<IRenderable>> pendingBatchRemove = new ConcurrentLinkedQueue<>();
 
     private SceneMRTFramebuffer mainFbo;
+    private SceneCopyFBO sceneCopyFBO;
     private PostProcessingManager postProcessingManager;
     private Mesh fullscreenQuad;
 
@@ -140,6 +143,7 @@ public class ModRenderSystem extends AbstractRenderSystem{
         int height = Minecraft.getInstance().getWindow().getHeight();
 
         this.mainFbo = new SceneMRTFramebuffer(width, height);
+        this.sceneCopyFBO = new SceneCopyFBO(width, height);
         this.postProcessingManager = new PostProcessingManager();
         this.postProcessingManager.initialize(width, height);
     }
@@ -164,7 +168,7 @@ public class ModRenderSystem extends AbstractRenderSystem{
         super.bindWriteMainTarget(true);
 
         glEnable(GL_BLEND);
-        glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+        glBlendFunc(GL_ONE, GL_ONE);
         glDisable(GL_DEPTH_TEST);
         glDepthMask(false);
 
@@ -172,8 +176,12 @@ public class ModRenderSystem extends AbstractRenderSystem{
         finalBlitShader.bind();
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, finalSceneTexture);
+        glActiveTexture(GL_TEXTURE2);
+        glBindTexture(GL_TEXTURE_2D, this.sceneCopyFBO.getGameSceneTextureId());
         finalBlitShader.setUniformValue1i("u_hdrSceneTexture", 0);
+        finalBlitShader.setUniformValue1i("u_gameSceneTexture", 2);
         finalBlitShader.setUniformValue1f("u_exposure", 1.0f);
+        finalBlitShader.setUniformValue1i("u_enableGammaCorrection", 0);
         fullscreenQuad.draw();
         finalBlitShader.unbind();
 
@@ -189,7 +197,9 @@ public class ModRenderSystem extends AbstractRenderSystem{
     }
 
     private void renderObjectsToMainFBO(RenderContext context) {
-        FramebufferUtils.copyDepth(Minecraft.getInstance().getMainRenderTarget(), this.mainFbo);
+        RenderTarget mainRenderTarget = Minecraft.getInstance().getMainRenderTarget();
+        FramebufferUtils.copyDepth(mainRenderTarget, this.mainFbo);
+        FramebufferUtils.copy(mainRenderTarget, this.sceneCopyFBO, GL_COLOR_BUFFER_BIT);
         mainFbo.bind();
         glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
         glClear(GL_COLOR_BUFFER_BIT);

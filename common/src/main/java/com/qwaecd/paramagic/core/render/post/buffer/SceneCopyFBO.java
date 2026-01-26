@@ -6,39 +6,51 @@ import org.lwjgl.system.MemoryUtil;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 
-import static org.lwjgl.opengl.GL33.*;
+import static org.lwjgl.opengl.GL11.*;
+import static org.lwjgl.opengl.GL11.GL_FLOAT;
+import static org.lwjgl.opengl.GL11.GL_LINEAR;
+import static org.lwjgl.opengl.GL11.GL_RGBA;
+import static org.lwjgl.opengl.GL11.GL_TEXTURE_2D;
+import static org.lwjgl.opengl.GL11.GL_TEXTURE_MAG_FILTER;
+import static org.lwjgl.opengl.GL11.GL_TEXTURE_MIN_FILTER;
+import static org.lwjgl.opengl.GL11.GL_TEXTURE_WRAP_S;
+import static org.lwjgl.opengl.GL11.GL_TEXTURE_WRAP_T;
+import static org.lwjgl.opengl.GL11.glTexImage2D;
+import static org.lwjgl.opengl.GL11.glTexParameteri;
+import static org.lwjgl.opengl.GL12.GL_CLAMP_TO_EDGE;
+import static org.lwjgl.opengl.GL30.*;
 
-public class SingleTargetFramebuffer extends Framebuffer {
+public class SceneCopyFBO extends Framebuffer {
     @Getter
-    protected int colorTextureId;
-    public SingleTargetFramebuffer(int width, int height) {
+    private final int gameSceneTextureId;  // Attachment 0
+
+    public SceneCopyFBO(int width, int height) {
         super(width, height);
 
         glBindFramebuffer(GL_FRAMEBUFFER, this.fboId);
 
-        this.colorTextureId = glGenTextures();
-        glBindTexture(GL_TEXTURE_2D, colorTextureId);
+        // 游戏画面 0
+        this.gameSceneTextureId = glGenTextures();
+        glBindTexture(GL_TEXTURE_2D, this.gameSceneTextureId);
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, width, height, 0, GL_RGBA, GL_FLOAT, (ByteBuffer) null);
-        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, colorTextureId, 0);
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, gameSceneTextureId, 0);
 
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-
-        // 设置 draw buffers，确保可写入颜色附件 0
+        // 初始化所有纹理像素
         IntBuffer drawBuffers = MemoryUtil.memAllocInt(1);
-        drawBuffers.put(GL_COLOR_ATTACHMENT0).flip();
+        drawBuffers.put(GL_COLOR_ATTACHMENT0);
+        drawBuffers.flip();
         glDrawBuffers(drawBuffers);
         MemoryUtil.memFree(drawBuffers);
 
         if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
-            throw new RuntimeException("SingleTargetFramebuffer is not complete!");
+            throw new RuntimeException("SceneCopyFBO is not complete!");
         }
 
-        glBindTexture(GL_TEXTURE_2D, 0);
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
     }
 
     @Override
@@ -59,14 +71,15 @@ public class SingleTargetFramebuffer extends Framebuffer {
         }
         this.width = newWidth;
         this.height = newHeight;
-        glBindTexture(GL_TEXTURE_2D, this.colorTextureId);
+        glBindTexture(GL_TEXTURE_2D, this.gameSceneTextureId);
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, newWidth, newHeight, 0, GL_RGBA, GL_FLOAT, (ByteBuffer) null);
+
         glBindTexture(GL_TEXTURE_2D, 0);
     }
 
     @Override
     public void close() throws Exception {
         super.close();
-        glDeleteTextures(colorTextureId);
+        glDeleteTextures(this.gameSceneTextureId);
     }
 }

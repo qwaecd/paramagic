@@ -40,6 +40,7 @@ public class SceneMRTFramebuffer extends Framebuffer {
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
+        // 初始化所有纹理像素
         IntBuffer drawBuffers = MemoryUtil.memAllocInt(2);
         drawBuffers.put(GL_COLOR_ATTACHMENT0);
         drawBuffers.put(GL_COLOR_ATTACHMENT1);
@@ -47,7 +48,8 @@ public class SceneMRTFramebuffer extends Framebuffer {
         glDrawBuffers(drawBuffers);
         MemoryUtil.memFree(drawBuffers);
 
-        depthRenderBufferId = glGenRenderbuffers();
+        // 初始化深度
+        this.depthRenderBufferId = glGenRenderbuffers();
         glBindRenderbuffer(GL_RENDERBUFFER, depthRenderBufferId);
         glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, width, height);
         glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depthRenderBufferId);
@@ -91,6 +93,7 @@ public class SceneMRTFramebuffer extends Framebuffer {
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, newWidth, newHeight, 0, GL_RGBA, GL_FLOAT, (ByteBuffer) null);
 
         glBindTexture(GL_TEXTURE_2D, 0);
+        // 4. 调整深度缓冲区的大小
         glBindRenderbuffer(GL_RENDERBUFFER, this.depthRenderBufferId);
         glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, newWidth, newHeight);
 

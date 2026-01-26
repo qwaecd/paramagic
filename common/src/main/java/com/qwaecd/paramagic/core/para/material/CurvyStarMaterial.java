@@ -7,9 +7,4 @@ public class CurvyStarMaterial extends ParaMaterial {
     public CurvyStarMaterial(Shader shader) {
         super(shader);
     }
-
-    @Override
-    public RenderType getRenderType() {
-        return RenderType.ADDITIVE;
-    }
 }

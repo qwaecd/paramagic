@@ -12,9 +12,4 @@ public class RingMaterial extends ParaMaterial {
     public void applyCustomUniforms() {
         super.applyCustomUniforms();
     }
-
-    @Override
-    public RenderType getRenderType() {
-        return RenderType.ADDITIVE;
-    }
 }

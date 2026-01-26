@@ -93,7 +93,7 @@ public class ExplosionSpellVisual implements BuiltinSpellVisual {
                 Vector3f pos = value.value;
                 this.circle = ParaComposer.assemble(RemoteCircleData.create());
 
-                this.circle.getTransform().setPosition(pos);
+                this.circle.getTransform().setPosition(pos.x, pos.y + 0.01f, pos.z);
             } catch (Exception e) {
                 LOGGER.error("Failed to create {} spell visual: ", ExplosionSpell.SPELL_ID, e);
                 return;
@@ -207,7 +207,7 @@ public class ExplosionSpellVisual implements BuiltinSpellVisual {
         }
 
         ParaComponentData genComponentData(String paraName) {
-            final float intensity = 0.4f;
+            final float intensity = 0.7f;
             final Vector4f ringColor = new Vector4f(1.1f, 0.6f, 0.5f, 0.8f);
             final Vector4f starColor = new Vector4f(1.0f, 0.5f, 0.5f, 0.8f);
             return new ParaComponentBuilder().withName(paraName)
