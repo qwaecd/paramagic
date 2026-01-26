@@ -5,7 +5,7 @@ in vec2 v_texCoords;
 
 uniform sampler2D u_hdrSceneTexture;
 uniform sampler2D u_gameSceneTexture;
-uniform float u_exposure = 1.0; // 曝光度
+uniform float u_exposure; // 曝光度
 uniform bool u_enableGammaCorrection;
 vec3 reinhardToneMapping(vec3 color) {
     color *= u_exposure;
@@ -33,6 +33,12 @@ void main() {
     if (u_enableGammaCorrection) {
         ldrColor = pow(ldrColor, vec3(1.0 / gamma));
     }
+#if false
+    float L = dot(gameSample.rgb, vec3(0.2126, 0.7152, 0.0722));
+    float suppress = 1.0 - smoothstep(0.6, 0.95, L);
+    FragColor.rgb = ldrColor * suppress * (1.0 - gameSample.rgb);
+#else
     FragColor.rgb = ldrColor * (1.0 - gameSample.rgb);
+#endif
     FragColor.a = alpha;
 }
