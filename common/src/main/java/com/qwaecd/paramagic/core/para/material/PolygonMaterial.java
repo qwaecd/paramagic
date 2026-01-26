@@ -1,6 +1,5 @@
 package com.qwaecd.paramagic.core.para.material;
 
-import com.qwaecd.paramagic.core.render.queue.RenderType;
 import com.qwaecd.paramagic.core.render.shader.Shader;
 
 public class PolygonMaterial extends ParaMaterial {
