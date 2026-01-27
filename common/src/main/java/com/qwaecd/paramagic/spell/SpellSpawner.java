@@ -2,6 +2,8 @@ package com.qwaecd.paramagic.spell;
 
 import com.qwaecd.paramagic.platform.annotation.PlatformScope;
 import com.qwaecd.paramagic.platform.annotation.PlatformScopeType;
+import com.qwaecd.paramagic.spell.builtin.BuiltinSpell;
+import com.qwaecd.paramagic.spell.builtin.BuiltinSpellRegistry;
 import com.qwaecd.paramagic.spell.caster.SpellCaster;
 import com.qwaecd.paramagic.spell.core.Spell;
 import com.qwaecd.paramagic.spell.listener.ExecutionListener;
@@ -36,14 +38,26 @@ public class SpellSpawner {
             connect(serverSession, spellAnchorEntity);
 
             level.addFreshEntity(spellAnchorEntity);
-            createListener(serverSession);
-            processDataStore(serverSession, level, caster, spell);
+            createBaseListener(serverSession);
+            processDataStore(serverSession, level, caster);
+            handleSessionCreation(serverSession, spell);
         }
 
         return serverSession;
     }
 
-    private static void processDataStore(ServerSession session, ServerLevel level, SpellCaster caster, Spell spell) {
+    private static void handleSessionCreation(ServerSession session, Spell spell) {
+        if (!spell.isBuiltIn) {
+            return;
+        }
+
+        BuiltinSpell builtinSpell = BuiltinSpellRegistry.getSpell(spell.definition.spellId);
+        if (builtinSpell != null) {
+            builtinSpell.onCreateSession(session);
+        }
+    }
+
+    private static void processDataStore(ServerSession session, ServerLevel level, SpellCaster caster) {
         Entity casterEntity = level.getEntity(caster.getEntityNetworkId());
         Vector3f v;
         if (casterEntity == null) {
@@ -62,7 +76,7 @@ public class SpellSpawner {
         entity.attachSession(session);
     }
 
-    private static void createListener(ServerSession session) {
+    private static void createBaseListener(ServerSession session) {
         ExecutionListener executionListener = new ExecutionListener();
         session.registerListener(executionListener);
     }

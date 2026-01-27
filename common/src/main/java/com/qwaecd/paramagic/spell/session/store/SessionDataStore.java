@@ -52,7 +52,7 @@ public class SessionDataStore implements IDataSerializable {
         this.isDirty = true;
     }
 
-    public void setValue(SessionDataKey<?> sessionDataKey, @Nonnull SessionDataValue<?> value) {
+    public <T> void setValue(SessionDataKey<T> sessionDataKey, @Nonnull SessionDataValue<T> value) {
         this.setValue(sessionDataKey.id, value);
     }
 
@@ -90,8 +90,9 @@ public class SessionDataStore implements IDataSerializable {
         this.dataMap.forEach(action);
     }
 
-    public SessionDataValue<?> removeValue(SessionDataKey<?> sessionDataKey) {
-        return this.removeValue(sessionDataKey.id);
+    @SuppressWarnings("unchecked")
+    public <T> SessionDataValue<T> removeValue(SessionDataKey<T> sessionDataKey) {
+        return (SessionDataValue<T>) this.removeValue(sessionDataKey.id);
     }
 
     public boolean isDirty() {

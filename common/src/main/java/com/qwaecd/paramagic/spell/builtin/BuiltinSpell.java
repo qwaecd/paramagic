@@ -6,6 +6,7 @@ import com.qwaecd.paramagic.spell.SpellIdentifier;
 import com.qwaecd.paramagic.spell.core.Spell;
 import com.qwaecd.paramagic.spell.core.SpellDefinition;
 import com.qwaecd.paramagic.spell.logic.ExecutionContext;
+import com.qwaecd.paramagic.spell.session.server.ServerSession;
 
 @PlatformScope(PlatformScopeType.COMMON)
 public interface BuiltinSpell {
@@ -14,6 +15,12 @@ public interface BuiltinSpell {
     default Spell create() {
         return new Spell(this.definition(), true);
     }
+
+    /**
+     * 该法术在 服务端 Session 创建时被调用.<br>
+     * @param session 创建的 ServerSession.
+     */
+    default void onCreateSession(ServerSession session) {}
 
     /**
      * 该法术在 服务端 执行时被调用.<br>

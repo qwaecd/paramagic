@@ -5,14 +5,15 @@
   "refmap": "${mod_id}.refmap.json",
   "compatibilityLevel": "JAVA_17",
   "mixins": [
-    "accessor.LevelEntityAccessor",
-    "ServerLevelMixin"
+    "accessor.IServerLevelAccessor",
+    "ServerLevelMixin",
+    "accessor.LevelEntityAccessor"
   ],
   "client": [
-    "client.LevelRenderMixin",
     "accessor.MinecraftMixin",
-    "client.RenderTargetMixin",
-    "accessor.TimerMixin"
+    "accessor.TimerMixin",
+    "client.LevelRenderMixin",
+    "client.RenderTargetMixin"
   ],
   "server": [
   ],
