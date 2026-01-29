@@ -1,5 +1,6 @@
 {
   "item_group.paramagic.main": "参数魔法",
   "item.paramagic.debug_wand": "调试魔杖",
-  "item.paramagic.explosion_wand": "慧慧的法杖"
+  "item.paramagic.explosion_wand": "慧慧的法杖",
+  "block.paramagic.spell_edit_table": "法术编辑台"
 }

@@ -1,5 +1,6 @@
 {
   "item_group.paramagic.main": "Paramagic",
   "item.paramagic.debug_wand": "Debug wand",
-  "item.paramagic.explosion_wand": "EXPLOSION WAND"
+  "item.paramagic.explosion_wand": "EXPLOSION WAND",
+  "block.paramagic.spell_edit_table": "Spell Edit Table"
 }
