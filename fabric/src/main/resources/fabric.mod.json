@@ -20,6 +20,9 @@
         ],
         "client": [
             "com.qwaecd.paramagic.FabricClient"
+        ],
+        "fabric-datagen": [
+            "com.qwaecd.paramagic.FabricDataGen"
         ]
     },
     "mixins": [

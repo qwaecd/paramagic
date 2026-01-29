@@ -42,6 +42,13 @@ loom {
         }
     }
 }
+
+fabricApi {
+    configureDataGeneration {
+        client = true
+    }
+}
+
 tasks.withType(Javadoc).configureEach {
     options.encoding = 'UTF-8'       // 源码与注释读取编码
     options.docEncoding = 'UTF-8'    // 生成文档文件编码

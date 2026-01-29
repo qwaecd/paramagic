@@ -2,6 +2,7 @@ package com.qwaecd.paramagic;
 
 import com.qwaecd.paramagic.core.particle.emitter.property.key.AllEmitterProperties;
 import com.qwaecd.paramagic.data.para.AllParaComponentData;
+import com.qwaecd.paramagic.datagen.Lang;
 import com.qwaecd.paramagic.network.codec.codable.CodableTypeRegistry;
 import com.qwaecd.paramagic.particle.server.ServerEffectManager;
 import com.qwaecd.paramagic.platform.Services;
@@ -19,7 +20,7 @@ public class Paramagic {
 		if (Services.PLATFORM.isModLoaded(Paramagic.MOD_ID)) {
 			Paramagic.LOG.debug("Hello to paramagic");
 		}
-
+		Lang.init();
 		CodableTypeRegistry.init();
 		AllParaComponentData.registerAll();
 		AllEmitterProperties.registerAll();
