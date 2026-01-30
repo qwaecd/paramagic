@@ -1,10 +1,7 @@
 package com.qwaecd.paramagic;
 
-import com.qwaecd.paramagic.init.CreativeTableFabric;
-import com.qwaecd.paramagic.init.ModBlocksFabric;
+import com.qwaecd.paramagic.init.*;
 import com.qwaecd.paramagic.world.entity.ModEntityTypes;
-import com.qwaecd.paramagic.init.ModEntitiesFabric;
-import com.qwaecd.paramagic.init.ModItemsFabric;
 import com.qwaecd.paramagic.network.FabricNetworking;
 import com.qwaecd.paramagic.network.Networking;
 import net.fabricmc.api.ModInitializer;
@@ -22,6 +19,7 @@ public class ParamagicFabric implements ModInitializer {
         CreativeTableFabric.registerAll();
 
         ModEntityTypes.init(ModEntitiesFabric.instance);
+        ModMenusFabric.registerAll();
 
         Networking.init(new FabricNetworking());
     }

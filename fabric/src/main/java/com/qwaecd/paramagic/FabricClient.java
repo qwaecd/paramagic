@@ -11,13 +11,19 @@ import com.qwaecd.paramagic.network.ClientNetworking;
 import com.qwaecd.paramagic.network.Networking;
 import com.qwaecd.paramagic.platform.Services;
 import com.qwaecd.paramagic.spell.session.SessionManagers;
+import com.qwaecd.paramagic.ui.screen.ModScreens;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandManager;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderEvents;
+import net.minecraft.client.gui.screens.MenuScreens;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.gui.screens.inventory.MenuAccess;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.inventory.MenuType;
 
 public class FabricClient implements ClientModInitializer {
     @Override
@@ -36,7 +42,20 @@ public class FabricClient implements ClientModInitializer {
         });
 
         ClientTickEvents.END_CLIENT_TICK.register(mc -> SessionManagers.getForClient().tickAll(mc.level, 1.0f / 20.0f));
+        registerScreens();
     }
+
+    private static void registerScreens() {
+        ModScreens.RegistryProvider provider = new ModScreens.RegistryProvider() {
+            @Override
+            public <M extends AbstractContainerMenu, S extends Screen & MenuAccess<M>>
+            void register(MenuType<M> menuType, ModScreens.ScreenFactory<M, S> factory) {
+                MenuScreens.register(menuType, factory::create);
+            }
+        };
+        ModScreens.init(provider);
+    }
+
     private static void registerEntityRenderers() {
         EntityRendererRegistry.register(ModEntitiesFabric.SPELL_ANCHOR_ENTITY, SpellAnchorEntityRenderer::new);
     }

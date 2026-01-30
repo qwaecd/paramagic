@@ -6,11 +6,9 @@ import com.qwaecd.paramagic.core.particle.ParticleSystem;
 import com.qwaecd.paramagic.core.render.ModRenderSystem;
 import com.qwaecd.paramagic.core.render.RendererManager;
 import com.qwaecd.paramagic.core.render.context.RenderContextManager;
-import com.qwaecd.paramagic.mixin.accessor.MinecraftMixin;
-import com.qwaecd.paramagic.mixin.accessor.TimerMixin;
+import com.qwaecd.paramagic.tools.TimeProvider;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.Timer;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.LightTexture;
@@ -47,11 +45,7 @@ public abstract class LevelRenderMixin {
         RendererManager rendererManager = rs.getRendererManager();
         ParticleSystem particleSystem = rs.getParticleSystem();
         if (!minecraft.isPaused()) {
-            Timer timer = ((MinecraftMixin) minecraft).getTimer();
-            // 距离上一帧的时间，单位是游戏刻
-            float deltaFrameTime = minecraft.getDeltaFrameTime();
-            float secondsPerTick = ((TimerMixin) timer).getMsPerTick() / 1000.0f;
-            float deltaTimeInSeconds = deltaFrameTime * secondsPerTick;
+            float deltaTimeInSeconds = TimeProvider.getDeltaTime(minecraft);
             rendererManager.update(deltaTimeInSeconds);
             if (rs.canUseComputerShader()) {
                 particleSystem.update(deltaTimeInSeconds);
