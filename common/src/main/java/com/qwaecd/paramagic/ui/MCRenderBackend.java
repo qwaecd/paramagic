@@ -23,6 +23,11 @@ public class MCRenderBackend implements UIRenderBackend {
 
     @Override
     public void drawQuad(Rect rect, UIColor uiColor) {
-        this.guiGraphics.fill((int) rect.x, (int) rect.y, (int) rect.w, (int) rect.h, uiColor.color);
+        this.guiGraphics.fill((int) rect.x, (int) rect.y, (int) (rect.x + rect.w), (int) (rect.y + rect.h), uiColor.color);
+    }
+
+    @Override
+    public void renderOutline(Rect rect, UIColor color) {
+        this.guiGraphics.renderOutline((int) rect.x, (int) rect.y, (int) rect.w, (int) rect.h, color.color);
     }
 }

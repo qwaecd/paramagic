@@ -6,4 +6,5 @@ public interface UIRenderBackend {
     void pushClipRect(Rect rect);
     void popClipRect();
     void drawQuad(Rect rect, UIColor color);
+    void renderOutline(Rect rect, UIColor color);
 }

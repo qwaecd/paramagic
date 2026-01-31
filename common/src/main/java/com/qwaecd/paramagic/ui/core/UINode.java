@@ -1,5 +1,7 @@
 package com.qwaecd.paramagic.ui.core;
 
+import com.qwaecd.paramagic.ui.UIColor;
+import com.qwaecd.paramagic.ui.hit.UIHitResult;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -7,6 +9,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 
 public class UINode {
     private final List<UINode> children;
@@ -36,6 +39,10 @@ public class UINode {
     @Getter
     @Nonnull
     public final Rect worldRect;
+
+    protected boolean showDebugOutLine = false;
+    @Nonnull
+    protected UIColor backgroundColor = UIColor.TRANSPARENT;
 
     public UINode() {
         this.children = new ArrayList<>();
@@ -76,6 +83,23 @@ public class UINode {
         return this.parent;
     }
 
+    public void setShowDebugOutLine(boolean showDebugOutLine) {
+        this.showDebugOutLine = showDebugOutLine;
+    }
+
+    public boolean isShowDebugOutLine() {
+        return this.showDebugOutLine;
+    }
+
+    @Nonnull
+    public UIColor getBackgroundColor() {
+        return this.backgroundColor;
+    }
+
+    public void setBackgroundColor(@Nonnull UIColor backgroundColor) {
+        this.backgroundColor = backgroundColor;
+    }
+
     public void addChild(UINode child) {
         if (child.parent != null) {
             child.parent.removeChild(child);
@@ -91,6 +115,18 @@ public class UINode {
         }
     }
 
+    @Nonnull
+    public UIHitResult createHitResult(float mouseX, float mouseY, @Nonnull UIHitResult parentHitResult) {
+        // 先命中的在栈底
+        if (this.hitTest(mouseX, mouseY)) {
+            parentHitResult.pushNode(this);
+        }
+
+        // 后命中的在栈顶
+        this.forEachChildInReverseOrder(node -> node.createHitResult(mouseX, mouseY, parentHitResult));
+        return parentHitResult;
+    }
+
     /**
      * 计算此节点及其子节点的屏幕绝对坐标
      * @param parentX 父节点的屏幕X坐标
@@ -103,7 +139,8 @@ public class UINode {
         this.worldRect.y = parentY + this.localRect.y;
         
         this.computeSize(parentW, parentH);
-        
+
+        // 布局可以不考虑同层级先后顺序
         for (UINode child : this.children) {
             child.layout(this.worldRect.x, this.worldRect.y, this.worldRect.w, this.worldRect.h);
         }
@@ -132,6 +169,13 @@ public class UINode {
     }
 
     public void render(@Nonnull UIRenderContext context) {
+        if (!this.visible) {
+            return;
+        }
+        context.drawQuad(this.worldRect, this.backgroundColor);
+        if (this.showDebugOutLine) {
+            context.renderOutline(this.worldRect, UIColor.RED);
+        }
     }
 
     public void renderTree(UIRenderContext context) {
@@ -144,9 +188,7 @@ public class UINode {
             this.render(context);
         }
 
-        for (UINode child : this.children) {
-            child.renderTree(context);
-        }
+        this.forEachChild(node -> node.renderTree(context));
 
         if (hasClip) {
             context.popClipRect();
@@ -161,27 +203,15 @@ public class UINode {
             && y >= this.worldRect.y && y < this.worldRect.y + this.worldRect.h;
     }
 
-    /**
-     * 递归查找命中的最上层节点（倒序遍历子节点，后添加的在上层）
-     * @param x 屏幕X坐标
-     * @param y 屏幕Y坐标
-     * @return 命中的节点，如果没有命中返回null
-     */
-    @Nullable
-    public UINode findHitNode(float x, float y) {
-        if (!this.hitTest(x, y)) {
-            return null;
+    private void forEachChild(@Nonnull Consumer<UINode> action) {
+        for (UINode child : this.children) {
+            action.accept(child);
         }
+    }
 
-        // 后画的在上层，先命中
-        for (int i = this.children.size() - 1; i >= 0; i--) {
-            UINode child = this.children.get(i);
-            UINode hit = child.findHitNode(x, y);
-            if (hit != null) {
-                return hit;
-            }
+    private void forEachChildInReverseOrder(@Nonnull Consumer<UINode> action) {
+        for (int i = this.children.size() - 1; i >= 0; --i) {
+            action.accept(this.children.get(i));
         }
-        
-        return this;
     }
 }

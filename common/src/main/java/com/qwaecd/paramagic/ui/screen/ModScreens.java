@@ -10,7 +10,7 @@ import net.minecraft.world.inventory.MenuType;
 
 public class ModScreens {
     public static void init(RegistryProvider provider) {
-        provider.register(ModMenuTypes.TEST_MENU_TYPE, TestScreen::new);
+        provider.register(ModMenuTypes.SPELL_EDIT_TABLE_MENU_TYPE, SpellEditTableScreen::new);
     }
 
 

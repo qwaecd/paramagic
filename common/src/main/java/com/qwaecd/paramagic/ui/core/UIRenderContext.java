@@ -23,8 +23,26 @@ public class UIRenderContext {
     }
 
     public void pushClipRect(@Nonnull Rect rect) {
-        this.clipStack.push(rect);
-        this.backend.pushClipRect(rect);
+        Rect clipRect;
+        if (this.clipStack.peek() != null) {
+            clipRect = crossRect(this.clipStack.peek(), rect);
+        } else {
+            clipRect = rect;
+        }
+        this.clipStack.push(clipRect);
+        this.backend.pushClipRect(clipRect);
+    }
+
+    private static Rect crossRect(@Nonnull Rect a, @Nonnull Rect b) {
+        float x1 = Math.max(a.x, b.x);
+        float y1 = Math.max(a.y, b.y);
+        float x2 = Math.min(a.x + a.w, b.x + b.w);
+        float y2 = Math.min(a.y + a.h, b.y + b.h);
+        if (x2 >= x1 && y2 >= y1) {
+            return new Rect(x1, y1, x2 - x1, y2 - y1);
+        } else {
+            return new Rect(0, 0, 0, 0);
+        }
     }
 
     public void popClipRect() {
@@ -36,5 +54,9 @@ public class UIRenderContext {
 
     public void drawQuad(Rect rect, UIColor color) {
         this.backend.drawQuad(rect, color);
+    }
+
+    public void renderOutline(Rect rect, UIColor color) {
+        this.backend.renderOutline(rect, color);
     }
 }

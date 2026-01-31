@@ -6,15 +6,15 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ContainerLevelAccess;
 import net.minecraft.world.item.ItemStack;
 
-public class TestMenu extends AbstractContainerMenu {
+public class SpellEditTableMenu extends AbstractContainerMenu {
     private final ContainerLevelAccess access;
 
-    public TestMenu(int containerId, Inventory playerInventory) {
+    public SpellEditTableMenu(int containerId, Inventory playerInventory) {
         this(containerId, playerInventory, ContainerLevelAccess.NULL);
     }
 
-    public TestMenu(int containerId, Inventory playerInventory, ContainerLevelAccess access) {
-        super(ModMenuTypes.TEST_MENU_TYPE, containerId);
+    public SpellEditTableMenu(int containerId, Inventory playerInventory, ContainerLevelAccess access) {
+        super(ModMenuTypes.SPELL_EDIT_TABLE_MENU_TYPE, containerId);
         this.access = access;
     }
 

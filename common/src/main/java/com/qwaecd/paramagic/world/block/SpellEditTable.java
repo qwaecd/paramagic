@@ -1,6 +1,6 @@
 package com.qwaecd.paramagic.world.block;
 
-import com.qwaecd.paramagic.ui.menu.TestMenu;
+import com.qwaecd.paramagic.ui.menu.SpellEditTableMenu;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
@@ -41,7 +41,7 @@ public class SpellEditTable extends Block {
 
     @Override
     public @Nullable MenuProvider getMenuProvider(BlockState state, Level level, BlockPos pos) {
-        return new SimpleMenuProvider((i, inventory, player) -> new TestMenu(i, inventory, ContainerLevelAccess.create(level, pos)), CONTAINER_TITLE);
+        return new SimpleMenuProvider((i, inventory, player) -> new SpellEditTableMenu(i, inventory, ContainerLevelAccess.create(level, pos)), CONTAINER_TITLE);
     }
 
     @Override
