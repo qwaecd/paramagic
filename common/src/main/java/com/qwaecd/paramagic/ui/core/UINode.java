@@ -115,16 +115,39 @@ public class UINode {
         }
     }
 
+    /**
+     * 获取完整的命中路径
+     */
     @Nonnull
-    public UIHitResult createHitResult(float mouseX, float mouseY, @Nonnull UIHitResult parentHitResult) {
+    public UIHitResult createHitPath(float mouseX, float mouseY, @Nonnull UIHitResult parentHitResult) {
         // 先命中的在栈底
         if (this.hitTest(mouseX, mouseY)) {
             parentHitResult.pushNode(this);
         }
 
         // 后命中的在栈顶
-        this.forEachChildInReverseOrder(node -> node.createHitResult(mouseX, mouseY, parentHitResult));
+        this.forEachChildInReverseOrder(node -> node.createHitPath(mouseX, mouseY, parentHitResult));
         return parentHitResult;
+    }
+
+    /**
+     * 获取命中的节点，优先返回最上层的子节点
+     * @return 命中的节点，未命中返回 null
+     */
+    @Nullable
+    public UINode getHitNode(float mouseX, float mouseY) {
+        for (int i = this.children.size() - 1; i >= 0 ; --i) {
+            UINode hitNode = this.children.get(i).getHitNode(mouseX, mouseY);
+            if (hitNode != null) {
+                return hitNode;
+            }
+        }
+
+        if (!this.hitTest(mouseX, mouseY)) {
+            return null;
+        }
+
+        return this;
     }
 
     /**

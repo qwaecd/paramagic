@@ -35,7 +35,7 @@ public class UIManager {
      */
     public boolean handleMouseEvent(MouseEvent event) {
         this.mouseStateMachine.updateState(event);
-        UIHitResult hitResult = this.rootNode.createHitResult(
+        UIHitResult hitResult = this.rootNode.createHitPath(
                 (float) event.mouseX, (float) event.mouseY, UIHitResult.createEmpty()
         );
         if (event.type == MouseEventType.CLICK) {
