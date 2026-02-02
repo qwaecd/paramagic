@@ -49,4 +49,14 @@ public class Rect {
         this.w = v.z;
         this.h = v.w;
     }
+
+    public void setXY(float x, float y) {
+        this.x = x;
+        this.y = y;
+    }
+
+    public void setWH(float w, float h) {
+        this.w = w;
+        this.h = h;
+    }
 }

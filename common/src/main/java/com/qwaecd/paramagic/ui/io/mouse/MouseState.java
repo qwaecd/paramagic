@@ -1,4 +1,4 @@
-package com.qwaecd.paramagic.ui.io;
+package com.qwaecd.paramagic.ui.io.mouse;
 
 public enum MouseState {
     IDLE,

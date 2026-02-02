@@ -16,6 +16,7 @@ public class UINode {
     @Nullable
     private UINode parent;
     private boolean visible;
+    private boolean hitTestable = true;
     @Setter
     @Getter
     @Nonnull
@@ -74,6 +75,22 @@ public class UINode {
         this.visible = visible;
     }
 
+    public boolean isHitTestable() {
+        return this.hitTestable;
+    }
+
+    public void setHitTestable(boolean hitTestable) {
+        this.hitTestable = hitTestable;
+    }
+
+    public void enableHitTest() {
+        this.hitTestable = true;
+    }
+
+    public void disableHitTest() {
+        this.hitTestable = false;
+    }
+
     public List<UINode> getChildren() {
         return this.children;
     }
@@ -116,7 +133,20 @@ public class UINode {
     }
 
     /**
-     * 获取完整的命中路径
+     * 处理一次 UI 事件, 如果被该节点消耗了, 应将 context 设置为已消耗
+     * @param context 本次事件的 context 实例
+     */
+    public void processEvent(UIEventContext context) {
+    }
+
+    /**
+     * 当节点被 manager captured 时, 每次鼠标移动都会调用此方法
+     */
+    public void onMouseMove(double mouseX, double mouseY) {
+    }
+
+    /**
+     * 获取完整的命中路径, 类似于函数调用栈, 栈顶是最深层的节点
      */
     @Nonnull
     public UIHitResult createHitPath(float mouseX, float mouseY, @Nonnull UIHitResult parentHitResult) {
@@ -125,8 +155,14 @@ public class UINode {
             parentHitResult.pushNode(this);
         }
 
-        // 后命中的在栈顶
-        this.forEachChildInReverseOrder(node -> node.createHitPath(mouseX, mouseY, parentHitResult));
+        // 深度越大的节点越接近栈顶, 同一层下, index 越大的节点越接近栈顶
+        for (int i = this.children.size() - 1; i >= 0; --i) {
+            int sizeBefore = parentHitResult.size();
+            this.children.get(i).createHitPath(mouseX, mouseY, parentHitResult);
+            if (parentHitResult.size() > sizeBefore) {
+                break;
+            }
+        }
         return parentHitResult;
     }
 
@@ -219,7 +255,7 @@ public class UINode {
     }
 
     public boolean hitTest(float x, float y) {
-        if (!this.isVisible()) {
+        if (!this.hitTestable) {
             return false;
         }
         return x >= this.worldRect.x && x < this.worldRect.x + this.worldRect.w

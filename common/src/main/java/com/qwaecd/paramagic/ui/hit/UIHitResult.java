@@ -3,6 +3,7 @@ package com.qwaecd.paramagic.ui.hit;
 import com.qwaecd.paramagic.ui.core.UINode;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.ArrayDeque;
 import java.util.Deque;
 
@@ -17,6 +18,19 @@ public class UIHitResult {
         this.hitPath.push(node);
     }
 
+    public UINode popNode() {
+        return this.hitPath.pop();
+    }
+
+    /**
+     * 获取命中路径栈顶节点, 也是最深节点, 不会移除节点
+     * @return 栈顶节点, 为 null 时表示不存在
+     */
+    @Nullable
+    public UINode getTop() {
+        return this.hitPath.peek();
+    }
+
     /**
      * 获取命中路径，栈顶为最深节点
      */
@@ -26,6 +40,10 @@ public class UIHitResult {
 
     public boolean isEmpty() {
         return this.hitPath.isEmpty();
+    }
+
+    public int size() {
+        return this.hitPath.size();
     }
 
 

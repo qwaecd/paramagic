@@ -20,6 +20,10 @@ public class UIColor {
         this(fromRGBA(r, g, b, a));
     }
 
+    public static UIColor of(int color) {
+        return new UIColor(color);
+    }
+
     public int r() {
         return red(this.color);
     }

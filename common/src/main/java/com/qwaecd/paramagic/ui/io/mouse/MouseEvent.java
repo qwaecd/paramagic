@@ -1,4 +1,4 @@
-package com.qwaecd.paramagic.ui.io;
+package com.qwaecd.paramagic.ui.io.mouse;
 
 public abstract class MouseEvent {
     public final MouseEventType type;
@@ -11,11 +11,39 @@ public abstract class MouseEvent {
         this.type = type;
     }
 
+    public boolean isClick() {
+        return this.type == MouseEventType.CLICK;
+    }
+
+    public boolean isClickOrDouble() {
+        return this.type == MouseEventType.CLICK || this.type == MouseEventType.DOUBLE_CLICK;
+    }
+
+    public boolean isRelease() {
+        return this.type == MouseEventType.RELEASE;
+    }
+
+    public boolean isScroll() {
+        return this.type == MouseEventType.SCROLL;
+    }
+
     public static class Click extends MouseEvent {
         public final int button;
         public Click(double mouseX, double mouseY, int button) {
             super(MouseEventType.CLICK, mouseX, mouseY);
             this.button = button;
+        }
+    }
+
+    public static class DoubleClick extends MouseEvent {
+        public final int button;
+        public DoubleClick(double mouseX, double mouseY, int button) {
+            super(MouseEventType.DOUBLE_CLICK, mouseX, mouseY);
+            this.button = button;
+        }
+
+        public DoubleClick(Click clickEvent) {
+            this(clickEvent.mouseX, clickEvent.mouseY, clickEvent.button);
         }
     }
 
