@@ -1,9 +1,10 @@
 package com.qwaecd.paramagic.init;
 
+import com.qwaecd.paramagic.tools.ModRL;
 import com.qwaecd.paramagic.world.item.debug.DebugWand;
 import com.qwaecd.paramagic.world.item.feat.ExplosionWand;
-import com.qwaecd.paramagic.tools.ModRL;
-import net.minecraft.world.item.*;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.Items;
 
 import java.util.LinkedHashMap;
 import java.util.Map;

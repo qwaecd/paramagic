@@ -1,9 +1,9 @@
 package com.qwaecd.paramagic;
 
 import com.qwaecd.paramagic.init.*;
-import com.qwaecd.paramagic.world.entity.ModEntityTypes;
 import com.qwaecd.paramagic.network.FabricNetworking;
 import com.qwaecd.paramagic.network.Networking;
+import com.qwaecd.paramagic.world.entity.ModEntityTypes;
 import net.fabricmc.api.ModInitializer;
 
 

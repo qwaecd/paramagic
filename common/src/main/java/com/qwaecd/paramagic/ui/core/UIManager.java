@@ -1,6 +1,5 @@
 package com.qwaecd.paramagic.ui.core;
 
-import com.qwaecd.paramagic.ui.UIColor;
 import com.qwaecd.paramagic.ui.hit.UIHitResult;
 import com.qwaecd.paramagic.ui.io.mouse.MouseEvent;
 import com.qwaecd.paramagic.ui.io.mouse.MouseEventType;
