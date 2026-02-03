@@ -1,12 +1,16 @@
 package com.qwaecd.paramagic.ui.screen;
 
 import com.qwaecd.paramagic.ui.UIColor;
+import com.qwaecd.paramagic.ui.core.Rect;
 import com.qwaecd.paramagic.ui.core.UINode;
 import com.qwaecd.paramagic.ui.core.UIRenderContext;
 import com.qwaecd.paramagic.ui.item.MouseCaptureNode;
-import org.jetbrains.annotations.NotNull;
+import com.qwaecd.paramagic.ui.widget.Button;
+
+import javax.annotation.Nonnull;
 
 public class SpellEditTableUI extends UINode {
+    private final UIColor color = new UIColor(UIColor.fromRGBA(255, 0, 0, 100));
     public SpellEditTableUI() {
         super();
         {
@@ -22,6 +26,11 @@ public class SpellEditTableUI extends UINode {
                 uiNode.addChild(subNode);
             }
             this.addChild(uiNode);
+        }
+        {
+            Button button = new Button(new Rect(100, 40, 100, 40));
+            button.setShowDebugOutLine(true);
+            this.addChild(button);
         }
         {
             UINode uiNode = new MouseCaptureNode();
@@ -47,8 +56,8 @@ public class SpellEditTableUI extends UINode {
     }
 
     @Override
-    public void render(@NotNull UIRenderContext context) {
-        context.drawQuad(this.worldRect, new UIColor(UIColor.fromRGBA(255, 0, 0, 100)));
+    public void render(@Nonnull UIRenderContext context) {
+        context.drawQuad(this.worldRect, color);
         if (this.showDebugOutLine) {
             context.renderOutline(this.worldRect, UIColor.RED);
         }

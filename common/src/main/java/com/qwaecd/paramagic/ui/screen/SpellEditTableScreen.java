@@ -16,8 +16,6 @@ import javax.annotation.Nonnull;
 
 @PlatformScope(PlatformScopeType.CLIENT)
 public class SpellEditTableScreen extends MCContainerScreen<SpellEditTableMenu> implements MenuAccess<SpellEditTableMenu> {
-    private final UIColor backgroundColor = new UIColor(UIColor.fromRGBA4f(1.0f, 0.0f, 1.0f, 0.5f));
-
     public SpellEditTableScreen(SpellEditTableMenu menu, Inventory inventory, Component title) {
         super(menu, inventory, title, new SpellEditTableUI());
     }

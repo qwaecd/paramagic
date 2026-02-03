@@ -31,4 +31,12 @@ public interface UIRenderBackend {
     int getLineHeight();
 
     void renderOutline(Rect rect, UIColor color);
+
+    /**
+     * 在指定位置渲染精灵图.
+     * @param sprite 精灵图实例.
+     * @param x 绘制区域左上角的 x 坐标.
+     * @param y 绘制区域左上角的 y 坐标.
+     */
+    void renderSprite(Sprite sprite, int x, int y);
 }

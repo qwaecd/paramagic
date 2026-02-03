@@ -9,6 +9,7 @@ import javax.annotation.Nonnull;
 import java.util.ArrayDeque;
 import java.util.Deque;
 
+@SuppressWarnings("UnusedReturnValue")
 public class UIRenderContext {
     @Getter
     @Nonnull
@@ -89,6 +90,22 @@ public class UIRenderContext {
         return this.backend.drawText(Component.literal(text), x, y, color, dropShadow);
     }
 
+    public int drawText(Component text, float x, float y, UIColor color, boolean dropShadow) {
+        return this.drawText(text, (int) x, (int) y, color, dropShadow);
+    }
+
+    public int drawText(String text, float x, float y, UIColor color, boolean dropShadow) {
+        return this.drawText(Component.literal(text), (int) x, (int) y, color, dropShadow);
+    }
+
+    public int drawText(Component text, float x, float y, UIColor color) {
+        return this.drawText(text, (int) x, (int) y, color, false);
+    }
+
+    public int drawText(String text, float x, float y, UIColor color) {
+        return this.drawText(Component.literal(text), (int) x, (int) y, color, false);
+    }
+
     public void drawCenteredText(Component text, float centerX, float y, UIColor color) {
         this.backend.drawCenteredText(text, centerX, y, color);
     }
@@ -107,5 +124,19 @@ public class UIRenderContext {
 
     public void renderTooltip(int mouseX, int mouseY) {
         this.manager.renderTooltip(this.guiGraphics, mouseX, mouseY);
+    }
+
+    public void renderSprite(Sprite sprite, int x, int y) {
+        this.backend.renderSprite(sprite, x, y);
+    }
+
+    /**
+     * 在指定位置渲染精灵图.
+     * @param sprite 精灵图实例.
+     * @param x 绘制区域左上角的 x 坐标.
+     * @param y 绘制区域左上角的 y 坐标.
+     */
+    public void renderSprite(Sprite sprite, float x, float y) {
+        this.renderSprite(sprite, (int) x, (int) y);
     }
 }

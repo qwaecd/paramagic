@@ -24,6 +24,10 @@ public class UIColor {
         return new UIColor(color);
     }
 
+    public static UIColor of(int r, int g, int b, int a) {
+        return new UIColor(r, g, b, a);
+    }
+
     public int r() {
         return red(this.color);
     }
