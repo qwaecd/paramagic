@@ -19,7 +19,7 @@ public abstract class MCContainerScreen<T extends AbstractContainerMenu> extends
 
     public MCContainerScreen(T menu, Inventory playerInventory, Component title, UINode rootNode) {
         super(menu, playerInventory, title);
-        this.uiManager = new UIManager(rootNode, this);
+        this.uiManager = new UIManager(rootNode, this::renderTooltip);
     }
 
     @Override

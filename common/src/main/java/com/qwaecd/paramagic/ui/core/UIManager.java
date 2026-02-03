@@ -5,7 +5,6 @@ import com.qwaecd.paramagic.ui.io.mouse.MouseEvent;
 import com.qwaecd.paramagic.ui.io.mouse.MouseEventType;
 import com.qwaecd.paramagic.ui.io.mouse.MouseStateMachine;
 import com.qwaecd.paramagic.ui.overlay.OverlayRoot;
-import com.qwaecd.paramagic.ui.screen.MCContainerScreen;
 import lombok.Getter;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
@@ -19,7 +18,7 @@ import javax.annotation.Nullable;
 public class UIManager {
     private final MouseStateMachine mouseStateMachine;
     @Nonnull
-    private final MCContainerScreen<?> screen;
+    private final TooltipRenderer tooltipRenderer;
 
     @Nullable
     private UINode capturedNode;
@@ -29,10 +28,10 @@ public class UIManager {
     @Getter
     private final OverlayRoot overlayRoot;
 
-    public UIManager(UINode rootNode, @Nonnull MCContainerScreen<?> screen) {
+    public UIManager(UINode rootNode, @Nonnull TooltipRenderer tooltipRenderer) {
         this.rootNode = rootNode;
         this.mouseStateMachine = new MouseStateMachine();
-        this.screen = screen;
+        this.tooltipRenderer = tooltipRenderer;
         this.overlayRoot = new OverlayRoot(this);
     }
 
@@ -119,7 +118,7 @@ public class UIManager {
 
     // 由 UIRenderContext 调用
     public void renderTooltip(GuiGraphics guiGraphics, int mouseX, int mouseY) {
-        this.screen.renderTooltip(guiGraphics, mouseX, mouseY);
+        this.tooltipRenderer.renderTooltip(guiGraphics, mouseX, mouseY);
     }
 
     public static boolean hasShiftKeyDown() {
