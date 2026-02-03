@@ -227,6 +227,10 @@ public class UINode {
         }
     }
 
+    /**
+     * 渲染节点自身, 不应该渲染其子节点.<br>
+     * 子类应该重写该方法来实现自定义渲染内容.
+     */
     public void render(@Nonnull UIRenderContext context) {
         if (!this.visible) {
             return;
@@ -237,6 +241,9 @@ public class UINode {
         }
     }
 
+    /**
+     * 渲染节点及其子节点的树
+     */
     public void renderTree(UIRenderContext context) {
         boolean hasClip = (this.clipMod == ClipMod.RECT);
         if (hasClip) {

@@ -1,20 +1,41 @@
 package com.qwaecd.paramagic.ui.core;
 
 import com.qwaecd.paramagic.ui.UIColor;
+import lombok.Getter;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.network.chat.Component;
 
 import javax.annotation.Nonnull;
 import java.util.ArrayDeque;
 import java.util.Deque;
 
 public class UIRenderContext {
+    @Getter
+    @Nonnull
+    public  final UIManager manager;
+    // 虽然这么做会破坏封装性, 但就 render tooltip 这一次 :(
+    private final GuiGraphics guiGraphics;
+
     @Nonnull
     private final UIRenderBackend backend;
-    public final float deltaTime;
-    private final Deque<Rect> clipStack;
-    public final int mouseX;
-    public final int mouseY;
 
-    public UIRenderContext(@Nonnull UIRenderBackend backend, float deltaTime, int mouseX, int mouseY) {
+    public  final float deltaTime;
+
+    private final Deque<Rect> clipStack;
+
+    public  final int mouseX;
+    public  final int mouseY;
+
+    public UIRenderContext(
+            @Nonnull UIManager manager,
+            @Nonnull GuiGraphics guiGraphics,
+            @Nonnull UIRenderBackend backend,
+            float deltaTime,
+            int mouseX, int mouseY
+    )
+    {
+        this.manager = manager;
+        this.guiGraphics = guiGraphics;
         this.backend = backend;
         this.deltaTime = deltaTime;
         this.clipStack = new ArrayDeque<>();
@@ -58,5 +79,33 @@ public class UIRenderContext {
 
     public void renderOutline(Rect rect, UIColor color) {
         this.backend.renderOutline(rect, color);
+    }
+
+    public int drawText(Component text, int x, int y, UIColor color, boolean dropShadow) {
+        return this.backend.drawText(text, x, y, color, dropShadow);
+    }
+
+    public int drawText(String text, int x, int y, UIColor color, boolean dropShadow) {
+        return this.backend.drawText(Component.literal(text), x, y, color, dropShadow);
+    }
+
+    public void drawCenteredText(Component text, float centerX, float y, UIColor color) {
+        this.backend.drawCenteredText(text, centerX, y, color);
+    }
+
+    public int getTextWidth(String text) {
+        return this.backend.getTextWidth(text);
+    }
+
+    public int getTextWidth(Component text) {
+        return this.backend.getTextWidth(text);
+    }
+
+    public int getLineHeight() {
+        return this.backend.getLineHeight();
+    }
+
+    public void renderTooltip(int mouseX, int mouseY) {
+        this.manager.renderTooltip(this.guiGraphics, mouseX, mouseY);
     }
 }

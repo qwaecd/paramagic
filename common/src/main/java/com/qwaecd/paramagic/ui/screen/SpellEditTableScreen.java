@@ -35,7 +35,9 @@ public class SpellEditTableScreen extends MCContainerScreen<SpellEditTableMenu> 
             return;
         }
         final float deltaTime = TimeProvider.getDeltaTime(this.minecraft);
-        UIRenderContext context = new UIRenderContext(new MCRenderBackend(guiGraphics), deltaTime, mouseX, mouseY);
+        UIRenderContext context = new UIRenderContext(
+                this.uiManager, guiGraphics, new MCRenderBackend(guiGraphics, this.font), deltaTime, mouseX, mouseY
+        );
         this.uiManager.render(context);
     }
 

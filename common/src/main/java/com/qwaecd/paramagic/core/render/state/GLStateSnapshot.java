@@ -7,6 +7,7 @@ import static org.lwjgl.opengl.GL33.*;
 
 
 public final class GLStateSnapshot {
+    // TODO: 需要还原 SSBO 状态
     // Depth
     public final boolean depthTest;
     public final boolean depthWrite;

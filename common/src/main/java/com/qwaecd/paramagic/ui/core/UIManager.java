@@ -4,8 +4,10 @@ import com.qwaecd.paramagic.ui.hit.UIHitResult;
 import com.qwaecd.paramagic.ui.io.mouse.MouseEvent;
 import com.qwaecd.paramagic.ui.io.mouse.MouseEventType;
 import com.qwaecd.paramagic.ui.io.mouse.MouseStateMachine;
+import com.qwaecd.paramagic.ui.overlay.OverlayRoot;
 import com.qwaecd.paramagic.ui.screen.MCContainerScreen;
 import lombok.Getter;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 
 import javax.annotation.Nonnull;
@@ -24,11 +26,14 @@ public class UIManager {
 
     @Getter
     public final UINode rootNode;
+    @Getter
+    private final OverlayRoot overlayRoot;
 
     public UIManager(UINode rootNode, @Nonnull MCContainerScreen<?> screen) {
         this.rootNode = rootNode;
         this.mouseStateMachine = new MouseStateMachine();
         this.screen = screen;
+        this.overlayRoot = new OverlayRoot(this);
     }
 
     public void init() {
@@ -37,11 +42,12 @@ public class UIManager {
 
     public void render(UIRenderContext context) {
         this.rootNode.renderTree(context);
+        this.overlayRoot.renderOverlay(context);
     }
 
     /**
      * 处理鼠标事件
-     * @param e 鼠标事件
+     * @param e 鼠标事件 (可能会升级为双击或其他)
      * @return 事件是否被框架消费
      */
     public boolean handleMouseEvent(MouseEvent e) {
@@ -111,15 +117,20 @@ public class UIManager {
         }
     }
 
-    public boolean hasShiftKeyDown() {
+    // 由 UIRenderContext 调用
+    public void renderTooltip(GuiGraphics guiGraphics, int mouseX, int mouseY) {
+        this.screen.renderTooltip(guiGraphics, mouseX, mouseY);
+    }
+
+    public static boolean hasShiftKeyDown() {
         return Screen.hasShiftDown();
     }
 
-    public boolean hasCtrlKeyDown() {
+    public static boolean hasCtrlKeyDown() {
         return Screen.hasControlDown();
     }
 
-    public boolean hasAltKeyDown() {
+    public static boolean hasAltKeyDown() {
         return Screen.hasAltDown();
     }
 }

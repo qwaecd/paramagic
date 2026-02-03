@@ -3,6 +3,7 @@ package com.qwaecd.paramagic.ui.screen;
 import com.qwaecd.paramagic.ui.core.UIManager;
 import com.qwaecd.paramagic.ui.core.UINode;
 import com.qwaecd.paramagic.ui.io.mouse.MouseEvent;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.gui.screens.inventory.MenuAccess;
@@ -11,12 +12,19 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import org.jetbrains.annotations.Nullable;
 
+import javax.annotation.Nonnull;
+
 public abstract class MCContainerScreen<T extends AbstractContainerMenu> extends AbstractContainerScreen<T> implements MenuAccess<T> {
     protected final UIManager uiManager;
 
     public MCContainerScreen(T menu, Inventory playerInventory, Component title, UINode rootNode) {
         super(menu, playerInventory, title);
         this.uiManager = new UIManager(rootNode, this);
+    }
+
+    @Override
+    public void renderTooltip(@Nonnull GuiGraphics guiGraphics, int x, int y) {
+        super.renderTooltip(guiGraphics, x, y);
     }
 
     /**
