@@ -4,22 +4,22 @@ import com.qwaecd.paramagic.ui.core.UINode;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.ArrayDeque;
-import java.util.Deque;
+import java.util.ArrayList;
+import java.util.List;
 
 public class UIHitResult {
-    private final Deque<UINode> hitPath;
+    private final List<UINode> hitPath;
 
-    private UIHitResult(Deque<UINode> hitPath) {
+    private UIHitResult(List<UINode> hitPath) {
         this.hitPath = hitPath;
     }
 
     public void pushNode(@Nonnull UINode node) {
-        this.hitPath.push(node);
+        this.hitPath.add(node);
     }
 
     public UINode popNode() {
-        return this.hitPath.pop();
+        return this.hitPath.remove(this.hitPath.size() - 1);
     }
 
     /**
@@ -28,13 +28,13 @@ public class UIHitResult {
      */
     @Nullable
     public UINode getTop() {
-        return this.hitPath.peek();
+        return this.hitPath.isEmpty() ? null : this.hitPath.get(this.hitPath.size() - 1);
     }
 
     /**
-     * 获取命中路径，栈顶为最深节点
+     * 获取命中路径，索引越大越深（最后一个是目标节点，第一个是根）
      */
-    public Deque<UINode> getHitPath() {
+    public List<UINode> getHitPath() {
         return this.hitPath;
     }
 
@@ -48,7 +48,7 @@ public class UIHitResult {
 
 
     public static UIHitResult createEmpty() {
-        return new UIHitResult(new ArrayDeque<>());
+        return new UIHitResult(new ArrayList<>());
     }
 
     @Override
@@ -59,7 +59,7 @@ public class UIHitResult {
             sb.append(node.getClass().getSimpleName()).append("->");
         }
         if (!this.hitPath.isEmpty()) {
-            sb.setLength(sb.length() - 2); // 移除最后的箭头
+            sb.setLength(sb.length() - 2);
         }
         sb.append("}");
         return sb.toString();

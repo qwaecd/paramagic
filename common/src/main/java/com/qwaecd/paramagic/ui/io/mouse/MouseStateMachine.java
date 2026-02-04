@@ -77,49 +77,31 @@ public class MouseStateMachine {
     }
 
     /**
-     * 本函数应该在 UIManager 的更新函数开头被调用，数据获取只能在更新之后进行，否则可能会返回上一帧的数据.
-     * @return 该按键是否被状态机接受, 如果为 false, 说明当前按下的按键并不是第一次按下的按键, 框架应该忽略.
+     * 处理鼠标点击，更新状态机并检测双击
+     * @return 该按键是否被状态机接受
      */
-    public boolean updateState(MouseEvent event) {
-        switch (this.currentState) {
-            case IDLE -> {
-                if (event.type == MouseEventType.CLICK) {
-                    return this.click((MouseEvent.Click) event);
-                }
-            }
-            case PRESSED -> {
-                if (event.type == MouseEventType.RELEASE) {
-                    return this.releaseWhenPressed((MouseEvent.Released) event);
-                }
-            }
-            case DRAGGING -> {
-                if (event.type == MouseEventType.RELEASE) {
-                    return this.releaseWhenDragging((MouseEvent.Released) event);
-                }
-            }
-        }
-        return false;
-    }
-
-    private boolean click(MouseEvent.Click event) {
-        if (this.activeButton == MouseButton.NULL.code) {
-            this.activeButton = event.button;
-        }
-
-        // 忽略非绑定的按键
-        if (event.button != this.activeButton) {
+    public boolean onMouseClick(double mouseX, double mouseY, int button) {
+        if (this.currentState != MouseState.IDLE) {
             return false;
         }
 
-        this.doubleClickCheck(event.mouseX, event.mouseY);
+        if (this.activeButton == MouseButton.NULL.code) {
+            this.activeButton = button;
+        }
+
+        if (button != this.activeButton) {
+            return false;
+        }
+
+        this.doubleClickCheck(mouseX, mouseY);
 
         this.currentState = MouseState.PRESSED;
 
-        this.pressedX = event.mouseX;
-        this.pressedY = event.mouseY;
+        this.pressedX = mouseX;
+        this.pressedY = mouseY;
 
-        this.lastMouseX = event.mouseX;
-        this.lastMouseY = event.mouseY;
+        this.lastMouseX = mouseX;
+        this.lastMouseY = mouseY;
         return true;
     }
 
@@ -143,18 +125,9 @@ public class MouseStateMachine {
         this.lastClickY = mouseY;
     }
 
-    // 在 PRESSED 状态下释放鼠标
-    private boolean releaseWhenPressed(MouseEvent.Released event) {
-        if (event.button != this.activeButton) {
-            return false;
-        }
-        this.releaseMouseButton();
-        return true;
-    }
 
-    // 在 DRAGGING 状态下释放鼠标
-    private boolean releaseWhenDragging(MouseEvent.Released event) {
-        if (event.button != this.activeButton) {
+    public boolean onMouseRelease(double mouseX, double mouseY, int button) {
+        if (button != this.activeButton) {
             return false;
         }
         this.releaseMouseButton();
@@ -184,4 +157,5 @@ public class MouseStateMachine {
         this.lastMouseX = mouseX;
         this.lastMouseY = mouseY;
     }
+
 }

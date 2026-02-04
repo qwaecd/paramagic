@@ -3,6 +3,10 @@ package com.qwaecd.paramagic.ui.widget;
 import com.qwaecd.paramagic.tools.ModRL;
 import com.qwaecd.paramagic.ui.UIColor;
 import com.qwaecd.paramagic.ui.core.*;
+import com.qwaecd.paramagic.ui.event.UIEventContext;
+import com.qwaecd.paramagic.ui.event.impl.DoubleClick;
+import com.qwaecd.paramagic.ui.event.impl.MouseClick;
+import com.qwaecd.paramagic.ui.event.impl.MouseRelease;
 
 import javax.annotation.Nonnull;
 
@@ -23,31 +27,33 @@ public class Button extends UINode {
         this.localRect.set(localRect);
     }
 
-    /**
-     * 处理一次 UI 事件, 如果被该节点消耗了, 应将 context 设置为已消耗
-     *
-     * @param context 本次事件的 context 实例
-     */
     @Override
-    public void processEvent(UIEventContext context) {
-        if (context.mouseEvent == null) {
+    protected void onMouseClick(UIEventContext<MouseClick> context) {
+        this.whenClickOrDouble(context.event.mouseX, context.event.mouseY, context.getManager(), false);
+        context.consumeAndStopPropagation();
+    }
+
+    @Override
+    protected void onDoubleClick(UIEventContext<DoubleClick> context) {
+        this.whenClickOrDouble(context.event.mouseX, context.event.mouseY, context.getManager(), true);
+        context.consumeAndStopPropagation();
+    }
+
+    private void whenClickOrDouble(double mouseX, double mouseY, UIManager manager, boolean isDouble) {
+        if (this.pressed) {
             return;
         }
+        System.out.println("Button clicked at " + mouseX + ", " + mouseY + (isDouble ? " (double click)" : ""));
+        manager.captureNode(this);
+        this.pressed = true;
+    }
 
-        if (context.mouseEvent.isClickOrDouble() && !this.pressed) {
-            System.out.println("Button clicked at " + context.mouseEvent.mouseX + ", " + context.mouseEvent.mouseY);
-            context.getManager().captureNode(this);
-            this.pressed = true;
-            context.setConsumed(true);
-            return;
-        }
-
-        if (context.mouseEvent.isRelease()) {
-            if (this.pressed) {
-                this.pressed = false;
-                context.getManager().releaseCapture();
-                context.setConsumed(true);
-            }
+    @Override
+    protected void onMouseRelease(UIEventContext<MouseRelease> context) {
+        if (this.pressed) {
+            this.pressed = false;
+            context.getManager().releaseCapture();
+            context.consume();
         }
     }
 

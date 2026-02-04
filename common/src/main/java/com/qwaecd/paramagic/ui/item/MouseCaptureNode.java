@@ -1,8 +1,9 @@
 package com.qwaecd.paramagic.ui.item;
 
-import com.qwaecd.paramagic.ui.core.UIEventContext;
 import com.qwaecd.paramagic.ui.core.UINode;
-import com.qwaecd.paramagic.ui.io.mouse.MouseEvent;
+import com.qwaecd.paramagic.ui.event.UIEventContext;
+import com.qwaecd.paramagic.ui.event.impl.MouseClick;
+import com.qwaecd.paramagic.ui.event.impl.MouseRelease;
 
 public class MouseCaptureNode extends UINode {
     protected boolean captured = false;
@@ -11,29 +12,26 @@ public class MouseCaptureNode extends UINode {
     protected float grabOffsetY = 0.0f;
 
     @Override
-    public void processEvent(UIEventContext context) {
-        MouseEvent mouseEvent = context.mouseEvent;
-        if (mouseEvent == null) {
+    protected void onMouseClick(UIEventContext<MouseClick> context) {
+        if (this.captured) {
             return;
         }
 
-        if (this.captureCondition(mouseEvent)) {
-            context.getManager().captureNode(this);
-            this.captured = true;
-            this.grabOffsetX = (float) mouseEvent.mouseX - this.worldRect.x;
-            this.grabOffsetY = (float) mouseEvent.mouseY - this.worldRect.y;
-        }
-
-        if (mouseEvent.isRelease()) {
-            context.getManager().releaseCapture();
-            this.captured = false;
-        }
-
+        MouseClick event = context.event;
+        context.getManager().captureNode(this);
+        this.captured = true;
+        this.grabOffsetX = (float) event.mouseX - this.worldRect.x;
+        this.grabOffsetY = (float) event.mouseY - this.worldRect.y;
         context.consume();
     }
 
-    protected boolean captureCondition(MouseEvent mouseEvent) {
-        return mouseEvent.isClickOrDouble() && !this.captured;
+    @Override
+    protected void onMouseRelease(UIEventContext<MouseRelease> context) {
+        if (this.captured) {
+            context.getManager().releaseCapture();
+            this.captured = false;
+            context.consume();
+        }
     }
 
     @Override

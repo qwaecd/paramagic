@@ -1,6 +1,11 @@
 package com.qwaecd.paramagic.ui.core;
 
 import com.qwaecd.paramagic.ui.UIColor;
+import com.qwaecd.paramagic.ui.event.*;
+import com.qwaecd.paramagic.ui.event.impl.DoubleClick;
+import com.qwaecd.paramagic.ui.event.impl.MouseClick;
+import com.qwaecd.paramagic.ui.event.impl.MouseRelease;
+import com.qwaecd.paramagic.ui.event.impl.WheelEvent;
 import com.qwaecd.paramagic.ui.hit.UIHitResult;
 import lombok.Getter;
 import lombok.Setter;
@@ -8,11 +13,15 @@ import lombok.Setter;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Consumer;
 
 public class UINode {
     private final List<UINode> children;
+    @Nullable
+    private Map<UIEventKey<?>, PhaseBucket> eventListeners;
     @Nullable
     private UINode parent;
     private boolean visible;
@@ -67,54 +76,30 @@ public class UINode {
         parent.addChild(this);
     }
 
-    public boolean isVisible() {
-        return this.visible;
+
+    public final <E extends UIEvent> UIEventListenerEntry<E> addListener(
+            UIEventKey<E> key,
+            EventPhase phase,
+            int priority,
+            UIEventListener<E> listener
+    ) {
+        if (this.eventListeners == null) {
+            this.eventListeners = new HashMap<>();
+        }
+
+        PhaseBucket bucket = this.eventListeners.computeIfAbsent(key, k -> new PhaseBucket());
+        return bucket.addListener(phase, priority, listener);
     }
 
-    public void setVisible(boolean visible) {
-        this.visible = visible;
-    }
+    public final void removeListener(UIEventKey<?> key, UIEventListenerEntry<?> entry) {
+        if (this.eventListeners == null) {
+            return;
+        }
 
-    public boolean isHitTestable() {
-        return this.hitTestable;
-    }
-
-    public void setHitTestable(boolean hitTestable) {
-        this.hitTestable = hitTestable;
-    }
-
-    public void enableHitTest() {
-        this.hitTestable = true;
-    }
-
-    public void disableHitTest() {
-        this.hitTestable = false;
-    }
-
-    public List<UINode> getChildren() {
-        return this.children;
-    }
-
-    @Nullable
-    public UINode getParent() {
-        return this.parent;
-    }
-
-    public void setShowDebugOutLine(boolean showDebugOutLine) {
-        this.showDebugOutLine = showDebugOutLine;
-    }
-
-    public boolean isShowDebugOutLine() {
-        return this.showDebugOutLine;
-    }
-
-    @Nonnull
-    public UIColor getBackgroundColor() {
-        return this.backgroundColor;
-    }
-
-    public void setBackgroundColor(@Nonnull UIColor backgroundColor) {
-        this.backgroundColor = backgroundColor;
+        PhaseBucket bucket = this.eventListeners.get(key);
+        if (bucket != null) {
+            bucket.removeListener(entry);
+        }
     }
 
     public void addChild(UINode child) {
@@ -133,10 +118,59 @@ public class UINode {
     }
 
     /**
-     * 处理一次 UI 事件, 如果被该节点消耗了, 应将 context 设置为已消耗
-     * @param context 本次事件的 context 实例
+     * 当此节点为事件目标时，处理鼠标点击事件
      */
-    public void processEvent(UIEventContext context) {
+    protected void onMouseClick(UIEventContext<MouseClick> context) {
+    }
+
+    /**
+     * 当此节点为事件目标时，处理鼠标释放事件
+     */
+    protected void onMouseRelease(UIEventContext<MouseRelease> context) {
+    }
+
+    /**
+     * 当此节点为事件目标时，处理鼠标双击事件
+     */
+    protected void onDoubleClick(UIEventContext<DoubleClick> context) {
+    }
+
+    /**
+     * 当此节点为事件目标时，处理鼠标滚轮事件
+     */
+    protected void onMouseScroll(UIEventContext<WheelEvent> context) {
+    }
+
+    @SuppressWarnings("unchecked")
+    final void dispatchTargetEvent(UIEventContext<? extends UIEvent> context) {
+        UIEventKey<?> key = context.getEventKey();
+        if (key == AllUIEvents.MOUSE_CLICK) {
+            this.onMouseClick((UIEventContext<MouseClick>) context);
+        } else if (key == AllUIEvents.MOUSE_RELEASE) {
+            this.onMouseRelease((UIEventContext<MouseRelease>) context);
+        } else if (key == AllUIEvents.MOUSE_DOUBLE_CLICK) {
+            this.onDoubleClick((UIEventContext<DoubleClick>) context);
+        } else if (key == AllUIEvents.WHEEL) {
+            this.onMouseScroll((UIEventContext<WheelEvent>) context);
+        }
+    }
+
+    /**
+     * 将事件派发给注册的监听器执行.
+     * @param context 本次事件的 context 实例.
+     * @param phase 当前事件派发阶段.
+     */
+    public final <E extends UIEvent> void handleEvent(UIEventContext<E> context, EventPhase phase) {
+        if (this.eventListeners == null) {
+            return;
+        }
+
+        PhaseBucket bucket = this.eventListeners.get(context.getEventKey());
+        if (bucket == null) {
+            return;
+        }
+
+        bucket.dispatch(context, phase);
     }
 
     /**
@@ -267,6 +301,56 @@ public class UINode {
         }
         return x >= this.worldRect.x && x < this.worldRect.x + this.worldRect.w
             && y >= this.worldRect.y && y < this.worldRect.y + this.worldRect.h;
+    }
+
+    public boolean isVisible() {
+        return this.visible;
+    }
+
+    public void setVisible(boolean visible) {
+        this.visible = visible;
+    }
+
+    public boolean isHitTestable() {
+        return this.hitTestable;
+    }
+
+    public void setHitTestable(boolean hitTestable) {
+        this.hitTestable = hitTestable;
+    }
+
+    public void enableHitTest() {
+        this.hitTestable = true;
+    }
+
+    public void disableHitTest() {
+        this.hitTestable = false;
+    }
+
+    public List<UINode> getChildren() {
+        return this.children;
+    }
+
+    @Nullable
+    public UINode getParent() {
+        return this.parent;
+    }
+
+    public void setShowDebugOutLine(boolean showDebugOutLine) {
+        this.showDebugOutLine = showDebugOutLine;
+    }
+
+    public boolean isShowDebugOutLine() {
+        return this.showDebugOutLine;
+    }
+
+    @Nonnull
+    public UIColor getBackgroundColor() {
+        return this.backgroundColor;
+    }
+
+    public void setBackgroundColor(@Nonnull UIColor backgroundColor) {
+        this.backgroundColor = backgroundColor;
     }
 
     private void forEachChild(@Nonnull Consumer<UINode> action) {
