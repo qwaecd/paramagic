@@ -1,7 +1,7 @@
 package com.qwaecd.paramagic.ui.item;
 
 import com.qwaecd.paramagic.ui.core.UINode;
-import com.qwaecd.paramagic.ui.event.UIEventContext;
+import com.qwaecd.paramagic.ui.event.api.UIEventContext;
 import com.qwaecd.paramagic.ui.event.impl.MouseClick;
 import com.qwaecd.paramagic.ui.event.impl.MouseRelease;
 

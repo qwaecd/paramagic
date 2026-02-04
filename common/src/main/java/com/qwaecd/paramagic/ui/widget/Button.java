@@ -3,7 +3,7 @@ package com.qwaecd.paramagic.ui.widget;
 import com.qwaecd.paramagic.tools.ModRL;
 import com.qwaecd.paramagic.ui.UIColor;
 import com.qwaecd.paramagic.ui.core.*;
-import com.qwaecd.paramagic.ui.event.UIEventContext;
+import com.qwaecd.paramagic.ui.event.api.UIEventContext;
 import com.qwaecd.paramagic.ui.event.impl.DoubleClick;
 import com.qwaecd.paramagic.ui.event.impl.MouseClick;
 import com.qwaecd.paramagic.ui.event.impl.MouseRelease;

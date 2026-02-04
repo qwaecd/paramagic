@@ -4,7 +4,6 @@ import com.qwaecd.paramagic.platform.annotation.PlatformScope;
 import com.qwaecd.paramagic.platform.annotation.PlatformScopeType;
 import com.qwaecd.paramagic.tools.TimeProvider;
 import com.qwaecd.paramagic.ui.MCRenderBackend;
-import com.qwaecd.paramagic.ui.UIColor;
 import com.qwaecd.paramagic.ui.core.UIRenderContext;
 import com.qwaecd.paramagic.ui.menu.SpellEditTableMenu;
 import net.minecraft.client.gui.GuiGraphics;

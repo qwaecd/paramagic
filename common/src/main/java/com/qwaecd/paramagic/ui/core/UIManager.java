@@ -1,6 +1,10 @@
 package com.qwaecd.paramagic.ui.core;
 
-import com.qwaecd.paramagic.ui.event.*;
+import com.qwaecd.paramagic.ui.event.EventPhase;
+import com.qwaecd.paramagic.ui.event.UIEvent;
+import com.qwaecd.paramagic.ui.event.api.AllUIEvents;
+import com.qwaecd.paramagic.ui.event.api.UIEventContext;
+import com.qwaecd.paramagic.ui.event.api.UIEventKey;
 import com.qwaecd.paramagic.ui.event.impl.DoubleClick;
 import com.qwaecd.paramagic.ui.event.impl.MouseClick;
 import com.qwaecd.paramagic.ui.event.impl.MouseRelease;
@@ -128,7 +132,7 @@ public class UIManager {
                 hitPath.get(i).handleEvent(context, EventPhase.CAPTURING);
             }
 
-            // 目标阶段：调用目标节点的模板方法
+            // 目标阶段
             if (!hitPath.isEmpty() && !context.isPropagationStopped()) {
                 UINode target = hitPath.get(hitPath.size() - 1);
                 target.dispatchTargetEvent(context);

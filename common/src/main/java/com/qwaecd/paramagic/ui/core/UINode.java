@@ -1,11 +1,18 @@
 package com.qwaecd.paramagic.ui.core;
 
 import com.qwaecd.paramagic.ui.UIColor;
-import com.qwaecd.paramagic.ui.event.*;
+import com.qwaecd.paramagic.ui.event.EventPhase;
+import com.qwaecd.paramagic.ui.event.listener.PhaseBucket;
+import com.qwaecd.paramagic.ui.event.UIEvent;
+import com.qwaecd.paramagic.ui.event.api.AllUIEvents;
+import com.qwaecd.paramagic.ui.event.api.UIEventContext;
+import com.qwaecd.paramagic.ui.event.api.UIEventKey;
 import com.qwaecd.paramagic.ui.event.impl.DoubleClick;
 import com.qwaecd.paramagic.ui.event.impl.MouseClick;
 import com.qwaecd.paramagic.ui.event.impl.MouseRelease;
 import com.qwaecd.paramagic.ui.event.impl.WheelEvent;
+import com.qwaecd.paramagic.ui.event.listener.UIEventListener;
+import com.qwaecd.paramagic.ui.event.listener.UIEventListenerEntry;
 import com.qwaecd.paramagic.ui.hit.UIHitResult;
 import lombok.Getter;
 import lombok.Setter;

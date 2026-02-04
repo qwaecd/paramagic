@@ -1,6 +1,7 @@
-package com.qwaecd.paramagic.ui.event;
+package com.qwaecd.paramagic.ui.event.api;
 
 import com.qwaecd.paramagic.ui.core.UIManager;
+import com.qwaecd.paramagic.ui.event.UIEvent;
 
 import javax.annotation.Nonnull;
 

@@ -1,5 +1,6 @@
-package com.qwaecd.paramagic.ui.event;
+package com.qwaecd.paramagic.ui.event.api;
 
+import com.qwaecd.paramagic.ui.event.UIEvent;
 import com.qwaecd.paramagic.ui.event.impl.DoubleClick;
 import com.qwaecd.paramagic.ui.event.impl.MouseClick;
 import com.qwaecd.paramagic.ui.event.impl.MouseRelease;

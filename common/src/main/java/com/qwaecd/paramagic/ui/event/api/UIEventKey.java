@@ -1,4 +1,6 @@
-package com.qwaecd.paramagic.ui.event;
+package com.qwaecd.paramagic.ui.event.api;
+
+import com.qwaecd.paramagic.ui.event.UIEvent;
 
 public final class UIEventKey<E extends UIEvent> {
     public final int eventId;
