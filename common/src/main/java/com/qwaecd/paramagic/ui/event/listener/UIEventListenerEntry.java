@@ -21,7 +21,7 @@ public class UIEventListenerEntry<E extends UIEvent> implements Comparable<UIEve
     }
 
     public void handleEvent(UIEventContext<E> context) {
-        this.listener.handleEvent(context, context.event);
+        this.listener.handleEvent(context);
     }
 
     @Override

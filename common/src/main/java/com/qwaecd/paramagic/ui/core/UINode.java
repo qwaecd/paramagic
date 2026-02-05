@@ -16,6 +16,8 @@ import com.qwaecd.paramagic.ui.event.listener.UIEventListenerEntry;
 import com.qwaecd.paramagic.ui.hit.UIHitResult;
 import lombok.Getter;
 import lombok.Setter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -25,7 +27,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 
+@SuppressWarnings("UnusedReturnValue")
 public class UINode {
+    private static final Logger LOGGER = LoggerFactory.getLogger(UINode.class);
     protected final List<UINode> children;
     @Nullable
     protected Map<UIEventKey<?>, PhaseBucket> eventListeners;
@@ -96,6 +100,14 @@ public class UINode {
 
         PhaseBucket bucket = this.eventListeners.computeIfAbsent(key, k -> new PhaseBucket());
         return bucket.addListener(phase, priority, listener);
+    }
+
+    public final <E extends UIEvent> UIEventListenerEntry<E> addListener(
+            UIEventKey<E> key,
+            EventPhase phase,
+            UIEventListener<E> listener
+    ) {
+        return this.addListener(key, phase, 0, listener);
     }
 
     public final void removeListener(UIEventKey<?> key, UIEventListenerEntry<?> entry) {
@@ -272,14 +284,18 @@ public class UINode {
      * 渲染节点自身, 不应该渲染其子节点.<br>
      * 子类应该重写该方法来实现自定义渲染内容.
      */
-    public void render(@Nonnull UIRenderContext context) {
+    protected void render(@Nonnull UIRenderContext context) {
         if (!this.visible) {
             return;
         }
         context.drawQuad(this.worldRect, this.backgroundColor);
-        if (this.showDebugOutLine) {
-            context.renderOutline(this.worldRect, UIColor.RED);
-        }
+    }
+
+    /**
+     * 在调试模式下调用该函数渲染调试信息.
+     */
+    public void renderDebug(@Nonnull UIRenderContext context) {
+        context.renderOutline(this.worldRect, UIColor.RED);
     }
 
     /**
@@ -293,6 +309,10 @@ public class UINode {
 
         if (this.isVisible()) {
             this.render(context);
+        }
+
+        if (this.showDebugOutLine) {
+            this.renderDebug(context);
         }
 
         this.forEachChild(node -> node.renderTree(context));
@@ -363,6 +383,21 @@ public class UINode {
     protected void forEachChild(@Nonnull Consumer<UINode> action) {
         for (UINode child : this.children) {
             action.accept(child);
+        }
+    }
+
+    public void forEachNodeSafe(@Nonnull Consumer<UINode> action) {
+        try {
+            action.accept(this);
+        } catch (Exception e) {
+            LOGGER.error("Exception occurred when processing UINode.", e);
+        }
+        for (UINode child : this.children) {
+            try {
+                child.forEachNodeSafe(action);
+            } catch (Exception e) {
+                LOGGER.error("Exception occurred when processing child UINode.", e);
+            }
         }
     }
 

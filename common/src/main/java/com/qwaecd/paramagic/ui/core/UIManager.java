@@ -15,15 +15,20 @@ import com.qwaecd.paramagic.ui.overlay.OverlayRoot;
 import lombok.Getter;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.ConcurrentModificationException;
 import java.util.List;
+import java.util.function.Consumer;
 
 /**
  * 一个 screen 对应一个 UIManager 实例，管理整个 UI 树的布局和渲染
  */
 public class UIManager {
+    private static final Logger LOGGER = LoggerFactory.getLogger(UIManager.class);
     private final MouseStateMachine mouseStateMachine;
     @Nonnull
     private final TooltipRenderer tooltipRenderer;
@@ -127,7 +132,7 @@ public class UIManager {
             UIHitResult hitResult = this.rootNode.createHitPath((float) mouseX, (float) mouseY, UIHitResult.createEmpty());
             List<UINode> hitPath = hitResult.getHitPath();
 
-            // 捕获阶段：从根到目标（索引 0 是根，索引越大越深）
+            // 捕获阶段：从根到目标, 包括目标（索引 0 是根，索引越大越深）
             for (int i = 0; i < hitPath.size() && !context.isPropagationStopped(); i++) {
                 hitPath.get(i).handleEvent(context, EventPhase.CAPTURING);
             }
@@ -138,7 +143,7 @@ public class UIManager {
                 target.dispatchTargetEvent(context);
             }
 
-            // 冒泡阶段：从目标到根
+            // 冒泡阶段：从目标到根, 包括目标
             for (int i = hitPath.size() - 1; i >= 0 && !context.isPropagationStopped(); i--) {
                 hitPath.get(i).handleEvent(context, EventPhase.BUBBLING);
             }
@@ -158,6 +163,19 @@ public class UIManager {
     // 由 UIRenderContext 调用
     public void renderTooltip(GuiGraphics guiGraphics, int mouseX, int mouseY) {
         this.tooltipRenderer.renderTooltip(guiGraphics, mouseX, mouseY);
+    }
+
+    /**
+     * 遍历所有 UI 节点, 包括根节点, 请不要在该监听器下修改节点树的结构.
+     */
+    public void forEachUINode(Consumer<UINode> action) {
+        try {
+            this.rootNode.forEachNodeSafe(action);
+        } catch (ConcurrentModificationException cme) {
+            LOGGER.error("Concurrent modification detected when traversing UI nodes. Make sure not to modify the UI tree structure within the action.", cme);
+        } catch (Exception e) {
+            LOGGER.error("Exception occurred when traversing UI nodes.", e);
+        }
     }
 
     public static boolean hasShiftKeyDown() {

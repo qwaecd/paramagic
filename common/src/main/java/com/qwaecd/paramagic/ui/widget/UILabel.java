@@ -52,12 +52,10 @@ public class UILabel extends UINode {
         } else {
             context.drawText(this.label, this.worldRect.x, this.worldRect.y, this.color, this.dropShadow);
         }
-        if (this.showDebugOutLine) {
-            this.renderDebugOutLine(context);
-        }
     }
 
-    protected void renderDebugOutLine(UIRenderContext context) {
+    @Override
+    public void renderDebug(@Nonnull UIRenderContext context) {
         if (this.centered) {
             float textWidth = context.getTextWidth(this.label);
             context.renderOutline(

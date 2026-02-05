@@ -9,7 +9,7 @@ import javax.annotation.Nonnull;
 import java.util.ArrayDeque;
 import java.util.Deque;
 
-@SuppressWarnings("UnusedReturnValue")
+@SuppressWarnings({"UnusedReturnValue", "unused"})
 public class UIRenderContext {
     @Getter
     @Nonnull
