@@ -1,7 +1,10 @@
 package com.qwaecd.paramagic.ui.widget;
 
 import com.qwaecd.paramagic.ui.UIColor;
-import com.qwaecd.paramagic.ui.core.*;
+import com.qwaecd.paramagic.ui.core.Rect;
+import com.qwaecd.paramagic.ui.core.UIManager;
+import com.qwaecd.paramagic.ui.core.UINode;
+import com.qwaecd.paramagic.ui.core.UIRenderContext;
 import com.qwaecd.paramagic.ui.event.api.UIEventContext;
 import com.qwaecd.paramagic.ui.event.impl.DoubleClick;
 import com.qwaecd.paramagic.ui.event.impl.MouseClick;
