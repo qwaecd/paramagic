@@ -1,7 +1,10 @@
 package com.qwaecd.paramagic.ui.screen;
 
+import com.qwaecd.paramagic.tools.TimeProvider;
+import com.qwaecd.paramagic.ui.MCRenderBackend;
 import com.qwaecd.paramagic.ui.core.UIManager;
 import com.qwaecd.paramagic.ui.core.UINode;
+import com.qwaecd.paramagic.ui.core.UIRenderContext;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
@@ -13,12 +16,19 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.Nonnull;
 
+@SuppressWarnings("RedundantMethodOverride")
 public abstract class MCContainerScreen<T extends AbstractContainerMenu> extends AbstractContainerScreen<T> implements MenuAccess<T> {
-    protected final UIManager uiManager;
+    protected final UIManager manager;
 
     public MCContainerScreen(T menu, Inventory playerInventory, Component title, UINode rootNode) {
         super(menu, playerInventory, title);
-        this.uiManager = new UIManager(rootNode, this::renderTooltip);
+        this.manager = new UIManager(rootNode, this::renderTooltip);
+    }
+
+    @Override
+    protected void init() {
+        super.init();
+        this.manager.init();
     }
 
     @Override
@@ -27,8 +37,31 @@ public abstract class MCContainerScreen<T extends AbstractContainerMenu> extends
     }
 
     @Override
+    public void render(@Nonnull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+        super.render(guiGraphics, mouseX, mouseY, partialTick);
+        if (this.minecraft == null) {
+            return;
+        }
+        final float deltaTime = TimeProvider.getDeltaTime(this.minecraft);
+        UIRenderContext context = new UIRenderContext(
+                this.manager, guiGraphics, new MCRenderBackend(guiGraphics, this.font), deltaTime, mouseX, mouseY
+        );
+        this.manager.render(context);
+    }
+
+    @Override
+    protected void renderLabels(@Nonnull GuiGraphics guiGraphics, int mouseX, int mouseY) {
+//        super.renderLabels(guiGraphics, mouseX, mouseY);
+    }
+
+    @Override
+    public boolean isPauseScreen() {
+        return false;
+    }
+
+    @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
-        if (this.uiManager.onMouseClick(mouseX, mouseY, button)) {
+        if (this.manager.onMouseClick(mouseX, mouseY, button)) {
             return true;
         }
         return super.mouseClicked(mouseX, mouseY, button);
@@ -36,12 +69,13 @@ public abstract class MCContainerScreen<T extends AbstractContainerMenu> extends
 
     @Override
     public boolean mouseDragged(double mouseX, double mouseY, int button, double dragX, double dragY) {
+        // 调用该函数的同时还会调用 mouseMoved() 所以对框架不需要进行处理.
         return super.mouseDragged(mouseX, mouseY, button, dragX, dragY);
     }
 
     @Override
     public boolean mouseReleased(double mouseX, double mouseY, int button) {
-        if (this.uiManager.onMouseRelease(mouseX, mouseY, button)) {
+        if (this.manager.onMouseRelease(mouseX, mouseY, button)) {
             return true;
         }
         return super.mouseReleased(mouseX, mouseY, button);
@@ -49,13 +83,13 @@ public abstract class MCContainerScreen<T extends AbstractContainerMenu> extends
 
     @Override
     public void mouseMoved(double mouseX, double mouseY) {
-        this.uiManager.onMouseMove(mouseX, mouseY);
+        this.manager.onMouseMove(mouseX, mouseY);
         super.mouseMoved(mouseX, mouseY);
     }
 
     @Override
     public boolean mouseScrolled(double mouseX, double mouseY, double delta) {
-        if (this.uiManager.onMouseScroll(mouseX, mouseY, delta)) {
+        if (this.manager.onMouseScroll(mouseX, mouseY, delta)) {
             return true;
         }
         return super.mouseScrolled(mouseX, mouseY, delta);

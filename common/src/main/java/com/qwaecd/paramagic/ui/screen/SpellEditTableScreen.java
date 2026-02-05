@@ -2,40 +2,17 @@ package com.qwaecd.paramagic.ui.screen;
 
 import com.qwaecd.paramagic.platform.annotation.PlatformScope;
 import com.qwaecd.paramagic.platform.annotation.PlatformScopeType;
-import com.qwaecd.paramagic.tools.TimeProvider;
-import com.qwaecd.paramagic.ui.MCRenderBackend;
-import com.qwaecd.paramagic.ui.core.UIRenderContext;
 import com.qwaecd.paramagic.ui.menu.SpellEditTableMenu;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.MenuAccess;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
 
-import javax.annotation.Nonnull;
 
 @PlatformScope(PlatformScopeType.CLIENT)
 public class SpellEditTableScreen extends MCContainerScreen<SpellEditTableMenu> implements MenuAccess<SpellEditTableMenu> {
     public SpellEditTableScreen(SpellEditTableMenu menu, Inventory inventory, Component title) {
         super(menu, inventory, title, new SpellEditTableUI());
-    }
-
-    @Override
-    protected void init() {
-        super.init();
-        this.uiManager.init();
-    }
-
-    @Override
-    public void render(@Nonnull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
-        super.render(guiGraphics, mouseX, mouseY, partialTick);
-        if (this.minecraft == null) {
-            return;
-        }
-        final float deltaTime = TimeProvider.getDeltaTime(this.minecraft);
-        UIRenderContext context = new UIRenderContext(
-                this.uiManager, guiGraphics, new MCRenderBackend(guiGraphics, this.font), deltaTime, mouseX, mouseY
-        );
-        this.uiManager.render(context);
     }
 
     @Override

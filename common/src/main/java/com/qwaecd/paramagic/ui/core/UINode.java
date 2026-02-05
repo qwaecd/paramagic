@@ -26,22 +26,22 @@ import java.util.Map;
 import java.util.function.Consumer;
 
 public class UINode {
-    private final List<UINode> children;
+    protected final List<UINode> children;
     @Nullable
-    private Map<UIEventKey<?>, PhaseBucket> eventListeners;
+    protected Map<UIEventKey<?>, PhaseBucket> eventListeners;
     @Nullable
-    private UINode parent;
-    private boolean visible;
-    private boolean hitTestable = true;
+    protected UINode parent;
+    protected boolean visible;
+    protected boolean hitTestable = true;
     @Setter
     @Getter
     @Nonnull
-    private ClipMod clipMod;
+    protected ClipMod clipMod;
 
     @Setter
     @Getter
     @Nonnull
-    private SizeMode sizeMode;
+    protected SizeMode sizeMode;
     
     /**
      * 相对父节点的位置和尺寸
@@ -360,13 +360,13 @@ public class UINode {
         this.backgroundColor = backgroundColor;
     }
 
-    private void forEachChild(@Nonnull Consumer<UINode> action) {
+    protected void forEachChild(@Nonnull Consumer<UINode> action) {
         for (UINode child : this.children) {
             action.accept(child);
         }
     }
 
-    private void forEachChildInReverseOrder(@Nonnull Consumer<UINode> action) {
+    protected void forEachChildInReverseOrder(@Nonnull Consumer<UINode> action) {
         for (int i = this.children.size() - 1; i >= 0; --i) {
             action.accept(this.children.get(i));
         }
