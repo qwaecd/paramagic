@@ -20,6 +20,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.Collections;
 import java.util.ConcurrentModificationException;
 import java.util.List;
 import java.util.function.Consumer;
@@ -129,7 +130,7 @@ public class UIManager {
                 captured.handleEvent(context, EventPhase.BUBBLING);
             }
         } else {
-            UIHitResult hitResult = this.rootNode.createHitPath((float) mouseX, (float) mouseY, UIHitResult.createEmpty());
+            UIHitResult hitResult = this.createHitPath(mouseX, mouseY);
             List<UINode> hitPath = hitResult.getHitPath();
 
             // 捕获阶段：从根到目标, 包括目标（索引 0 是根，索引越大越深）
@@ -152,6 +153,30 @@ public class UIManager {
         return context.isConsumed();
     }
 
+    /**
+     * 获取完整的命中路径, 类似于函数调用栈, 列表末尾(栈顶)是最深层的节点<br>
+     * 所有路径上的节点都会被加入到命中路径中, 包括没有经过命中测试的节点.
+     */
+    @Nonnull
+    public UIHitResult createHitPath(double mouseX, double mouseY) {
+        UINode topmost = this.rootNode.getTopmostHitNode((float) mouseX, (float) mouseY);
+        UIHitResult hitResult = UIHitResult.createEmpty();
+
+        if (topmost != null) {
+            hitResult.pushNode(topmost);
+            UINode node = topmost.getParent();
+            while (node != null) {
+                hitResult.pushNode(node);
+                node = node.getParent();
+            }
+        }
+
+        // 相信标准库, 不要尝试自己写算法 :)
+        // 反转列表, 使得索引越大越深
+        hitResult.reverse();
+        return hitResult;
+    }
+
     public void captureNode(@Nullable UINode node) {
         this.capturedNode = node;
     }
@@ -166,7 +191,8 @@ public class UIManager {
     }
 
     /**
-     * 遍历所有 UI 节点, 包括根节点, 请不要在该监听器下修改节点树的结构.
+     * 遍历所有 UI 节点, 包括根节点, 请不要在该 lambda 内修改节点树的结构.
+     * @throws ConcurrentModificationException 如果在遍历过程中修改了节点树结构.
      */
     public void forEachUINode(Consumer<UINode> action) {
         try {

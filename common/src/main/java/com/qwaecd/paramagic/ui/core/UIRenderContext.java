@@ -63,7 +63,7 @@ public class UIRenderContext {
         if (x2 >= x1 && y2 >= y1) {
             return new Rect(x1, y1, x2 - x1, y2 - y1);
         } else {
-            return new Rect(0, 0, 0, 0);
+            return new Rect(0.0f, 0.0f, 0.0f, 0.0f);
         }
     }
 

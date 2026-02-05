@@ -5,6 +5,7 @@ import com.qwaecd.paramagic.ui.core.UINode;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class UIHitResult {
@@ -32,7 +33,9 @@ public class UIHitResult {
     }
 
     /**
-     * 获取命中路径，索引越大越深（最后一个是目标节点，第一个是根）
+     * 获取命中路径，索引越大越深（最后一个是目标节点，第一个是根）<br>
+     * 不应该修改返回的列表.
+     * @return 命中路径列表
      */
     public List<UINode> getHitPath() {
         return this.hitPath;
@@ -63,5 +66,9 @@ public class UIHitResult {
         }
         sb.append("}");
         return sb.toString();
+    }
+
+    public void reverse() {
+        Collections.reverse(this.hitPath);
     }
 }

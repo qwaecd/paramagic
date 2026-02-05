@@ -27,7 +27,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 
-@SuppressWarnings("UnusedReturnValue")
+@SuppressWarnings({"UnusedReturnValue", "unused"})
 public class UINode {
     private static final Logger LOGGER = LoggerFactory.getLogger(UINode.class);
     protected final List<UINode> children;
@@ -198,25 +198,20 @@ public class UINode {
     public void onMouseMove(double mouseX, double mouseY) {
     }
 
-    /**
-     * 获取完整的命中路径, 类似于函数调用栈, 栈顶是最深层的节点
-     */
-    @Nonnull
-    public UIHitResult createHitPath(float mouseX, float mouseY, @Nonnull UIHitResult parentHitResult) {
-        // 先命中的在栈底
-        if (this.hitTest(mouseX, mouseY)) {
-            parentHitResult.pushNode(this);
-        }
-
-        // 深度越大的节点越接近栈顶, 同一层下, index 越大的节点越接近栈顶
+    @Nullable
+    public UINode getTopmostHitNode(float mouseX, float mouseY) {
         for (int i = this.children.size() - 1; i >= 0; --i) {
-            int sizeBefore = parentHitResult.size();
-            this.children.get(i).createHitPath(mouseX, mouseY, parentHitResult);
-            if (parentHitResult.size() > sizeBefore) {
-                break;
+            UINode hitNode = this.children.get(i).getTopmostHitNode(mouseX, mouseY);
+            if (hitNode != null) {
+                return hitNode;
             }
         }
-        return parentHitResult;
+
+        if (this.hitTest(mouseX, mouseY)) {
+            return this;
+        }
+
+        return null;
     }
 
     /**
@@ -315,7 +310,9 @@ public class UINode {
             this.renderDebug(context);
         }
 
-        this.forEachChild(node -> node.renderTree(context));
+        for (UINode child : this.children) {
+            child.renderTree(context);
+        }
 
         if (hasClip) {
             context.popClipRect();
