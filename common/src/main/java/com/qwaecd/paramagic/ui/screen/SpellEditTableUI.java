@@ -5,7 +5,8 @@ import com.qwaecd.paramagic.ui.core.Rect;
 import com.qwaecd.paramagic.ui.core.UINode;
 import com.qwaecd.paramagic.ui.core.UIRenderContext;
 import com.qwaecd.paramagic.ui.item.MouseCaptureNode;
-import com.qwaecd.paramagic.ui.widget.Button;
+import com.qwaecd.paramagic.ui.widget.UIButton;
+import com.qwaecd.paramagic.ui.widget.UIWindow;
 
 import javax.annotation.Nonnull;
 
@@ -28,9 +29,14 @@ public class SpellEditTableUI extends UINode {
             this.addChild(uiNode);
         }
         {
-            Button button = new Button(new Rect(100, 40, 100, 40));
+            UIButton button = new UIButton(new Rect(100, 40, 100, 40));
             button.setShowDebugOutLine(true);
             this.addChild(button);
+        }
+        {
+            UIWindow window = new UIWindow(new Rect(50, 40, 150, 100), "Test Window");
+            window.setShowDebugOutLine(true);
+            this.addChild(window);
         }
         {
             UINode uiNode = new MouseCaptureNode();

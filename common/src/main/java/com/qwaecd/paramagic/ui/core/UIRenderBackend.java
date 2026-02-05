@@ -30,7 +30,10 @@ public interface UIRenderBackend {
     int getTextWidth(Component text);
     int getLineHeight();
 
-    void renderOutline(Rect rect, UIColor color);
+    default void renderOutline(Rect rect, UIColor color) {
+        this.renderOutline((int) rect.x, (int) rect.y, (int) rect.w, (int) rect.h, color);
+    }
+    void renderOutline(int x, int y, int w, int h, UIColor color);
 
     /**
      * 在指定位置渲染精灵图.

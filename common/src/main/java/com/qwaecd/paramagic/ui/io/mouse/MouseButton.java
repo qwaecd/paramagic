@@ -13,4 +13,8 @@ public enum MouseButton {
     MouseButton(int code) {
         this.code = code;
     }
+
+    public boolean is(int button) {
+        return this.code == button;
+    }
 }

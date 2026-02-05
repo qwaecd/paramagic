@@ -1,6 +1,5 @@
 package com.qwaecd.paramagic.ui.widget;
 
-import com.qwaecd.paramagic.tools.ModRL;
 import com.qwaecd.paramagic.ui.UIColor;
 import com.qwaecd.paramagic.ui.core.*;
 import com.qwaecd.paramagic.ui.event.api.UIEventContext;
@@ -10,19 +9,14 @@ import com.qwaecd.paramagic.ui.event.impl.MouseRelease;
 
 import javax.annotation.Nonnull;
 
-public class Button extends UINode {
-    private static final Sprite debugSprite = new Sprite(
-            ModRL.InModSpace("textures/magic/circle_01.png"),
-            0, 0, 128, 128, 128, 128
-    );
+public class UIButton extends UINode {
+    protected boolean pressed = false;
 
-    private boolean pressed = false;
-
-    public Button() {
+    public UIButton() {
         super();
     }
 
-    public Button(Rect localRect) {
+    public UIButton(Rect localRect) {
         super();
         this.localRect.set(localRect);
     }
@@ -39,11 +33,10 @@ public class Button extends UINode {
         context.consumeAndStopPropagation();
     }
 
-    private void whenClickOrDouble(double mouseX, double mouseY, UIManager manager, boolean isDouble) {
+    protected void whenClickOrDouble(double mouseX, double mouseY, UIManager manager, boolean isDouble) {
         if (this.pressed) {
             return;
         }
-        System.out.println("Button clicked at " + mouseX + ", " + mouseY + (isDouble ? " (double click)" : ""));
         manager.captureNode(this);
         this.pressed = true;
     }
@@ -59,15 +52,12 @@ public class Button extends UINode {
 
     @Override
     public void render(@Nonnull UIRenderContext context) {
-        if (this.pressed) {
-            context.drawQuad(this.worldRect, UIColor.of(127, 127, 127, 100));
-        } else {
-            context.drawQuad(this.worldRect, UIColor.RED);
-        }
-
-        context.renderSprite(debugSprite, this.worldRect.x, this.worldRect.y);
-        context.drawText("这是六个文字", this.worldRect.x + 5.0f, this.worldRect.y + 5.0f, UIColor.WHITE);
         super.render(context);
+        if (this.pressed) {
+            context.drawQuad(this.worldRect, UIColor.of(200, 200, 200, 100));
+        } else {
+            context.drawQuad(this.worldRect, UIColor.of(127, 127, 127, 200));
+        }
     }
 
     @Override

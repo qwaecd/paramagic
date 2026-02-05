@@ -82,6 +82,10 @@ public class UIRenderContext {
         this.backend.renderOutline(rect, color);
     }
 
+    public void renderOutline(int x, int y, int w, int h, UIColor color) {
+        this.backend.renderOutline(x, y, w, h, color);
+    }
+
     public int drawText(Component text, int x, int y, UIColor color, boolean dropShadow) {
         return this.backend.drawText(text, x, y, color, dropShadow);
     }

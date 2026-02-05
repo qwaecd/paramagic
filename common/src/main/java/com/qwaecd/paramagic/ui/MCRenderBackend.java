@@ -57,8 +57,8 @@ public class MCRenderBackend implements UIRenderBackend {
     }
 
     @Override
-    public void renderOutline(Rect rect, UIColor color) {
-        this.guiGraphics.renderOutline((int) rect.x, (int) rect.y, (int) rect.w, (int) rect.h, color.color);
+    public void renderOutline(int x, int y, int w, int h, UIColor color) {
+        this.guiGraphics.renderOutline(x, y, w, h, color.color);
     }
 
     /**

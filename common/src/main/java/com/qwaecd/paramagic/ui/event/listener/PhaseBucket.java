@@ -29,7 +29,7 @@ public class PhaseBucket {
                 break;
             }
             try {
-                ((UIEventListenerEntry<E>) entry).handleEvent(context, context.event);
+                ((UIEventListenerEntry<E>) entry).handleEvent(context);
             } catch (Exception e) {
                 LOGGER.error("Error while dispatching event in phase {}: {}", phase, entry, e);
             }
