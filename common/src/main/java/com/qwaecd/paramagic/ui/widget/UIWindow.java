@@ -40,7 +40,7 @@ public class UIWindow extends MouseCaptureNode {
             this.addChild(this.titleLabel);
         }
 
-//        this.clipMod = ClipMod.RECT;
+        this.clipMod = ClipMod.RECT;
         this.localRect.set(localRect);
     }
 
@@ -50,7 +50,6 @@ public class UIWindow extends MouseCaptureNode {
 
     @Override
     protected void onMouseClick(UIEventContext<MouseClick> context) {
-        System.out.println("click window");
         this.captureIfAllowed(context);
     }
 

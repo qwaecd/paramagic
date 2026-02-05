@@ -18,27 +18,13 @@ public class MCRenderBackend implements UIRenderBackend {
 
     @Override
     public void pushClipRect(Rect rect) {
-        this.guiGraphics.enableScissor((int) rect.x, (int) rect.y, (int) rect.w, (int) rect.h);
+        // mc 要的是两个点的位置, 而不是一个点和矩形的宽高
+        this.guiGraphics.enableScissor((int) rect.x, (int) rect.y, (int) (rect.x + rect.w), (int) (rect.y + rect.h));
     }
 
     @Override
     public void popClipRect() {
         this.guiGraphics.disableScissor();
-    }
-
-    @Override
-    public void drawQuad(Rect rect, UIColor uiColor) {
-        this.guiGraphics.fill((int) rect.x, (int) rect.y, (int) (rect.x + rect.w), (int) (rect.y + rect.h), uiColor.color);
-    }
-
-    @Override
-    public int drawText(Component text, int x, int y, UIColor color, boolean dropShadow) {
-        return this.guiGraphics.drawString(this.font, text, x, y, color.color, dropShadow);
-    }
-
-    @Override
-    public void drawCenteredText(Component text, float centerX, float y, UIColor color) {
-        this.guiGraphics.drawCenteredString(this.font, text, (int) centerX, (int) y, color.color);
     }
 
     @Override
@@ -56,11 +42,6 @@ public class MCRenderBackend implements UIRenderBackend {
         return this.font.lineHeight;
     }
 
-    @Override
-    public void renderOutline(int x, int y, int w, int h, UIColor color) {
-        this.guiGraphics.renderOutline(x, y, w, h, color.color);
-    }
-
     /**
      * 在指定位置渲染精灵图.
      * @param sprite 精灵图实例.
@@ -76,5 +57,25 @@ public class MCRenderBackend implements UIRenderBackend {
                 sprite.width, sprite.height,
                 sprite.texWidth, sprite.texHeight
         );
+    }
+
+    @Override
+    public void drawQuad(Rect rect, int color) {
+        this.guiGraphics.fill((int) rect.x, (int) rect.y, (int) (rect.x + rect.w), (int) (rect.y + rect.h), color);
+    }
+
+    @Override
+    public int drawText(Component text, int x, int y, int color, boolean dropShadow) {
+        return this.guiGraphics.drawString(this.font, text, x, y, color, dropShadow);
+    }
+
+    @Override
+    public void drawCenteredText(Component text, float centerX, float y, int color) {
+        this.guiGraphics.drawCenteredString(this.font, text, (int) centerX, (int) y, color);
+    }
+
+    @Override
+    public void renderOutline(int x, int y, int w, int h, int color) {
+        this.guiGraphics.renderOutline(x, y, w, h, color);
     }
 }

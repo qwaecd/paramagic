@@ -19,7 +19,7 @@ public final class AllUIEvents {
     public static final UIEventKey<DoubleClick> MOUSE_DOUBLE_CLICK =register(2, DoubleClick.class);
     public static final UIEventKey<WheelEvent> WHEEL =              register(3, WheelEvent.class);
 
-    public static <E extends UIEvent> UIEventKey<E> register(int eventId, Class<E> eventClass) {
+    private static <E extends UIEvent> UIEventKey<E> register(int eventId, Class<E> eventClass) {
         if (EVENTS.containsKey(eventId)) {
             throw new IllegalArgumentException("Event ID " + eventId + " is already registered.");
         }

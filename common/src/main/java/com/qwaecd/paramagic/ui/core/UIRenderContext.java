@@ -75,23 +75,23 @@ public class UIRenderContext {
     }
 
     public void drawQuad(Rect rect, UIColor color) {
-        this.backend.drawQuad(rect, color);
+        this.backend.drawQuad(rect, color.color);
     }
 
     public void renderOutline(Rect rect, UIColor color) {
-        this.backend.renderOutline(rect, color);
+        this.backend.renderOutline(rect, color.color);
     }
 
     public void renderOutline(int x, int y, int w, int h, UIColor color) {
-        this.backend.renderOutline(x, y, w, h, color);
+        this.backend.renderOutline(x, y, w, h, color.color);
     }
 
     public int drawText(Component text, int x, int y, UIColor color, boolean dropShadow) {
-        return this.backend.drawText(text, x, y, color, dropShadow);
+        return this.backend.drawText(text, x, y, color.color, dropShadow);
     }
 
     public int drawText(String text, int x, int y, UIColor color, boolean dropShadow) {
-        return this.backend.drawText(Component.literal(text), x, y, color, dropShadow);
+        return this.backend.drawText(Component.literal(text), x, y, color.color, dropShadow);
     }
 
     public int drawText(Component text, float x, float y, UIColor color, boolean dropShadow) {
@@ -111,7 +111,7 @@ public class UIRenderContext {
     }
 
     public void drawCenteredText(Component text, float centerX, float y, UIColor color) {
-        this.backend.drawCenteredText(text, centerX, y, color);
+        this.backend.drawCenteredText(text, centerX, y, color.color);
     }
 
     public int getTextWidth(String text) {
@@ -142,5 +142,46 @@ public class UIRenderContext {
      */
     public void renderSprite(Sprite sprite, float x, float y) {
         this.renderSprite(sprite, (int) x, (int) y);
+    }
+    // ------------ 以下是使用 int color 的重载方法 ------------
+
+    public void drawQuad(Rect rect, int color) {
+        this.backend.drawQuad(rect, color);
+    }
+
+    public void renderOutline(Rect rect, int color) {
+        this.backend.renderOutline(rect, color);
+    }
+
+    public void renderOutline(int x, int y, int w, int h, int color) {
+        this.backend.renderOutline(x, y, w, h, color);
+    }
+
+    public int drawText(Component text, int x, int y, int color, boolean dropShadow) {
+        return this.backend.drawText(text, x, y, color, dropShadow);
+    }
+
+    public int drawText(String text, int x, int y, int color, boolean dropShadow) {
+        return this.backend.drawText(Component.literal(text), x, y, color, dropShadow);
+    }
+
+    public int drawText(Component text, float x, float y, int color, boolean dropShadow) {
+        return this.drawText(text, (int) x, (int) y, color, dropShadow);
+    }
+
+    public int drawText(String text, float x, float y, int color, boolean dropShadow) {
+        return this.drawText(Component.literal(text), (int) x, (int) y, color, dropShadow);
+    }
+
+    public int drawText(Component text, float x, float y, int color) {
+        return this.drawText(text, (int) x, (int) y, color, false);
+    }
+
+    public int drawText(String text, float x, float y, int color) {
+        return this.drawText(Component.literal(text), (int) x, (int) y, color, false);
+    }
+
+    public void drawCenteredText(Component text, float centerX, float y, int color) {
+        this.backend.drawCenteredText(text, centerX, y, color);
     }
 }
