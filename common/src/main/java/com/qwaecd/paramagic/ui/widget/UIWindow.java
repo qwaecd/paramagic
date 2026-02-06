@@ -1,7 +1,6 @@
 package com.qwaecd.paramagic.ui.widget;
 
 import com.qwaecd.paramagic.ui.UIColor;
-import com.qwaecd.paramagic.ui.core.ClipMod;
 import com.qwaecd.paramagic.ui.core.Rect;
 import com.qwaecd.paramagic.ui.core.UIRenderContext;
 import com.qwaecd.paramagic.ui.event.api.UIEventContext;
@@ -32,15 +31,10 @@ public class UIWindow extends MouseCaptureNode {
             this.titleLabel = null;
         } else {
             this.titleLabel = new UILabel(title);
-            final float labelX = localRect.w / 2;
-            final float labelY = 4.0f;
-            this.titleLabel.localRect.setXY(labelX, labelY);
-            this.titleLabel.setCentered(true);
-//            this.titleLabel.setShowDebugOutLine(true);
+            this.titleLabel.getLayoutParams().top();
             this.addChild(this.titleLabel);
         }
 
-        this.clipMod = ClipMod.RECT;
         this.localRect.set(localRect);
     }
 

@@ -57,9 +57,9 @@ public class UIButton extends UINode {
     public void render(@Nonnull UIRenderContext context) {
         super.render(context);
         if (this.pressed) {
-            context.drawQuad(this.worldRect, UIColor.of(200, 200, 200, 100));
+            context.drawQuad(this.worldRect, UIColor.fromRGBA(200, 200, 200, 100));
         } else {
-            context.drawQuad(this.worldRect, UIColor.of(127, 127, 127, 200));
+            context.drawQuad(this.worldRect, UIColor.fromRGBA(127, 127, 127, 200));
         }
     }
 

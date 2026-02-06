@@ -1,6 +1,7 @@
 package com.qwaecd.paramagic.ui.core;
 
 import com.qwaecd.paramagic.ui.UIColor;
+import com.qwaecd.paramagic.ui.UILayout;
 import com.qwaecd.paramagic.ui.event.EventPhase;
 import com.qwaecd.paramagic.ui.event.UIEvent;
 import com.qwaecd.paramagic.ui.event.api.AllUIEvents;
@@ -15,6 +16,7 @@ import com.qwaecd.paramagic.ui.event.listener.UIEventListener;
 import com.qwaecd.paramagic.ui.event.listener.UIEventListenerEntry;
 import lombok.Getter;
 import lombok.Setter;
+import net.minecraft.client.Minecraft;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,6 +47,10 @@ public class UINode {
     @Getter
     @Nonnull
     protected SizeMode sizeMode;
+
+    @Getter
+    @Nonnull
+    protected final LayoutParams layoutParams;
     
     /**
      * 相对父节点的位置和尺寸
@@ -70,6 +76,7 @@ public class UINode {
         this.visible = true;
         this.clipMod = ClipMod.NONE;
         this.sizeMode = SizeMode.FIXED;
+        this.layoutParams = new LayoutParams();
         this.localRect = new Rect();
         this.worldRect = new Rect();
     }
@@ -80,6 +87,7 @@ public class UINode {
         this.visible = true;
         this.clipMod = ClipMod.NONE;
         this.sizeMode = SizeMode.FIXED;
+        this.layoutParams = new LayoutParams();
         this.localRect = new Rect();
         this.worldRect = new Rect();
 
@@ -241,36 +249,11 @@ public class UINode {
      * @param parentH 父节点的高度
      */
     public void layout(float parentX, float parentY, float parentW, float parentH) {
-        this.worldRect.x = parentX + this.localRect.x;
-        this.worldRect.y = parentY + this.localRect.y;
-        
-        this.computeSize(parentW, parentH);
+        UILayout.layout(this.localRect, this.worldRect, this.layoutParams, this.sizeMode, parentX, parentY, parentW, parentH);
 
         // 布局可以不考虑同层级先后顺序
         for (UINode child : this.children) {
             child.layout(this.worldRect.x, this.worldRect.y, this.worldRect.w, this.worldRect.h);
-        }
-    }
-
-    private void computeSize(float parentW, float parentH) {
-        switch (this.sizeMode) {
-            case FIXED -> {
-                this.worldRect.w = this.localRect.w;
-                this.worldRect.h = this.localRect.h;
-            }
-            case FILL -> {
-                this.worldRect.w = parentW;
-                this.worldRect.h = parentH;
-            }
-            case FILL_WIDTH -> {
-                this.worldRect.w = parentW;
-                this.worldRect.h = this.localRect.h;
-            }
-            case FILL_HEIGHT -> {
-                this.worldRect.w = this.localRect.w;
-                this.worldRect.h = parentH;
-            }
-            default -> throw new IllegalStateException("Unexpected value: " + this.sizeMode);
         }
     }
 
@@ -401,5 +384,24 @@ public class UINode {
         for (int i = this.children.size() - 1; i >= 0; --i) {
             action.accept(this.children.get(i));
         }
+    }
+
+    protected float getWindowWidth() {
+        return Minecraft.getInstance().getWindow().getWidth();
+    }
+
+    protected float getWindowHeight() {
+        return Minecraft.getInstance().getWindow().getHeight();
+    }
+
+    protected float getGuiScale() {
+        return (float) Minecraft.getInstance().getWindow().getGuiScale();
+    }
+
+    protected void setToFullScreen() {
+        this.localRect.set(
+                0.0f, 0.0f,
+                this.getWindowWidth() / this.getGuiScale(), this.getWindowHeight() / this.getGuiScale()
+        );
     }
 }
