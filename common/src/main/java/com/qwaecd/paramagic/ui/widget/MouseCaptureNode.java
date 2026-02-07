@@ -1,9 +1,10 @@
-package com.qwaecd.paramagic.ui.item;
+package com.qwaecd.paramagic.ui.widget;
 
 import com.qwaecd.paramagic.ui.core.UINode;
 import com.qwaecd.paramagic.ui.event.api.UIEventContext;
 import com.qwaecd.paramagic.ui.event.impl.MouseClick;
 import com.qwaecd.paramagic.ui.event.impl.MouseRelease;
+import com.qwaecd.paramagic.ui.io.mouse.MouseStateMachine;
 
 public class MouseCaptureNode extends UINode {
     protected boolean captured = false;
@@ -35,7 +36,7 @@ public class MouseCaptureNode extends UINode {
     }
 
     @Override
-    public void onMouseMove(double mouseX, double mouseY) {
+    public void onMouseMove(double mouseX, double mouseY, MouseStateMachine mouseState) {
         // 计算鼠标在父节点坐标系下的位置
         UINode parent = this.getParent();
         if (parent == null) {

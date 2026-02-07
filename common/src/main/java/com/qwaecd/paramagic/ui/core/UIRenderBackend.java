@@ -2,6 +2,7 @@ package com.qwaecd.paramagic.ui.core;
 
 import com.qwaecd.paramagic.ui.UIColor;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.item.ItemStack;
 
 public interface UIRenderBackend {
     void pushClipRect(Rect rect);
@@ -50,6 +51,8 @@ public interface UIRenderBackend {
      * @param y 绘制区域左上角的 y 坐标.
      */
     void renderSprite(Sprite sprite, int x, int y);
+
+    void renderItem(ItemStack stack, int x, int y);
 
     void drawQuad(Rect rect, int color);
     int drawText(Component text, int x, int y, int color, boolean dropShadow);

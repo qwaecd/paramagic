@@ -19,6 +19,6 @@ public class OverlayRoot {
 
     public void renderOverlay(UIRenderContext context) {
         this.rootNode.renderTree(context);
-//        context.renderTooltip(context.mouseX, context.mouseY);
+        context.renderTooltip(context.mouseX, context.mouseY);
     }
 }

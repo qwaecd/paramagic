@@ -105,7 +105,7 @@ public class UIManager {
     public void onMouseMove(double mouseX, double mouseY) {
         this.mouseStateMachine.onMouseMove(mouseX, mouseY);
         if (this.capturedNode != null) {
-            this.capturedNode.onMouseMove(mouseX, mouseY);
+            this.capturedNode.onMouseMove(mouseX, mouseY, this.mouseStateMachine);
         }
     }
 

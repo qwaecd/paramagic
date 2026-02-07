@@ -6,6 +6,7 @@ import com.qwaecd.paramagic.ui.core.UIRenderBackend;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.item.ItemStack;
 
 public class MCRenderBackend implements UIRenderBackend {
     private final GuiGraphics guiGraphics;
@@ -57,6 +58,11 @@ public class MCRenderBackend implements UIRenderBackend {
                 sprite.width, sprite.height,
                 sprite.texWidth, sprite.texHeight
         );
+    }
+
+    @Override
+    public void renderItem(ItemStack stack, int x, int y) {
+        this.guiGraphics.renderItem(stack, x, y);
     }
 
     @Override

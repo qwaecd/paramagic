@@ -3,6 +3,9 @@ package com.qwaecd.paramagic.ui.core;
 import lombok.Getter;
 import lombok.Setter;
 
+/**
+ * 使用给定的锚点坐标 anchor 与给定的自身参考点 pivot 进行对齐处理, 如果 enable, 则将两个坐标进行对齐处理.
+ */
 public class LayoutParams {
     private boolean enable;
     // 锚点相对于父元素左上角矩形的坐标, 0.0 是原点, 1.0 是边长 (w/h)
@@ -29,6 +32,13 @@ public class LayoutParams {
     }
 
     public LayoutParams(float anchorX, float anchorY, float pivotX, float pivotY) {
+        this.anchorX = anchorX;
+        this.anchorY = anchorY;
+        this.pivotX = pivotX;
+        this.pivotY = pivotY;
+    }
+
+    public void set(float anchorX, float anchorY, float pivotX, float pivotY) {
         this.anchorX = anchorX;
         this.anchorY = anchorY;
         this.pivotX = pivotX;

@@ -4,6 +4,7 @@ import com.qwaecd.paramagic.ui.UIColor;
 import lombok.Getter;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.item.ItemStack;
 
 import javax.annotation.Nonnull;
 import java.util.ArrayDeque;
@@ -143,6 +144,11 @@ public class UIRenderContext {
     public void renderSprite(Sprite sprite, float x, float y) {
         this.renderSprite(sprite, (int) x, (int) y);
     }
+
+    public void renderItem(ItemStack stack, int x, int y) {
+        this.backend.renderItem(stack, x, y);
+    }
+
     // ------------ 以下是使用 int color 的重载方法 ------------
 
     public void drawQuad(Rect rect, int color) {

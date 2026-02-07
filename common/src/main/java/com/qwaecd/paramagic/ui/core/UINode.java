@@ -14,6 +14,7 @@ import com.qwaecd.paramagic.ui.event.impl.WheelEvent;
 import com.qwaecd.paramagic.ui.event.listener.PhaseBucket;
 import com.qwaecd.paramagic.ui.event.listener.UIEventListener;
 import com.qwaecd.paramagic.ui.event.listener.UIEventListenerEntry;
+import com.qwaecd.paramagic.ui.io.mouse.MouseStateMachine;
 import lombok.Getter;
 import lombok.Setter;
 import net.minecraft.client.Minecraft;
@@ -22,10 +23,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Consumer;
 
 @SuppressWarnings({"UnusedReturnValue", "unused"})
@@ -137,9 +135,21 @@ public class UINode {
         child.parent = this;
     }
 
+    public void addChild(Collection<UINode> child) {
+        for (UINode node : child) {
+            this.addChild(child);
+        }
+    }
+
     public void removeChild(UINode child) {
         if (this.children.remove(child)) {
             child.parent = null;
+        }
+    }
+
+    public void removeChild(Collection<UINode> child) {
+        for (UINode node : child) {
+            this.removeChild(child);
         }
     }
 
@@ -202,7 +212,7 @@ public class UINode {
     /**
      * 当节点被 manager captured 时, 每次鼠标移动都会调用此方法
      */
-    public void onMouseMove(double mouseX, double mouseY) {
+    public void onMouseMove(double mouseX, double mouseY, MouseStateMachine mouseState) {
     }
 
     @Nullable
