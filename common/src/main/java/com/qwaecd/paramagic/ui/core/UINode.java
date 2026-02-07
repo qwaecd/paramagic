@@ -4,7 +4,6 @@ import com.qwaecd.paramagic.ui.UIColor;
 import com.qwaecd.paramagic.ui.UILayout;
 import com.qwaecd.paramagic.ui.event.EventPhase;
 import com.qwaecd.paramagic.ui.event.UIEvent;
-import com.qwaecd.paramagic.ui.event.api.AllUIEvents;
 import com.qwaecd.paramagic.ui.event.api.UIEventContext;
 import com.qwaecd.paramagic.ui.event.api.UIEventKey;
 import com.qwaecd.paramagic.ui.event.impl.*;

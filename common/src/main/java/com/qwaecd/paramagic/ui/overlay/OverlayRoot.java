@@ -20,7 +20,6 @@ public class OverlayRoot {
 
     public void renderOverlay(UIRenderContext context) {
         this.rootNode.renderTree(context);
-        context.renderTooltip(context.mouseX, context.mouseY);
         ItemStack hoveringItem = manager.getMenuContent().getHoveringItem();
         if (!hoveringItem.isEmpty()) {
             context.renderTooltipWithItem(hoveringItem, context.mouseX, context.mouseY);
