@@ -2,7 +2,7 @@ package com.qwaecd.paramagic.ui.overlay;
 
 import com.qwaecd.paramagic.ui.core.UIManager;
 import com.qwaecd.paramagic.ui.core.UINode;
-import com.qwaecd.paramagic.ui.core.UIRenderContext;
+import com.qwaecd.paramagic.ui.api.UIRenderContext;
 import net.minecraft.world.item.ItemStack;
 
 import javax.annotation.Nonnull;

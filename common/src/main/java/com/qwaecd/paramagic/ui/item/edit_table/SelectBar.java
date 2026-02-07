@@ -1,6 +1,6 @@
 package com.qwaecd.paramagic.ui.item.edit_table;
 
-import com.qwaecd.paramagic.ui.UIColor;
+import com.qwaecd.paramagic.ui.util.UIColor;
 import com.qwaecd.paramagic.ui.core.UINode;
 
 public class SelectBar extends UINode {

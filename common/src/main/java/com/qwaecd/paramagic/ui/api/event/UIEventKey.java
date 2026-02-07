@@ -1,4 +1,4 @@
-package com.qwaecd.paramagic.ui.event.api;
+package com.qwaecd.paramagic.ui.api.event;
 
 import com.qwaecd.paramagic.ui.event.UIEvent;
 

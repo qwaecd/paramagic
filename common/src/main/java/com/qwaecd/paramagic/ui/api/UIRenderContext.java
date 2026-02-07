@@ -1,6 +1,9 @@
-package com.qwaecd.paramagic.ui.core;
+package com.qwaecd.paramagic.ui.api;
 
-import com.qwaecd.paramagic.ui.UIColor;
+import com.qwaecd.paramagic.ui.util.UIColor;
+import com.qwaecd.paramagic.ui.util.Rect;
+import com.qwaecd.paramagic.ui.util.Sprite;
+import com.qwaecd.paramagic.ui.core.UIManager;
 import lombok.Getter;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;

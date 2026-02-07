@@ -2,10 +2,10 @@ package com.qwaecd.paramagic.ui.screen;
 
 import com.qwaecd.paramagic.tools.TimeProvider;
 import com.qwaecd.paramagic.ui.MCRenderBackend;
-import com.qwaecd.paramagic.ui.core.TooltipRenderer;
+import com.qwaecd.paramagic.ui.api.TooltipRenderer;
 import com.qwaecd.paramagic.ui.core.UIManager;
 import com.qwaecd.paramagic.ui.core.UINode;
-import com.qwaecd.paramagic.ui.core.UIRenderContext;
+import com.qwaecd.paramagic.ui.api.UIRenderContext;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.screens.Screen;

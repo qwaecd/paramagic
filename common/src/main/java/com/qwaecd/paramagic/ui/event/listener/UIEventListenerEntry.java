@@ -1,7 +1,7 @@
 package com.qwaecd.paramagic.ui.event.listener;
 
 import com.qwaecd.paramagic.ui.event.UIEvent;
-import com.qwaecd.paramagic.ui.event.api.UIEventContext;
+import com.qwaecd.paramagic.ui.api.event.UIEventContext;
 
 public class UIEventListenerEntry<E extends UIEvent> implements Comparable<UIEventListenerEntry<?>> {
     /**

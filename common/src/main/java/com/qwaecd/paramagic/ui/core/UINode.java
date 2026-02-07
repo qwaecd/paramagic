@@ -1,16 +1,19 @@
 package com.qwaecd.paramagic.ui.core;
 
-import com.qwaecd.paramagic.ui.UIColor;
-import com.qwaecd.paramagic.ui.UILayout;
+import com.qwaecd.paramagic.ui.util.UIColor;
+import com.qwaecd.paramagic.ui.util.UILayout;
+import com.qwaecd.paramagic.ui.api.UIRenderContext;
 import com.qwaecd.paramagic.ui.event.EventPhase;
 import com.qwaecd.paramagic.ui.event.UIEvent;
-import com.qwaecd.paramagic.ui.event.api.UIEventContext;
-import com.qwaecd.paramagic.ui.event.api.UIEventKey;
+import com.qwaecd.paramagic.ui.api.event.UIEventContext;
+import com.qwaecd.paramagic.ui.api.event.UIEventKey;
 import com.qwaecd.paramagic.ui.event.impl.*;
 import com.qwaecd.paramagic.ui.event.listener.PhaseBucket;
 import com.qwaecd.paramagic.ui.event.listener.UIEventListener;
 import com.qwaecd.paramagic.ui.event.listener.UIEventListenerEntry;
 import com.qwaecd.paramagic.ui.io.mouse.MouseStateMachine;
+import com.qwaecd.paramagic.ui.util.LayoutParams;
+import com.qwaecd.paramagic.ui.util.Rect;
 import lombok.Getter;
 import lombok.Setter;
 import net.minecraft.client.Minecraft;

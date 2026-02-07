@@ -1,13 +1,13 @@
 package com.qwaecd.paramagic.ui.core;
 
 import com.qwaecd.paramagic.ui.MenuContent;
+import com.qwaecd.paramagic.ui.api.*;
+import com.qwaecd.paramagic.ui.api.event.AllUIEvents;
+import com.qwaecd.paramagic.ui.api.event.UIEventContext;
+import com.qwaecd.paramagic.ui.api.event.UIEventKey;
 import com.qwaecd.paramagic.ui.event.EventPhase;
 import com.qwaecd.paramagic.ui.event.UIEvent;
-import com.qwaecd.paramagic.ui.event.api.AllUIEvents;
-import com.qwaecd.paramagic.ui.event.api.UIEventContext;
-import com.qwaecd.paramagic.ui.event.api.UIEventKey;
 import com.qwaecd.paramagic.ui.event.impl.*;
-import com.qwaecd.paramagic.ui.hit.UIHitResult;
 import com.qwaecd.paramagic.ui.io.mouse.MouseStateMachine;
 import com.qwaecd.paramagic.ui.overlay.OverlayRoot;
 import lombok.Getter;

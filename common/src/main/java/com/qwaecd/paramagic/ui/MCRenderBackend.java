@@ -1,8 +1,8 @@
 package com.qwaecd.paramagic.ui;
 
-import com.qwaecd.paramagic.ui.core.Rect;
-import com.qwaecd.paramagic.ui.core.Sprite;
-import com.qwaecd.paramagic.ui.core.UIRenderBackend;
+import com.qwaecd.paramagic.ui.util.Rect;
+import com.qwaecd.paramagic.ui.util.Sprite;
+import com.qwaecd.paramagic.ui.api.UIRenderBackend;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;

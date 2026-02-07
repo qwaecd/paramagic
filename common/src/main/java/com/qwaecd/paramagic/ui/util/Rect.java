@@ -1,4 +1,4 @@
-package com.qwaecd.paramagic.ui.core;
+package com.qwaecd.paramagic.ui.util;
 
 import org.joml.Vector4f;
 

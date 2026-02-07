@@ -1,7 +1,5 @@
-package com.qwaecd.paramagic.ui;
+package com.qwaecd.paramagic.ui.util;
 
-import com.qwaecd.paramagic.ui.core.LayoutParams;
-import com.qwaecd.paramagic.ui.core.Rect;
 import com.qwaecd.paramagic.ui.core.SizeMode;
 
 import javax.annotation.Nonnull;

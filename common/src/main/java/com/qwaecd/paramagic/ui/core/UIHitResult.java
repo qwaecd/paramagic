@@ -1,6 +1,4 @@
-package com.qwaecd.paramagic.ui.hit;
-
-import com.qwaecd.paramagic.ui.core.UINode;
+package com.qwaecd.paramagic.ui.core;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;

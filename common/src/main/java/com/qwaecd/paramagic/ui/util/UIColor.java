@@ -1,4 +1,4 @@
-package com.qwaecd.paramagic.ui;
+package com.qwaecd.paramagic.ui.util;
 
 import net.minecraft.util.FastColor;
 

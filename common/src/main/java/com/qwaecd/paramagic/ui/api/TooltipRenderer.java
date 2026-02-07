@@ -1,4 +1,4 @@
-package com.qwaecd.paramagic.ui.core;
+package com.qwaecd.paramagic.ui.api;
 
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.world.item.ItemStack;
