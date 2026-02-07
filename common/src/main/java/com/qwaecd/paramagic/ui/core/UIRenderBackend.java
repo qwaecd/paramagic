@@ -55,6 +55,16 @@ public interface UIRenderBackend {
     void renderItem(ItemStack stack, int x, int y);
 
     void drawQuad(Rect rect, int color);
+
+    /**
+     * 在指定的区域绘制纯色矩形
+     * @param minX 矩形左上角 X
+     * @param minY 矩形左上角 Y
+     * @param maxX 矩形右下角 X
+     * @param maxY 矩形右下角 Y
+     * @param color 矩形颜色
+     */
+    void fill(int minX, int minY, int maxX, int maxY, int color);
     int drawText(Component text, int x, int y, int color, boolean dropShadow);
     default int drawText(Component text, int x, int y, int color) {
         return drawText(text, x, y, color, false);

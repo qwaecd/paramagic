@@ -13,8 +13,8 @@ public class ParamagicFabric implements ModInitializer {
     public void onInitialize() {
         Paramagic.LOG.info("Hello Fabric world!");
         Paramagic.init();
-        ModBlocksFabric.registerAll();
         ModItemsFabric.registerAll();
+        ModBlocksFabric.registerAll();
         ModEntitiesFabric.registerAll();
         CreativeTableFabric.registerAll();
 

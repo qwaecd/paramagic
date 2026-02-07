@@ -24,8 +24,8 @@ import java.util.UUID;
 
 
 public class ExplosionWand extends Item {
-    public ExplosionWand(Properties properties) {
-        super(properties.stacksTo(1));
+    public ExplosionWand() {
+        super(new Properties().stacksTo(1));
     }
 
     @Override

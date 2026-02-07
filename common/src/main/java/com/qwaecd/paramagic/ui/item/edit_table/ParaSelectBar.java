@@ -10,7 +10,7 @@ public class ParaSelectBar extends SelectBar {
         // 左对齐稍微偏右
         this.layoutParams.set(0.01f, 0.5f, 0.0f, 0.5f);
 
-        this.panel = new UIPanel(5, 1, this.localRect.w, true, 4, 8, ItemNode.CELL_SIZE);
+        this.panel = new UIPanel(5, 1, this.localRect.w, true, 4, 16, ItemNode.CELL_SIZE);
         for (int i = 0; i < 5; i++) {
             this.panel.addChild(new ItemNode());
         }

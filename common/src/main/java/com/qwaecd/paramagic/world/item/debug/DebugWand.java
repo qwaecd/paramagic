@@ -24,8 +24,8 @@ import static com.qwaecd.paramagic.core.particle.emitter.property.key.AllEmitter
 public class DebugWand extends Item {
     private final Random random = new Random();
 
-    public DebugWand(Properties properties) {
-        super(properties.stacksTo(1));
+    public DebugWand() {
+        super(new Properties().stacksTo(1));
     }
 
     @Override

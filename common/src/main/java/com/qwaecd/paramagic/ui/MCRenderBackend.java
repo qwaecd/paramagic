@@ -71,6 +71,11 @@ public class MCRenderBackend implements UIRenderBackend {
     }
 
     @Override
+    public void fill(int minX, int minY, int maxX, int maxY, int color) {
+        this.guiGraphics.fill(minX, minY, maxX, maxY, color);
+    }
+
+    @Override
     public int drawText(Component text, int x, int y, int color, boolean dropShadow) {
         return this.guiGraphics.drawString(this.font, text, x, y, color, dropShadow);
     }

@@ -3,7 +3,7 @@ package com.qwaecd.paramagic.world.entity;
 import net.minecraft.world.entity.EntityType;
 
 
-public class ModEntityTypes {
+public final class ModEntityTypes {
     public static EntityType<SpellAnchorEntity> SPELL_ANCHOR_ENTITY;
 
     private ModEntityTypes() {

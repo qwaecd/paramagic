@@ -79,6 +79,14 @@ public class UIRenderContext {
         this.backend.drawQuad(rect, color.color);
     }
 
+    public void fill(int minX, int minY, int maxX, int maxY, int color) {
+        this.backend.fill(minX, minY, maxX, maxY, color);
+    }
+
+    public void fill(float minX, float minY, float maxX, float maxY, int color) {
+        this.backend.fill( (int) minX,  (int) minY,  (int) maxX,  (int) maxY, color);
+    }
+
     public void renderOutline(Rect rect, UIColor color) {
         this.backend.renderOutline(rect, color.color);
     }

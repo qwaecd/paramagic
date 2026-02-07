@@ -2,6 +2,7 @@ package com.qwaecd.paramagic.init;
 
 import com.qwaecd.paramagic.tools.ModRL;
 import com.qwaecd.paramagic.world.block.SpellEditTable;
+import com.qwaecd.paramagic.world.item.ModItems;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.item.BlockItem;
@@ -18,7 +19,7 @@ public class ModBlocksFabric {
 
     public static <T extends Block> Block register(String path, T block) {
         Block it = Registry.register(BuiltInRegistries.BLOCK, ModRL.InModSpace(path), block);
-        ModItemsFabric.register(path, new BlockItem(it, new Item.Properties()));
+        ModItems.PROVIDER.register(path, () -> new BlockItem(it, new Item.Properties()));
         BLOCKS.put(path, it);
         return it;
     }
