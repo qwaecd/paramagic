@@ -1,19 +1,16 @@
 package com.qwaecd.paramagic.ui.core;
 
+import com.qwaecd.paramagic.ui.MenuContent;
 import com.qwaecd.paramagic.ui.event.EventPhase;
 import com.qwaecd.paramagic.ui.event.UIEvent;
 import com.qwaecd.paramagic.ui.event.api.AllUIEvents;
 import com.qwaecd.paramagic.ui.event.api.UIEventContext;
 import com.qwaecd.paramagic.ui.event.api.UIEventKey;
-import com.qwaecd.paramagic.ui.event.impl.DoubleClick;
-import com.qwaecd.paramagic.ui.event.impl.MouseClick;
-import com.qwaecd.paramagic.ui.event.impl.MouseRelease;
-import com.qwaecd.paramagic.ui.event.impl.WheelEvent;
+import com.qwaecd.paramagic.ui.event.impl.*;
 import com.qwaecd.paramagic.ui.hit.UIHitResult;
 import com.qwaecd.paramagic.ui.io.mouse.MouseStateMachine;
 import com.qwaecd.paramagic.ui.overlay.OverlayRoot;
 import lombok.Getter;
-import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,7 +26,10 @@ import java.util.function.Consumer;
  */
 public class UIManager {
     private static final Logger LOGGER = LoggerFactory.getLogger(UIManager.class);
+    @Nonnull
+    private final MenuContent menuContent;
     private final MouseStateMachine mouseStateMachine;
+    @Getter
     @Nonnull
     private final TooltipRenderer tooltipRenderer;
 
@@ -38,10 +38,15 @@ public class UIManager {
 
     @Getter
     public final UINode rootNode;
+
+    @Nullable
+    private UINode mouseOver = null;
+
     @Getter
     private final OverlayRoot overlayRoot;
 
     public UIManager(UINode rootNode, @Nonnull TooltipRenderer tooltipRenderer) {
+        this.menuContent = new MenuContent();
         this.rootNode = rootNode;
         this.mouseStateMachine = new MouseStateMachine();
         this.tooltipRenderer = tooltipRenderer;
@@ -106,6 +111,36 @@ public class UIManager {
         this.mouseStateMachine.onMouseMove(mouseX, mouseY);
         if (this.capturedNode != null) {
             this.capturedNode.onMouseMove(mouseX, mouseY, this.mouseStateMachine);
+        } else {
+            // 如果当前没有捕获的节点，那么进行一次 over/leave 判定
+            this.processMouseOverAndLeave(mouseX, mouseY);
+        }
+    }
+
+    private void processMouseOverAndLeave(double mouseX, double mouseY) {
+        UINode newOver = this.rootNode.getMouseOverNode((float) mouseX, (float) mouseY);
+        if (this.mouseOver == null && newOver == null) {
+            // 上一帧和当前帧都是 null
+            return;
+        }
+
+        if (this.mouseOver == newOver) {
+            // 在元素内移动
+            return;
+        }
+
+        if (this.mouseOver != null) {
+            this.mouseOver.onMouseLeave(
+                    new UIEventContext<>(this, AllUIEvents.MOUSE_LEAVE, new MouseLeave(mouseX, mouseY))
+            );
+        }
+
+        this.mouseOver = newOver;
+
+        if (this.mouseOver != null) {
+            this.mouseOver.onMouseOver(
+                    new UIEventContext<>(this, AllUIEvents.MOUSE_OVER, new MouseOver(mouseX, mouseY))
+            );
         }
     }
 
@@ -184,11 +219,6 @@ public class UIManager {
         this.capturedNode = null;
     }
 
-    // 由 UIRenderContext 调用
-    public void renderTooltip(GuiGraphics guiGraphics, int mouseX, int mouseY) {
-        this.tooltipRenderer.renderTooltip(guiGraphics, mouseX, mouseY);
-    }
-
     /**
      * 遍历所有 UI 节点, 包括根节点, 请不要在该 lambda 内修改节点树的结构.
      * @throws ConcurrentModificationException 如果在遍历过程中修改了节点树结构.
@@ -201,6 +231,11 @@ public class UIManager {
         } catch (Exception e) {
             LOGGER.error("Exception occurred when traversing UI nodes.", e);
         }
+    }
+
+    @Nonnull
+    public MenuContent getMenuContent() {
+        return this.menuContent;
     }
 
     public static boolean hasShiftKeyDown() {

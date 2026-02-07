@@ -136,7 +136,7 @@ public class UIRenderContext {
     }
 
     public void renderTooltip(int mouseX, int mouseY) {
-        this.manager.renderTooltip(this.guiGraphics, mouseX, mouseY);
+        this.manager.getTooltipRenderer().renderTooltip(this.guiGraphics, mouseX, mouseY);
     }
 
     public void renderSprite(Sprite sprite, int x, int y) {
@@ -155,6 +155,10 @@ public class UIRenderContext {
 
     public void renderItem(ItemStack stack, int x, int y) {
         this.backend.renderItem(stack, x, y);
+    }
+
+    public void renderTooltipWithItem(@Nonnull ItemStack stack, int x, int y) {
+        this.manager.getTooltipRenderer().renderTooltipWithItem(stack, this.guiGraphics, x, y);
     }
 
     // ------------ 以下是使用 int color 的重载方法 ------------

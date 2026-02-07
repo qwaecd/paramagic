@@ -1,10 +1,7 @@
 package com.qwaecd.paramagic.ui.event.api;
 
 import com.qwaecd.paramagic.ui.event.UIEvent;
-import com.qwaecd.paramagic.ui.event.impl.DoubleClick;
-import com.qwaecd.paramagic.ui.event.impl.MouseClick;
-import com.qwaecd.paramagic.ui.event.impl.MouseRelease;
-import com.qwaecd.paramagic.ui.event.impl.WheelEvent;
+import com.qwaecd.paramagic.ui.event.impl.*;
 
 import javax.annotation.Nullable;
 import java.util.HashMap;
@@ -18,6 +15,8 @@ public final class AllUIEvents {
     public static final UIEventKey<MouseRelease> MOUSE_RELEASE =    register(1, MouseRelease.class);
     public static final UIEventKey<DoubleClick> MOUSE_DOUBLE_CLICK =register(2, DoubleClick.class);
     public static final UIEventKey<WheelEvent> WHEEL =              register(3, WheelEvent.class);
+    public static final UIEventKey<MouseOver> MOUSE_OVER =          register(4, MouseOver.class);
+    public static final UIEventKey<MouseLeave> MOUSE_LEAVE =        register(5, MouseLeave.class);
 
     private static <E extends UIEvent> UIEventKey<E> register(int eventId, Class<E> eventClass) {
         if (EVENTS.containsKey(eventId)) {

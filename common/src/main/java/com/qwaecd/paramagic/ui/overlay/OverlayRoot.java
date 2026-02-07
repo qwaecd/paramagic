@@ -3,6 +3,7 @@ package com.qwaecd.paramagic.ui.overlay;
 import com.qwaecd.paramagic.ui.core.UIManager;
 import com.qwaecd.paramagic.ui.core.UINode;
 import com.qwaecd.paramagic.ui.core.UIRenderContext;
+import net.minecraft.world.item.ItemStack;
 
 import javax.annotation.Nonnull;
 
@@ -20,5 +21,9 @@ public class OverlayRoot {
     public void renderOverlay(UIRenderContext context) {
         this.rootNode.renderTree(context);
         context.renderTooltip(context.mouseX, context.mouseY);
+        ItemStack hoveringItem = manager.getMenuContent().getHoveringItem();
+        if (!hoveringItem.isEmpty()) {
+            context.renderTooltipWithItem(hoveringItem, context.mouseX, context.mouseY);
+        }
     }
 }

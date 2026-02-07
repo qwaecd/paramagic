@@ -7,10 +7,7 @@ import com.qwaecd.paramagic.ui.event.UIEvent;
 import com.qwaecd.paramagic.ui.event.api.AllUIEvents;
 import com.qwaecd.paramagic.ui.event.api.UIEventContext;
 import com.qwaecd.paramagic.ui.event.api.UIEventKey;
-import com.qwaecd.paramagic.ui.event.impl.DoubleClick;
-import com.qwaecd.paramagic.ui.event.impl.MouseClick;
-import com.qwaecd.paramagic.ui.event.impl.MouseRelease;
-import com.qwaecd.paramagic.ui.event.impl.WheelEvent;
+import com.qwaecd.paramagic.ui.event.impl.*;
 import com.qwaecd.paramagic.ui.event.listener.PhaseBucket;
 import com.qwaecd.paramagic.ui.event.listener.UIEventListener;
 import com.qwaecd.paramagic.ui.event.listener.UIEventListenerEntry;
@@ -177,17 +174,30 @@ public class UINode {
     protected void onMouseScroll(UIEventContext<WheelEvent> context) {
     }
 
+    /**
+     * 在鼠标移入节点时调用, 鼠标在本节点内移动不会重复调用此方法.
+     */
+    protected void onMouseOver(UIEventContext<MouseOver> context) {
+    }
+
+    /**
+     * 在鼠标移出节点时调用.
+     */
+    protected void onMouseLeave(UIEventContext<MouseLeave> context) {
+    }
+
+
     @SuppressWarnings("unchecked")
     final void dispatchTargetEvent(UIEventContext<? extends UIEvent> context) {
         UIEventKey<?> key = context.getEventKey();
-        if (key == AllUIEvents.MOUSE_CLICK) {
-            this.onMouseClick((UIEventContext<MouseClick>) context);
-        } else if (key == AllUIEvents.MOUSE_RELEASE) {
-            this.onMouseRelease((UIEventContext<MouseRelease>) context);
-        } else if (key == AllUIEvents.MOUSE_DOUBLE_CLICK) {
-            this.onDoubleClick((UIEventContext<DoubleClick>) context);
-        } else if (key == AllUIEvents.WHEEL) {
-            this.onMouseScroll((UIEventContext<WheelEvent>) context);
+        switch (key.eventId) {
+            case 0 -> this.onMouseClick((UIEventContext<MouseClick>) context);
+            case 1 -> this.onMouseRelease((UIEventContext<MouseRelease>) context);
+            case 2 -> this.onDoubleClick((UIEventContext<DoubleClick>) context);
+            case 3 -> this.onMouseScroll((UIEventContext<WheelEvent>) context);
+            case 4 -> this.onMouseOver((UIEventContext<MouseOver>) context);
+            case 5 -> this.onMouseLeave((UIEventContext<MouseLeave>) context);
+            default -> LOGGER.warn("No target event handler for event ID {}", key.eventId);
         }
     }
 
@@ -245,6 +255,33 @@ public class UINode {
         }
 
         if (!this.hitTest(mouseX, mouseY)) {
+            return null;
+        }
+
+        return this;
+    }
+
+    /**
+     * 判断鼠标坐标是否在当前元素的范围内, 该函数用于每帧进行 mouseover 判定, 需要使用时间复杂度较低的算法.
+     */
+    public boolean contains(float mouseX, float mouseY) {
+        return this.visible && this.hitTest(mouseX, mouseY);
+    }
+
+    /**
+     * 递归获取鼠标当前位置下的最上层的元素, 由于每次鼠标移动都有可能进行一次判定, 需要使用时间复杂度较低的算法.
+     * @return 鼠标位置下最上层的节点, 为 null 则表示不存在.
+     */
+    @Nullable
+    public UINode getMouseOverNode(float mouseX, float mouseY) {
+        for (int i = this.children.size() - 1; i >= 0 ; --i) {
+            UINode hitNode = this.children.get(i).getMouseOverNode(mouseX, mouseY);
+            if (hitNode != null) {
+                return hitNode;
+            }
+        }
+
+        if (!this.contains(mouseX, mouseY)) {
             return null;
         }
 
