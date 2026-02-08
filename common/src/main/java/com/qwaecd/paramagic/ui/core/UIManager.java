@@ -17,8 +17,10 @@ import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.ArrayDeque;
 import java.util.ConcurrentModificationException;
 import java.util.List;
+import java.util.Queue;
 import java.util.function.Consumer;
 
 /**
@@ -29,6 +31,8 @@ public class UIManager {
     @Nullable
     private final MenuContent menuContent;
     private final MouseStateMachine mouseStateMachine;
+
+    private final Queue<UITask> deferredTasks = new ArrayDeque<>();
     @Getter
     @Nonnull
     private final TooltipRenderer tooltipRenderer;
@@ -60,6 +64,17 @@ public class UIManager {
     public void render(UIRenderContext context) {
         this.rootNode.renderTree(context);
         this.overlayRoot.renderOverlay(context);
+    }
+
+    /**
+     * 添加一个延迟任务, 该任务会在当前事件分发完成后执行
+     */
+    public void offerDeferredTask(@Nonnull UITask task) {
+        this.deferredTasks.offer(task);
+    }
+
+    public void flushMouseOvering() {
+        this.processMouseOverAndLeave(this.mouseStateMachine.mouseX(), this.mouseStateMachine.mouseY());
     }
 
     /**
@@ -181,6 +196,15 @@ public class UIManager {
             // 冒泡阶段：从目标到根, 包括目标
             for (int i = hitPath.size() - 1; i >= 0 && !context.isPropagationStopped(); i--) {
                 hitPath.get(i).handleEvent(context, EventPhase.BUBBLING);
+            }
+        }
+
+        while (this.deferredTasks.peek() != null) {
+            UITask task = this.deferredTasks.poll();
+            try {
+                task.execute(this);
+            } catch (Exception e) {
+                LOGGER.error("Exception occurred while executing deferred UI task.", e);
             }
         }
 

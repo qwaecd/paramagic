@@ -2,6 +2,7 @@ package com.qwaecd.paramagic.ui.widget;
 
 import com.qwaecd.paramagic.ui.core.UINode;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class UIPanel extends UINode {
@@ -12,6 +13,8 @@ public class UIPanel extends UINode {
     protected final int gapX;
     protected final int gapY;
     protected float cellSize;
+
+    protected final List<ItemNode> items;
 
     /**
      * 从期望的物品行列数和最大长度创建 UIPanel, 自动布局产生的元素长度不会超过指定的边
@@ -42,19 +45,59 @@ public class UIPanel extends UINode {
         this.maxLength = maxLength;
         this.isMaxWidth = isLimitWidth;
         this.cellSize = Math.max(itemSize, 0);
+
+        this.items = new ArrayList<>(expectItemRow * expectItemCol);
+    }
+
+    /**
+     * 向物品面板注册一个 ItemNode, 无需再次调用 addChild()
+     */
+    public void addItemNode(ItemNode itemNode) {
+        this.items.add(itemNode);
+        super.addChild(itemNode);
+    }
+
+    public void removeItemNode(ItemNode itemNode) {
+        this.items.remove(itemNode);
+        super.removeChild(itemNode);
+    }
+
+    @Override
+    public void addChild(UINode child) {
+        if (child instanceof ItemNode itemNode) {
+            this.addItemNode(itemNode);
+            return;
+        }
+        super.addChild(child);
+    }
+
+    @Override
+    public void removeChild(UINode child) {
+        if (child instanceof ItemNode itemNode) {
+            this.removeItemNode(itemNode);
+        }
+        super.removeChild(child);
     }
 
     @Override
     public void layout(float parentX, float parentY, float parentW, float parentH) {
-        if (!this.children.isEmpty()) {
+        if (!this.items.isEmpty()) {
             this.updatePanelSize();
-            this.layoutChildren();
+            this.layoutItemNodes();
         }
         super.layout(parentX, parentY, parentW, parentH);
     }
 
-    private void updatePanelSize() {
-        int itemCount = this.children.size();
+    /**
+     * 更新面板内容布局
+     */
+    public void updateContent() {
+        this.updatePanelSize();
+        this.layoutItemNodes();
+    }
+
+    protected void updatePanelSize() {
+        int itemCount = this.items.size();
         if (itemCount == 0) {
             this.localRect.setWH(0, 0);
             return;
@@ -81,15 +124,15 @@ public class UIPanel extends UINode {
         }
     }
 
-    private void layoutChildren() {
-        List<UINode> nodes = this.children;
+    protected void layoutItemNodes() {
+        List<ItemNode> nodes = this.items;
         int count = nodes.size();
         float stepX = this.cellSize + this.gapX;
         float stepY = this.cellSize + this.gapY;
 
         for (int index = 0; index < count; index++) {
             UINode node = nodes.get(index);
-            if (!(node instanceof ItemNode)) {
+            if (node == null) {
                 continue;
             }
 
