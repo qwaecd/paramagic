@@ -29,12 +29,12 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.Nullable;
 
 @SuppressWarnings("deprecation")
-public class SpellEditTable extends Block {
+public class SpellEditTableBlock extends Block {
     public static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
     private static final Component CONTAINER_TITLE = Component.literal("Spell Edit Table");
     // 中心对称模型，只需要一个朝向的碰撞箱
     private static final VoxelShape SHAPE_NORTH = northShape();
-    public SpellEditTable() {
+    public SpellEditTableBlock() {
         super(Properties.of().sound(SoundType.STONE).strength(2.0F).noOcclusion());
         this.registerDefaultState(this.stateDefinition.any().setValue(FACING, Direction.NORTH));
     }
@@ -51,7 +51,7 @@ public class SpellEditTable extends Block {
 
     @Override
     public @Nullable MenuProvider getMenuProvider(BlockState state, Level level, BlockPos pos) {
-        return new SimpleMenuProvider((i, inventory, player) -> new SpellEditTableMenu(i, inventory, ContainerLevelAccess.create(level, pos)), CONTAINER_TITLE);
+        return new SimpleMenuProvider((containerId, inventory, player) -> new SpellEditTableMenu(containerId, inventory, ContainerLevelAccess.create(level, pos)), CONTAINER_TITLE);
     }
 
     @Override

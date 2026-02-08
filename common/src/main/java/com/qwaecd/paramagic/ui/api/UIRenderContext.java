@@ -138,10 +138,6 @@ public class UIRenderContext {
         return this.backend.getLineHeight();
     }
 
-    public void renderTooltip(int mouseX, int mouseY) {
-        this.manager.getTooltipRenderer().renderTooltip(this.guiGraphics, mouseX, mouseY);
-    }
-
     public void renderSprite(Sprite sprite, int x, int y) {
         this.backend.renderSprite(sprite, x, y);
     }

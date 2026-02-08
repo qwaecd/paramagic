@@ -2,6 +2,7 @@ package com.qwaecd.paramagic.ui.screen;
 
 import com.qwaecd.paramagic.tools.TimeProvider;
 import com.qwaecd.paramagic.ui.MCRenderBackend;
+import com.qwaecd.paramagic.ui.MenuContent;
 import com.qwaecd.paramagic.ui.api.TooltipRenderer;
 import com.qwaecd.paramagic.ui.core.UIManager;
 import com.qwaecd.paramagic.ui.core.UINode;
@@ -35,7 +36,8 @@ public abstract class MCContainerScreen<T extends AbstractContainerMenu> extends
                 MCContainerScreen.this.renderTooltipWithItem(itemStack, guiGraphics, mouseX, mouseY);
             }
         };
-        this.manager = new UIManager(rootNode, tooltipRenderer);
+        MenuContent content = new MenuContent(menu, playerInventory);
+        this.manager = new UIManager(rootNode, tooltipRenderer, content);
     }
 
     @Override

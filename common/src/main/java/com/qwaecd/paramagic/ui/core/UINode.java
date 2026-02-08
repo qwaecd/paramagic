@@ -25,7 +25,7 @@ import javax.annotation.Nullable;
 import java.util.*;
 import java.util.function.Consumer;
 
-@SuppressWarnings({"UnusedReturnValue", "unused"})
+@SuppressWarnings({"UnusedReturnValue", "unused", "BooleanMethodIsAlwaysInverted"})
 public class UINode {
     private static final Logger LOGGER = LoggerFactory.getLogger(UINode.class);
     protected final List<UINode> children;
@@ -229,6 +229,10 @@ public class UINode {
 
     @Nullable
     public UINode getTopmostHitNode(float mouseX, float mouseY) {
+        if (this.clipMod == ClipMod.RECT && !this.hitTest(mouseX, mouseY)) {
+            return null;
+        }
+
         for (int i = this.children.size() - 1; i >= 0; --i) {
             UINode hitNode = this.children.get(i).getTopmostHitNode(mouseX, mouseY);
             if (hitNode != null) {
@@ -236,11 +240,11 @@ public class UINode {
             }
         }
 
-        if (this.hitTest(mouseX, mouseY)) {
-            return this;
+        if (!this.hitTest(mouseX, mouseY)) {
+            return null;
         }
 
-        return null;
+        return this;
     }
 
     /**
@@ -249,6 +253,11 @@ public class UINode {
      */
     @Nullable
     public UINode getHitNode(float mouseX, float mouseY) {
+        // 如果 Code clipMod != ClipMod.RECT, 那么后续的 hitTest 也不会执行了
+        if (this.clipMod == ClipMod.RECT && !this.hitTest(mouseX, mouseY)) {
+            return null;
+        }
+
         for (int i = this.children.size() - 1; i >= 0 ; --i) {
             UINode hitNode = this.children.get(i).getHitNode(mouseX, mouseY);
             if (hitNode != null) {
@@ -264,7 +273,10 @@ public class UINode {
     }
 
     /**
-     * 判断鼠标坐标是否在当前元素的范围内, 该函数用于每帧进行 mouseover 判定, 需要使用时间复杂度较低的算法.
+     * 判断鼠标坐标是否在当前元素的范围内, 该函数用于每帧进行 mouseover 判定, 需要使用时间复杂度较低的算法.<br>
+     *
+     * 当元素不可见时, 该操作不应该成功.
+     * @see #hitTest(float mouseX, float mouseY)
      */
     public boolean contains(float mouseX, float mouseY) {
         return this.visible && this.hitTest(mouseX, mouseY);
@@ -276,6 +288,11 @@ public class UINode {
      */
     @Nullable
     public UINode getMouseOverNode(float mouseX, float mouseY) {
+        // 如果 Code clipMod != ClipMod.RECT, 那么后续的 contains 也不会执行了
+        if (this.clipMod == ClipMod.RECT && !this.contains(mouseX, mouseY)) {
+            return null;
+        }
+
         for (int i = this.children.size() - 1; i >= 0 ; --i) {
             UINode hitNode = this.children.get(i).getMouseOverNode(mouseX, mouseY);
             if (hitNode != null) {
@@ -350,6 +367,10 @@ public class UINode {
         }
     }
 
+    /**
+     * 检查鼠标是否可以命中该元素, 元素不可见的情况下也可能命中.
+     * @see #contains(float mouseX, float mouseY)
+     */
     public boolean hitTest(float x, float y) {
         if (!this.hitTestable) {
             return false;

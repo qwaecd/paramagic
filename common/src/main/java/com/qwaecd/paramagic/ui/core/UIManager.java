@@ -26,7 +26,7 @@ import java.util.function.Consumer;
  */
 public class UIManager {
     private static final Logger LOGGER = LoggerFactory.getLogger(UIManager.class);
-    @Nonnull
+    @Nullable
     private final MenuContent menuContent;
     private final MouseStateMachine mouseStateMachine;
     @Getter
@@ -45,8 +45,8 @@ public class UIManager {
     @Getter
     private final OverlayRoot overlayRoot;
 
-    public UIManager(UINode rootNode, @Nonnull TooltipRenderer tooltipRenderer) {
-        this.menuContent = new MenuContent();
+    public UIManager(UINode rootNode, @Nonnull TooltipRenderer tooltipRenderer, @Nullable MenuContent menuContent) {
+        this.menuContent = menuContent;
         this.rootNode = rootNode;
         this.mouseStateMachine = new MouseStateMachine();
         this.tooltipRenderer = tooltipRenderer;
@@ -233,7 +233,10 @@ public class UIManager {
         }
     }
 
-    @Nonnull
+    /**
+     * 获取 menu, 如果是 null 说明是纯 screen UI
+     */
+    @Nullable
     public MenuContent getMenuContent() {
         return this.menuContent;
     }

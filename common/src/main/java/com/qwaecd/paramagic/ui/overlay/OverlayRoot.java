@@ -1,5 +1,6 @@
 package com.qwaecd.paramagic.ui.overlay;
 
+import com.qwaecd.paramagic.ui.MenuContent;
 import com.qwaecd.paramagic.ui.core.UIManager;
 import com.qwaecd.paramagic.ui.core.UINode;
 import com.qwaecd.paramagic.ui.api.UIRenderContext;
@@ -20,7 +21,13 @@ public class OverlayRoot {
 
     public void renderOverlay(UIRenderContext context) {
         this.rootNode.renderTree(context);
-        ItemStack hoveringItem = manager.getMenuContent().getHoveringItem();
+
+        MenuContent menuContent = this.manager.getMenuContent();
+        if (menuContent == null) {
+            return;
+        }
+
+        ItemStack hoveringItem = menuContent.getHoveringItem();
         if (!hoveringItem.isEmpty()) {
             context.renderTooltipWithItem(hoveringItem, context.mouseX, context.mouseY);
         }
