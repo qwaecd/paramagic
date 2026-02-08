@@ -36,7 +36,11 @@ public abstract class ParaComponentData implements IDataSerializable {
     @Setter
     @Nullable
     protected String name;
-    public final List<ParaComponentData> children;
+    /**
+     * 子组件列表, 该列表在构造完成后 (分配组件 id 时) 会被冻结, 防止后续修改.<br>
+     * List of child components, which will be frozen after construction (when component ids are assigned) to prevent subsequent modification.
+     */
+    private List<ParaComponentData> children;
     public Vector3f position;
     public Quaternionf rotation;
     public Vector3f scale;
@@ -45,6 +49,8 @@ public abstract class ParaComponentData implements IDataSerializable {
     @Getter
     @Setter
     protected float intensity;
+
+    private boolean frozenStructure = false;
 
     protected ParaComponentData() {
         this.children = new ArrayList<>();
@@ -68,11 +74,39 @@ public abstract class ParaComponentData implements IDataSerializable {
         }
         REGISTRY.put(componentType, constructor);
     }
-    public void addChild(ParaComponentData child) {
+    public final void addChild(ParaComponentData child) {
         if (child == null) {
             throw new NullPointerException("Cannot add null child to ParaComponentData");
         }
+
+        if (this.frozenStructure) {
+            throw new IllegalStateException("Cannot add child to ParaComponentData after structure is frozen.");
+        }
         this.children.add(child);
+    }
+
+    /**
+     * 冻结结构, 防止后续修改子组件列表. 该函数在 ParaData 分配子类 id 时被调用, 保证 ParaData 构造完成后结构已被冻结.<br>
+     * Freeze the structure to prevent subsequent modification of the child component list. This function is called when ParaData assigns subclass ids to ensure that ParaData is frozen after construction.
+     * @see com.qwaecd.paramagic.data.para.struct.ParaData
+     */
+    public void freeze() {
+        if (!this.frozenStructure) {
+            this.children = List.copyOf(this.children);
+            this.frozenStructure = true;
+        }
+    }
+
+    public boolean isStructureFrozen() {
+        return this.frozenStructure;
+    }
+
+    public final List<ParaComponentData> getChildren() {
+        if (!this.frozenStructure) {
+            throw new IllegalStateException("Cannot get immutable children before freezing structure.");
+        }
+
+        return this.children;
     }
 
     public abstract int getComponentType();

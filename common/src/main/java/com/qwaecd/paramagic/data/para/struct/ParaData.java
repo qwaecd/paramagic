@@ -31,13 +31,15 @@ public class ParaData implements IDataSerializable {
     private ParaData(ParaComponentData rootComponent, UUID uuid) {
         this.rootComponent = rootComponent;
         this.circleUUID = uuid;
+        this.rootComponent.freeze();
         generateComponentIds(rootComponent, PARENT_ID);
     }
 
     private void generateComponentIds(ParaComponentData parent, String parentId) {
         parent.componentId = parentId;
-        for (int i = 0; i < parent.children.size(); i++) {
-            ParaComponentData child = parent.children.get(i);
+        for (int i = 0; i < parent.getChildren().size(); i++) {
+            ParaComponentData child = parent.getChildren().get(i);
+            child.freeze();
             String childId = parentId + "." + i;
             generateComponentIds(child, childId);
         }

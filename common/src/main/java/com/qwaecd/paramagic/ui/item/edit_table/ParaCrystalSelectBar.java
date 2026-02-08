@@ -1,6 +1,5 @@
 package com.qwaecd.paramagic.ui.item.edit_table;
 
-import com.qwaecd.paramagic.ui.MenuContent;
 import com.qwaecd.paramagic.ui.api.event.AllUIEvents;
 import com.qwaecd.paramagic.ui.core.ClipMod;
 import com.qwaecd.paramagic.ui.core.UIManager;
@@ -17,6 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ParaCrystalSelectBar extends UIScrollView {
+    private static final UITask reOvering = UITask.create(UIManager::flushMouseOvering);
     private InventoryHolder inventory;
     private final List<ItemNode> items = new ArrayList<>();
     private UIPanel panel;
@@ -38,8 +38,9 @@ public class ParaCrystalSelectBar extends UIScrollView {
                 EventPhase.BUBBLING,
                 (context) -> {
                     if (!context.isConsumed()) {
-                        context.manager.offerDeferredTask(UITask.create(UIManager::flushMouseOvering));
+                        context.manager.offerDeferredTask(reOvering);
                         this.onMouseScroll(context);
+                        context.consume();
                     }
                 }
         );
@@ -76,12 +77,15 @@ public class ParaCrystalSelectBar extends UIScrollView {
 
     @Override
     public void layout(float parentX, float parentY, float parentW, float parentH) {
+        // 将自己置于屏幕右边中间
         float windowH = this.getWindowHeight() / this.getGuiScale();
         float windowW = this.getWindowWidth() / this.getGuiScale();
         this.localRect.setXY(
                 windowW - this.localRect.w - 4.0f,
                 (windowH - this.localRect.h) / 2.0f
         );
+
+        // 内部面板置于中央偏下
         this.panel.localRect.setXY(
                 (this.localRect.w - ItemNode.CELL_SIZE) / 2.0f,
                 this.panelOffsetY

@@ -107,7 +107,7 @@ public class MainParaDataConverter implements ParaDataConverter {
             return false;
         }
 
-        for (ParaComponentData child : data.children) {
+        for (ParaComponentData child : data.getChildren()) {
             if (!validateComponentRecursive(child, unsupportedTypes)) {
                 return false;
             }
@@ -156,7 +156,7 @@ public class MainParaDataConverter implements ParaDataConverter {
             Paramagic.LOG.trace("Registered node with ID: {}", data.getComponentId());
         }
         // Recursively convert and add children
-        for (ParaComponentData childData : data.children) {
+        for (ParaComponentData childData : data.getChildren()) {
             MagicNode childNode = convertComponentRecursive(childData, parentCircle);
             if (childNode != null) {
                 node.addChild(childNode);
