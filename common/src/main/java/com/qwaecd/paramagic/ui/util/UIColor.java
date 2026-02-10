@@ -2,7 +2,7 @@ package com.qwaecd.paramagic.ui.util;
 
 import net.minecraft.util.FastColor;
 
-public class UIColor {
+public final class UIColor {
     public static final UIColor WHITE = new UIColor(255, 255, 255, 255);
     public static final UIColor BLACK = new UIColor(0, 0, 0, 255);
     public static final UIColor RED = new UIColor(255, 0, 0, 255);

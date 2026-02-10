@@ -4,7 +4,6 @@ import com.qwaecd.paramagic.Paramagic;
 import com.qwaecd.paramagic.spell.builtin.BuiltinSpell;
 import com.qwaecd.paramagic.spell.builtin.BuiltinSpellRegistry;
 import com.qwaecd.paramagic.spell.logic.ExecutionContext;
-import com.qwaecd.paramagic.thaumaturgy.ArcaneProcessor;
 import lombok.Getter;
 
 import javax.annotation.Nonnull;
@@ -46,7 +45,7 @@ public class Spell {
             }
             return;
         }
-        ArcaneProcessor processor = new ArcaneProcessor(this.definition.logic);
-        processor.process(context);
+//        ArcaneProcessor processor = new ArcaneProcessor(this.definition.logic);
+//        processor.process(context);
     }
 }

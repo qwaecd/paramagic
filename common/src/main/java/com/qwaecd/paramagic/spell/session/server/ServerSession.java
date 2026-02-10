@@ -1,10 +1,13 @@
 package com.qwaecd.paramagic.spell.session.server;
 
+import com.qwaecd.paramagic.data.para.struct.ParaData;
 import com.qwaecd.paramagic.network.Networking;
 import com.qwaecd.paramagic.network.packet.session.S2CSessionDataSyncPacket;
 import com.qwaecd.paramagic.spell.caster.SpellCaster;
+import com.qwaecd.paramagic.spell.config.phase.PhaseConfig;
 import com.qwaecd.paramagic.spell.core.Spell;
 import com.qwaecd.paramagic.spell.listener.SpellPhaseListener;
+import com.qwaecd.paramagic.spell.phase.SpellPhaseType;
 import com.qwaecd.paramagic.spell.session.SessionState;
 import com.qwaecd.paramagic.spell.session.SpellSession;
 import com.qwaecd.paramagic.spell.session.store.SessionDataStore;
@@ -12,6 +15,9 @@ import com.qwaecd.paramagic.spell.session.store.SessionDataSyncPayload;
 import com.qwaecd.paramagic.spell.session.store.SessionDataValue;
 import com.qwaecd.paramagic.spell.state.SpellStateMachine;
 import com.qwaecd.paramagic.spell.state.event.MachineEvent;
+import com.qwaecd.paramagic.thaumaturgy.ArcaneProcessor;
+import com.qwaecd.paramagic.thaumaturgy.ParaContext;
+import com.qwaecd.paramagic.thaumaturgy.ParaTree;
 import com.qwaecd.paramagic.tools.ConditionalLogger;
 import com.qwaecd.paramagic.world.entity.SpellAnchorEntity;
 import lombok.Getter;
@@ -36,6 +42,8 @@ public class ServerSession extends SpellSession implements AutoCloseable, Server
     @Nonnull
     private final SpellStateMachine machine;
 
+    private final ArcaneProcessor processor;
+
     private final List<WeakReference<SpellAnchorEntity>> anchors = new ArrayList<>();
 
     private final Set<UUID> trackingPlayers = new HashSet<>();
@@ -46,6 +54,11 @@ public class ServerSession extends SpellSession implements AutoCloseable, Server
         this.machine = new SpellStateMachine(spell.definition);
         this.level = level;
         this.trackingDistance = this.level.getServer().getPlayerList().getSimulationDistance() * 16;
+
+        SpellPhaseType executePhase = spell.definition.meta.executePhase;
+        PhaseConfig phaseConfig = spell.definition.phases.getPhaseConfig(executePhase);
+        ParaData paraData = phaseConfig.getAssetConfig().getSpellAssets().getParaData();
+        this.processor = new ArcaneProcessor(new ParaTree(paraData), new ParaContext(this, level, caster));
     }
 
     public boolean machineCompleted() {
@@ -54,6 +67,7 @@ public class ServerSession extends SpellSession implements AutoCloseable, Server
 
     public void tickOnLevel(ServerLevel level, float deltaTime) {
         this.tick(level, deltaTime);
+        this.processor.tick();
     }
 
     @SuppressWarnings("unused")

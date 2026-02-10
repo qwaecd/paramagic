@@ -24,7 +24,6 @@ public class Paramagic {
 		CodableTypeRegistry.init();
 		AllParaComponentData.registerAll();
 		AllEmitterProperties.registerAll();
-		ServerEffectManager.init();
 		BuiltinSpellRegistry.init();
 	}
 }

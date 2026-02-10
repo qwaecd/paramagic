@@ -1,19 +1,18 @@
 package com.qwaecd.paramagic.thaumaturgy;
 
-import com.qwaecd.paramagic.spell.logic.ExecutionContext;
-import com.qwaecd.paramagic.spell.logic.SpellLogic;
-
 import javax.annotation.Nonnull;
 
 public class ArcaneProcessor {
-    @Nonnull
-    private final SpellLogic logic;
+    private final ParaTree tree;
+    private final ParaContext context;
 
-    public ArcaneProcessor(@Nonnull SpellLogic logic) {
-        this.logic = logic;
+    public ArcaneProcessor(@Nonnull ParaTree tree, @Nonnull ParaContext context) {
+        this.tree = tree;
+        this.context = context;
     }
 
-    public void process(ExecutionContext context) {
+
+    public void tick() {
 
     }
 }

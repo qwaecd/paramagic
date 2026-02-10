@@ -23,11 +23,23 @@ public class ServerEffectManager {
         return INSTANCE;
     }
 
-    public static void init() {
+    public static void init(Ticker ticker) {
         if (INSTANCE != null) {
             return;
         }
         INSTANCE = new ServerEffectManager();
+        ticker.register(() -> INSTANCE.tick(1.0f / 20.0f));
+    }
+
+    public interface Ticker {
+        void register(Runnable tickFunction);
+    }
+
+    public void tick(float deltaTime) {
+        this.activeEffects.values().removeIf(effect -> {
+            effect.tick(deltaTime);
+            return effect.isExpired();
+        });
     }
 
     @Nullable

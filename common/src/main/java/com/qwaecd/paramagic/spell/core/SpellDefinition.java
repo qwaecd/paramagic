@@ -10,7 +10,7 @@ import lombok.Getter;
 
 import javax.annotation.Nonnull;
 
-public class SpellDefinition implements IDataSerializable {
+public final class SpellDefinition implements IDataSerializable {
     @Getter
     @Nonnull
     public final SpellIdentifier spellId;

@@ -1,6 +1,7 @@
 package com.qwaecd.paramagic.data.para.struct;
 
 import com.qwaecd.paramagic.Paramagic;
+import com.qwaecd.paramagic.data.para.ParaStructureFrozenException;
 import com.qwaecd.paramagic.network.DataCodec;
 import com.qwaecd.paramagic.network.IDataSerializable;
 import com.qwaecd.paramagic.platform.Services;
@@ -90,23 +91,41 @@ public abstract class ParaComponentData implements IDataSerializable {
      * Freeze the structure to prevent subsequent modification of the child component list. This function is called when ParaData assigns subclass ids to ensure that ParaData is frozen after construction.
      * @see com.qwaecd.paramagic.data.para.struct.ParaData
      */
-    public void freeze() {
+    final void freeze() {
         if (!this.frozenStructure) {
             this.children = List.copyOf(this.children);
             this.frozenStructure = true;
         }
     }
 
-    public boolean isStructureFrozen() {
+    public final boolean isStructureFrozen() {
         return this.frozenStructure;
     }
 
-    public final List<ParaComponentData> getChildren() {
+    /**
+     * 获取不可变的子组件列表, 如果结构未被冻结则抛出异常.<br>
+     * Get an immutable list of child components. If the structure is not frozen, an exception is thrown.
+     * @return 不可变的子组件列表 <br> Immutable list of child components
+     * @throws ParaStructureFrozenException 如果结构未被冻结 / if the structure is not frozen
+     */
+    public final List<ParaComponentData> getChildren() throws ParaStructureFrozenException {
         if (!this.frozenStructure) {
-            throw new IllegalStateException("Cannot get immutable children before freezing structure.");
+            throw new ParaStructureFrozenException();
         }
 
         return this.children;
+    }
+
+    /**
+     * 获取当前子组件列表的快照, 如果结构已被冻结则直接返回不可变列表, 否则返回子组件列表的一个不可变拷贝.<br>
+     * Get a snapshot of the current child component list. If the structure is frozen, return an immutable list directly; otherwise, return an immutable copy of the child component list.
+     */
+    public final List<ParaComponentData> getCurrentChildren() {
+        if (this.frozenStructure) {
+            return this.children;
+        } else {
+            return List.copyOf(this.children);
+        }
     }
 
     public abstract int getComponentType();

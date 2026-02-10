@@ -5,7 +5,7 @@ import org.joml.Vector4f;
 /**
  * 原点是屏幕左上角，x向右，y向下
  */
-public class Rect {
+public final class Rect {
     public float x;
     public float y;
     public float w;

@@ -14,6 +14,7 @@ import com.qwaecd.paramagic.spell.view.position.PositionRuleSpec;
 
 import java.util.Objects;
 
+@Deprecated
 public class SpellDefBuilder implements MetaStep, PhaseStep {
     private final SpellIdentifier spellId;
     private SpellMetaConfig meta;
