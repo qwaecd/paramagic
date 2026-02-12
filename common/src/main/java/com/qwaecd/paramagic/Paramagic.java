@@ -4,7 +4,6 @@ import com.qwaecd.paramagic.core.particle.emitter.property.key.AllEmitterPropert
 import com.qwaecd.paramagic.data.para.AllParaComponentData;
 import com.qwaecd.paramagic.datagen.Lang;
 import com.qwaecd.paramagic.network.codec.codable.CodableTypeRegistry;
-import com.qwaecd.paramagic.particle.server.ServerEffectManager;
 import com.qwaecd.paramagic.platform.Services;
 import com.qwaecd.paramagic.spell.builtin.BuiltinSpellRegistry;
 import org.slf4j.Logger;

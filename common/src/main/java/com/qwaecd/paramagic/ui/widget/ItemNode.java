@@ -1,12 +1,12 @@
 package com.qwaecd.paramagic.ui.widget;
 
 import com.qwaecd.paramagic.ui.MenuContent;
-import com.qwaecd.paramagic.ui.util.UIColor;
-import com.qwaecd.paramagic.ui.core.UINode;
 import com.qwaecd.paramagic.ui.api.UIRenderContext;
 import com.qwaecd.paramagic.ui.api.event.UIEventContext;
+import com.qwaecd.paramagic.ui.core.UINode;
 import com.qwaecd.paramagic.ui.event.impl.MouseLeave;
 import com.qwaecd.paramagic.ui.event.impl.MouseOver;
+import com.qwaecd.paramagic.ui.util.UIColor;
 import net.minecraft.world.item.ItemStack;
 
 import javax.annotation.Nonnull;

@@ -2,7 +2,6 @@ package com.qwaecd.paramagic.spell.view.transform;
 
 import com.qwaecd.paramagic.core.render.Transform;
 import com.qwaecd.paramagic.core.render.TransformSample;
-import com.qwaecd.paramagic.spell.view.CasterTransformSource;
 import org.joml.Vector3f;
 
 import javax.annotation.Nonnull;

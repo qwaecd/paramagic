@@ -1,10 +1,10 @@
 package com.qwaecd.paramagic.ui.widget;
 
-import com.qwaecd.paramagic.ui.util.UIColor;
+import com.qwaecd.paramagic.ui.api.UIRenderContext;
 import com.qwaecd.paramagic.ui.core.ClipMod;
 import com.qwaecd.paramagic.ui.core.SizeMode;
-import com.qwaecd.paramagic.ui.api.UIRenderContext;
 import com.qwaecd.paramagic.ui.io.mouse.MouseStateMachine;
+import com.qwaecd.paramagic.ui.util.UIColor;
 
 import javax.annotation.Nonnull;
 

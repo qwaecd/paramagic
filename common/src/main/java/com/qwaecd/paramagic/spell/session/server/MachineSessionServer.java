@@ -1,7 +1,7 @@
 package com.qwaecd.paramagic.spell.session.server;
 
-import com.qwaecd.paramagic.spell.caster.SpellCaster;
 import com.qwaecd.paramagic.spell.SpellPhaseListener;
+import com.qwaecd.paramagic.spell.caster.SpellCaster;
 import com.qwaecd.paramagic.spell.phase.SpellPhaseType;
 import com.qwaecd.paramagic.spell.session.SessionState;
 import com.qwaecd.paramagic.spell.state.SpellStateMachine;

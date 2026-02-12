@@ -1,8 +1,8 @@
 package com.qwaecd.paramagic.ui.event.listener;
 
+import com.qwaecd.paramagic.ui.api.event.UIEventContext;
 import com.qwaecd.paramagic.ui.event.EventPhase;
 import com.qwaecd.paramagic.ui.event.UIEvent;
-import com.qwaecd.paramagic.ui.api.event.UIEventContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

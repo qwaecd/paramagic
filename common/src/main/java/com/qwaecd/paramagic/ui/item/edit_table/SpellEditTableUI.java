@@ -1,13 +1,13 @@
 package com.qwaecd.paramagic.ui.item.edit_table;
 
-import com.qwaecd.paramagic.ui.core.UIManager;
-import com.qwaecd.paramagic.ui.inventory.InventoryHolder;
-import com.qwaecd.paramagic.ui.util.UIColor;
-import com.qwaecd.paramagic.ui.util.Rect;
-import com.qwaecd.paramagic.ui.core.UINode;
 import com.qwaecd.paramagic.ui.api.UIRenderContext;
-import com.qwaecd.paramagic.ui.event.EventPhase;
 import com.qwaecd.paramagic.ui.api.event.AllUIEvents;
+import com.qwaecd.paramagic.ui.core.UIManager;
+import com.qwaecd.paramagic.ui.core.UINode;
+import com.qwaecd.paramagic.ui.event.EventPhase;
+import com.qwaecd.paramagic.ui.inventory.InventoryHolder;
+import com.qwaecd.paramagic.ui.util.Rect;
+import com.qwaecd.paramagic.ui.util.UIColor;
 import com.qwaecd.paramagic.ui.widget.UIButton;
 import com.qwaecd.paramagic.ui.widget.UILabel;
 

@@ -1,8 +1,8 @@
 package com.qwaecd.paramagic.ui.api;
 
-import com.qwaecd.paramagic.ui.util.UIColor;
 import com.qwaecd.paramagic.ui.util.Rect;
 import com.qwaecd.paramagic.ui.util.Sprite;
+import com.qwaecd.paramagic.ui.util.UIColor;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 

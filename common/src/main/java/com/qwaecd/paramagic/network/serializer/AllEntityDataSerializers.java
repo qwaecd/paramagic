@@ -1,8 +1,6 @@
 package com.qwaecd.paramagic.network.serializer;
 
-import com.qwaecd.paramagic.spell.BuiltinSpellId;
 import com.qwaecd.paramagic.spell.SpellUnion;
-import com.qwaecd.paramagic.spell.session.SpellSessionRef;
 import net.minecraft.network.syncher.EntityDataSerializer;
 
 import java.util.ArrayList;
