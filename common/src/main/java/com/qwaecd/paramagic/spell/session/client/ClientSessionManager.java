@@ -1,6 +1,10 @@
 package com.qwaecd.paramagic.spell.session.client;
 
-import com.qwaecd.paramagic.spell.core.Spell;
+import com.qwaecd.paramagic.spell.BuiltinSpellId;
+import com.qwaecd.paramagic.spell.builtin.BuiltinSpellEntry;
+import com.qwaecd.paramagic.spell.builtin.BuiltinSpellRegistry;
+import com.qwaecd.paramagic.spell.builtin.client.BuiltinSpellVisualRegistry;
+import com.qwaecd.paramagic.spell.builtin.client.VisualEntry;
 import com.qwaecd.paramagic.spell.session.ISessionManager;
 import com.qwaecd.paramagic.spell.session.SpellSession;
 import com.qwaecd.paramagic.spell.session.SpellSessionRef;
@@ -65,7 +69,7 @@ public class ClientSessionManager implements ISessionManager {
     }
 
     @Nullable
-    public ClientSession createSession(Level level, SpellSessionRef sessionRef, @Nonnull Spell spell, Entity fallbackSource) {
+    public MachineSessionClient tryCreateMachineSession(Level level, SpellSessionRef sessionRef, @Nonnull BuiltinSpellId spellId, Entity fallbackSource) {
         Entity casterSource = CasterUtils.tryFindCaster(level, sessionRef);
         if (casterSource == null) {
             LOGGER.logIfDev(l ->
@@ -76,8 +80,22 @@ public class ClientSessionManager implements ISessionManager {
                     )
             );
         }
+
+        BuiltinSpellEntry bEntry = BuiltinSpellRegistry.getSpell(spellId);
+        VisualEntry vEntry = BuiltinSpellVisualRegistry.getSpell(spellId);
+        if (bEntry == null || vEntry == null) {
+            LOGGER.get().error("Cannot find built-in spell visual entry with id: {}", spellId);
+            return null;
+        }
+
         HybridCasterSource hybridCasterSource = HybridCasterSource.create(casterSource, fallbackSource);
-        ClientSession clientSession = new ClientSession(sessionRef.serverSessionId, spell, hybridCasterSource);
+        MachineSessionClient clientSession = new MachineSessionClient(
+                sessionRef.serverSessionId,
+                spellId,
+                hybridCasterSource,
+                bEntry.getSpell().createMachine(),
+                vEntry.createRenderer()
+        );
         this.addSession(clientSession);
         return clientSession;
     }

@@ -3,17 +3,19 @@ package com.qwaecd.paramagic.spell;
 import com.qwaecd.paramagic.platform.annotation.PlatformScope;
 import com.qwaecd.paramagic.platform.annotation.PlatformScopeType;
 import com.qwaecd.paramagic.spell.builtin.BuiltinSpell;
+import com.qwaecd.paramagic.spell.builtin.BuiltinSpellEntry;
 import com.qwaecd.paramagic.spell.builtin.BuiltinSpellRegistry;
 import com.qwaecd.paramagic.spell.caster.SpellCaster;
-import com.qwaecd.paramagic.spell.core.Spell;
-import com.qwaecd.paramagic.spell.listener.ExecutionListener;
 import com.qwaecd.paramagic.spell.session.SessionManagers;
+import com.qwaecd.paramagic.spell.session.SpellSessionRef;
+import com.qwaecd.paramagic.spell.session.server.MachineSessionServer;
 import com.qwaecd.paramagic.spell.session.server.ServerSession;
 import com.qwaecd.paramagic.spell.session.server.ServerSessionManager;
 import com.qwaecd.paramagic.spell.session.store.AllSessionDataKeys;
 import com.qwaecd.paramagic.spell.session.store.SessionDataStore;
 import com.qwaecd.paramagic.spell.session.store.SessionDataValue;
 import com.qwaecd.paramagic.spell.state.AllMachineEvents;
+import com.qwaecd.paramagic.spell.state.SpellStateMachine;
 import com.qwaecd.paramagic.world.entity.SpellAnchorEntity;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
@@ -26,35 +28,32 @@ import javax.annotation.Nullable;
 @PlatformScope(PlatformScopeType.SERVER)
 public class SpellSpawner {
     @Nullable
-    public static ServerSession spawnOnServer(ServerLevel level, SpellCaster caster, Spell spell) {
-        ServerSessionManager manager = SessionManagers.getForServer(level);
-        ServerSession serverSession = manager.tryCreateSession(level, caster, spell);
+    public static MachineSessionServer spawnInternalOnServer(ServerLevel level, SpellCaster caster, BuiltinSpellId spellId) {
+        BuiltinSpellEntry entry = BuiltinSpellRegistry.getSpell(spellId);
 
-        if (serverSession != null) {
-            serverSession.postEvent(AllMachineEvents.START_CASTING);
+        if (entry == null) {
+            return null;
+        }
+        BuiltinSpell spell = entry.getSpell();
+        SpellStateMachine machine = spell.createMachine();
+
+        ServerSessionManager manager = SessionManagers.getForServer(level);
+        MachineSessionServer session = manager.tryCreateMachineSession(level, caster, machine, entry.createExecutor());
+
+        if (session != null) {
+            session.postEvent(AllMachineEvents.START_CASTING);
 
             SpellAnchorEntity spellAnchorEntity = new SpellAnchorEntity(level);
             spellAnchorEntity.moveTo(caster.position());
-            connect(serverSession, spellAnchorEntity);
+            SpellUnion spellUnion = SpellUnion.ofBuiltin(SpellSessionRef.fromSession(session), spellId);
+            connect(session, spellAnchorEntity, spellUnion);
 
             level.addFreshEntity(spellAnchorEntity);
-            createBaseListener(serverSession);
-            processDataStore(serverSession, level, caster);
-            handleSessionCreation(serverSession, spell);
+            processDataStore(session, level, caster);
+            spell.onCreateSession(session);
         }
 
-        return serverSession;
-    }
-
-    private static void handleSessionCreation(ServerSession session, Spell spell) {
-        if (!spell.isBuiltIn) {
-            return;
-        }
-
-        BuiltinSpell builtinSpell = BuiltinSpellRegistry.getSpell(spell.definition.spellId);
-        if (builtinSpell != null) {
-            builtinSpell.onCreateSession(session);
-        }
+        return session;
     }
 
     private static void processDataStore(ServerSession session, ServerLevel level, SpellCaster caster) {
@@ -71,13 +70,8 @@ public class SpellSpawner {
         session.syncDataStore();
     }
 
-    private static void connect(ServerSession session, SpellAnchorEntity entity) {
+    private static void connect(ServerSession session, SpellAnchorEntity entity, SpellUnion spellUnion) {
         session.connectAnchor(entity);
-        entity.attachSession(session);
-    }
-
-    private static void createBaseListener(ServerSession session) {
-        ExecutionListener executionListener = new ExecutionListener();
-        session.registerListener(executionListener);
+        entity.attachSessionData(session, spellUnion);
     }
 }

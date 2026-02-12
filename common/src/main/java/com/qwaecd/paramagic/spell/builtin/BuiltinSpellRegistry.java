@@ -2,18 +2,22 @@ package com.qwaecd.paramagic.spell.builtin;
 
 import com.qwaecd.paramagic.platform.annotation.PlatformScope;
 import com.qwaecd.paramagic.platform.annotation.PlatformScopeType;
-import com.qwaecd.paramagic.spell.SpellIdentifier;
-import com.qwaecd.paramagic.spell.builtin.impl.ExplosionSpell;
+import com.qwaecd.paramagic.spell.BuiltinSpellId;
+import com.qwaecd.paramagic.spell.builtin.explostion.ExplosionExecutor;
+import com.qwaecd.paramagic.spell.builtin.explostion.ExplosionSpell;
+import com.qwaecd.paramagic.spell.session.server.SpellExecutor;
 
 import javax.annotation.Nullable;
+import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.Objects;
+import java.util.function.Supplier;
 
 @PlatformScope(PlatformScopeType.COMMON)
 public class BuiltinSpellRegistry {
     private static BuiltinSpellRegistry INSTANCE;
 
-    private final Map<SpellIdentifier, BuiltinSpell> registry = new ConcurrentHashMap<>();
+    private final Map<BuiltinSpellId, BuiltinSpellEntry> registry = new HashMap<>();
 
     public static void init() {
         if (INSTANCE == null) {
@@ -23,23 +27,20 @@ public class BuiltinSpellRegistry {
     }
 
     private static void registerAll() {
-        register(ExplosionSpell.SPELL_ID, new ExplosionSpell());
+        register(ExplosionSpell.SPELL_ID, new ExplosionSpell(), ExplosionExecutor::new);
     }
 
-    public static void register(SpellIdentifier spellId, BuiltinSpell spell) {
-        INSTANCE.registry.put(spellId, spell);
-    }
-
-    public static void unregister(SpellIdentifier spellId) {
-        INSTANCE.registry.remove(spellId);
+    public static synchronized void register(BuiltinSpellId spellId, BuiltinSpell spell, Supplier<SpellExecutor> executorFactory) {
+        Supplier<SpellExecutor> factory = Objects.requireNonNullElseGet(executorFactory, () -> SpellExecutor::new);
+        INSTANCE.registry.put(spellId, new BuiltinSpellEntry(spell, factory));
     }
 
     @Nullable
-    public static BuiltinSpell getSpell(SpellIdentifier spellId) {
+    public static BuiltinSpellEntry getSpell(BuiltinSpellId spellId) {
         return INSTANCE.registry.get(spellId);
     }
 
-    public static boolean containsSpell(SpellIdentifier spellId) {
+    public static boolean containsSpell(BuiltinSpellId spellId) {
         return INSTANCE.registry.containsKey(spellId);
     }
 }

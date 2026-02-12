@@ -8,6 +8,7 @@ import com.qwaecd.paramagic.platform.annotation.PlatformScopeType;
 public interface CasterTransformSource {
     /**
      * 将当前帧下的变换应用到 dist 上
+     * @return 应用后的变换, 即 dist 本身
      */
-    void applyTo(TransformSample dist);
+    TransformSample applyTo(TransformSample dist);
 }

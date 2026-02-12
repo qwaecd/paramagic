@@ -3,21 +3,12 @@ package com.qwaecd.paramagic.world.entity;
 import com.qwaecd.paramagic.network.serializer.AllEntityDataSerializers;
 import com.qwaecd.paramagic.platform.annotation.PlatformScope;
 import com.qwaecd.paramagic.platform.annotation.PlatformScopeType;
-import com.qwaecd.paramagic.spell.SpellIdentifier;
+import com.qwaecd.paramagic.spell.BuiltinSpellId;
 import com.qwaecd.paramagic.spell.SpellSpawnerClient;
-import com.qwaecd.paramagic.spell.builtin.BuiltinSpell;
-import com.qwaecd.paramagic.spell.builtin.BuiltinSpellRegistry;
-import com.qwaecd.paramagic.spell.core.Spell;
-import com.qwaecd.paramagic.spell.core.SpellDefinition;
-import com.qwaecd.paramagic.spell.listener.ListenerFactoryClient;
-import com.qwaecd.paramagic.spell.listener.SpellPhaseListener;
+import com.qwaecd.paramagic.spell.SpellUnion;
 import com.qwaecd.paramagic.spell.session.SessionManagers;
-import com.qwaecd.paramagic.spell.session.SpellSession;
-import com.qwaecd.paramagic.spell.session.SpellSessionRef;
 import com.qwaecd.paramagic.spell.session.client.ClientSession;
 import com.qwaecd.paramagic.spell.session.server.ServerSession;
-import lombok.Getter;
-import lombok.Setter;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.SynchedEntityData;
@@ -28,7 +19,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
-import java.util.List;
 import java.util.Optional;
 
 public class SpellAnchorEntity extends Entity {
@@ -41,12 +31,7 @@ public class SpellAnchorEntity extends Entity {
      */
     @PlatformScope(PlatformScopeType.SERVER)
     private int lifetimeTicks = 0;
-
-    private static final EntityDataAccessor<Optional<SpellDefinition>> OPTIONAL_SPELL_DEF = SynchedEntityData.defineId(SpellAnchorEntity.class, AllEntityDataSerializers.OPTIONAL_SPELL_DEF);
-    private static final EntityDataAccessor<Optional<SpellSessionRef>> OPTIONAL_SESSION_REF = SynchedEntityData.defineId(SpellAnchorEntity.class, AllEntityDataSerializers.SPELL_SESSION_REF);
-    private static final EntityDataAccessor<Optional<SpellIdentifier>> OPTIONAL_BUILT_IN_SPELL = SynchedEntityData.defineId(SpellAnchorEntity.class, AllEntityDataSerializers.BUILT_IN_SPELL);
-
-    private final SpellDataChecker spellDataChecker = new SpellDataChecker();
+    private static final EntityDataAccessor<Optional<SpellUnion>> OPTIONAL_SPELL_UNION = SynchedEntityData.defineId(SpellAnchorEntity.class, AllEntityDataSerializers.OPTIONAL_SPELL_UNION);
 
     public SpellAnchorEntity(EntityType<?> entityType, Level level) {
         super(entityType, level);
@@ -61,8 +46,6 @@ public class SpellAnchorEntity extends Entity {
     @Override
     public void tick() {
         super.tick();
-//        System.out.println("session ref: " + this.entityData.get(OPTIONAL_SESSION_REF).isEmpty());
-//        System.out.println("spell: " + this.entityData.get(OPTIONAL_SPELL_DATA).isEmpty());
         if (this.level().isClientSide()) {
             return;
         }
@@ -76,93 +59,39 @@ public class SpellAnchorEntity extends Entity {
 
     @Override
     protected void defineSynchedData() {
-        this.entityData.define(OPTIONAL_SPELL_DEF, Optional.empty());
-        this.entityData.define(OPTIONAL_SESSION_REF, Optional.empty());
-        this.entityData.define(OPTIONAL_BUILT_IN_SPELL, Optional.empty());
+        this.entityData.define(OPTIONAL_SPELL_UNION, Optional.empty());
     }
 
     @Override
     public void onSyncedDataUpdated(@Nonnull EntityDataAccessor<?> key) {
-        if (OPTIONAL_SPELL_DEF.equals(key)) {
-            Optional<SpellDefinition> optionalSpellDef = this.entityData.get(OPTIONAL_SPELL_DEF);
-            if (!this.level().isClientSide()) {
-                return;
-            }
-            if (optionalSpellDef.isEmpty()) {
-                return;
-            }
-            this.spellDataChecker.setSpellDefinition(optionalSpellDef.get());
-            this.onUpdateEntityData();
-            return;
-        }
-
-        if (OPTIONAL_SESSION_REF.equals(key)) {
-            Optional<SpellSessionRef> optionalSessionRef = this.entityData.get(OPTIONAL_SESSION_REF);
-            if (!this.level().isClientSide()) {
-                return;
-            }
-            if (optionalSessionRef.isEmpty()) {
-                return;
-            }
-            this.spellDataChecker.setSessionRef(optionalSessionRef.get());
-            this.onUpdateEntityData();
-        }
-
-        if (OPTIONAL_BUILT_IN_SPELL.equals(key)) {
-            Optional<SpellIdentifier> optionalBuiltInSpellId = this.entityData.get(OPTIONAL_BUILT_IN_SPELL);
-            if (!this.level().isClientSide()) {
-                return;
-            }
-            if (optionalBuiltInSpellId.isEmpty()) {
-                return;
-            }
-            this.spellDataChecker.setBuiltInSpellId(optionalBuiltInSpellId.get());
-            this.onUpdateEntityData();
+        if (this.level().isClientSide() && OPTIONAL_SPELL_UNION.equals(key)) {
+            this.createSessionOnClient();
         }
     }
 
     @PlatformScope(PlatformScopeType.CLIENT)
-    private void onUpdateEntityData() {
-        if (!this.spellDataChecker.isReady()) {
-            return;
-        }
+    private void createSessionOnClient() {
+        SpellUnion spellUnion = this.entityData.get(OPTIONAL_SPELL_UNION).orElseThrow(() -> new RuntimeException("SpellUnion is empty on client when creating session"));
 
-        Spell spell;
-        // assert not null
-        SpellSessionRef sessionRef = this.entityData.get(OPTIONAL_SESSION_REF).orElseThrow();
-        Optional<SpellIdentifier> s = this.entityData.get(OPTIONAL_BUILT_IN_SPELL);
-        if (s.isPresent()) {
-            SpellIdentifier spellId = s.get();
-            BuiltinSpell builtinSpell = BuiltinSpellRegistry.getSpell(spellId);
-            if (builtinSpell == null) {
-                LOGGER.error("Cannot find built-in spell factory with id: {}", spellId);
+        if (spellUnion.isBuiltinSpell()) {
+            BuiltinSpellId builtinId = spellUnion.getBuiltinId();
+            if (builtinId == null) {
+                LOGGER.error("BuiltinSpellId is null for builtin spell in SpellUnion");
                 return;
             }
-            spell = builtinSpell.create();
+            SpellSpawnerClient.spawnInternalOnClient(this.level(), spellUnion.getSessionRef(), builtinId, this);
         } else {
-            SpellDefinition spellDefinition = this.entityData.get(OPTIONAL_SPELL_DEF).orElseThrow();
-            spell = Spell.create(spellDefinition);
-        }
-
-        SpellSession existSession = SessionManagers.getForClient().getSession(sessionRef.serverSessionId);
-        if (existSession != null) {
-            return;
-        }
-
-        ClientSession clientSession = SpellSpawnerClient.spawnOnClient(this.level(), sessionRef, spell, this);
-        if (clientSession != null) {
-            List<SpellPhaseListener> listeners = ListenerFactoryClient.createListenersFromConfig(spell.definition);
-            listeners.forEach(clientSession::registerListener);
+            // Para spell
         }
     }
 
     @Override
     public void onClientRemoval() {
-        Optional<SpellSessionRef> spellSessionRef = this.entityData.get(OPTIONAL_SESSION_REF);
-        if (spellSessionRef.isEmpty()) {
+        Optional<SpellUnion> spellUnion = this.entityData.get(OPTIONAL_SPELL_UNION);
+        if (spellUnion.isEmpty()) {
             return;
         }
-        ClientSession session = (ClientSession) SessionManagers.getForClient().getSession(spellSessionRef.get().serverSessionId);
+        ClientSession session = (ClientSession) SessionManagers.getForClient().getSession(spellUnion.get().getSessionRef().getServerSessionId());
         if (session != null) {
             session.interrupt();
         }
@@ -182,42 +111,12 @@ public class SpellAnchorEntity extends Entity {
         return false;
     }
 
-
     @PlatformScope(PlatformScopeType.SERVER)
-    public void attachSession(@Nonnull ServerSession session) {
-        Spell spell = session.getSpell();
-        if (spell.isBuiltIn()) {
-            SpellIdentifier spellId = spell.definition.spellId;
-            this.entityData.set(OPTIONAL_BUILT_IN_SPELL, Optional.of(spellId), true);
-        } else {
-            this.entityData.set(OPTIONAL_SPELL_DEF, Optional.of(spell.definition), true);
-        }
-        this.entityData.set(OPTIONAL_SESSION_REF, Optional.of(SpellSessionRef.fromSession(session)), true);
+    public void attachSessionData(@Nonnull ServerSession session, SpellUnion spellUnion) {
+        this.entityData.set(OPTIONAL_SPELL_UNION, Optional.of(spellUnion), true);
     }
 
     public boolean isNoSpell() {
-        return this.entityData.get(OPTIONAL_SPELL_DEF).isEmpty() &&
-                this.entityData.get(OPTIONAL_BUILT_IN_SPELL).isEmpty();
-    }
-
-    public boolean hasSessionRef() {
-        return this.entityData.get(OPTIONAL_SESSION_REF).isPresent();
-    }
-
-    @Getter
-    @Setter
-    @PlatformScope(PlatformScopeType.CLIENT)
-    public static class SpellDataChecker {
-        private SpellDefinition spellDefinition = null;
-        private SpellIdentifier builtInSpellId = null;
-        private SpellSessionRef sessionRef = null;
-
-        public boolean isReady() {
-            return (spellDefinition != null || builtInSpellId != null) && sessionRef != null;
-        }
-
-        public boolean isBuiltInSpell() {
-            return builtInSpellId != null;
-        }
+        return this.entityData.get(OPTIONAL_SPELL_UNION).isEmpty();
     }
 }

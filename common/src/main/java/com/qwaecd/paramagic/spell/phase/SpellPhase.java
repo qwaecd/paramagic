@@ -1,6 +1,6 @@
 package com.qwaecd.paramagic.spell.phase;
 
-import com.qwaecd.paramagic.spell.config.phase.PhaseConfig;
+import com.qwaecd.paramagic.spell.config.PhaseConfig;
 import com.qwaecd.paramagic.spell.state.MachineContext;
 import com.qwaecd.paramagic.spell.state.Transition;
 import com.qwaecd.paramagic.spell.state.event.MachineEvent;

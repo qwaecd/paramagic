@@ -2,12 +2,8 @@ package com.qwaecd.paramagic.spell.state;
 
 import com.qwaecd.paramagic.Paramagic;
 import com.qwaecd.paramagic.spell.EndSpellReason;
-import com.qwaecd.paramagic.spell.core.SpellDefinition;
-import com.qwaecd.paramagic.spell.listener.SpellPhaseListener;
-import com.qwaecd.paramagic.spell.phase.EffectTriggerPoint;
-import com.qwaecd.paramagic.spell.phase.PhaseFactory;
-import com.qwaecd.paramagic.spell.phase.SpellPhase;
-import com.qwaecd.paramagic.spell.phase.SpellPhaseType;
+import com.qwaecd.paramagic.spell.SpellPhaseListener;
+import com.qwaecd.paramagic.spell.phase.*;
 import com.qwaecd.paramagic.spell.state.event.MachineEvent;
 import com.qwaecd.paramagic.spell.state.event.queue.EventQueue;
 import com.qwaecd.paramagic.spell.state.event.queue.MachineEventEnvelope;
@@ -20,12 +16,12 @@ import java.util.List;
 import java.util.Set;
 import java.util.function.Consumer;
 
-@SuppressWarnings("LombokGetterMayBeUsed")
 public class SpellStateMachine {
     public static final int MAX_EVENTS_PER_TICK = 64;
+
     @Nullable
     private SpellPhase currentPhase;
-    private final SpellDefinition spellDefinition;
+    private final PhaseConnection connection;
     private final List<SpellPhaseListener> listeners;
     private static final SystemEvents systemEvents = new SystemEvents();
     /**
@@ -37,11 +33,14 @@ public class SpellStateMachine {
     private final EventQueue eventQueue = new EventQueue();
     private final MachineContext context;
 
-    public SpellStateMachine(SpellDefinition spellDefinition) {
-        this.spellDefinition = spellDefinition;
+    @Nullable
+    private PhaseChangeListener sessionCallback;
+
+    public SpellStateMachine(PhaseConnection connection) {
+        this.connection = connection;
         this.listeners = new ArrayList<>();
         this.context = new MachineContext(this);
-        SpellPhase phase = PhaseFactory.createPhaseFromConfig(spellDefinition.phases.getInitialPhaseConfig());
+        SpellPhase phase = connection.getInitialPhase();
         changePhase(phase);
     }
 
@@ -82,6 +81,11 @@ public class SpellStateMachine {
         }
     }
 
+    @Nonnull
+    public SpellPhaseType currentPhase() {
+        return this.currentPhase == null ? SpellPhaseType.COOLDOWN : this.currentPhase.getPhaseType();
+    }
+
     private void processEvent(MachineEvent event) {
         if (systemEvents.contains(event)) {
             processSystemEvent(event);
@@ -90,7 +94,7 @@ public class SpellStateMachine {
 
         if (this.currentPhase != null) {
             Transition transition = this.currentPhase.onEvent(this.context, event);
-            if (transition != null && transition.getTargetPhase() != null) {
+            if (transition != null) {
                 // 进行状态转换
                 handleTransition(transition);
             }
@@ -151,6 +155,10 @@ public class SpellStateMachine {
     }
 
     private void notifyStateChanged(SpellPhaseType oldPhase, SpellPhaseType newPhase) {
+        if (this.sessionCallback != null) {
+            this.sessionCallback.onPhaseChanged(oldPhase, newPhase);
+        }
+
         forEachListenerSafe(listener -> listener.onPhaseChanged(oldPhase, newPhase));
     }
 
@@ -162,10 +170,15 @@ public class SpellStateMachine {
 
         SpellPhaseType targetPhase = transition.getTargetPhase();
         // 当前阶段并没有返回转换到下一个状态的具体状态, 不应该发生转换
-        if (targetPhase == null)
+        if (transition.equals(Transition.STAY)) {
             return;
+        }
 
-        SpellPhase newPhase = PhaseFactory.createPhaseFromConfig(this.spellDefinition.phases.getPhaseConfig(targetPhase));
+        SpellPhase newPhase = this.connection.getPhase(targetPhase);
+
+        if (newPhase == null) {
+            throw new NullPointerException("Target phase '" + targetPhase + "' not found in phase connection.");
+        }
 
         changePhase(newPhase);
     }
@@ -228,5 +241,14 @@ public class SpellStateMachine {
         public boolean contains(MachineEvent event) {
             return systemEvents.contains(event);
         }
+    }
+
+    public void setSessionCallback(PhaseChangeListener callback) {
+        this.sessionCallback = callback;
+    }
+
+    @FunctionalInterface
+    public interface PhaseChangeListener {
+        void onPhaseChanged(SpellPhaseType oldPhase, SpellPhaseType currentPhase);
     }
 }

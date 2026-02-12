@@ -41,13 +41,14 @@ public class HybridCasterSource implements CasterTransformSource {
     }
 
     @Override
-    public void applyTo(TransformSample dist) {
+    public TransformSample applyTo(TransformSample dist) {
         if (primary != null) {
             this.last.fromEntity(primary);
         } else if (fallback != null) {
             this.last.fromEntity(fallback);
         }
         dist.set(this.last);
+        return dist;
     }
 
     public static HybridCasterSource create(@Nullable Entity primary, Entity fallback) {

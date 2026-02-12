@@ -2,9 +2,9 @@ package com.qwaecd.paramagic.world.item.feat;
 
 import com.qwaecd.paramagic.Paramagic;
 import com.qwaecd.paramagic.spell.SpellSpawner;
-import com.qwaecd.paramagic.spell.builtin.BuiltinSpell;
+import com.qwaecd.paramagic.spell.builtin.BuiltinSpellEntry;
 import com.qwaecd.paramagic.spell.builtin.BuiltinSpellRegistry;
-import com.qwaecd.paramagic.spell.builtin.impl.ExplosionSpell;
+import com.qwaecd.paramagic.spell.builtin.explostion.ExplosionSpell;
 import com.qwaecd.paramagic.spell.caster.PlayerCaster;
 import com.qwaecd.paramagic.spell.session.SessionManagers;
 import com.qwaecd.paramagic.spell.session.server.ServerSession;
@@ -38,12 +38,12 @@ public class ExplosionWand extends Item {
         ItemStack itemstack = player.getItemInHand(usedHand);
 
         if (level instanceof ServerLevel serverLevel) {
-            BuiltinSpell builtinSpell = BuiltinSpellRegistry.getSpell(ExplosionSpell.SPELL_ID);
-            if (builtinSpell == null) {
+            BuiltinSpellEntry entry = BuiltinSpellRegistry.getSpell(ExplosionSpell.SPELL_ID);
+            if (entry == null) {
                 Paramagic.LOG.error("Failed to get Built-in Spell: {} from BuiltinSpellRegistry.", ExplosionSpell.SPELL_ID);
                 return InteractionResultHolder.fail(itemstack);
             }
-            SpellSpawner.spawnOnServer(serverLevel, PlayerCaster.create(player), builtinSpell.create());
+            SpellSpawner.spawnInternalOnServer(serverLevel, PlayerCaster.create(player), ExplosionSpell.SPELL_ID);
         }
         player.startUsingItem(usedHand);
         return InteractionResultHolder.consume(itemstack);

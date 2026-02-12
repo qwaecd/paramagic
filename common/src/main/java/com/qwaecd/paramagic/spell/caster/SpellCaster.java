@@ -1,6 +1,5 @@
 package com.qwaecd.paramagic.spell.caster;
 
-import com.qwaecd.paramagic.spell.core.Spell;
 import com.qwaecd.paramagic.spell.session.server.ServerSessionManager;
 import net.minecraft.world.phys.Vec3;
 
@@ -11,6 +10,6 @@ public interface SpellCaster {
     default int getEntityNetworkId() {
         return -1;
     }
-    boolean canStartSession(Spell spell, ServerSessionManager manager);
+    boolean canStartSession(ServerSessionManager manager);
     Vec3 position();
 }

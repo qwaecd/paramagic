@@ -33,6 +33,18 @@ public class TransformSample {
         this.up             = new Vector3f(0.0f, 1.0f, 0.0f);
     }
 
+    public Vector3f getPosition() {
+        return this.position;
+    }
+
+    public Vector3f getForward() {
+        return this.forward;
+    }
+
+    public Vector3f getEyePosition() {
+        return this.eyePosition;
+    }
+
     public void set(TransformSample that) {
         position.set(that.position);
         forward.set(that.forward);

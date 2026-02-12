@@ -1,6 +1,6 @@
 package com.qwaecd.paramagic.spell.phase.impl;
 
-import com.qwaecd.paramagic.spell.config.phase.PhaseConfig;
+import com.qwaecd.paramagic.spell.config.PhaseConfig;
 import com.qwaecd.paramagic.spell.phase.BasePhase;
 import com.qwaecd.paramagic.spell.phase.SpellPhase;
 import com.qwaecd.paramagic.spell.phase.SpellPhaseType;

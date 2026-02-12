@@ -1,6 +1,5 @@
 package com.qwaecd.paramagic.spell.caster;
 
-import com.qwaecd.paramagic.spell.core.Spell;
 import com.qwaecd.paramagic.spell.session.server.ServerSession;
 import com.qwaecd.paramagic.spell.session.server.ServerSessionManager;
 import net.minecraft.world.entity.player.Player;
@@ -23,7 +22,7 @@ public class PlayerCaster extends BaseSpellCaster implements SpellCaster {
     }
 
     @Override
-    public boolean canStartSession(Spell spell, ServerSessionManager manager) {
+    public boolean canStartSession(ServerSessionManager manager) {
         Set<ServerSession> sessionSet = manager.getSessionsByCaster(this);
         return sessionSet.isEmpty();
     }

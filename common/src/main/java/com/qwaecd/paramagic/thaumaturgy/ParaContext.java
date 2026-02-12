@@ -10,7 +10,7 @@ import javax.annotation.Nonnull;
 public final class ParaContext {
     @Getter
     @Nonnull
-    public final ServerSession serverSession;
+    public final ServerSession session;
     @Getter
     @Nonnull
     public final ServerLevel level;
@@ -18,7 +18,7 @@ public final class ParaContext {
     public final SpellCaster caster;
 
     public ParaContext(@Nonnull ServerSession session, @Nonnull ServerLevel level, SpellCaster caster) {
-        this.serverSession = session;
+        this.session = session;
         this.level = level;
         this.caster = caster;
     }

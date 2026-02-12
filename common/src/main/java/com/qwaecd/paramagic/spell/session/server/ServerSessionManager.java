@@ -2,9 +2,9 @@ package com.qwaecd.paramagic.spell.session.server;
 
 import com.qwaecd.paramagic.mixinapi.IServerLevel;
 import com.qwaecd.paramagic.spell.caster.SpellCaster;
-import com.qwaecd.paramagic.spell.core.Spell;
 import com.qwaecd.paramagic.spell.session.ISessionManager;
 import com.qwaecd.paramagic.spell.session.SpellSession;
+import com.qwaecd.paramagic.spell.state.SpellStateMachine;
 import com.qwaecd.paramagic.tools.ConditionalLogger;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
@@ -38,13 +38,17 @@ public class ServerSessionManager implements ISessionManager {
     }
 
     @Nullable
-    @SuppressWarnings({"UnusedReturnValue", "unused"})
-    public ServerSession tryCreateSession(ServerLevel level, SpellCaster caster, Spell spell) {
-        if (!caster.canStartSession(spell, this)) {
+    public MachineSessionServer tryCreateMachineSession(
+            ServerLevel level,
+            SpellCaster caster,
+            SpellStateMachine machine,
+            SpellExecutor executor
+    ) {
+        if (!caster.canStartSession(this)) {
             return null;
         }
 
-        ServerSession serverSession = new ServerSession(UUID.randomUUID(), caster, spell, level);
+        MachineSessionServer serverSession = new MachineSessionServer(UUID.randomUUID(), caster, machine, executor, level);
         this.addSession(serverSession);
         return serverSession;
     }

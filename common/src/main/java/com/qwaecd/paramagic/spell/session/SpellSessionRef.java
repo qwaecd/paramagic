@@ -1,5 +1,7 @@
 package com.qwaecd.paramagic.spell.session;
 
+import com.qwaecd.paramagic.network.DataCodec;
+import com.qwaecd.paramagic.network.IDataSerializable;
 import com.qwaecd.paramagic.platform.annotation.PlatformScope;
 import com.qwaecd.paramagic.platform.annotation.PlatformScopeType;
 import com.qwaecd.paramagic.spell.session.server.ServerSession;
@@ -10,7 +12,7 @@ import java.util.UUID;
 
 @PlatformScope(PlatformScopeType.COMMON)
 @SuppressWarnings("ClassCanBeRecord")
-public class SpellSessionRef {
+public class SpellSessionRef implements IDataSerializable {
     public static final int PROTOCOL_VERSION = 1;
     public final UUID serverSessionId;
     public final UUID casterEntityUuid;
@@ -22,6 +24,18 @@ public class SpellSessionRef {
         this.casterNetworkId = entityNetworkId;
     }
 
+    public UUID getServerSessionId() {
+        return serverSessionId;
+    }
+
+    public UUID getCasterEntityUuid() {
+        return casterEntityUuid;
+    }
+
+    public int getCasterNetworkId() {
+        return casterNetworkId;
+    }
+
     @Nonnull
     public static SpellSessionRef fromSession(ServerSession session) {
         return new SpellSessionRef(
@@ -29,6 +43,25 @@ public class SpellSessionRef {
                 session.getCaster().getCasterId(),
                 session.getCaster().getEntityNetworkId()
         );
+    }
+
+    @Override
+    public void write(DataCodec codec) {
+        codec.writeInt("protocol_version", PROTOCOL_VERSION);
+        codec.writeInt("caster_network_id", this.casterNetworkId);
+        codec.writeUUID("server_session_id", this.serverSessionId);
+        codec.writeUUID("caster_entity_uuid", this.casterEntityUuid);
+    }
+
+    public static SpellSessionRef fromCodec(DataCodec codec) {
+        int protocolVersion = codec.readInt("protocol_version");
+        if (protocolVersion != PROTOCOL_VERSION) {
+            throw new IllegalArgumentException("Unsupported protocol version: " + protocolVersion + ", expected: " + PROTOCOL_VERSION);
+        }
+        int casterNetworkId = codec.readInt("caster_network_id");
+        UUID serverSessionId = codec.readUUID("server_session_id");
+        UUID casterEntityUuid = codec.readUUID("caster_entity_uuid");
+        return new SpellSessionRef(serverSessionId, casterEntityUuid, casterNetworkId);
     }
 
     public void write(FriendlyByteBuf buffer) {
