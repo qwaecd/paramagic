@@ -41,12 +41,10 @@ public class ArcaneProcessor {
             ParaNode stackTop = this.peekNode();
             if (stackTop == null) {
                 // 说明已经执行完成
-                return;
+                break;
             }
             ParaNode targetNode = this.findNextCandidate(stackTop);
             if (targetNode != null) {
-                // 深度++
-                --depthBudget;
 
                 for (ParaNode child : stackTop.getChildren()) {
                     ParaOperator operator = child.getOperator();
@@ -59,6 +57,14 @@ public class ArcaneProcessor {
                     }
                 }
 
+                if (targetNode.getChildren().isEmpty()) {
+                    // 叶子节点
+                    targetNode.setState(NodeState.RESOLVED);
+                    continue;
+                }
+
+                // 深度++
+                --depthBudget;
                 targetNode.setState(NodeState.EVALUATING);
                 this.pushNode(targetNode);
             } else {
