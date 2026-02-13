@@ -20,7 +20,9 @@ public abstract class SpellSession {
         this.sessionState = SessionState.RUNNING;
     }
 
-    public abstract void interrupt();
+    public void interrupt() {
+        this.sessionState = SessionState.INTERRUPTED;
+    }
 
     public boolean canRemoveFromManager() {
         return this.isState(SessionState.DISPOSED);

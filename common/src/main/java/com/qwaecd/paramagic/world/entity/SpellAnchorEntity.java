@@ -4,7 +4,7 @@ import com.qwaecd.paramagic.network.serializer.AllEntityDataSerializers;
 import com.qwaecd.paramagic.platform.annotation.PlatformScope;
 import com.qwaecd.paramagic.platform.annotation.PlatformScopeType;
 import com.qwaecd.paramagic.spell.BuiltinSpellId;
-import com.qwaecd.paramagic.spell.SpellSpawnerClient;
+import com.qwaecd.paramagic.spell.api.SpellSpawnerClient;
 import com.qwaecd.paramagic.spell.SpellUnion;
 import com.qwaecd.paramagic.spell.session.SessionManagers;
 import com.qwaecd.paramagic.spell.session.client.ClientSession;

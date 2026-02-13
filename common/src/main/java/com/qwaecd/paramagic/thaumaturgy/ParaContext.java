@@ -2,6 +2,7 @@ package com.qwaecd.paramagic.thaumaturgy;
 
 import com.qwaecd.paramagic.spell.caster.SpellCaster;
 import com.qwaecd.paramagic.spell.session.server.ServerSession;
+import com.qwaecd.paramagic.thaumaturgy.operator.ParaOperator;
 import lombok.Getter;
 import net.minecraft.server.level.ServerLevel;
 
@@ -21,5 +22,8 @@ public final class ParaContext {
         this.session = session;
         this.level = level;
         this.caster = caster;
+    }
+
+    public void addOperator(@Nonnull ParaOperator operator) {
     }
 }

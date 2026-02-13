@@ -13,8 +13,4 @@ public class ArcSessionClient extends ClientSession {
     @Override
     public void tick(float deltaTime) {
     }
-
-    @Override
-    public void interrupt() {
-    }
 }

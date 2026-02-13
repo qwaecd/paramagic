@@ -1,18 +1,114 @@
 package com.qwaecd.paramagic.thaumaturgy;
 
+import com.qwaecd.paramagic.thaumaturgy.node.NodeState;
+import com.qwaecd.paramagic.thaumaturgy.node.ParaNode;
+import com.qwaecd.paramagic.thaumaturgy.node.ParaTree;
+import com.qwaecd.paramagic.thaumaturgy.operator.ParaOperator;
+
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.util.ArrayDeque;
+import java.util.Deque;
+import java.util.Objects;
 
 public class ArcaneProcessor {
+    @Nonnull
     private final ParaTree tree;
+    @Nonnull
     private final ParaContext context;
+
+    private final Deque<ParaNode> executionStack = new ArrayDeque<>();
 
     public ArcaneProcessor(@Nonnull ParaTree tree, @Nonnull ParaContext context) {
         this.tree = tree;
         this.context = context;
     }
 
+    public void init() {
+        ParaNode root = this.tree.getRootNode();
+        ParaOperator operator = root.getOperator();
+        // 如果根节点都没有操作符，那么栈理论上应该是空的，也就是什么都不会执行
+        if (operator != null) {
+            root.setState(NodeState.EVALUATING);
+            this.context.addOperator(operator);
+            this.pushNode(root);
+        }
+    }
+
 
     public void tick() {
+        int depthBudget = 1;
+        while (!this.stackIsEmpty() && depthBudget > 0) {
+            ParaNode stackTop = this.peekNode();
+            if (stackTop == null) {
+                // 说明已经执行完成
+                return;
+            }
 
+            ParaNode targetNode = this.findNextCandidate(stackTop);
+            if (targetNode != null) {
+                // 深度++
+                --depthBudget;
+                targetNode.setState(NodeState.EVALUATING);
+                this.pushNode(targetNode);
+                // 理论上返回的 targetNode 的 operator 不可能是 null.
+                // 如果 operator 是 null 的话，在 findNextCandidate 里就会被过滤掉了.
+                ParaOperator operator = Objects.requireNonNull(targetNode.getOperator(),
+                        "Operator should not be null when node is being evaluated. Node ID: " + targetNode.getId());
+                this.context.addOperator(operator);
+            } else {
+                // 回溯
+                stackTop.setState(NodeState.RESOLVED);
+                this.popNode();
+            }
+        }
+
+        this.execute();
+    }
+
+    public void execute() {
+    }
+
+    private void pushNode(@Nonnull ParaNode node) {
+        this.executionStack.push(node);
+    }
+
+    @Nullable
+    @SuppressWarnings("UnusedReturnValue")
+    private ParaNode popNode() {
+        return this.executionStack.pop();
+    }
+
+    @Nullable
+    private ParaNode peekNode() {
+        return this.executionStack.peek();
+    }
+
+    private boolean stackIsEmpty() {
+        return this.executionStack.isEmpty();
+    }
+
+    @Nullable
+    private ParaNode findNextCandidate(@Nonnull ParaNode parent) {
+        ParaNode candidate = null;
+        for (ParaNode item : parent.getChildren()) {
+            if (item.getState() != NodeState.PENDING) {
+                continue;
+            }
+
+            ParaOperator operator = item.getOperator();
+            if (operator == null) {
+                // 操作符为 null 的节点及其子树不参与运算
+                continue;
+            }
+
+            if (candidate == null ||
+                operator.getType().getPriority() < candidate.getOperator().getType().getPriority())
+            {
+                candidate = item;
+            }
+        }
+
+        return candidate;
     }
 }

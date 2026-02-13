@@ -1,7 +1,8 @@
-package com.qwaecd.paramagic.spell;
+package com.qwaecd.paramagic.spell.api;
 
 import com.qwaecd.paramagic.platform.annotation.PlatformScope;
 import com.qwaecd.paramagic.platform.annotation.PlatformScopeType;
+import com.qwaecd.paramagic.spell.BuiltinSpellId;
 import com.qwaecd.paramagic.spell.builtin.client.BuiltinSpellVisualRegistry;
 import com.qwaecd.paramagic.spell.builtin.client.VisualEntry;
 import com.qwaecd.paramagic.spell.session.SessionManagers;

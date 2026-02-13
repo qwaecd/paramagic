@@ -1,7 +1,7 @@
 package com.qwaecd.paramagic.world.item.feat;
 
 import com.qwaecd.paramagic.Paramagic;
-import com.qwaecd.paramagic.spell.SpellSpawner;
+import com.qwaecd.paramagic.spell.api.SpellSpawner;
 import com.qwaecd.paramagic.spell.builtin.BuiltinSpellEntry;
 import com.qwaecd.paramagic.spell.builtin.BuiltinSpellRegistry;
 import com.qwaecd.paramagic.spell.builtin.explostion.ExplosionSpell;

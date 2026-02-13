@@ -1,4 +1,4 @@
-package com.qwaecd.paramagic.spell.view.transform;
+package com.qwaecd.paramagic.spell.util.transform;
 
 import com.qwaecd.paramagic.core.render.Transform;
 import com.qwaecd.paramagic.core.render.TransformSample;

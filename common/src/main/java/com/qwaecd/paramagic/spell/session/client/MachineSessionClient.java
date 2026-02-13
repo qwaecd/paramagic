@@ -1,7 +1,7 @@
 package com.qwaecd.paramagic.spell.session.client;
 
 import com.qwaecd.paramagic.spell.BuiltinSpellId;
-import com.qwaecd.paramagic.spell.SpellPhaseListener;
+import com.qwaecd.paramagic.spell.api.SpellPhaseListener;
 import com.qwaecd.paramagic.spell.builtin.client.BuiltinSpellVisualRegistry;
 import com.qwaecd.paramagic.spell.builtin.client.SpellRenderer;
 import com.qwaecd.paramagic.spell.phase.SpellPhaseType;

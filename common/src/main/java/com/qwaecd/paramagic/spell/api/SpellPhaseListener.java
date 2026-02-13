@@ -1,4 +1,4 @@
-package com.qwaecd.paramagic.spell;
+package com.qwaecd.paramagic.spell.api;
 
 import com.qwaecd.paramagic.spell.phase.EffectTriggerPoint;
 import com.qwaecd.paramagic.spell.phase.SpellPhaseType;

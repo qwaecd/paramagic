@@ -2,7 +2,7 @@ package com.qwaecd.paramagic.spell.state;
 
 import com.qwaecd.paramagic.Paramagic;
 import com.qwaecd.paramagic.spell.EndSpellReason;
-import com.qwaecd.paramagic.spell.SpellPhaseListener;
+import com.qwaecd.paramagic.spell.api.SpellPhaseListener;
 import com.qwaecd.paramagic.spell.phase.EffectTriggerPoint;
 import com.qwaecd.paramagic.spell.phase.PhaseConnection;
 import com.qwaecd.paramagic.spell.phase.SpellPhase;
