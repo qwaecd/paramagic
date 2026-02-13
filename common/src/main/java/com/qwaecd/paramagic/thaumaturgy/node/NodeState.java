@@ -6,7 +6,11 @@ public enum NodeState {
      */
     PENDING,
     /**
-     * 当前游标正在其子节点中游走，或者正在处理自身逻辑
+     * 节点已经被存入过 context，但还未访问其子节点
+     */
+    VISITED,
+    /**
+     * 当前游标正在其子节点中游走
      */
     EVALUATING,
     /**

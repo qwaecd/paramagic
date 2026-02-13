@@ -9,7 +9,6 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.ArrayDeque;
 import java.util.Deque;
-import java.util.Objects;
 
 public class ArcaneProcessor {
     @Nonnull
@@ -38,24 +37,30 @@ public class ArcaneProcessor {
 
     public void tick() {
         int depthBudget = 1;
-        while (!this.stackIsEmpty() && depthBudget > 0) {
+        while (depthBudget > 0) {
             ParaNode stackTop = this.peekNode();
             if (stackTop == null) {
                 // 说明已经执行完成
                 return;
             }
-
             ParaNode targetNode = this.findNextCandidate(stackTop);
             if (targetNode != null) {
                 // 深度++
                 --depthBudget;
+
+                for (ParaNode child : stackTop.getChildren()) {
+                    ParaOperator operator = child.getOperator();
+                    if (operator == null) {
+                        continue;
+                    }
+                    if (child.getState() == NodeState.PENDING) {
+                        child.setState(NodeState.VISITED);
+                        this.context.addOperator(operator);
+                    }
+                }
+
                 targetNode.setState(NodeState.EVALUATING);
                 this.pushNode(targetNode);
-                // 理论上返回的 targetNode 的 operator 不可能是 null.
-                // 如果 operator 是 null 的话，在 findNextCandidate 里就会被过滤掉了.
-                ParaOperator operator = Objects.requireNonNull(targetNode.getOperator(),
-                        "Operator should not be null when node is being evaluated. Node ID: " + targetNode.getId());
-                this.context.addOperator(operator);
             } else {
                 // 回溯
                 stackTop.setState(NodeState.RESOLVED);
@@ -67,6 +72,7 @@ public class ArcaneProcessor {
     }
 
     public void execute() {
+        this.context.execute();
     }
 
     private void pushNode(@Nonnull ParaNode node) {
@@ -92,7 +98,7 @@ public class ArcaneProcessor {
     private ParaNode findNextCandidate(@Nonnull ParaNode parent) {
         ParaNode candidate = null;
         for (ParaNode item : parent.getChildren()) {
-            if (item.getState() != NodeState.PENDING) {
+            if (item.getState() == NodeState.EVALUATING || item.getState() == NodeState.RESOLVED) {
                 continue;
             }
 

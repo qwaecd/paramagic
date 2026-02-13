@@ -24,6 +24,9 @@ public final class ParaContext {
         this.caster = caster;
     }
 
+    public void execute() {
+    }
+
     public void addOperator(@Nonnull ParaOperator operator) {
     }
 }
