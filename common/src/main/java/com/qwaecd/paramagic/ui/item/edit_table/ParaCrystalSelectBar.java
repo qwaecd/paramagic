@@ -11,16 +11,15 @@ import com.qwaecd.paramagic.ui.event.EventPhase;
 import com.qwaecd.paramagic.ui.event.impl.DoubleClick;
 import com.qwaecd.paramagic.ui.event.impl.MouseClick;
 import com.qwaecd.paramagic.ui.event.impl.MouseRelease;
-import com.qwaecd.paramagic.ui.inventory.UISlot;
 import com.qwaecd.paramagic.ui.inventory.InventoryHolder;
+import com.qwaecd.paramagic.ui.inventory.UISlot;
 import com.qwaecd.paramagic.ui.io.mouse.MouseButton;
 import com.qwaecd.paramagic.ui.util.UIColor;
-import com.qwaecd.paramagic.ui.widget.node.ItemNode;
 import com.qwaecd.paramagic.ui.widget.UIPanel;
 import com.qwaecd.paramagic.ui.widget.UIScrollView;
+import com.qwaecd.paramagic.ui.widget.node.ItemNode;
 import com.qwaecd.paramagic.ui.widget.node.SlotNode;
 import net.minecraft.world.inventory.ClickType;
-import net.minecraft.world.item.ItemStack;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -107,8 +106,6 @@ public class ParaCrystalSelectBar extends UIScrollView {
 
         UISlot slot = slotNode.getSlot();
         menu.getScreen().slotClicked(slot, context.event.button, ClickType.PICKUP_ALL);
-        ItemStack carried = menu.getCarried();
-        slotNode.setRenderingItem(carried);
         context.consume();
     }
 
@@ -136,7 +133,6 @@ public class ParaCrystalSelectBar extends UIScrollView {
             this.items.add(slotNode);
             this.panel.addItemNode(slotNode);
         }
-        this.items.sort((n1, n2) -> Integer.compare(n2.getSlot().index, n1.getSlot().index));
         this.panel.updateContent();
 
         this.addChild(this.panel);
