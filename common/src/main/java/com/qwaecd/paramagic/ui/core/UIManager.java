@@ -134,9 +134,9 @@ public class UIManager {
     }
 
     private void processMouseOverAndLeave(double mouseX, double mouseY) {
-        if (this.mouseOver != null && this.mouseOver.contains((float) mouseX, (float) mouseY)) {
-            return;
-        }
+//        if (this.mouseOver != null && this.mouseOver.contains((float) mouseX, (float) mouseY)) {
+//            return;
+//        }
 
         UINode newOver = this.rootNode.getMouseOverNode((float) mouseX, (float) mouseY);
         if (this.mouseOver == null && newOver == null) {
@@ -151,7 +151,7 @@ public class UIManager {
 
         if (this.mouseOver != null) {
             this.mouseOver.onMouseLeave(
-                    new UIEventContext<>(this, this.mouseOver,AllUIEvents.MOUSE_LEAVE, new MouseLeave(mouseX, mouseY))
+                    new UIEventContext<>(this, this.mouseOver, AllUIEvents.MOUSE_LEAVE, new MouseLeave(mouseX, mouseY))
             );
         }
 

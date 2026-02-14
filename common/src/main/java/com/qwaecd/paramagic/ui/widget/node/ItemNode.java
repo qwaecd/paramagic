@@ -17,7 +17,10 @@ public class ItemNode extends UINode {
     protected ItemStack renderingItem = ItemStack.EMPTY;
     public static final int CELL_SIZE = 16;
 
+    protected boolean isHovering = false;
+
     protected final UIColor pendingColor = UIColor.of(173, 116, 40, 255);
+    protected final int highLightColor = -2130706433;
 
     public ItemNode() {
         this.backgroundColor = UIColor.of(183, 126, 50, 255);
@@ -26,17 +29,19 @@ public class ItemNode extends UINode {
 
     @Override
     protected void onMouseOver(UIEventContext<MouseOver> context) {
+        this.isHovering = true;
         MenuContent menuContent = context.manager.getMenuContent();
         if (menuContent != null) {
-            menuContent.setHoveringItem(this.renderingItem);
+            menuContent.setHoveringItemNode(this);
         }
     }
 
     @Override
     protected void onMouseLeave(UIEventContext<MouseLeave> context) {
+        this.isHovering = false;
         MenuContent menuContent = context.manager.getMenuContent();
         if (menuContent != null) {
-            menuContent.setHoveringItem(null);
+            menuContent.setHoveringItemNode(null);
         }
     }
 
@@ -62,5 +67,12 @@ public class ItemNode extends UINode {
 //        view.popPose();
 //        RenderSystem.applyModelViewMatrix();
         context.renderItem(this.getRenderingItem(), (int) worldRect.x, (int) worldRect.y);
+        if (this.isHovering) {
+            this.renderSlotHighlight(context);
+        }
+    }
+
+    protected void renderSlotHighlight(UIRenderContext context) {
+        context.fill(this.worldRect.x, this.worldRect.y, this.worldRect.x + CELL_SIZE, this.worldRect.y + CELL_SIZE, this.highLightColor);
     }
 }

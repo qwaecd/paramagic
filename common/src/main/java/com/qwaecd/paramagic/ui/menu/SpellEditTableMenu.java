@@ -34,11 +34,6 @@ public class SpellEditTableMenu extends AbstractContainerMenu implements SlotAct
     }
 
     @Override
-    public void clicked(int slotId, int button, ClickType clickType, Player player) {
-        super.clicked(slotId, button, clickType, player);
-    }
-
-    @Override
     public ItemStack quickMoveStack(Player player, int index) {
         return ItemStack.EMPTY;
     }

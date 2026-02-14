@@ -20,6 +20,7 @@ import com.qwaecd.paramagic.ui.widget.UIPanel;
 import com.qwaecd.paramagic.ui.widget.UIScrollView;
 import com.qwaecd.paramagic.ui.widget.node.SlotNode;
 import net.minecraft.world.inventory.ClickType;
+import net.minecraft.world.item.ItemStack;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -106,6 +107,8 @@ public class ParaCrystalSelectBar extends UIScrollView {
 
         UISlot slot = slotNode.getSlot();
         menu.getScreen().slotClicked(slot, context.event.button, ClickType.PICKUP_ALL);
+        ItemStack carried = menu.getCarried();
+        slotNode.setRenderingItem(carried);
         context.consume();
     }
 

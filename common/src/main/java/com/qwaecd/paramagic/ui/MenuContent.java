@@ -2,10 +2,9 @@ package com.qwaecd.paramagic.ui;
 
 import com.qwaecd.paramagic.ui.inventory.IContainerScreen;
 import com.qwaecd.paramagic.ui.inventory.InventoryHolder;
+import com.qwaecd.paramagic.ui.widget.node.ItemNode;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.AbstractContainerMenu;
-import net.minecraft.world.inventory.ClickType;
-import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 
 import javax.annotation.Nonnull;
@@ -15,8 +14,8 @@ public class MenuContent {
     private final AbstractContainerMenu menu;
     private final IContainerScreen screen;
     private final PlayerInventoryHolder playerInventory;
-    @Nonnull
-    private ItemStack hoveringItem = ItemStack.EMPTY;
+    @Nullable
+    private ItemNode hoveringItemNode = null;
 
     public MenuContent(AbstractContainerMenu menu, IContainerScreen screen, Inventory playerInventory) {
         this.menu = menu;
@@ -24,13 +23,13 @@ public class MenuContent {
         this.playerInventory = new PlayerInventoryHolder(playerInventory);
     }
 
-    @Nonnull
-    public ItemStack getHoveringItem() {
-        return hoveringItem;
+    @Nullable
+    public ItemNode getHoveringItemNode() {
+        return hoveringItemNode;
     }
 
-    public void setHoveringItem(@Nullable ItemStack hoveringItem) {
-        this.hoveringItem = hoveringItem == null ? ItemStack.EMPTY : hoveringItem;
+    public void setHoveringItemNode(@Nullable ItemNode hoveringItemNode) {
+        this.hoveringItemNode = hoveringItemNode;
     }
 
     @Nonnull

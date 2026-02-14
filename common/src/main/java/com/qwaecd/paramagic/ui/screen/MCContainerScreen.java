@@ -51,7 +51,7 @@ public abstract class MCContainerScreen<T extends AbstractContainerMenu> extends
     }
 
     @Override
-    protected void slotClicked(@Nullable Slot slot, int slotId, int mouseButton, ClickType type) {
+    protected final void slotClicked(@Nullable Slot slot, int slotId, int mouseButton, ClickType type) {
         if (slot instanceof UISlot uiSlot && !uiSlot.isSlotEnabled()) {
             return;
         }
