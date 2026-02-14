@@ -10,7 +10,7 @@ public class MouseStateMachine {
     /**
      * 被判定为双击的时间间隔, 单位是毫秒
      */
-    private static final long DOUBLE_CLICK_TIME = 500L;
+    private static final long DOUBLE_CLICK_TIME = 250L;
     /**
      * 被判定为双击的最大距离, 单位是像素
      */

@@ -5,6 +5,8 @@ import net.minecraft.server.level.ServerPlayer;
 public interface PlatformNetworking {
     void sendToPlayer(ServerPlayer target, Packet<?> packet);
 
+    void sendToServer(Packet<?> packet);
+
     <T extends Packet<T>> void register(
             PacketIdentifier key,
             Class<T> packetClass,

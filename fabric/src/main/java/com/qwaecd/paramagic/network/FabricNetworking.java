@@ -2,6 +2,7 @@ package com.qwaecd.paramagic.network;
 
 import com.qwaecd.paramagic.network.api.*;
 import com.qwaecd.paramagic.network.codec.PacketByteBufCodec;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.network.FriendlyByteBuf;
@@ -14,6 +15,14 @@ public class FabricNetworking implements PlatformNetworking {
         PacketByteBufCodec codec = new PacketByteBufCodec(buf);
         packet.encode(codec);
         ServerPlayNetworking.send(target, packet.getIdentifier().id, codec.getBuf());
+    }
+
+    @Override
+    public void sendToServer(Packet<?> packet) {
+        FriendlyByteBuf buf = PacketByteBufs.create();
+        PacketByteBufCodec codec = new PacketByteBufCodec(buf);
+        packet.encode(codec);
+        ClientPlayNetworking.send(packet.getIdentifier().id, codec.getBuf());
     }
 
     @Override

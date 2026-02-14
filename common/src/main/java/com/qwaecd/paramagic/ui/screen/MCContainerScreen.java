@@ -8,6 +8,7 @@ import com.qwaecd.paramagic.ui.api.UIRenderContext;
 import com.qwaecd.paramagic.ui.core.UIManager;
 import com.qwaecd.paramagic.ui.core.UINode;
 import com.qwaecd.paramagic.ui.inventory.IContainerScreen;
+import com.qwaecd.paramagic.ui.inventory.UISlot;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.screens.Screen;
@@ -19,9 +20,9 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ClickType;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
-import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 @SuppressWarnings("RedundantMethodOverride")
 public abstract class MCContainerScreen<T extends AbstractContainerMenu> extends AbstractContainerScreen<T> implements MenuAccess<T>, IContainerScreen {
@@ -50,8 +51,19 @@ public abstract class MCContainerScreen<T extends AbstractContainerMenu> extends
     }
 
     @Override
-    public void slotClicked(Slot slot, int slotId, int mouseButton, ClickType type) {
+    protected void slotClicked(@Nullable Slot slot, int slotId, int mouseButton, ClickType type) {
+        if (slot instanceof UISlot uiSlot && !uiSlot.isSlotEnabled()) {
+            return;
+        }
+
+        // 原版实现自己就允许 null, 而且不使用 null 来禁止修改 index 就会出问题
+        //noinspection DataFlowIssue
         super.slotClicked(slot, slotId, mouseButton, type);
+    }
+
+    @Override
+    public void slotClicked(@Nonnull UISlot slot, int mouseButton, ClickType type) {
+        this.slotClicked(null , slot.getSlotId(), mouseButton, type);
     }
 
     @Override

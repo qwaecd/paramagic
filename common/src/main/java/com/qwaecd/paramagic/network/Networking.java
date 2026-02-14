@@ -1,6 +1,8 @@
 package com.qwaecd.paramagic.network;
 
 import com.qwaecd.paramagic.network.api.PlatformNetworking;
+import com.qwaecd.paramagic.network.handler.ServerSlotActionHandler;
+import com.qwaecd.paramagic.network.packet.inventory.C2SSlotActionPacket;
 
 public class Networking {
     public static final String PROTOCOL_VERSION = "1";
@@ -15,6 +17,7 @@ public class Networking {
     }
 
     private static void registerAll(PlatformNetworking networking) {
+        networking.register(C2SSlotActionPacket.IDENTIFIER, C2SSlotActionPacket.class, C2SSlotActionPacket::decode, ServerSlotActionHandler::handle);
     }
 
     public static PlatformNetworking get() {

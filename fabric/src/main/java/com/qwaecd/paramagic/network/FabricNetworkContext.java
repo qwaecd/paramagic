@@ -16,6 +16,6 @@ public class FabricNetworkContext extends NetworkContext {
             FriendlyByteBuf buf,
             PacketSender responseSender
     ) {
-        super();
+        super(player);
     }
 }

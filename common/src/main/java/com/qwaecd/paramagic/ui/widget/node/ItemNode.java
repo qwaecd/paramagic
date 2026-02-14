@@ -14,7 +14,7 @@ import javax.annotation.Nullable;
 
 public class ItemNode extends UINode {
     @Nonnull
-    protected ItemStack currentItem = ItemStack.EMPTY;
+    protected ItemStack renderingItem = ItemStack.EMPTY;
     public static final int CELL_SIZE = 16;
 
     protected final UIColor pendingColor = UIColor.of(173, 116, 40, 255);
@@ -28,7 +28,7 @@ public class ItemNode extends UINode {
     protected void onMouseOver(UIEventContext<MouseOver> context) {
         MenuContent menuContent = context.manager.getMenuContent();
         if (menuContent != null) {
-            menuContent.setHoveringItem(this.currentItem);
+            menuContent.setHoveringItem(this.renderingItem);
         }
     }
 
@@ -40,19 +40,13 @@ public class ItemNode extends UINode {
         }
     }
 
-    public void setItem(@Nullable ItemStack itemStack) {
-        this.currentItem = itemStack == null ? ItemStack.EMPTY : itemStack;
-    }
-
-    public ItemStack takeItem() {
-        ItemStack item = this.currentItem;
-        this.currentItem = ItemStack.EMPTY;
-        return item;
+    public void setRenderingItem(@Nullable ItemStack itemStack) {
+        this.renderingItem = itemStack == null ? ItemStack.EMPTY : itemStack;
     }
 
     @Nonnull
-    public ItemStack getItem() {
-        return this.currentItem;
+    public ItemStack getRenderingItem() {
+        return this.renderingItem;
     }
 
     @Override
@@ -67,6 +61,6 @@ public class ItemNode extends UINode {
 //        context.renderItem(this.currentItem, (int) (-CELL_SIZE / 2.0f), (int) (-CELL_SIZE / 2.0f));
 //        view.popPose();
 //        RenderSystem.applyModelViewMatrix();
-        context.renderItem(this.currentItem, (int) worldRect.x, (int) worldRect.y);
+        context.renderItem(this.getRenderingItem(), (int) worldRect.x, (int) worldRect.y);
     }
 }

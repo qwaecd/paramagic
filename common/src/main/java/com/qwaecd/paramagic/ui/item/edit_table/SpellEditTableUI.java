@@ -40,7 +40,7 @@ public class SpellEditTableUI extends UINode {
         }
         this.manager = manager;
         InventoryHolder inventory = Objects.requireNonNull(manager.getMenuContent(), "menu couldn't be null.").getPlayerInventory();
-        this.crystalSelectBar.setInventory(inventory);
+        this.crystalSelectBar.initInventory(inventory);
     }
 
     @Override

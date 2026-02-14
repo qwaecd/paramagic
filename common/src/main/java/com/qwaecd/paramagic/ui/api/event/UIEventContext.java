@@ -67,4 +67,13 @@ public class UIEventContext<E extends UIEvent> {
     public boolean isPropagationStopped() {
         return this.propagationStopped;
     }
+
+    public static <S extends UIEvent, O extends S> UIEventContext<S> upcast(UIEventKey<S> key, UIEventContext<O> origin) {
+        return new UIEventContext<>(
+                origin.manager,
+                origin.targetNode,
+                key,
+                origin.event
+        );
+    }
 }

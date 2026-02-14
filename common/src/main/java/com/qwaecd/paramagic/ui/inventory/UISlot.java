@@ -1,13 +1,10 @@
 package com.qwaecd.paramagic.ui.inventory;
 
-import com.mojang.datafixers.util.Pair;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
-import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.Nonnull;
 import java.util.Optional;
@@ -18,6 +15,8 @@ public class UISlot extends Slot {
     protected final InventoryHolder inventory;
 
     protected final int slotId;
+    private boolean slotEnabled = true;
+    private boolean draggable = true;
 
     public UISlot(InventoryHolder inv, int slotId) {
         super(EMPTY_CONTAINER, slotId, -123, -123);
@@ -29,44 +28,54 @@ public class UISlot extends Slot {
         return this.slotId;
     }
 
-    @Override
-    public void onTake(Player player, ItemStack stack) {
-        super.onTake(player, stack);
+    @Nonnull
+    public InventoryHolder getInventoryHolder() {
+        return this.inventory;
     }
 
-    /**
-     * Check if the stack is allowed to be placed in this slot, used for armor slots as well as furnace fuel.
-     */
+    public boolean isSlotEnabled() {
+        return this.slotEnabled;
+    }
+
+    public void setSlotEnabled(boolean enabled) {
+        this.slotEnabled = enabled;
+    }
+
+    public boolean isDraggable() {
+        return this.draggable;
+    }
+
+    public void setDraggable(boolean draggable) {
+        this.draggable = draggable;
+    }
+
+    @Override
+    public void onTake(Player player, ItemStack stack) {
+        this.setChanged();
+    }
+
     @Override
     public boolean mayPlace(ItemStack stack) {
-        return super.mayPlace(stack);
+        if (!this.slotEnabled) {
+            return false;
+        }
+        return this.inventory.isItemValid(this.slotId, stack);
     }
 
     @Override
     public ItemStack getItem() {
-        if (this.slotId >= this.inventory.size()) {
+        if (!this.slotEnabled || this.slotId >= this.inventory.size()) {
             return ItemStack.EMPTY;
         }
-
         return this.inventory.getStackInSlot(this.slotId);
     }
 
     @Override
-    public boolean hasItem() {
-        return super.hasItem();
-    }
-
-    @Override
-    public void setByPlayer(ItemStack stack) {
-        super.setByPlayer(stack);
-    }
-
-    /**
-     * Helper method to put a stack in the slot.
-     */
-    @Override
     public void set(ItemStack stack) {
-        this.inventory.setStackInSlot(this.slotId, stack);
+        if (this.slotEnabled) {
+            this.inventory.setStackInSlot(this.slotId, stack);
+            this.setChanged();
+        }
     }
 
     @Override
@@ -76,54 +85,55 @@ public class UISlot extends Slot {
     }
 
     @Override
-    @Nullable
-    public Pair<ResourceLocation, ResourceLocation> getNoItemIcon() {
-        return super.getNoItemIcon();
+    public int getMaxStackSize() {
+        return this.inventory.getSlotLimit(this.slotId);
     }
 
-    /**
-     * Decrease the size of the stack in slot (first int arg) by the amount of the second int arg. Returns the new stack.
-     */
+    @Override
+    public int getMaxStackSize(ItemStack stack) {
+        return Math.min(this.getMaxStackSize(), stack.getMaxStackSize());
+    }
+
     @Override
     public ItemStack remove(int amount) {
-        return super.remove(amount);
+        if (!this.slotEnabled) return ItemStack.EMPTY;
+        return this.inventory.extractItem(this.slotId, amount, false);
     }
 
-    /**
-     * Return whether this slot's stack can be taken from this slot.
-     */
     @Override
     public boolean mayPickup(Player player) {
-        return super.mayPickup(player);
+        if (!this.slotEnabled) {
+            return false;
+        }
+        return !this.inventory.extractItem(this.slotId, 1, true).isEmpty();
     }
 
     @Override
     public boolean isActive() {
-        return false;
+        return this.slotEnabled;
     }
 
     @Override
     public Optional<ItemStack> tryRemove(int count, int decrement, Player player) {
+        if (!this.slotEnabled) {
+            return Optional.empty();
+        }
         return super.tryRemove(count, decrement, player);
     }
 
     @Override
     public ItemStack safeTake(int count, int decrement, Player player) {
+        if (!this.slotEnabled) {
+            return ItemStack.EMPTY;
+        }
         return super.safeTake(count, decrement, player);
     }
 
     @Override
-    public ItemStack safeInsert(ItemStack stack) {
-        return super.safeInsert(stack);
-    }
-
-    @Override
     public ItemStack safeInsert(ItemStack stack, int increment) {
+        if (!this.slotEnabled) {
+            return stack;
+        }
         return super.safeInsert(stack, increment);
-    }
-
-    @Override
-    public boolean allowModification(Player player) {
-        return super.allowModification(player);
     }
 }

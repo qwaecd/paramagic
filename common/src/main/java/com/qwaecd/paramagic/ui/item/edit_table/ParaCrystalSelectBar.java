@@ -1,5 +1,6 @@
 package com.qwaecd.paramagic.ui.item.edit_table;
 
+import com.qwaecd.paramagic.ui.MenuContent;
 import com.qwaecd.paramagic.ui.api.event.AllUIEvents;
 import com.qwaecd.paramagic.ui.api.event.UIEventContext;
 import com.qwaecd.paramagic.ui.core.ClipMod;
@@ -12,11 +13,13 @@ import com.qwaecd.paramagic.ui.event.impl.MouseClick;
 import com.qwaecd.paramagic.ui.event.impl.MouseRelease;
 import com.qwaecd.paramagic.ui.inventory.UISlot;
 import com.qwaecd.paramagic.ui.inventory.InventoryHolder;
+import com.qwaecd.paramagic.ui.io.mouse.MouseButton;
 import com.qwaecd.paramagic.ui.util.UIColor;
 import com.qwaecd.paramagic.ui.widget.node.ItemNode;
 import com.qwaecd.paramagic.ui.widget.UIPanel;
 import com.qwaecd.paramagic.ui.widget.UIScrollView;
 import com.qwaecd.paramagic.ui.widget.node.SlotNode;
+import net.minecraft.world.inventory.ClickType;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,7 +29,7 @@ public class ParaCrystalSelectBar extends UIScrollView {
     private InventoryHolder inventory;
 
     // List 的索引并不代表着 inventory 的槽位索引，槽位索引由 SlotNode 内部维护
-    private final List<ItemNode> items = new ArrayList<>();
+    private final List<SlotNode> items = new ArrayList<>();
     private UIPanel panel;
     private final float panelOffsetY = 4.0f;
 
@@ -71,15 +74,42 @@ public class ParaCrystalSelectBar extends UIScrollView {
     }
 
     private void handleItemNodeClick(UIEventContext<MouseClick> context) {
+        UINode targetNode = context.targetNode;
+        if (!(targetNode instanceof SlotNode slotNode)) {
+            return;
+        }
+        MenuContent menu = context.manager.getMenuContentOrThrow();
+        UISlot slot = slotNode.getSlot();
+        menu.getScreen().slotClicked(slot, context.event.button, ClickType.PICKUP);
+        context.consume();
     }
 
     private void handleItemNodeRelease(UIEventContext<MouseRelease> context) {
+        context.consume();
     }
 
     private void handleItemNodeDoubleClick(UIEventContext<DoubleClick> context) {
+        UINode targetNode = context.targetNode;
+        if (!(targetNode instanceof SlotNode slotNode)) {
+            return;
+        }
+        MenuContent menu = context.manager.getMenuContentOrThrow();
+
+        if (menu.getCarried().isEmpty()) {
+            return;
+        }
+
+        if (context.event.button != MouseButton.LEFT.code) {
+            this.handleItemNodeClick(UIEventContext.upcast(AllUIEvents.MOUSE_CLICK, context));
+            return;
+        }
+
+        UISlot slot = slotNode.getSlot();
+        menu.getScreen().slotClicked(slot, context.event.button, ClickType.PICKUP_ALL);
+        context.consume();
     }
 
-    public void setInventory(InventoryHolder inv) {
+    public void initInventory(InventoryHolder inv) {
         if (this.inventory != null) {
             throw new IllegalStateException("Inventory has already been set");
         }
@@ -96,13 +126,14 @@ public class ParaCrystalSelectBar extends UIScrollView {
         this.panel = new UIPanel(
                 inv.size(), 1, this.localRect.w, true, 4, 8, ItemNode.CELL_SIZE
         );
-        for (int i = 0; i < inv.size(); i++) {
+        for (int i = 0; i < 4 * 9; i++) {
             SlotNode slotNode = new SlotNode(new UISlot(inv, i));
-            slotNode.setItem(inv.getStackInSlot(i));
+            slotNode.setRenderingItem(inv.getStackInSlot(i));
             // List 的索引并不代表着 inventory 的槽位索引，槽位索引由 SlotNode 内部维护
             this.items.add(slotNode);
             this.panel.addItemNode(slotNode);
         }
+        this.items.sort((n1, n2) -> Integer.compare(n2.getSlot().index, n1.getSlot().index));
         this.panel.updateContent();
 
         this.addChild(this.panel);
