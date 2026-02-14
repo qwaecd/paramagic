@@ -1,7 +1,7 @@
 package com.qwaecd.paramagic.ui.menu;
 
 import com.qwaecd.paramagic.ui.PlayerInventoryHolder;
-import com.qwaecd.paramagic.ui.inventory.FakeSlot;
+import com.qwaecd.paramagic.ui.inventory.UISlot;
 import lombok.Getter;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
@@ -37,12 +37,12 @@ public class SpellEditTableMenu extends AbstractContainerMenu {
 
         for(int l = 0; l < 3; ++l) {
             for(int i = 0; i < 9; ++i) {
-                this.addSlot(new FakeSlot(this.playerInventory, i + l * 9 + 9));
+                this.addSlot(new UISlot(this.playerInventory, i + l * 9 + 9));
             }
         }
 
         for(int i = 0; i < 9; ++i) {
-            this.addSlot(new FakeSlot(this.playerInventory, i));
+            this.addSlot(new UISlot(this.playerInventory, i));
         }
     }
 

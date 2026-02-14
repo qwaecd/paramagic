@@ -8,6 +8,7 @@ import com.qwaecd.paramagic.ui.event.impl.MouseRelease;
 import com.qwaecd.paramagic.ui.io.mouse.MouseButton;
 import com.qwaecd.paramagic.ui.util.Rect;
 import com.qwaecd.paramagic.ui.util.UIColor;
+import com.qwaecd.paramagic.ui.widget.node.MouseCaptureNode;
 import net.minecraft.network.chat.Component;
 
 import javax.annotation.Nonnull;

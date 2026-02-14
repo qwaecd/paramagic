@@ -7,6 +7,7 @@ import com.qwaecd.paramagic.ui.api.TooltipRenderer;
 import com.qwaecd.paramagic.ui.api.UIRenderContext;
 import com.qwaecd.paramagic.ui.core.UIManager;
 import com.qwaecd.paramagic.ui.core.UINode;
+import com.qwaecd.paramagic.ui.inventory.IContainerScreen;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.screens.Screen;
@@ -15,13 +16,15 @@ import net.minecraft.client.gui.screens.inventory.MenuAccess;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.inventory.ClickType;
+import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.Nonnull;
 
 @SuppressWarnings("RedundantMethodOverride")
-public abstract class MCContainerScreen<T extends AbstractContainerMenu> extends AbstractContainerScreen<T> implements MenuAccess<T> {
+public abstract class MCContainerScreen<T extends AbstractContainerMenu> extends AbstractContainerScreen<T> implements MenuAccess<T>, IContainerScreen {
     protected final UIManager manager;
 
     public MCContainerScreen(T menu, Inventory playerInventory, Component title, UINode rootNode) {
@@ -36,7 +39,7 @@ public abstract class MCContainerScreen<T extends AbstractContainerMenu> extends
                 MCContainerScreen.this.renderTooltipWithItem(itemStack, guiGraphics, mouseX, mouseY);
             }
         };
-        MenuContent content = new MenuContent(menu, playerInventory);
+        MenuContent content = new MenuContent(menu, this, playerInventory);
         this.manager = new UIManager(rootNode, tooltipRenderer, content);
     }
 
@@ -44,6 +47,11 @@ public abstract class MCContainerScreen<T extends AbstractContainerMenu> extends
     protected void init() {
         super.init();
         this.manager.init();
+    }
+
+    @Override
+    public void slotClicked(Slot slot, int slotId, int mouseButton, ClickType type) {
+        super.slotClicked(slot, slotId, mouseButton, type);
     }
 
     @Override

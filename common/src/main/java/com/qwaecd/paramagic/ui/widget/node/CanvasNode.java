@@ -1,4 +1,4 @@
-package com.qwaecd.paramagic.ui.widget;
+package com.qwaecd.paramagic.ui.widget.node;
 
 import com.qwaecd.paramagic.ui.api.UIRenderContext;
 import com.qwaecd.paramagic.ui.core.ClipMod;

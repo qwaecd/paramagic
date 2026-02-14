@@ -12,17 +12,21 @@ import org.jetbrains.annotations.Nullable;
 import javax.annotation.Nonnull;
 import java.util.Optional;
 
-public class FakeSlot extends Slot {
+public class UISlot extends Slot {
     public static final Container EMPTY_CONTAINER = new SimpleContainer(0);
     @Nonnull
     protected final InventoryHolder inventory;
 
     protected final int slotId;
 
-    public FakeSlot(InventoryHolder inv, int slotId) {
+    public UISlot(InventoryHolder inv, int slotId) {
         super(EMPTY_CONTAINER, slotId, -123, -123);
         this.inventory = inv;
         this.slotId = slotId;
+    }
+
+    public int getSlotId() {
+        return this.slotId;
     }
 
     @Override
@@ -95,7 +99,7 @@ public class FakeSlot extends Slot {
 
     @Override
     public boolean isActive() {
-        return super.isActive();
+        return false;
     }
 
     @Override

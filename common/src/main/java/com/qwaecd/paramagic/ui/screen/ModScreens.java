@@ -8,7 +8,7 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.MenuType;
 
-public class ModScreens {
+public final class ModScreens {
     public static void init(RegistryProvider provider) {
         provider.register(ModMenuTypes.SPELL_EDIT_TABLE_MENU_TYPE, SpellEditTableScreen::new);
     }

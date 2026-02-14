@@ -1,4 +1,4 @@
-package com.qwaecd.paramagic.ui.widget;
+package com.qwaecd.paramagic.ui.widget.node;
 
 import com.qwaecd.paramagic.ui.MenuContent;
 import com.qwaecd.paramagic.ui.api.UIRenderContext;
@@ -40,7 +40,7 @@ public class ItemNode extends UINode {
         }
     }
 
-    public void putItem(@Nullable ItemStack itemStack) {
+    public void setItem(@Nullable ItemStack itemStack) {
         this.currentItem = itemStack == null ? ItemStack.EMPTY : itemStack;
     }
 

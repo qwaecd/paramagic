@@ -151,7 +151,7 @@ public class UIManager {
 
         if (this.mouseOver != null) {
             this.mouseOver.onMouseLeave(
-                    new UIEventContext<>(this, AllUIEvents.MOUSE_LEAVE, new MouseLeave(mouseX, mouseY))
+                    new UIEventContext<>(this, this.mouseOver,AllUIEvents.MOUSE_LEAVE, new MouseLeave(mouseX, mouseY))
             );
         }
 
@@ -159,7 +159,7 @@ public class UIManager {
 
         if (this.mouseOver != null) {
             this.mouseOver.onMouseOver(
-                    new UIEventContext<>(this, AllUIEvents.MOUSE_OVER, new MouseOver(mouseX, mouseY))
+                    new UIEventContext<>(this, this.mouseOver, AllUIEvents.MOUSE_OVER, new MouseOver(mouseX, mouseY))
             );
         }
     }
@@ -171,9 +171,9 @@ public class UIManager {
      * @return 事件是否被消费
      */
     private <E extends UIEvent> boolean dispatchEvent(UIEventKey<E> eventKey, E event, double mouseX, double mouseY) {
-        UIEventContext<E> context = new UIEventContext<>(this, eventKey, event);
-
+        UIEventContext<E> context;
         if (this.capturedNode != null) {
+            context = new UIEventContext<>(this, this.capturedNode, eventKey, event);
             // 不存局部变量会因为当前帧就立即释放而 NullPointerException 的喵~
             UINode captured = this.capturedNode;
             captured.handleEvent(context, EventPhase.CAPTURING);
@@ -185,6 +185,7 @@ public class UIManager {
             }
         } else {
             UIHitResult hitResult = this.createHitPath(mouseX, mouseY);
+            context = new UIEventContext<>(this, hitResult.getTop(), eventKey, event);
             List<UINode> hitPath = hitResult.getHitPath();
 
             // 捕获阶段：从根到目标, 包括目标（索引 0 是根，索引越大越深）
@@ -267,6 +268,14 @@ public class UIManager {
      */
     @Nullable
     public MenuContent getMenuContent() {
+        return this.menuContent;
+    }
+
+    @Nonnull
+    public MenuContent getMenuContentOrThrow() {
+        if (this.menuContent == null) {
+            throw new NullPointerException("MenuContent is null. This UIManager is not associated with a MenuContent.");
+        }
         return this.menuContent;
     }
 

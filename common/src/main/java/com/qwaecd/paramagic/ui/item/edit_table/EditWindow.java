@@ -3,7 +3,7 @@ package com.qwaecd.paramagic.ui.item.edit_table;
 import com.qwaecd.paramagic.ui.core.ClipMod;
 import com.qwaecd.paramagic.ui.core.UINode;
 import com.qwaecd.paramagic.ui.util.UIColor;
-import com.qwaecd.paramagic.ui.widget.CanvasNode;
+import com.qwaecd.paramagic.ui.widget.node.CanvasNode;
 
 public class EditWindow extends UINode {
 

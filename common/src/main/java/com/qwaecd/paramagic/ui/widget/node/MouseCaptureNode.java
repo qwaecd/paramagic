@@ -1,4 +1,4 @@
-package com.qwaecd.paramagic.ui.widget;
+package com.qwaecd.paramagic.ui.widget.node;
 
 import com.qwaecd.paramagic.ui.api.event.UIEventContext;
 import com.qwaecd.paramagic.ui.core.UINode;
