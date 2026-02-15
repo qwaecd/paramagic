@@ -31,7 +31,7 @@ public class DebugWand extends Item {
     @Override
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand usedHand) {
         if (level.isClientSide) {
-            spawnTestParticles(level, player);
+            this.spawnTestParticles(level, player);
         }
         return InteractionResultHolder.success(player.getItemInHand(usedHand));
     }

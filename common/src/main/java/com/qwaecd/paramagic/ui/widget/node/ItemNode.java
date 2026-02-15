@@ -19,7 +19,6 @@ public class ItemNode extends UINode {
 
     protected boolean isHovering = false;
 
-    protected final UIColor pendingColor = UIColor.of(173, 116, 40, 255);
     protected final int highLightColor = -2130706433;
 
     public ItemNode() {
@@ -67,6 +66,7 @@ public class ItemNode extends UINode {
 //        view.popPose();
 //        RenderSystem.applyModelViewMatrix();
         context.renderItem(this.getRenderingItem(), (int) worldRect.x, (int) worldRect.y);
+        context.renderItemDecorations(this.getRenderingItem(), (int) this.worldRect.x, (int) this.worldRect.y);
         if (this.isHovering) {
             this.renderSlotHighlight(context);
         }

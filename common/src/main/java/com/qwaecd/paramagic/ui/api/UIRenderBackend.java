@@ -5,10 +5,15 @@ import com.qwaecd.paramagic.ui.util.Sprite;
 import com.qwaecd.paramagic.ui.util.UIColor;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
+import org.jetbrains.annotations.Nullable;
 
 public interface UIRenderBackend {
     void pushClipRect(Rect rect);
     void popClipRect();
+
+    void vLine(int x, int minY, int maxY, int color);
+    void hLine(int minX, int maxX, int y, int color);
+
     default void drawQuad(Rect rect, UIColor color) {
         drawQuad(rect, color.color);
     }
@@ -55,6 +60,8 @@ public interface UIRenderBackend {
     void renderSprite(Sprite sprite, int x, int y);
 
     void renderItem(ItemStack stack, int x, int y);
+
+    void renderItemDecorations(ItemStack stack, int x, int y, @Nullable String text);
 
     void drawQuad(Rect rect, int color);
 

@@ -134,10 +134,6 @@ public class UIManager {
     }
 
     private void processMouseOverAndLeave(double mouseX, double mouseY) {
-//        if (this.mouseOver != null && this.mouseOver.contains((float) mouseX, (float) mouseY)) {
-//            return;
-//        }
-
         UINode newOver = this.rootNode.getMouseOverNode((float) mouseX, (float) mouseY);
         if (this.mouseOver == null && newOver == null) {
             // 上一帧和当前帧都是 null

@@ -7,6 +7,7 @@ import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
+import org.jetbrains.annotations.Nullable;
 
 public class MCRenderBackend implements UIRenderBackend {
     private final GuiGraphics guiGraphics;
@@ -26,6 +27,16 @@ public class MCRenderBackend implements UIRenderBackend {
     @Override
     public void popClipRect() {
         this.guiGraphics.disableScissor();
+    }
+
+    @Override
+    public void vLine(int x, int minY, int maxY, int color) {
+        this.guiGraphics.vLine(x, minY, maxY, color);
+    }
+
+    @Override
+    public void hLine(int minX, int maxX, int y, int color) {
+        this.guiGraphics.hLine(minX, maxX, y, color);
     }
 
     @Override
@@ -63,6 +74,11 @@ public class MCRenderBackend implements UIRenderBackend {
     @Override
     public void renderItem(ItemStack stack, int x, int y) {
         this.guiGraphics.renderItem(stack, x, y);
+    }
+
+    @Override
+    public void renderItemDecorations(ItemStack stack, int x, int y, @Nullable String text) {
+        this.guiGraphics.renderItemDecorations(this.font, stack, x, y, text);
     }
 
     @Override

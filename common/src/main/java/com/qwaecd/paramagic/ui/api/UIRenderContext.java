@@ -8,6 +8,7 @@ import lombok.Getter;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
+import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.Nonnull;
 import java.util.ArrayDeque;
@@ -82,6 +83,14 @@ public class UIRenderContext {
         this.backend.drawQuad(rect, color.color);
     }
 
+    public void vLine(int x, int minY, int maxY, int color) {
+        this.backend.vLine(x, minY, maxY, color);
+    }
+
+    public void hLine(int minX, int maxX, int y, int color) {
+        this.backend.hLine(minX, maxX, y, color);
+    }
+
     public void fill(int minX, int minY, int maxX, int maxY, int color) {
         this.backend.fill(minX, minY, maxX, maxY, color);
     }
@@ -154,6 +163,14 @@ public class UIRenderContext {
 
     public void renderItem(ItemStack stack, int x, int y) {
         this.backend.renderItem(stack, x, y);
+    }
+
+    public void renderItemDecorations(ItemStack stack, int x, int y, @Nullable String text) {
+        this.backend.renderItemDecorations(stack, x, y, text);
+    }
+
+    public void renderItemDecorations(ItemStack stack, int x, int y) {
+        this.backend.renderItemDecorations(stack, x, y, null);
     }
 
     public void renderTooltipWithItem(@Nonnull ItemStack stack, int x, int y) {
