@@ -1,11 +1,19 @@
 package com.qwaecd.paramagic.ui.widget.node;
 
+import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.qwaecd.paramagic.thaumaturgy.node.ParaNode;
 import com.qwaecd.paramagic.thaumaturgy.node.ParaTree;
-import com.qwaecd.paramagic.thaumaturgy.operator.ParaOperator;
 import com.qwaecd.paramagic.ui.api.UIRenderContext;
+import com.qwaecd.paramagic.ui.api.event.AllUIEvents;
+import com.qwaecd.paramagic.ui.api.event.UIEventContext;
 import com.qwaecd.paramagic.ui.core.UINode;
+import com.qwaecd.paramagic.ui.event.impl.DoubleClick;
+import com.qwaecd.paramagic.ui.event.impl.MouseClick;
+import com.qwaecd.paramagic.ui.event.impl.MouseRelease;
 import com.qwaecd.paramagic.ui.util.UIColor;
+import com.qwaecd.paramagic.world.item.ModItems;
+import net.minecraft.world.item.ItemStack;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -38,9 +46,40 @@ public class PTTreeNode extends UINode {
     @Nonnull
     private final PTTreeLayout layout;
 
+    private static final ItemStack testItem = new ItemStack(ModItems.EXPLOSION_WAND);
+
     public PTTreeNode(@Nonnull ParaTree tree) {
         this.tree = tree;
         this.layout = new PTTreeLayout(tree, NODE_CELL_SIZE, hGap, vGap);
+    }
+
+    @Override
+    public void onMouseClick(UIEventContext<MouseClick> context) {
+        if (context.isConsumed()) {
+            return;
+        }
+        MouseClick event = context.event;
+        PTTreeLayout.NodeEntry entry = this.findNodeEntry((float) event.mouseX, (float) event.mouseY);
+        if (entry == null) {
+            return;
+        }
+        entry.setDebugClicked(!entry.isDebugClicked());
+        context.consume();
+        context.stopPropagation();
+    }
+
+    @Override
+    public void onDoubleClick(UIEventContext<DoubleClick> context) {
+        this.onMouseClick(UIEventContext.upcast(AllUIEvents.MOUSE_CLICK, context));
+    }
+
+    @Override
+    public void onMouseRelease(UIEventContext<MouseRelease> context) {
+        if (context.isConsumed()) {
+            return;
+        }
+        context.consume();
+        context.stopPropagation();
     }
 
     @Nonnull
@@ -48,10 +87,6 @@ public class PTTreeNode extends UINode {
         return this.tree;
     }
 
-    /**
-     * 在给定屏幕空间鼠标坐标的情况下，寻找命中的节点.
-     * @return 命中的 ParaNode，若没有命中任何节点则返回 null.
-     */
     private float getCanvasZoom() {
         UINode parent = this.getParent();
         if (parent instanceof CanvasNode canvas) {
@@ -60,16 +95,26 @@ public class PTTreeNode extends UINode {
         return 1.0f;
     }
 
+    /**
+     * 在给定屏幕空间鼠标坐标的情况下，寻找命中的节点.
+     * @return 命中的 ParaNode，若没有命中任何节点则返回 null.
+     */
     @Nullable
     public ParaNode findNode(float mouseX, float mouseY) {
-        float zoom = getCanvasZoom();
+        PTTreeLayout.NodeEntry entry = this.findNodeEntry(mouseX, mouseY);
+        return entry == null ? null : entry.node;
+    }
+
+    @Nullable
+    private PTTreeLayout.NodeEntry findNodeEntry(float mouseX, float mouseY) {
+        float zoom = this.getCanvasZoom();
         float localX = (mouseX - this.worldRect.x) / zoom;
         float localY = (mouseY - this.worldRect.y) / zoom;
         float half = NODE_CELL_SIZE / 2.0f;
         for (PTTreeLayout.NodeEntry entry : this.layout.getNodeEntries()) {
             if (localX >= entry.x - half && localX <= entry.x + half
                     && localY >= entry.y - half && localY <= entry.y + half) {
-                return entry.node;
+                return entry;
             }
         }
         return null;
@@ -85,7 +130,7 @@ public class PTTreeNode extends UINode {
 
     @Override
     protected void render(@Nonnull UIRenderContext context) {
-        float zoom = getCanvasZoom();
+        float zoom = this.getCanvasZoom();
         float ox = this.worldRect.x;
         float oy = this.worldRect.y;
         int color = lineColor.color;
@@ -105,22 +150,47 @@ public class PTTreeNode extends UINode {
 
         // 绘制所有节点
         for (PTTreeLayout.NodeEntry entry : this.layout.getNodeEntries()) {
-            renderParaNode(context, entry.node, ox + entry.x * zoom, oy + entry.y * zoom);
+            this.renderParaNodeEntry(
+                    context,
+                    entry,
+                    entry.x, entry.y,
+                    ox, oy,
+                    zoom
+            );
         }
     }
 
     /**
-     * 在给定位置可视化渲染一个 ParaNode.
-     * @param paraNode 需要渲染的 ParaNode.
-     * @param nodeX ParaNode 的中心点在屏幕空间的 X 坐标.
-     * @param nodeY ParaNode 的中心点在屏幕空间的 Y 坐标.
+     * 在给定位置可视化渲染一个 ParaNodeEntry.
+     * @param entry 需要渲染的 ParaNodeEntry.
+     * @param nodeX entry 的中心点在屏幕空间的 X 坐标.
+     * @param nodeY entry 的中心点在屏幕空间的 Y 坐标.
      */
-    protected void renderParaNode(@Nonnull UIRenderContext context, @Nonnull ParaNode paraNode, float nodeX, float nodeY) {
-        renderOperator(context, paraNode.getOperator(), nodeX, nodeY);
-        float half = NODE_CELL_SIZE / 2.0f * getCanvasZoom();
-        context.fill(nodeX - half, nodeY - half, nodeX + half, nodeY + half, UIColor.fromRGBA(255, 0, 0, 255));
-    }
+    protected void renderParaNodeEntry(
+            @Nonnull UIRenderContext context,
+            @Nonnull PTTreeLayout.NodeEntry entry,
+            float nodeX, float nodeY,
+            float offsetX, float offsetY,
+            float zoom
+    ) {
+        final float x = offsetX + nodeX * zoom;
+        final float y = offsetY + nodeY * zoom;
+        final float half = NODE_CELL_SIZE / 2.0f;
+//        context.fill(x - half * zoom, y - half * zoom, x + half * zoom, y + half * zoom, UIColor.fromRGBA(255, 0, 0, 255));
+        PoseStack view = RenderSystem.getModelViewStack();
+        view.pushPose();
+        view.translate(x, y, 0.0f);
+        view.scale(zoom, zoom, 1.0f);
+        RenderSystem.applyModelViewMatrix();
+        context.fill(-half, -half, half, half, UIColor.fromRGBA(255, 0, 0, 255));
 
-    private void renderOperator(@Nonnull UIRenderContext context, @Nullable ParaOperator operator, float nodeX, float nodeY) {
+        context.renderItem(testItem, (int) (-half), (int) (-half));
+
+        if (this.debugMod && entry.isDebugClicked()) {
+            context.drawText("click", -half, -half, UIColor.GREEN);
+        }
+
+        view.popPose();
+        RenderSystem.applyModelViewMatrix();
     }
 }

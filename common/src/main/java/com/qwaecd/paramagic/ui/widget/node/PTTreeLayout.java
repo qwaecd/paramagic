@@ -29,10 +29,20 @@ public class PTTreeLayout {
         /** 节点中心点的 y 坐标（相对于布局原点）. */
         public final float y;
 
+        private boolean debugClicked = false;
+
         public NodeEntry(@Nonnull ParaNode node, float x, float y) {
             this.node = node;
             this.x = x;
             this.y = y;
+        }
+
+        public void setDebugClicked(boolean clicked) {
+            this.debugClicked = clicked;
+        }
+
+        public boolean isDebugClicked() {
+            return this.debugClicked;
         }
     }
 

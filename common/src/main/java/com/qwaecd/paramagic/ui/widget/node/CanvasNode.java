@@ -1,5 +1,7 @@
 package com.qwaecd.paramagic.ui.widget.node;
 
+import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.qwaecd.paramagic.ui.api.UIRenderContext;
 import com.qwaecd.paramagic.ui.api.event.UIEventContext;
 import com.qwaecd.paramagic.ui.core.ClipMod;
@@ -54,7 +56,7 @@ public class CanvasNode extends MouseCaptureNode {
 
         if (this.zoom != 1.0f) {
             for (UINode child : this.children) {
-                applyZoom(child, ox, oy);
+                this.applyZoom(child, ox, oy);
             }
         }
     }
@@ -68,7 +70,7 @@ public class CanvasNode extends MouseCaptureNode {
         node.worldRect.w *= this.zoom;
         node.worldRect.h *= this.zoom;
         for (UINode child : node.getChildren()) {
-            applyZoom(child, originX, originY);
+            this.applyZoom(child, originX, originY);
         }
     }
 
@@ -76,7 +78,7 @@ public class CanvasNode extends MouseCaptureNode {
     public void onMouseMove(double mouseX, double mouseY, MouseStateMachine mouseState) {
         this.panX += (float) mouseState.deltaX();
         this.panY += (float) mouseState.deltaY();
-        relayout();
+        this.relayout();
     }
 
     /**
@@ -91,7 +93,7 @@ public class CanvasNode extends MouseCaptureNode {
         this.zoom = newZoom;
         this.panX = mouseX - this.worldRect.x - canvasX * this.zoom;
         this.panY = mouseY - this.worldRect.y - canvasY * this.zoom;
-        relayout();
+        this.relayout();
     }
 
     private void relayout() {

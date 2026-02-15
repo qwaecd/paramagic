@@ -63,7 +63,7 @@ public class UINode {
     @Nonnull
     public final Rect worldRect;
 
-    protected boolean showDebugOutLine = false;
+    protected boolean debugMod = false;
     @Nonnull
     protected UIColor backgroundColor = UIColor.TRANSPARENT;
 
@@ -354,7 +354,7 @@ public class UINode {
             this.render(context);
         }
 
-        if (this.showDebugOutLine) {
+        if (this.debugMod) {
             this.renderDebug(context);
         }
 
@@ -412,12 +412,12 @@ public class UINode {
         return this.parent;
     }
 
-    public void setShowDebugOutLine(boolean showDebugOutLine) {
-        this.showDebugOutLine = showDebugOutLine;
+    public void setDebugMod(boolean debugMod) {
+        this.debugMod = debugMod;
     }
 
-    public boolean isShowDebugOutLine() {
-        return this.showDebugOutLine;
+    public boolean isDebugMod() {
+        return this.debugMod;
     }
 
     @Nonnull

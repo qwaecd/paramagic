@@ -63,7 +63,7 @@ public class SpellEditTableUI extends UINode {
                 AllUIEvents.MOUSE_CLICK,
                 EventPhase.CAPTURING,
                 (context) -> {
-                    context.getManager().forEachUINode(node -> node.setShowDebugOutLine(!node.isShowDebugOutLine()));
+                    context.getManager().forEachUINode(node -> node.setDebugMod(!node.isDebugMod()));
                     context.consume();
                 }
         );
@@ -71,7 +71,7 @@ public class SpellEditTableUI extends UINode {
                 AllUIEvents.MOUSE_DOUBLE_CLICK,
                 EventPhase.CAPTURING,
                 (context) -> {
-                    context.getManager().forEachUINode(node -> node.setShowDebugOutLine(!node.isShowDebugOutLine()));
+                    context.getManager().forEachUINode(node -> node.setDebugMod(!node.isDebugMod()));
                     context.consume();
                 }
         );
