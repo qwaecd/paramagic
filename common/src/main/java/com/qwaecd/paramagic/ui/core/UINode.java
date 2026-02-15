@@ -227,6 +227,12 @@ public class UINode {
     public void onMouseMove(double mouseX, double mouseY, MouseStateMachine mouseState) {
     }
 
+    /**
+     * 当在 UIManager 里注册了需要时刻监听鼠标移动时，每次鼠标移动都会调用此方法.
+     */
+    public void mouseMoveListener(double mouseX, double mouseY, MouseStateMachine mouseState) {
+    }
+
     @Nullable
     public UINode getTopmostHitNode(float mouseX, float mouseY) {
         if (this.clipMod == ClipMod.RECT && !this.hitTest(mouseX, mouseY)) {

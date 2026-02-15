@@ -28,6 +28,21 @@ import javax.annotation.Nullable;
 public abstract class MCContainerScreen<T extends AbstractContainerMenu> extends AbstractContainerScreen<T> implements MenuAccess<T>, IContainerScreen {
     protected final UIManager manager;
 
+    protected static final class ContextCache {
+        protected UIRenderContext renderContext;
+
+        protected void setRenderContext(UIRenderContext context) {
+            this.renderContext = context;
+        }
+
+        protected UIRenderContext getRenderContext() {
+            return this.renderContext;
+        }
+    }
+
+    @Nonnull
+    protected final ContextCache cache = new ContextCache();
+
     public MCContainerScreen(T menu, Inventory playerInventory, Component title, UINode rootNode) {
         super(menu, playerInventory, title);
         TooltipRenderer tooltipRenderer = new TooltipRenderer() {
@@ -48,6 +63,7 @@ public abstract class MCContainerScreen<T extends AbstractContainerMenu> extends
     protected void init() {
         super.init();
         this.manager.init();
+        this.cache.setRenderContext(new UIRenderContext(this.manager, null, new MCRenderBackend(null, this.font), 0, 0, 0));
     }
 
     @Override
@@ -85,15 +101,15 @@ public abstract class MCContainerScreen<T extends AbstractContainerMenu> extends
             return;
         }
         final float deltaTime = TimeProvider.getDeltaTime(this.minecraft);
-        UIRenderContext context = new UIRenderContext(
-                this.manager, guiGraphics, new MCRenderBackend(guiGraphics, this.font), deltaTime, mouseX, mouseY
-        );
-        this.manager.render(context);
+        this.cache.renderContext.reset(guiGraphics, deltaTime, mouseX, mouseY);
+//        UIRenderContext context = new UIRenderContext(
+//                this.manager, guiGraphics, new MCRenderBackend(guiGraphics, this.font), deltaTime, mouseX, mouseY
+//        );
+        this.manager.render(cache.renderContext);
     }
 
     @Override
     protected void renderLabels(@Nonnull GuiGraphics guiGraphics, int mouseX, int mouseY) {
-//        super.renderLabels(guiGraphics, mouseX, mouseY);
     }
 
     @Override

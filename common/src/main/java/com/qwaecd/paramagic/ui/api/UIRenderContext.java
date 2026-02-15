@@ -1,5 +1,6 @@
 package com.qwaecd.paramagic.ui.api;
 
+import com.qwaecd.paramagic.ui.MCRenderBackend;
 import com.qwaecd.paramagic.ui.core.UIManager;
 import com.qwaecd.paramagic.ui.util.Rect;
 import com.qwaecd.paramagic.ui.util.Sprite;
@@ -18,23 +19,22 @@ import java.util.Deque;
 public class UIRenderContext {
     @Getter
     @Nonnull
-    public  final UIManager manager;
+    public final UIManager manager;
     // 虽然这么做会破坏封装性, 但就 render tooltip 这一次 :(
-    private final GuiGraphics guiGraphics;
+    private GuiGraphics guiGraphics;
 
-    @Nonnull
     private final UIRenderBackend backend;
 
-    public  final float deltaTime;
+    public float deltaTime;
 
     private final Deque<Rect> clipStack;
 
-    public  final int mouseX;
-    public  final int mouseY;
+    public int mouseX;
+    public int mouseY;
 
     public UIRenderContext(
             @Nonnull UIManager manager,
-            @Nonnull GuiGraphics guiGraphics,
+            @Nullable GuiGraphics guiGraphics,
             @Nonnull UIRenderBackend backend,
             float deltaTime,
             int mouseX, int mouseY
@@ -47,6 +47,23 @@ public class UIRenderContext {
         this.clipStack = new ArrayDeque<>();
         this.mouseX = mouseX;
         this.mouseY = mouseY;
+    }
+
+    public void reset(
+            @Nonnull GuiGraphics guiGraphics,
+            float deltaTime,
+            int mouseX, int mouseY
+    ) {
+        this.guiGraphics = guiGraphics;
+
+        if (this.backend instanceof MCRenderBackend mcBackend) {
+            mcBackend.setGuiGraphics(guiGraphics);
+        }
+
+        this.deltaTime = deltaTime;
+        this.mouseX = mouseX;
+        this.mouseY = mouseY;
+        this.clipStack.clear();
     }
 
     public void pushClipRect(@Nonnull Rect rect) {

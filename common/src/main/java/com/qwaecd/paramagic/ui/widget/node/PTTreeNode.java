@@ -8,9 +8,8 @@ import com.qwaecd.paramagic.ui.api.UIRenderContext;
 import com.qwaecd.paramagic.ui.api.event.AllUIEvents;
 import com.qwaecd.paramagic.ui.api.event.UIEventContext;
 import com.qwaecd.paramagic.ui.core.UINode;
-import com.qwaecd.paramagic.ui.event.impl.DoubleClick;
-import com.qwaecd.paramagic.ui.event.impl.MouseClick;
-import com.qwaecd.paramagic.ui.event.impl.MouseRelease;
+import com.qwaecd.paramagic.ui.event.impl.*;
+import com.qwaecd.paramagic.ui.io.mouse.MouseStateMachine;
 import com.qwaecd.paramagic.ui.util.UIColor;
 import com.qwaecd.paramagic.world.item.ModItems;
 import net.minecraft.world.item.ItemStack;
@@ -51,6 +50,7 @@ public class PTTreeNode extends UINode {
     public PTTreeNode(@Nonnull ParaTree tree) {
         this.tree = tree;
         this.layout = new PTTreeLayout(tree, NODE_CELL_SIZE, hGap, vGap);
+        this.localRect.setWH(this.layout.getLayoutWidth(), this.layout.getLayoutHeight());
     }
 
     @Override
@@ -79,7 +79,24 @@ public class PTTreeNode extends UINode {
             return;
         }
         context.consume();
-        context.stopPropagation();
+    }
+
+    @Override
+    public void mouseMoveListener(double mouseX, double mouseY, MouseStateMachine mouseState) {
+        ParaNode node = this.findNode((float) mouseX, (float) mouseY);
+        if (node == null) {
+            return;
+        }
+    }
+
+    @Override
+    protected void onMouseOver(UIEventContext<MouseOver> context) {
+        context.manager.registerMouseMovingListener(this);
+    }
+
+    @Override
+    protected void onMouseLeave(UIEventContext<MouseLeave> context) {
+        context.manager.unregisterMouseMovingListener(this);
     }
 
     @Nonnull

@@ -10,7 +10,7 @@ import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
 public class MCRenderBackend implements UIRenderBackend {
-    private final GuiGraphics guiGraphics;
+    private GuiGraphics guiGraphics;
     private final Font font;
 
     public MCRenderBackend(GuiGraphics guiGraphics, Font font) {
@@ -104,5 +104,9 @@ public class MCRenderBackend implements UIRenderBackend {
     @Override
     public void renderOutline(int x, int y, int w, int h, int color) {
         this.guiGraphics.renderOutline(x, y, w, h, color);
+    }
+
+    public void setGuiGraphics(GuiGraphics gg) {
+        this.guiGraphics = gg;
     }
 }

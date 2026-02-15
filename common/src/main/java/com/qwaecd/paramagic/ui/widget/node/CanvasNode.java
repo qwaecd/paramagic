@@ -1,12 +1,15 @@
 package com.qwaecd.paramagic.ui.widget.node;
 
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
 import com.qwaecd.paramagic.ui.api.UIRenderContext;
+import com.qwaecd.paramagic.ui.api.event.AllUIEvents;
 import com.qwaecd.paramagic.ui.api.event.UIEventContext;
 import com.qwaecd.paramagic.ui.core.ClipMod;
 import com.qwaecd.paramagic.ui.core.SizeMode;
 import com.qwaecd.paramagic.ui.core.UINode;
+import com.qwaecd.paramagic.ui.event.EventPhase;
+import com.qwaecd.paramagic.ui.event.impl.DoubleClick;
+import com.qwaecd.paramagic.ui.event.impl.MouseClick;
+import com.qwaecd.paramagic.ui.event.impl.MouseRelease;
 import com.qwaecd.paramagic.ui.event.impl.WheelEvent;
 import com.qwaecd.paramagic.ui.io.mouse.MouseStateMachine;
 import com.qwaecd.paramagic.ui.util.UIColor;
@@ -25,10 +28,42 @@ public class CanvasNode extends MouseCaptureNode {
         this.backgroundColor = UIColor.of(1, 1, 1, 200);
         this.sizeMode = SizeMode.FILL;
         this.clipMod = ClipMod.RECT;
+
+        this.addListener(AllUIEvents.MOUSE_CLICK, EventPhase.BUBBLING, this::onMouseClick);
+        this.addListener(AllUIEvents.MOUSE_DOUBLE_CLICK, EventPhase.BUBBLING, this::onDoubleClick);
+        this.addListener(AllUIEvents.MOUSE_RELEASE, EventPhase.BUBBLING, this::onMouseRelease);
+        this.addListener(AllUIEvents.WHEEL, EventPhase.BUBBLING, this::onMouseScroll);
     }
 
     @Override
-    protected void onMouseScroll(UIEventContext<WheelEvent> context) {
+    public void onMouseClick(UIEventContext<MouseClick> context) {
+        if (context.isConsumed()) {
+            return;
+        }
+        super.onMouseClick(context);
+    }
+
+    @Override
+    public void onDoubleClick(UIEventContext<DoubleClick> context) {
+        if (context.isConsumed()) {
+            return;
+        }
+        super.onDoubleClick(context);
+    }
+
+    @Override
+    public void onMouseRelease(UIEventContext<MouseRelease> context) {
+        if (context.isConsumed()) {
+            return;
+        }
+        super.onMouseRelease(context);
+    }
+
+    @Override
+    public void onMouseScroll(UIEventContext<WheelEvent> context) {
+        if (context.isConsumed()) {
+            return;
+        }
         WheelEvent event = context.event;
         this.onZoomChanged(
                 (float) event.mouseX,

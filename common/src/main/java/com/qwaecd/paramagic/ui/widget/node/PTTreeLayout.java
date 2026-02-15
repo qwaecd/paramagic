@@ -65,6 +65,9 @@ public class PTTreeLayout {
     @Nonnull
     private final List<EdgeSegment> edgeSegments;
 
+    private float layoutWidth;
+    private float layoutHeight;
+
     public PTTreeLayout(@Nonnull ParaTree tree, int nodeSize, int hGap, int vGap) {
         List<NodeEntry> nodes = new ArrayList<>();
         List<EdgeSegment> edges = new ArrayList<>();
@@ -74,10 +77,10 @@ public class PTTreeLayout {
         //noinspection ConstantValue
         if (root != null) {
             Map<ParaNode, Float> widths = new HashMap<>();
-            computeSubtreeWidths(root, nodeSize, hGap, widths);
+            this.computeSubtreeWidths(root, nodeSize, hGap, widths);
 
             Map<ParaNode, float[]> positions = new HashMap<>();
-            assignPositions(root, 0, 0, nodeSize, hGap, vGap, widths, positions);
+            this.assignPositions(root, 0, 0, nodeSize, hGap, vGap, widths, positions);
 
             for (Map.Entry<ParaNode, float[]> entry : positions.entrySet()) {
                 float[] pos = entry.getValue();
@@ -94,7 +97,7 @@ public class PTTreeLayout {
     /**
      * 后序遍历计算每个节点子树所占的水平宽度.
      */
-    private static float computeSubtreeWidths(
+    private float computeSubtreeWidths(
             @Nonnull ParaNode node, int nodeSize, int hGap, @Nonnull Map<ParaNode, Float> widths
     ) {
         List<ParaNode> children = node.getChildren();
@@ -104,10 +107,13 @@ public class PTTreeLayout {
         }
         float totalWidth = 0;
         for (int i = 0; i < children.size(); i++) {
-            if (i > 0) totalWidth += hGap;
+            if (i > 0) {
+                totalWidth += hGap;
+            }
             totalWidth += computeSubtreeWidths(children.get(i), nodeSize, hGap, widths);
         }
         float width = Math.max(nodeSize, totalWidth);
+        this.layoutWidth = width;
         widths.put(node, width);
         return width;
     }
@@ -118,7 +124,7 @@ public class PTTreeLayout {
      * y = depth * (nodeSize + vGap) + nodeSize / 2.
      * 子节点在父节点分配的水平区间内从左到右排列；父节点居中于第一与最后子节点之间.
      */
-    private static void assignPositions(
+    private void assignPositions(
             @Nonnull ParaNode node,
             float leftX,
             int depth,
@@ -129,6 +135,7 @@ public class PTTreeLayout {
             @Nonnull Map<ParaNode, float[]> positions
     ) {
         float y = depth * (nodeSize + vGap) + nodeSize / 2.0f;
+        this.layoutHeight = Math.max(y + nodeSize / 2.0f, this.layoutHeight);
 
         List<ParaNode> children = node.getChildren();
         if (children.isEmpty()) {
@@ -147,7 +154,7 @@ public class PTTreeLayout {
 
         for (ParaNode child : children) {
             float childWidth = widths.get(child);
-            assignPositions(child, currentX, depth + 1, nodeSize, hGap, vGap, widths, positions);
+            this.assignPositions(child, currentX, depth + 1, nodeSize, hGap, vGap, widths, positions);
             currentX += childWidth + hGap;
         }
 
@@ -199,5 +206,13 @@ public class PTTreeLayout {
     @Nonnull
     public List<EdgeSegment> getEdgeSegments() {
         return this.edgeSegments;
+    }
+
+    public float getLayoutWidth() {
+        return this.layoutWidth;
+    }
+
+    public float getLayoutHeight() {
+        return this.layoutHeight;
     }
 }

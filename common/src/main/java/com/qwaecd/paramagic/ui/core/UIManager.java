@@ -18,10 +18,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.ArrayDeque;
-import java.util.ConcurrentModificationException;
-import java.util.List;
-import java.util.Queue;
+import java.util.*;
 import java.util.function.Consumer;
 
 /**
@@ -40,6 +37,8 @@ public class UIManager {
 
     @Nullable
     private UINode capturedNode;
+
+    private final Set<UINode> mouseMovingListeners = new HashSet<>();
 
     @Getter
     public final UINode rootNode;
@@ -130,6 +129,10 @@ public class UIManager {
         } else {
             // 如果当前没有捕获的节点，那么进行一次 over/leave 判定
             this.processMouseOverAndLeave(mouseX, mouseY);
+
+            for (UINode listener : this.mouseMovingListeners) {
+                listener.mouseMoveListener(mouseX, mouseY, this.mouseStateMachine);
+            }
         }
     }
 
@@ -243,6 +246,14 @@ public class UIManager {
 
     public void releaseCapture() {
         this.capturedNode = null;
+    }
+
+    public void registerMouseMovingListener(UINode node) {
+        this.mouseMovingListeners.add(node);
+    }
+
+    public void unregisterMouseMovingListener(UINode node) {
+        this.mouseMovingListeners.remove(node);
     }
 
     /**
