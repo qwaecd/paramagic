@@ -13,6 +13,11 @@ public abstract class ParaOperatorItem extends Item {
         this.operatorId = operatorId;
     }
 
+    public ParaOperatorItem(@Nonnull ParaOpId operatorId, @Nonnull Properties properties) {
+        super(properties);
+        this.operatorId = operatorId;
+    }
+
     @Nonnull
     public final ParaOpId getOperatorId() {
         return this.operatorId;

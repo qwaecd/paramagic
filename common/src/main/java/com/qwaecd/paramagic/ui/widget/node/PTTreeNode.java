@@ -4,6 +4,10 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.qwaecd.paramagic.thaumaturgy.node.ParaNode;
 import com.qwaecd.paramagic.thaumaturgy.node.ParaTree;
+import com.qwaecd.paramagic.thaumaturgy.operator.AllParaOperators;
+import com.qwaecd.paramagic.thaumaturgy.operator.ParaOpId;
+import com.qwaecd.paramagic.thaumaturgy.operator.ParaOperator;
+import com.qwaecd.paramagic.ui.MenuContent;
 import com.qwaecd.paramagic.ui.api.UIRenderContext;
 import com.qwaecd.paramagic.ui.api.event.AllUIEvents;
 import com.qwaecd.paramagic.ui.api.event.UIEventContext;
@@ -11,7 +15,7 @@ import com.qwaecd.paramagic.ui.core.UINode;
 import com.qwaecd.paramagic.ui.event.impl.*;
 import com.qwaecd.paramagic.ui.io.mouse.MouseStateMachine;
 import com.qwaecd.paramagic.ui.util.UIColor;
-import com.qwaecd.paramagic.world.item.ModItems;
+import com.qwaecd.paramagic.world.item.ParaOperatorItem;
 import net.minecraft.world.item.ItemStack;
 
 import javax.annotation.Nonnull;
@@ -45,11 +49,15 @@ public class PTTreeNode extends UINode {
     @Nonnull
     private final PTTreeLayout layout;
 
-    private static final ItemStack testItem = new ItemStack(ModItems.EXPLOSION_WAND);
+    private final FakeItemNode itemNode;
+
+    private MenuContent menu;
 
     public PTTreeNode(@Nonnull ParaTree tree) {
         this.tree = tree;
         this.layout = new PTTreeLayout(tree, NODE_CELL_SIZE, hGap, vGap);
+        this.itemNode = new FakeItemNode();
+
         this.localRect.setWH(this.layout.getLayoutWidth(), this.layout.getLayoutHeight());
     }
 
@@ -64,6 +72,16 @@ public class PTTreeNode extends UINode {
             return;
         }
         entry.setDebugClicked(!entry.isDebugClicked());
+
+        MenuContent menu = context.manager.getMenuContentOrThrow();
+        ItemStack carried = menu.getCarried();
+
+        if (carried == null || !(carried.getItem() instanceof ParaOperatorItem operatorItem)) {
+            return;
+        }
+        ParaOperator operator = AllParaOperators.getOperator(operatorItem.getOperatorId());
+        entry.node.setOperator(operator);
+
         context.consume();
         context.stopPropagation();
     }
@@ -83,20 +101,39 @@ public class PTTreeNode extends UINode {
 
     @Override
     public void mouseMoveListener(double mouseX, double mouseY, MouseStateMachine mouseState) {
+        final float size = 4.0f;
+        this.itemNode.worldRect.set((float) (mouseX - size * 0.5f), (float) (mouseY - size * 0.5f), size, size);
         ParaNode node = this.findNode((float) mouseX, (float) mouseY);
-        if (node == null) {
+        if (node == null || this.menu == null) {
+            if (menu != null) {
+                menu.setHoveringItemNode(null);
+            }
             return;
+        }
+
+        if (node.getOperator() != null) {
+            this.itemNode.setRenderingItem(node.getOperator().getRenderStack());
+            menu.setHoveringItemNode(this.itemNode);
+        } else {
+            this.itemNode.setRenderingItem(null);
+            menu.setHoveringItemNode(null);
         }
     }
 
     @Override
     protected void onMouseOver(UIEventContext<MouseOver> context) {
+        if (this.menu == null) {
+            this.menu = context.manager.getMenuContentOrThrow();
+        }
         context.manager.registerMouseMovingListener(this);
     }
 
     @Override
     protected void onMouseLeave(UIEventContext<MouseLeave> context) {
         context.manager.unregisterMouseMovingListener(this);
+        if (this.menu != null) {
+            this.menu.setHoveringItemNode(null);
+        }
     }
 
     @Nonnull
@@ -177,6 +214,12 @@ public class PTTreeNode extends UINode {
         }
     }
 
+    @Override
+    public void renderDebug(@Nonnull UIRenderContext context) {
+        super.renderDebug(context);
+        this.itemNode.renderDebug(context);
+    }
+
     /**
      * 在给定位置可视化渲染一个 ParaNodeEntry.
      * @param entry 需要渲染的 ParaNodeEntry.
@@ -201,7 +244,10 @@ public class PTTreeNode extends UINode {
         RenderSystem.applyModelViewMatrix();
         context.fill(-half, -half, half, half, UIColor.fromRGBA(255, 0, 0, 255));
 
-        context.renderItem(testItem, (int) (-half), (int) (-half));
+        ItemStack renderStack = entry.getRenderStack();
+        if (renderStack != null) {
+            context.renderItem(renderStack, (int) (-half), (int) (-half));
+        }
 
         if (this.debugMod && entry.isDebugClicked()) {
             context.drawText("click", -half, -half, UIColor.GREEN);
@@ -209,5 +255,25 @@ public class PTTreeNode extends UINode {
 
         view.popPose();
         RenderSystem.applyModelViewMatrix();
+    }
+
+    @Override
+    @Nullable
+    public UINode getMouseOverNode(float mouseX, float mouseY) {
+        UINode overNode = super.getMouseOverNode(mouseX, mouseY);
+        if (overNode == null && this.itemNode.contains(mouseX, mouseY)) {
+            return this.itemNode;
+        }
+        return overNode;
+    }
+
+    public static final class FakeItemNode extends ItemNode {
+        @Override
+        protected void render(@Nonnull UIRenderContext context) {}
+
+        @Override
+        public void renderDebug(@Nonnull UIRenderContext context) {
+            context.renderOutline(this.worldRect, UIColor.BLUE);
+        }
     }
 }

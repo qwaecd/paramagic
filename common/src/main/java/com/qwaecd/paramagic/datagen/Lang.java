@@ -51,5 +51,6 @@ public class Lang {
         of("item.paramagic.debug_wand", "Debug wand", "调试魔杖");
         of("item.paramagic.explosion_wand", "EXPLOSION WAND", "慧慧的法杖");
         of("block.paramagic.spell_edit_table", "Spell Edit Table", "法术编辑台");
+        of("item.paramagic.void_operator", "Void Operator", "空帕拉");
     }
 }

@@ -2,8 +2,10 @@ package com.qwaecd.paramagic.ui.widget.node;
 
 import com.qwaecd.paramagic.thaumaturgy.node.ParaNode;
 import com.qwaecd.paramagic.thaumaturgy.node.ParaTree;
+import net.minecraft.world.item.ItemStack;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -35,6 +37,14 @@ public class PTTreeLayout {
             this.node = node;
             this.x = x;
             this.y = y;
+        }
+
+        @Nullable
+        public ItemStack getRenderStack() {
+            if (this.node.getOperator() != null) {
+                return this.node.getOperator().getRenderStack();
+            }
+            return null;
         }
 
         public void setDebugClicked(boolean clicked) {

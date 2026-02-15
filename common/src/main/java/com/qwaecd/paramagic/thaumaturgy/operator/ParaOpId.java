@@ -8,31 +8,21 @@ import javax.annotation.Nonnull;
 import java.util.Objects;
 
 public final class ParaOpId {
-    public static final ResourceLocation DEFAULT_ITEM_RL = ModRL.InModSpace("empty_operator");
     @Getter
     @Nonnull
     public final ResourceLocation id;
-
-    @Nonnull
-    public final ResourceLocation itemRL;
 
     @Nonnull
     public final OperatorType type;
 
     private ParaOpId(@Nonnull ResourceLocation id, @Nonnull OperatorType type) {
         this.id = id;
-        this.itemRL = DEFAULT_ITEM_RL;
         this.type = type;
     }
 
-    public ParaOpId(@Nonnull ResourceLocation id, @Nonnull ResourceLocation itemRL, @Nonnull OperatorType type) {
-        this.id = id;
-        this.itemRL = itemRL;
-        this.type = type;
-    }
 
     public static ParaOpId of(@Nonnull ResourceLocation id, OperatorType type) {
-        return new ParaOpId(id, DEFAULT_ITEM_RL, type);
+        return new ParaOpId(id, type);
     }
 
     public static ParaOpId from(String namespace, String path, OperatorType type) {

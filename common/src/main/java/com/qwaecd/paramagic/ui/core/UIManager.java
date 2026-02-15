@@ -129,10 +129,9 @@ public class UIManager {
         } else {
             // 如果当前没有捕获的节点，那么进行一次 over/leave 判定
             this.processMouseOverAndLeave(mouseX, mouseY);
-
-            for (UINode listener : this.mouseMovingListeners) {
-                listener.mouseMoveListener(mouseX, mouseY, this.mouseStateMachine);
-            }
+        }
+        for (UINode listener : this.mouseMovingListeners) {
+            listener.mouseMoveListener(mouseX, mouseY, this.mouseStateMachine);
         }
     }
 
