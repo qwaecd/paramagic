@@ -10,7 +10,7 @@ public abstract class ParaOperator {
     @Getter
     @Nonnull
     public final ParaOpId id;
-    public final OperatorItemProvider provider;
+    protected final OperatorItemProvider provider;
     private final ItemStack renderStack;
 
     public ParaOperator(@Nonnull ParaOpId id, @Nonnull OperatorItemProvider provider) {

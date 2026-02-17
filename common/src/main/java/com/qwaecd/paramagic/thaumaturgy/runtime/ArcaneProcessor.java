@@ -1,4 +1,4 @@
-package com.qwaecd.paramagic.thaumaturgy;
+package com.qwaecd.paramagic.thaumaturgy.runtime;
 
 import com.qwaecd.paramagic.thaumaturgy.node.NodeState;
 import com.qwaecd.paramagic.thaumaturgy.node.ParaNode;

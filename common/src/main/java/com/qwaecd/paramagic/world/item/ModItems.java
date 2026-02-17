@@ -1,5 +1,6 @@
 package com.qwaecd.paramagic.world.item;
 
+import com.qwaecd.paramagic.world.item.content.ParaCrystalItem;
 import com.qwaecd.paramagic.world.item.debug.DebugWand;
 import com.qwaecd.paramagic.world.item.feat.ExplosionWand;
 import com.qwaecd.paramagic.world.item.operator.VoidOperatorItem;
@@ -11,13 +12,15 @@ public final class ModItems {
     public static ItemProvider PROVIDER;
     public static DebugWand DEBUG_WAND;
     public static ExplosionWand EXPLOSION_WAND;
-    public static VoidOperatorItem VOID_OPERATOR_ITEM;
+    public static VoidOperatorItem VOID_OPERATOR;
+    public static ParaCrystalItem PARA_CRYSTAL;
 
     public static void init(ItemProvider provider) {
         PROVIDER = provider;
         DEBUG_WAND = create(provider, "debug_wand", DebugWand::new);
         EXPLOSION_WAND = create(provider, "explosion_wand", ExplosionWand::new);
-        VOID_OPERATOR_ITEM = create(provider, "void_operator", VoidOperatorItem::new);
+        VOID_OPERATOR = create(provider, "void_operator", VoidOperatorItem::new);
+        PARA_CRYSTAL = create(provider, "para_crystal", ParaCrystalItem::new);
     }
 
     public interface ItemProvider {

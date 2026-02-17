@@ -1,4 +1,4 @@
-package com.qwaecd.paramagic.thaumaturgy;
+package com.qwaecd.paramagic.thaumaturgy.runtime;
 
 import com.qwaecd.paramagic.spell.caster.SpellCaster;
 import com.qwaecd.paramagic.spell.session.server.ServerSession;

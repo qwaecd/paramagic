@@ -1,5 +1,7 @@
 package com.qwaecd.paramagic.thaumaturgy.operator;
 
+import com.qwaecd.paramagic.network.DataCodec;
+import com.qwaecd.paramagic.network.IDataSerializable;
 import com.qwaecd.paramagic.tools.ModRL;
 import lombok.Getter;
 import net.minecraft.resources.ResourceLocation;
@@ -7,7 +9,7 @@ import net.minecraft.resources.ResourceLocation;
 import javax.annotation.Nonnull;
 import java.util.Objects;
 
-public final class ParaOpId {
+public final class ParaOpId implements IDataSerializable {
     @Getter
     @Nonnull
     public final ResourceLocation id;
@@ -19,7 +21,6 @@ public final class ParaOpId {
         this.id = id;
         this.type = type;
     }
-
 
     public static ParaOpId of(@Nonnull ResourceLocation id, OperatorType type) {
         return new ParaOpId(id, type);
@@ -40,5 +41,19 @@ public final class ParaOpId {
         if (o == null || getClass() != o.getClass()) return false;
         ParaOpId other = (ParaOpId) o;
         return Objects.equals(this.id, other.id);
+    }
+
+    @Override
+    public void write(DataCodec codec) {
+        codec.writeInt("type", this.type.id);
+        codec.writeString("id", this.id.toString());
+    }
+
+    public static ParaOpId fromCodec(DataCodec codec) {
+        int type = codec.readInt("type");
+        String idStr = codec.readString("id");
+        OperatorType operatorType = OperatorType.fromId(type);
+        ResourceLocation id = new ResourceLocation(idStr);
+        return ParaOpId.of(id, operatorType);
     }
 }

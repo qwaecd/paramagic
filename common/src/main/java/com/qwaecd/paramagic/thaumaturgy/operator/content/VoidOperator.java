@@ -1,4 +1,4 @@
-package com.qwaecd.paramagic.thaumaturgy.operator.impl;
+package com.qwaecd.paramagic.thaumaturgy.operator.content;
 
 import com.qwaecd.paramagic.thaumaturgy.operator.OperatorType;
 import com.qwaecd.paramagic.thaumaturgy.operator.ParaOpId;
@@ -10,6 +10,6 @@ public class VoidOperator extends ParaOperator {
     public static final ParaOpId OP_ID = ParaOpId.of(ModRL.InModSpace("void_operator"), OperatorType.FLOW);
 
     public VoidOperator() {
-        super(OP_ID, ModItems.VOID_OPERATOR_ITEM);
+        super(OP_ID, ModItems.VOID_OPERATOR);
     }
 }

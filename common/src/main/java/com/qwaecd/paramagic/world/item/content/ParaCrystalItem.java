@@ -1,31 +1,36 @@
-package com.qwaecd.paramagic.ui.item.edit_table;
+package com.qwaecd.paramagic.world.item.content;
 
 import com.qwaecd.paramagic.data.para.struct.ParaData;
 import com.qwaecd.paramagic.data.para.util.ParaComponentBuilder;
-import com.qwaecd.paramagic.thaumaturgy.node.ParaTree;
-import com.qwaecd.paramagic.ui.core.ClipMod;
-import com.qwaecd.paramagic.ui.core.UINode;
-import com.qwaecd.paramagic.ui.util.UIColor;
-import com.qwaecd.paramagic.ui.widget.node.CanvasNode;
-import com.qwaecd.paramagic.ui.widget.node.PTTreeNode;
+import com.qwaecd.paramagic.thaumaturgy.ParaCrystalComponent;
+import com.qwaecd.paramagic.tools.nbt.CrystalComponentUtils;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Rarity;
+import net.minecraft.world.level.Level;
 
-public class EditWindow extends UINode {
-
-    private final CanvasNode canvas;
-
-    public EditWindow() {
-        this.localRect.setWH(220, 180);
-        this.backgroundColor = UIColor.of(129, 64, 0, 255);
-        this.layoutParams.center();
-        this.clipMod = ClipMod.RECT;
-        this.canvas = new CanvasNode();
-        this.addChild(this.canvas);
-
-//        this.initCanvas();
+public class ParaCrystalItem extends Item {
+    public ParaCrystalItem() {
+        super(new Properties().rarity(Rarity.UNCOMMON));
     }
 
-    private void initCanvas() {
-//        ParaData paraData = new ParaData(ExplosionParaNode.createParaData("edit"));
+    @Override
+    public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand usedHand) {
+        if (level.isClientSide()) {
+            return super.use(level, player, usedHand);
+        }
+
+        ItemStack crystal = player.getItemInHand(usedHand);
+        this.test(crystal);
+        ParaCrystalComponent paraCrystal = CrystalComponentUtils.getComponentFromItemStack(crystal);
+
+        return super.use(level, player, usedHand);
+    }
+
+    private void test(ItemStack crystal) {
         ParaComponentBuilder builder = new ParaComponentBuilder()
                 .beginChild()
                     .beginChild()
@@ -41,7 +46,7 @@ public class EditWindow extends UINode {
                     .endChild()
 
                     .beginChild()
-                    .endChild()
+                .   endChild()
                 .endChild()
 
                 .beginChild()
@@ -65,7 +70,7 @@ public class EditWindow extends UINode {
             builder1.endChild();
         }
         ParaData paraData = new ParaData(builder.build());
-        PTTreeNode treeNode = new PTTreeNode(new ParaTree(paraData));
-        this.canvas.addChild(treeNode);
+        ParaCrystalComponent crystalComponent = new ParaCrystalComponent(paraData);
+        CrystalComponentUtils.writeComponentToItemStack(crystal, crystalComponent);
     }
 }

@@ -20,6 +20,7 @@ public class ModelsGenFabric extends FabricModelProvider {
 
     @Override
     public void generateItemModels(ItemModelGenerators gen) {
-        gen.generateFlatItem(ModItems.VOID_OPERATOR_ITEM, ModelTemplates.FLAT_ITEM);
+        gen.generateFlatItem(ModItems.VOID_OPERATOR, ModelTemplates.FLAT_ITEM);
+        gen.generateFlatItem(ModItems.PARA_CRYSTAL, ModelTemplates.FLAT_ITEM);
     }
 }

@@ -1,31 +1,33 @@
 package com.qwaecd.paramagic.thaumaturgy.operator;
 
-import com.qwaecd.paramagic.thaumaturgy.operator.impl.VoidOperator;
+import com.qwaecd.paramagic.thaumaturgy.operator.content.VoidOperator;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Supplier;
 
 public final class AllParaOperators {
-    private static final Map<ParaOpId, ParaOperator> OPERATORS = new HashMap<>();
+    private static final Map<ParaOpId, Supplier<ParaOperator>> OPERATORS = new HashMap<>();
 
     private AllParaOperators() {}
 
-    public static synchronized void registerOperator(@Nonnull ParaOperator op) {
-        ParaOpId id = op.id;
+    public static synchronized void registerOperator(@Nonnull Supplier<ParaOperator> factory) {
+        ParaOpId id = factory.get().getId();
         if (OPERATORS.containsKey(id)) {
             throw new IllegalArgumentException("ParaOperator with id " + id.getId() + " is already registered.");
         }
-        OPERATORS.put(id, op);
+        OPERATORS.put(id, factory);
     }
 
     public static void registerAll() {
-        registerOperator(new VoidOperator());
+        registerOperator(VoidOperator::new);
     }
 
     @Nullable
-    public static ParaOperator getOperator(ParaOpId id) {
-        return OPERATORS.get(id);
+    public static ParaOperator createOperator(ParaOpId id) {
+        var factory = OPERATORS.get(id);
+        return factory == null ? null : factory.get();
     }
 }
