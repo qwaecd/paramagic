@@ -1,22 +1,15 @@
 package com.qwaecd.paramagic.world.block;
 
-import com.qwaecd.paramagic.ui.menu.SpellEditTableMenu;
+import com.qwaecd.paramagic.world.block.entity.SpellEditTableBlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.network.chat.Component;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResult;
-import net.minecraft.world.MenuProvider;
-import net.minecraft.world.SimpleMenuProvider;
+import net.minecraft.world.*;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.ContainerLevelAccess;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Mirror;
-import net.minecraft.world.level.block.Rotation;
-import net.minecraft.world.level.block.SoundType;
+import net.minecraft.world.level.block.*;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
@@ -26,12 +19,15 @@ import net.minecraft.world.phys.shapes.BooleanOp;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import org.jetbrains.annotations.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.annotation.Nullable;
 
 @SuppressWarnings("deprecation")
-public class SpellEditTableBlock extends Block {
+public class SpellEditTableBlock extends BaseEntityBlock {
+    private static final Logger LOGGER = LoggerFactory.getLogger(SpellEditTableBlock.class);
     public static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
-    private static final Component CONTAINER_TITLE = Component.literal("Spell Edit Table");
     // 中心对称模型，只需要一个朝向的碰撞箱
     private static final VoxelShape SHAPE_NORTH = northShape();
     public SpellEditTableBlock() {
@@ -50,14 +46,38 @@ public class SpellEditTableBlock extends Block {
     }
 
     @Override
-    public @Nullable MenuProvider getMenuProvider(BlockState state, Level level, BlockPos pos) {
-        return new SimpleMenuProvider((containerId, inventory, player) -> new SpellEditTableMenu(containerId, inventory, ContainerLevelAccess.create(level, pos)), CONTAINER_TITLE);
+    public void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean movedByPiston) {
+        if (!state.is(newState.getBlock())) {
+            BlockEntity blockEntity = level.getBlockEntity(pos);
+            if (blockEntity instanceof Container) {
+                Containers.dropContents(level, pos, (Container)blockEntity);
+                level.updateNeighbourForOutputSignal(pos, this);
+            }
+
+            super.onRemove(state, level, pos, newState, movedByPiston);
+        }
+    }
+
+    @Override
+    @Nullable
+    public MenuProvider getMenuProvider(BlockState state, Level level, BlockPos pos) {
+        BlockEntity blockEntity = level.getBlockEntity(pos);
+        if (!(blockEntity instanceof SpellEditTableBlockEntity tableBlockEntity)) {
+            LOGGER.error("Failed to open Spell Edit Table menu: BlockEntity at position {} is not an instance of SpellEditTableBlockEntity", pos);
+            return null;
+        }
+        return tableBlockEntity;
     }
 
     @Override
     public VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
         // 实际上是中心对称的模型
         return SHAPE_NORTH;
+    }
+
+    @Override
+    public RenderShape getRenderShape(BlockState state) {
+        return RenderShape.MODEL;
     }
 
     @Override
@@ -97,5 +117,10 @@ public class SpellEditTableBlock extends Block {
         shape = Shapes.join(shape, Shapes.box(0.4375, 0.4375, 0.9375, 0.5, 0.5, 0.9375), BooleanOp.OR);
 
         return shape;
+    }
+
+    @Override
+    public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
+        return new SpellEditTableBlockEntity(pos, state);
     }
 }

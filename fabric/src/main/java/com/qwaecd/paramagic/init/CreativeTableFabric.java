@@ -16,7 +16,7 @@ public class CreativeTableFabric {
     public static final CreativeModeTab CUSTOM_ITEM_GROUP = FabricItemGroup.builder()
             .icon(() -> new ItemStack(ModItems.EXPLOSION_WAND))
             .title(Component.translatable("item_group.paramagic.main"))
-            .displayItems((itemParameter, output) -> ModItemsFabric.ITEMS.forEach((path, item) -> output.accept(item)))
+            .displayItems((itemParameter, output) -> ModItems.ITEMS.forEach((path, item) -> output.accept(item)))
             .build();
 
     public static void registerAll() {

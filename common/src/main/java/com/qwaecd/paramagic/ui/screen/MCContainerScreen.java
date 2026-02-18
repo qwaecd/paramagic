@@ -72,14 +72,13 @@ public abstract class MCContainerScreen<T extends AbstractContainerMenu> extends
             return;
         }
 
-        // 原版实现自己就允许 null, 而且不使用 null 来禁止修改 index 就会出问题
         //noinspection DataFlowIssue
         super.slotClicked(slot, slotId, mouseButton, type);
     }
 
     @Override
     public void slotClicked(@Nonnull UISlot slot, int mouseButton, ClickType type) {
-        this.slotClicked(null , slot.getSlotId(), mouseButton, type);
+        this.slotClicked(slot, slot.getSlotId(), mouseButton, type);
     }
 
     @Override

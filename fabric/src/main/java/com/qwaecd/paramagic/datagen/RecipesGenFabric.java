@@ -1,7 +1,7 @@
 package com.qwaecd.paramagic.datagen;
 
-import com.qwaecd.paramagic.init.ModBlocksFabric;
 import com.qwaecd.paramagic.tools.ModRL;
+import com.qwaecd.paramagic.world.block.ModBlocks;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricRecipeProvider;
 import net.minecraft.data.recipes.FinishedRecipe;
@@ -18,7 +18,7 @@ public class RecipesGenFabric extends FabricRecipeProvider {
 
     @Override
     public void buildRecipes(Consumer<FinishedRecipe> exporter) {
-        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModBlocksFabric.SPELL_EDIT_TABLE)
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModBlocks.SPELL_EDIT_TABLE)
                 .define('#', Items.DEEPSLATE)
                 .define('X', Items.ENCHANTING_TABLE)
                 .pattern("###")

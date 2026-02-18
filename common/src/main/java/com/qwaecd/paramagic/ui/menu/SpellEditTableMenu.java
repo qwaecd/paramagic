@@ -1,11 +1,10 @@
 package com.qwaecd.paramagic.ui.menu;
 
-import com.qwaecd.paramagic.ui.PlayerInventoryHolder;
-import com.qwaecd.paramagic.ui.inventory.SlotAction;
-import com.qwaecd.paramagic.ui.inventory.SlotActionHandler;
-import com.qwaecd.paramagic.ui.inventory.UISlot;
+import com.qwaecd.paramagic.ui.inventory.*;
 import lombok.Getter;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.Container;
+import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
@@ -17,24 +16,32 @@ public class SpellEditTableMenu extends AbstractContainerMenu implements SlotAct
     private final ContainerLevelAccess access;
     @Getter
     private final PlayerInventoryHolder playerInventory;
+    private final ContainerHolder container;
 
     public SpellEditTableMenu(int containerId, Inventory inv) {
-        this(containerId, inv, ContainerLevelAccess.NULL);
+        this(containerId, inv, ContainerLevelAccess.NULL, new SimpleContainer(1));
     }
 
-    public SpellEditTableMenu(int containerId, Inventory inv, ContainerLevelAccess access) {
+    public SpellEditTableMenu(int containerId, Inventory inv, ContainerLevelAccess access, Container container) {
         super(ModMenuTypes.SPELL_EDIT_TABLE_MENU_TYPE, containerId);
         this.access = access;
         this.playerInventory = new PlayerInventoryHolder(inv);
 
+        container.startOpen(inv.player);
+        this.container = new ContainerHolder(container);
         for (int i = 0; i < 4 * 9; i++) {
             this.addSlot(new UISlot(this.playerInventory, i));
         }
+        this.addSlot(new UISlot(this.container, 0, 4 * 9));
     }
 
     @Override
     public ItemStack quickMoveStack(Player player, int index) {
         return ItemStack.EMPTY;
+    }
+
+    public ContainerHolder getContainer() {
+        return this.container;
     }
 
     @Override

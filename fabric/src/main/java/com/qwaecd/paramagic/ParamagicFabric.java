@@ -24,6 +24,7 @@ public class ParamagicFabric implements ModInitializer {
         CreativeTableFabric.registerAll();
 
         ModEntityTypes.init(ModEntitiesFabric.instance);
+        ModBlockEntitiesFabric.registerAll();
         ModMenusFabric.registerAll();
 
         Networking.init(new FabricNetworking());

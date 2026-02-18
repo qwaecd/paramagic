@@ -1,6 +1,6 @@
 package com.qwaecd.paramagic.datagen;
 
-import com.qwaecd.paramagic.init.ModBlocksFabric;
+import com.qwaecd.paramagic.world.block.ModBlocks;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricBlockLootTableProvider;
 
@@ -11,6 +11,6 @@ public class BlockLootTableGenFabric extends FabricBlockLootTableProvider {
 
     @Override
     public void generate() {
-        this.dropSelf(ModBlocksFabric.SPELL_EDIT_TABLE);
+        this.dropSelf(ModBlocks.SPELL_EDIT_TABLE);
     }
 }

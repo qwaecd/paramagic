@@ -6,9 +6,13 @@ import com.qwaecd.paramagic.world.item.feat.ExplosionWand;
 import com.qwaecd.paramagic.world.item.operator.VoidOperatorItem;
 import net.minecraft.world.item.Item;
 
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.function.Supplier;
 
 public final class ModItems {
+    public static final Map<String, Item> ITEMS = new LinkedHashMap<>();
+
     public static ItemProvider PROVIDER;
     public static DebugWand DEBUG_WAND;
     public static ExplosionWand EXPLOSION_WAND;
@@ -28,6 +32,8 @@ public final class ModItems {
     }
 
     public static <T extends Item> T create(ItemProvider provider, String name, Supplier<T> factory) {
-        return provider.register(name, factory);
+        T item = provider.register(name, factory);
+        ITEMS.put(name, item);
+        return item;
     }
 }

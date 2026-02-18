@@ -1,6 +1,5 @@
-package com.qwaecd.paramagic.ui;
+package com.qwaecd.paramagic.ui.inventory;
 
-import com.qwaecd.paramagic.ui.inventory.InventoryHolder;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;

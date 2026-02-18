@@ -22,6 +22,18 @@ public class UISlot extends Slot {
         super(EMPTY_CONTAINER, slotId, -123, -123);
         this.inventory = inv;
         this.slotId = slotId;
+        this.index = slotId;
+    }
+
+    public UISlot(InventoryHolder inv, int slotId, int index) {
+        super(EMPTY_CONTAINER, slotId, -123, -123);
+        this.inventory = inv;
+        this.slotId = slotId;
+        this.index = index;
+    }
+
+    public void setIndex(int index) {
+        this.index = index;
     }
 
     public int getSlotId() {

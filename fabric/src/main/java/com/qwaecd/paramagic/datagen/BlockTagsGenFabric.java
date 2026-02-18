@@ -1,6 +1,6 @@
 package com.qwaecd.paramagic.datagen;
 
-import com.qwaecd.paramagic.init.ModBlocksFabric;
+import com.qwaecd.paramagic.world.block.ModBlocks;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricTagProvider;
 import net.minecraft.core.HolderLookup;
@@ -16,6 +16,6 @@ public class BlockTagsGenFabric extends FabricTagProvider.BlockTagProvider {
     @Override
     protected void addTags(HolderLookup.Provider provider) {
         this.getOrCreateTagBuilder(BlockTags.MINEABLE_WITH_PICKAXE)
-                .add(ModBlocksFabric.SPELL_EDIT_TABLE);
+                .add(ModBlocks.SPELL_EDIT_TABLE);
     }
 }

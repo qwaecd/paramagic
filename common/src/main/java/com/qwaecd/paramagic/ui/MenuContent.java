@@ -2,6 +2,7 @@ package com.qwaecd.paramagic.ui;
 
 import com.qwaecd.paramagic.ui.inventory.IContainerScreen;
 import com.qwaecd.paramagic.ui.inventory.InventoryHolder;
+import com.qwaecd.paramagic.ui.inventory.PlayerInventoryHolder;
 import com.qwaecd.paramagic.ui.widget.node.ItemNode;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.AbstractContainerMenu;
@@ -21,6 +22,10 @@ public class MenuContent {
         this.menu = menu;
         this.screen = screen;
         this.playerInventory = new PlayerInventoryHolder(playerInventory);
+    }
+
+    public AbstractContainerMenu getMenu() {
+        return this.menu;
     }
 
     @Nullable

@@ -15,7 +15,7 @@ public class SpellEditTableScreen extends MCContainerScreen<SpellEditTableMenu> 
     public SpellEditTableScreen(SpellEditTableMenu menu, Inventory inventory, Component title) {
         super(menu, inventory, title, new SpellEditTableUI());
         SpellEditTableUI tableUI = (SpellEditTableUI) this.manager.rootNode;
-        tableUI.setManager(this.manager);
+        tableUI.init(this.manager);
     }
 
     @Override

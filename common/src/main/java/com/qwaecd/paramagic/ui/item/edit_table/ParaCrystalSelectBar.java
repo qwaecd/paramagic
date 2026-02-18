@@ -109,7 +109,7 @@ public class ParaCrystalSelectBar extends UIScrollView {
         context.consume();
     }
 
-    public void initInventory(InventoryHolder inv) {
+    public int initInventory(InventoryHolder inv) {
         if (this.inventory != null) {
             throw new IllegalStateException("Inventory has already been set");
         }
@@ -137,6 +137,7 @@ public class ParaCrystalSelectBar extends UIScrollView {
 
         this.addChild(this.panel);
         this.recalculateContentExtent();
+        return 4 * 9;
     }
 
     @Override

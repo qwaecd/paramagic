@@ -6,6 +6,7 @@ import com.qwaecd.paramagic.core.render.ModRenderSystem;
 import com.qwaecd.paramagic.core.render.context.RenderContextManager;
 import com.qwaecd.paramagic.debug.DebugTools;
 import com.qwaecd.paramagic.feature.circle.MagicCircleManager;
+import com.qwaecd.paramagic.init.ModBlockEntityRendererFabric;
 import com.qwaecd.paramagic.init.ModEntitiesFabric;
 import com.qwaecd.paramagic.network.ClientNetworking;
 import com.qwaecd.paramagic.network.Networking;
@@ -58,6 +59,7 @@ public class FabricClient implements ClientModInitializer {
 
     private static void registerEntityRenderers() {
         EntityRendererRegistry.register(ModEntitiesFabric.SPELL_ANCHOR_ENTITY, SpellAnchorEntityRenderer::new);
+        ModBlockEntityRendererFabric.registerAll();
     }
 
     private static void registerClientCommands() {

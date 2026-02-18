@@ -1,6 +1,6 @@
 package com.qwaecd.paramagic.datagen;
 
-import com.qwaecd.paramagic.init.ModBlocksFabric;
+import com.qwaecd.paramagic.world.block.ModBlocks;
 import com.qwaecd.paramagic.world.item.ModItems;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricModelProvider;
@@ -15,7 +15,7 @@ public class ModelsGenFabric extends FabricModelProvider {
 
     @Override
     public void generateBlockStateModels(BlockModelGenerators gen) {
-        gen.createNonTemplateHorizontalBlock(ModBlocksFabric.SPELL_EDIT_TABLE);
+        gen.createNonTemplateHorizontalBlock(ModBlocks.SPELL_EDIT_TABLE);
     }
 
     @Override

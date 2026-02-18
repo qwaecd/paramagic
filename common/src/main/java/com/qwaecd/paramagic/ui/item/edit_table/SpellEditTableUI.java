@@ -1,15 +1,20 @@
 package com.qwaecd.paramagic.ui.item.edit_table;
 
+import com.qwaecd.paramagic.ui.MenuContent;
 import com.qwaecd.paramagic.ui.api.UIRenderContext;
 import com.qwaecd.paramagic.ui.api.event.AllUIEvents;
 import com.qwaecd.paramagic.ui.core.UIManager;
 import com.qwaecd.paramagic.ui.core.UINode;
 import com.qwaecd.paramagic.ui.event.EventPhase;
+import com.qwaecd.paramagic.ui.inventory.ContainerHolder;
 import com.qwaecd.paramagic.ui.inventory.InventoryHolder;
+import com.qwaecd.paramagic.ui.inventory.UISlot;
+import com.qwaecd.paramagic.ui.menu.SpellEditTableMenu;
 import com.qwaecd.paramagic.ui.util.Rect;
 import com.qwaecd.paramagic.ui.util.UIColor;
 import com.qwaecd.paramagic.ui.widget.UIButton;
 import com.qwaecd.paramagic.ui.widget.UILabel;
+import com.qwaecd.paramagic.ui.widget.node.SlotNode;
 
 import javax.annotation.Nonnull;
 import java.util.Objects;
@@ -17,6 +22,7 @@ import java.util.Objects;
 public class SpellEditTableUI extends UINode {
     private UIManager manager;
 
+    private TableContainerNode tableContainerNode;
     private final EditWindow editWindow;
     private final ParaSelectBar paraSelectBar;
     private final ParaCrystalSelectBar crystalSelectBar;
@@ -34,19 +40,30 @@ public class SpellEditTableUI extends UINode {
         this.addDebugButton();
     }
 
-    public void setManager(UIManager manager) {
+    public void init(UIManager manager) {
         if (this.manager != null) {
             throw new IllegalStateException("Manager has already been set");
         }
         this.manager = manager;
-        InventoryHolder inventory = Objects.requireNonNull(manager.getMenuContent(), "menu couldn't be null.").getPlayerInventory();
-        this.crystalSelectBar.initInventory(inventory);
+        MenuContent menu = manager.getMenuContent();
+        InventoryHolder inventory = Objects.requireNonNull(menu, "menu couldn't be null.").getPlayerInventory();
+        int inventorySize = this.crystalSelectBar.initInventory(inventory);
+
+        ContainerHolder tableContainer = ((SpellEditTableMenu) menu.getMenu()).getContainer();
+        SlotNode containerSlot = new SlotNode(new UISlot(tableContainer,0, inventorySize + tableContainer.size() - 1));
+        this.tableContainerNode = new TableContainerNode(containerSlot);
+        this.addChild(tableContainerNode);
     }
 
     @Override
     public void layout(float parentX, float parentY, float parentW, float parentH) {
         this.setToFullScreen();
         super.layout(this.localRect.x, this.localRect.y, this.localRect.w, this.localRect.h);
+        this.tableContainerNode.localRect.setXY(
+                editWindow.localRect.x,
+                editWindow.localRect.y + editWindow.localRect.h + 4.0f
+        );
+        this.tableContainerNode.layout(this.localRect.x, this.localRect.y, this.localRect.w, this.localRect.h);
     }
 
     @Override
