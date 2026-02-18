@@ -1,6 +1,6 @@
 package com.qwaecd.paramagic.ui.inventory;
 
-import net.minecraft.world.inventory.Slot;
+import com.qwaecd.paramagic.ui.inventory.slot.UISlot;
 import net.minecraft.world.item.ItemStack;
 
 public interface InventoryHolder {
@@ -9,7 +9,7 @@ public interface InventoryHolder {
 
     void setStackInSlot(int slotId, ItemStack stack);
 
-    void onSlotChanged(Slot slot);
+    void onSlotChanged(UISlot slot);
 
     /**
      * 检查物品是否可以放入指定槽位。
@@ -55,4 +55,7 @@ public interface InventoryHolder {
     default int getSlotLimit(int slotId) {
         return 64;
     }
+
+    void registerListener(InventoryListener listener);
+    void removeListener(InventoryListener listener);
 }

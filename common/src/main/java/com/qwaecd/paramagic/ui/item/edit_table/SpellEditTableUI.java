@@ -8,7 +8,7 @@ import com.qwaecd.paramagic.ui.core.UINode;
 import com.qwaecd.paramagic.ui.event.EventPhase;
 import com.qwaecd.paramagic.ui.inventory.ContainerHolder;
 import com.qwaecd.paramagic.ui.inventory.InventoryHolder;
-import com.qwaecd.paramagic.ui.inventory.UISlot;
+import com.qwaecd.paramagic.ui.inventory.slot.UISlot;
 import com.qwaecd.paramagic.ui.menu.SpellEditTableMenu;
 import com.qwaecd.paramagic.ui.util.Rect;
 import com.qwaecd.paramagic.ui.util.UIColor;
@@ -19,7 +19,7 @@ import com.qwaecd.paramagic.ui.widget.node.SlotNode;
 import javax.annotation.Nonnull;
 import java.util.Objects;
 
-public class SpellEditTableUI extends UINode {
+public class SpellEditTableUI extends UINode implements TableContainerProvider {
     private UIManager manager;
 
     private TableContainerNode tableContainerNode;
@@ -30,7 +30,7 @@ public class SpellEditTableUI extends UINode {
 
     public SpellEditTableUI() {
         super();
-        this.editWindow = new EditWindow();
+        this.editWindow = new EditWindow(this);
         this.paraSelectBar = new ParaSelectBar();
         this.crystalSelectBar = new ParaCrystalSelectBar();
         this.addChild(this.editWindow);
@@ -50,9 +50,15 @@ public class SpellEditTableUI extends UINode {
         int inventorySize = this.crystalSelectBar.initInventory(inventory);
 
         ContainerHolder tableContainer = ((SpellEditTableMenu) menu.getMenu()).getContainer();
+        tableContainer.registerListener(this.editWindow::onContainerChanged);
         SlotNode containerSlot = new SlotNode(new UISlot(tableContainer,0, inventorySize + tableContainer.size() - 1));
         this.tableContainerNode = new TableContainerNode(containerSlot);
         this.addChild(tableContainerNode);
+    }
+
+    @Override
+    public TableContainerNode get() {
+        return this.tableContainerNode;
     }
 
     @Override

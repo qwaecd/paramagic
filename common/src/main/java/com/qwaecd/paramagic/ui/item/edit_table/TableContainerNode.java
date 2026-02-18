@@ -8,10 +8,11 @@ import com.qwaecd.paramagic.ui.event.EventPhase;
 import com.qwaecd.paramagic.ui.event.impl.DoubleClick;
 import com.qwaecd.paramagic.ui.event.impl.MouseClick;
 import com.qwaecd.paramagic.ui.event.impl.MouseRelease;
-import com.qwaecd.paramagic.ui.inventory.UISlot;
+import com.qwaecd.paramagic.ui.inventory.slot.UISlot;
 import com.qwaecd.paramagic.ui.io.mouse.MouseButton;
 import com.qwaecd.paramagic.ui.widget.node.SlotNode;
 import net.minecraft.world.inventory.ClickType;
+import net.minecraft.world.item.ItemStack;
 
 import javax.annotation.Nonnull;
 
@@ -75,5 +76,10 @@ public class TableContainerNode extends UINode {
         UISlot slot = node.getSlot();
         menu.getScreen().slotClicked(slot, context.event.button, ClickType.PICKUP_ALL);
         context.consume();
+    }
+
+    public boolean isItemStack(ItemStack other) {
+        // 对的，直接比较内存地址
+        return this.slot.getRenderingItem() == other;
     }
 }

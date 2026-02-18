@@ -29,7 +29,7 @@ public class ParaCrystalComponent implements IDataSerializable {
     }
 
     public ParaOpId getOperatorId(String path) {
-        return this.operatorMap.fromPath(path);
+        return this.operatorMap.get(path);
     }
 
     public void putOperator(String path, @Nonnull ParaOperator op) {

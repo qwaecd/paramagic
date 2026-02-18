@@ -12,7 +12,7 @@ import com.qwaecd.paramagic.ui.event.impl.DoubleClick;
 import com.qwaecd.paramagic.ui.event.impl.MouseClick;
 import com.qwaecd.paramagic.ui.event.impl.MouseRelease;
 import com.qwaecd.paramagic.ui.inventory.InventoryHolder;
-import com.qwaecd.paramagic.ui.inventory.UISlot;
+import com.qwaecd.paramagic.ui.inventory.slot.UISlot;
 import com.qwaecd.paramagic.ui.io.mouse.MouseButton;
 import com.qwaecd.paramagic.ui.util.UIColor;
 import com.qwaecd.paramagic.ui.widget.UIPanel;

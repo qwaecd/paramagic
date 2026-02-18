@@ -1,4 +1,4 @@
-package com.qwaecd.paramagic.ui.inventory;
+package com.qwaecd.paramagic.ui.inventory.slot;
 
 public enum SlotAction {
     /**

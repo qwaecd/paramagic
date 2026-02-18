@@ -1,7 +1,7 @@
 package com.qwaecd.paramagic.ui.widget.node;
 
 import com.qwaecd.paramagic.ui.api.UIRenderContext;
-import com.qwaecd.paramagic.ui.inventory.UISlot;
+import com.qwaecd.paramagic.ui.inventory.slot.UISlot;
 import com.qwaecd.paramagic.ui.util.UIColor;
 import net.minecraft.world.item.ItemStack;
 

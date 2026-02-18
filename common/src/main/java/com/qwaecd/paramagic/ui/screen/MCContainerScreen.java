@@ -8,7 +8,7 @@ import com.qwaecd.paramagic.ui.api.UIRenderContext;
 import com.qwaecd.paramagic.ui.core.UIManager;
 import com.qwaecd.paramagic.ui.core.UINode;
 import com.qwaecd.paramagic.ui.inventory.IContainerScreen;
-import com.qwaecd.paramagic.ui.inventory.UISlot;
+import com.qwaecd.paramagic.ui.inventory.slot.UISlot;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.screens.Screen;

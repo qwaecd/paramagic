@@ -25,7 +25,7 @@ public class OperatorMapComponent implements IDataSerializable {
     }
 
     @Nullable
-    public ParaOpId fromPath(String path) {
+    public ParaOpId get(String path) {
         return this.data.get(path);
     }
 

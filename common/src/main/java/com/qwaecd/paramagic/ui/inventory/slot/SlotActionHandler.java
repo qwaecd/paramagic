@@ -1,4 +1,4 @@
-package com.qwaecd.paramagic.ui.inventory;
+package com.qwaecd.paramagic.ui.inventory.slot;
 
 import net.minecraft.server.level.ServerPlayer;
 

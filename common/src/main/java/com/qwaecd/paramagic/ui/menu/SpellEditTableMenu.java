@@ -1,6 +1,9 @@
 package com.qwaecd.paramagic.ui.menu;
 
 import com.qwaecd.paramagic.ui.inventory.*;
+import com.qwaecd.paramagic.ui.inventory.slot.SlotAction;
+import com.qwaecd.paramagic.ui.inventory.slot.SlotActionHandler;
+import com.qwaecd.paramagic.ui.inventory.slot.UISlot;
 import lombok.Getter;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.Container;

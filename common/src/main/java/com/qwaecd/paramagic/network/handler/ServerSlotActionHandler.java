@@ -2,7 +2,7 @@ package com.qwaecd.paramagic.network.handler;
 
 import com.qwaecd.paramagic.network.api.NetworkContext;
 import com.qwaecd.paramagic.network.packet.inventory.C2SSlotActionPacket;
-import com.qwaecd.paramagic.ui.inventory.SlotActionHandler;
+import com.qwaecd.paramagic.ui.inventory.slot.SlotActionHandler;
 import net.minecraft.server.level.ServerPlayer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

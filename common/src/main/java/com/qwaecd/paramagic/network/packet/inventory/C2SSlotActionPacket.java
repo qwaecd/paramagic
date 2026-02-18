@@ -4,7 +4,7 @@ import com.qwaecd.paramagic.network.DataCodec;
 import com.qwaecd.paramagic.network.api.Packet;
 import com.qwaecd.paramagic.network.api.PacketIdentifier;
 import com.qwaecd.paramagic.tools.ModRL;
-import com.qwaecd.paramagic.ui.inventory.SlotAction;
+import com.qwaecd.paramagic.ui.inventory.slot.SlotAction;
 
 public class C2SSlotActionPacket implements Packet<C2SSlotActionPacket> {
     public static final PacketIdentifier IDENTIFIER = PacketIdentifier.handledInServer(ModRL.InModSpace("slot_action"));

@@ -6,6 +6,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.world.Container;
 import net.minecraft.world.ContainerHelper;
 import net.minecraft.world.MenuProvider;
@@ -27,6 +28,16 @@ public class SpellEditTableBlockEntity extends BlockEntity implements Container,
 
     public SpellEditTableBlockEntity(BlockPos pos, BlockState blockState) {
         super(ModBlockEntityTypes.SPELL_EDIT_TABLE, pos, blockState);
+    }
+
+    @Override
+    public ClientboundBlockEntityDataPacket getUpdatePacket() {
+        return ClientboundBlockEntityDataPacket.create(this);
+    }
+
+    @Override
+    public CompoundTag getUpdateTag() {
+        return this.saveWithoutMetadata();
     }
 
     @Override
@@ -80,6 +91,15 @@ public class SpellEditTableBlockEntity extends BlockEntity implements Container,
         }
 
         this.setChanged();
+    }
+
+    @Override
+    public void setChanged() {
+        super.setChanged();
+        if (this.level == null) {
+            return;
+        }
+        level.sendBlockUpdated(this.worldPosition, this.getBlockState(), this.getBlockState(), 3);
     }
 
     @Override
