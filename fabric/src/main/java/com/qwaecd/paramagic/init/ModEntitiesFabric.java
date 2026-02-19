@@ -32,7 +32,7 @@ public class ModEntitiesFabric implements ModEntityTypes.EntityTypeGetter {
     private static <T extends Entity> EntityType<T> register(String identifier, EntityType.EntityFactory<T> factory, MobCategory category, EntityTypeModifier<T> modifier) {
         EntityType<T> entityType = Registry.register(
                 BuiltInRegistries.ENTITY_TYPE,
-                ModRL.InModSpace(identifier),
+                ModRL.inModSpace(identifier),
                 modifier.modify(EntityType.Builder.of(factory, category)).build(identifier)
         );
         REGISTERED_TYPES.put(identifier, entityType);

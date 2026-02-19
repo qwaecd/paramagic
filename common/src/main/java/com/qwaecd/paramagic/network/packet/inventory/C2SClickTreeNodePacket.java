@@ -6,7 +6,7 @@ import com.qwaecd.paramagic.network.api.PacketIdentifier;
 import com.qwaecd.paramagic.tools.ModRL;
 
 public class C2SClickTreeNodePacket implements Packet<C2SClickTreeNodePacket> {
-    public static final PacketIdentifier IDENTIFIER = PacketIdentifier.handledInServer(ModRL.InModSpace("click_tree_node"));
+    public static final PacketIdentifier IDENTIFIER = PacketIdentifier.handledInServer(ModRL.inModSpace("click_tree_node"));
     private final String nodePath;
 
     public C2SClickTreeNodePacket(String nodePath) {

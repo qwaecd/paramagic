@@ -4,8 +4,6 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.qwaecd.paramagic.thaumaturgy.node.ParaNode;
 import com.qwaecd.paramagic.thaumaturgy.node.ParaTree;
-import com.qwaecd.paramagic.thaumaturgy.operator.AllParaOperators;
-import com.qwaecd.paramagic.thaumaturgy.operator.ParaOperator;
 import com.qwaecd.paramagic.ui.MenuContent;
 import com.qwaecd.paramagic.ui.api.UIRenderContext;
 import com.qwaecd.paramagic.ui.api.event.AllUIEvents;
@@ -77,11 +75,9 @@ public class PTTreeNode extends UINode {
         MenuContent menu = context.manager.getMenuContentOrThrow();
         ItemStack carried = menu.getCarried();
 
-        if (carried == null || !(carried.getItem() instanceof ParaOperatorItem operatorItem)) {
+        if (carried == null || !(carried.getItem() instanceof ParaOperatorItem)) {
             return;
         }
-//        ParaOperator operator = AllParaOperators.createOperator(operatorItem.getOperatorId());
-//        entry.node.setOperator(operator);
 
         context.consume();
         context.stopPropagation();

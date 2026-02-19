@@ -15,7 +15,7 @@ public class ModMenusFabric {
             public <T extends AbstractContainerMenu> MenuType<T> register(String id, ModMenuTypes.MenuFactory<T> entry) {
                 return Registry.register(
                         BuiltInRegistries.MENU,
-                        ModRL.InModSpace(id),
+                        ModRL.inModSpace(id),
                         new MenuType<>(entry::create, FeatureFlags.VANILLA_SET)
                 );
             }

@@ -11,7 +11,7 @@ public class ModBlocksFabric {
         ModBlocks.BlockProvider provider = new ModBlocks.BlockProvider() {
             @Override
             public <T extends Block> T register(String name, T block) {
-                return Registry.register(BuiltInRegistries.BLOCK, ModRL.InModSpace(name), block);
+                return Registry.register(BuiltInRegistries.BLOCK, ModRL.inModSpace(name), block);
             }
         };
         ModBlocks.init(provider);

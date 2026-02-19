@@ -7,7 +7,7 @@ import com.qwaecd.paramagic.network.particle.EffectSpawnData;
 import com.qwaecd.paramagic.tools.ModRL;
 
 public class S2CEffectSpawn implements Packet<S2CEffectSpawn> {
-    public static final PacketIdentifier IDENTIFIER = PacketIdentifier.handledInClient(ModRL.InModSpace("effect_spawn"));
+    public static final PacketIdentifier IDENTIFIER = PacketIdentifier.handledInClient(ModRL.inModSpace("effect_spawn"));
     private final EffectSpawnData payload;
 
     public S2CEffectSpawn(EffectSpawnData payload) {

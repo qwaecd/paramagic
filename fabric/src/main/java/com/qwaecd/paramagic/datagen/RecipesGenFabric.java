@@ -25,6 +25,6 @@ public class RecipesGenFabric extends FabricRecipeProvider {
                 .pattern("#X#")
                 .pattern("###")
                 .unlockedBy(getHasName(Items.ENCHANTING_TABLE), has(Items.ENCHANTING_TABLE))
-                .save(exporter, ModRL.InModSpace("spell_edit_table"));
+                .save(exporter, ModRL.inModSpace("spell_edit_table"));
     }
 }

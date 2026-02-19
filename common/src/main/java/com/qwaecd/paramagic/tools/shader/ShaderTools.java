@@ -57,7 +57,7 @@ public final class ShaderTools {
     }
 
     private static ResourceLocation createResourceLocation(String path, String name, ShaderType type) {
-        return ModRL.InModSpace(
+        return ModRL.inModSpace(
                 "shaders/" + path + name + type.getExtension()
         );
     }

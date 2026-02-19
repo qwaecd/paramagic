@@ -51,7 +51,8 @@ public class EditWindow extends UINode {
         }
         ParaTree paraTree = new ParaTree(component.getParaData());
         paraTree.updateAll(component);
-        this.updateTreeNode(new PTTreeNode(paraTree));
+        PTTreeNode ptTreeNode = new PTTreeNode(paraTree);
+        this.updateTreeNode(ptTreeNode);
     }
 
     private void removeTreeNode() {

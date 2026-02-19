@@ -13,7 +13,7 @@ public class ModItemsFabric {
             @Override
             @SuppressWarnings("unchecked")
             public <T extends Item> T register(String name, Supplier<T> factory) {
-                return (T) Items.registerItem(ModRL.InModSpace(name), factory.get());
+                return (T) Items.registerItem(ModRL.inModSpace(name), factory.get());
             }
         };
         ModItems.init(provider);

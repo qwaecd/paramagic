@@ -30,4 +30,8 @@ public abstract class ParaOperator {
     public ItemStack getRenderStack() {
         return this.renderStack;
     }
+
+    public ItemStack createOperatorItem() {
+        return this.provider.createOperatorItem();
+    }
 }

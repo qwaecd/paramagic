@@ -48,8 +48,9 @@ public class ParaCrystalComponent implements IDataSerializable {
 
     public static ParaCrystalComponent fromCodec(DataCodec codec) {
         ParaData paraData = codec.readObject("paraData", ParaData::fromCodec);
+        OperatorMapComponent map = codec.readObject("operatorMap", OperatorMapComponent::fromCodec);
         ParaCrystalComponent component = new ParaCrystalComponent(paraData);
-        component.operatorMap.updateFromCodec(codec);
+        component.operatorMap.set(map);
         return component;
     }
 }

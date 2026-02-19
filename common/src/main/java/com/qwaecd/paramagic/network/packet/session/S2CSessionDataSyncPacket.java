@@ -7,7 +7,7 @@ import com.qwaecd.paramagic.spell.session.store.SessionDataSyncPayload;
 import com.qwaecd.paramagic.tools.ModRL;
 
 public class S2CSessionDataSyncPacket implements Packet<S2CSessionDataSyncPacket> {
-    public static final PacketIdentifier IDENTIFIER = PacketIdentifier.handledInClient(ModRL.InModSpace("session_data_sync"));
+    public static final PacketIdentifier IDENTIFIER = PacketIdentifier.handledInClient(ModRL.inModSpace("session_data_sync"));
     private final SessionDataSyncPayload payload;
 
     public S2CSessionDataSyncPacket(SessionDataSyncPayload payload) {

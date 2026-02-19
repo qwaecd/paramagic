@@ -30,4 +30,8 @@ public final class AllParaOperators {
         var factory = OPERATORS.get(id);
         return factory == null ? null : factory.get();
     }
+
+    public static boolean contains(ParaOpId id) {
+        return OPERATORS.containsKey(id);
+    }
 }

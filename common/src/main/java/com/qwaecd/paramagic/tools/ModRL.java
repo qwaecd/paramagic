@@ -8,7 +8,11 @@ public final class ModRL {
         return new ResourceLocation(namespace, location);
     }
 
-    public static ResourceLocation InModSpace(String location) {
+    public static ResourceLocation inModSpace(String location) {
         return new ResourceLocation(Paramagic.MOD_ID, location);
+    }
+
+    public static ResourceLocation ofString(String s) {
+        return new ResourceLocation(s);
     }
 }

@@ -1,8 +1,11 @@
 package com.qwaecd.paramagic.ui.menu;
 
+import com.qwaecd.paramagic.tools.nbt.CrystalComponentUtils;
 import com.qwaecd.paramagic.ui.inventory.*;
 import com.qwaecd.paramagic.ui.inventory.slot.SlotActionHandler;
 import com.qwaecd.paramagic.ui.inventory.slot.UISlot;
+import com.qwaecd.paramagic.ui.widget.node.PTTreeNode;
+import com.qwaecd.paramagic.world.item.ParaOperatorItem;
 import lombok.Getter;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.Container;
@@ -61,5 +64,39 @@ public class SpellEditTableMenu extends AbstractContainerMenu implements SlotAct
 
     @Override
     public void clickNode(ServerPlayer player, String nodePath) {
+        ItemStack carried = this.getCarried();
+        ItemStack stack = this.container.getStackInSlot(0);
+
+        boolean success = false;
+        if (carried.isEmpty()) {
+            ItemStack removed = CrystalComponentUtils.removeParaOperatorFromPathInItemStack(nodePath, stack);
+            if (!removed.isEmpty()) {
+                // 手上物品是空，允许插入并获取移除的物品
+                success = true;
+                this.setCarried(removed);
+            }
+        } else if (carried.getCount() == 1) {
+            ItemStack removed = CrystalComponentUtils.removeParaOperatorFromPathInItemStack(nodePath, stack);
+            if (carried.getItem() instanceof ParaOperatorItem operatorItem) {
+                success = CrystalComponentUtils.insertParaOperatorFromPathInItemStack(operatorItem.getOperatorId(), nodePath, stack);
+            }
+            if (success) {
+                this.setCarried(removed);
+            }
+        } else {
+            if (!CrystalComponentUtils.containsParaOperatorInPath(nodePath, stack)) {
+                // 目标槽位是空，允许插入
+                if (carried.getItem() instanceof ParaOperatorItem operatorItem) {
+                    success = CrystalComponentUtils.insertParaOperatorFromPathInItemStack(operatorItem.getOperatorId(), nodePath, stack);
+                }
+                if (success) {
+                    carried.shrink(1);
+                }
+            }
+        }
+
+        if (success) {
+            this.container.getContainer().setChanged();
+        }
     }
 }

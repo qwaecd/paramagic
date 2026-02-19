@@ -7,7 +7,7 @@ import com.qwaecd.paramagic.network.particle.EffectKillData;
 import com.qwaecd.paramagic.tools.ModRL;
 
 public class S2CEffectKill implements Packet<S2CEffectKill> {
-    public static final PacketIdentifier IDENTIFIER = PacketIdentifier.handledInClient(ModRL.InModSpace("effect_kill"));
+    public static final PacketIdentifier IDENTIFIER = PacketIdentifier.handledInClient(ModRL.inModSpace("effect_kill"));
     private final EffectKillData payload;
 
     public S2CEffectKill(EffectKillData payload) {
