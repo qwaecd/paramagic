@@ -1,5 +1,6 @@
 package com.qwaecd.paramagic.thaumaturgy.operator;
 
+import com.qwaecd.paramagic.thaumaturgy.runtime.ParaContext;
 import lombok.Getter;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ItemLike;
@@ -33,5 +34,9 @@ public abstract class ParaOperator {
 
     public ItemStack createOperatorItem() {
         return this.provider.createOperatorItem();
+    }
+
+    public boolean apply(ParaContext context) {
+        return true;
     }
 }

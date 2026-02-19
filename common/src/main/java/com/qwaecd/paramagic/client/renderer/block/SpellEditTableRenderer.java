@@ -1,4 +1,4 @@
-package com.qwaecd.paramagic.client.renderer.entity;
+package com.qwaecd.paramagic.client.renderer.block;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.qwaecd.paramagic.world.block.SpellEditTableBlock;

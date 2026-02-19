@@ -24,7 +24,6 @@ import java.util.Optional;
 public class SpellAnchorEntity extends Entity {
     private static final Logger LOGGER = LoggerFactory.getLogger(SpellAnchorEntity.class);
 
-    public static final String IDENTIFIER = "spell_anchor";
     private static final int MAX_LIFETIME_TICKS = 20 * 3; // 3s
     /**
      * 仅应该在服务端, 用于定时清除不存在 spell 的实体.

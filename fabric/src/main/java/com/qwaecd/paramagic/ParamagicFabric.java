@@ -5,7 +5,6 @@ import com.qwaecd.paramagic.network.FabricNetworking;
 import com.qwaecd.paramagic.network.Networking;
 import com.qwaecd.paramagic.particle.server.ServerEffectManager;
 import com.qwaecd.paramagic.thaumaturgy.operator.AllParaOperators;
-import com.qwaecd.paramagic.world.entity.ModEntityTypes;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 
@@ -20,10 +19,9 @@ public class ParamagicFabric implements ModInitializer {
 
         ModItemsFabric.registerAll();
         ModBlocksFabric.registerAll();
-        ModEntitiesFabric.registerAll();
+        ModEntityTypesFabric.registerAll();
         CreativeTableFabric.registerAll();
 
-        ModEntityTypes.init(ModEntitiesFabric.instance);
         ModBlockEntitiesFabric.registerAll();
         ModMenusFabric.registerAll();
 

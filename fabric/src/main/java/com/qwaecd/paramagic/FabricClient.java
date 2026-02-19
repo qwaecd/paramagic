@@ -1,13 +1,12 @@
 package com.qwaecd.paramagic;
 
 import com.qwaecd.paramagic.client.render.impl.FabricRenderContext;
-import com.qwaecd.paramagic.client.renderer.entity.SpellAnchorEntityRenderer;
+import com.qwaecd.paramagic.client.renderer.entity.ModEntityRenderers;
 import com.qwaecd.paramagic.core.render.ModRenderSystem;
 import com.qwaecd.paramagic.core.render.context.RenderContextManager;
 import com.qwaecd.paramagic.debug.DebugTools;
 import com.qwaecd.paramagic.feature.circle.MagicCircleManager;
 import com.qwaecd.paramagic.init.ModBlockEntityRendererFabric;
-import com.qwaecd.paramagic.init.ModEntitiesFabric;
 import com.qwaecd.paramagic.network.ClientNetworking;
 import com.qwaecd.paramagic.network.Networking;
 import com.qwaecd.paramagic.platform.Services;
@@ -23,6 +22,8 @@ import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.MenuAccess;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.MenuType;
 
@@ -58,7 +59,13 @@ public class FabricClient implements ClientModInitializer {
     }
 
     private static void registerEntityRenderers() {
-        EntityRendererRegistry.register(ModEntitiesFabric.SPELL_ANCHOR_ENTITY, SpellAnchorEntityRenderer::new);
+        var provider = new ModEntityRenderers.RendererProvider() {
+            @Override
+            public <T extends Entity> void register(EntityType<T> type, ModEntityRenderers.RendererFactory<T> factory) {
+                EntityRendererRegistry.register(type, factory::get);
+            }
+        };
+        ModEntityRenderers.init(provider);
         ModBlockEntityRendererFabric.registerAll();
     }
 

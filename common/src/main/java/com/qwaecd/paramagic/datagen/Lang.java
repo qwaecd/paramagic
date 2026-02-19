@@ -52,6 +52,7 @@ public class Lang {
         of("item.paramagic.explosion_wand", "EXPLOSION WAND", "慧慧的法杖");
         of("block.paramagic.spell_edit_table", "Spell Edit Table", "法术编辑台");
         of("item.paramagic.void_operator", "Void Operator", "空参量");
+        of("item.paramagic.magic_arrow_operator", "Magic Arrow", "魔法箭");
         of("item.paramagic.para_crystal", "Para Crystal", "魔力水晶");
     }
 }

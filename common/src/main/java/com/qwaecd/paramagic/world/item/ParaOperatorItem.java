@@ -8,12 +8,12 @@ import javax.annotation.Nonnull;
 public abstract class ParaOperatorItem extends Item {
     @Nonnull
     protected final ParaOpId operatorId;
-    public ParaOperatorItem(@Nonnull ParaOpId operatorId) {
+    protected ParaOperatorItem(@Nonnull ParaOpId operatorId) {
         super(new Properties());
         this.operatorId = operatorId;
     }
 
-    public ParaOperatorItem(@Nonnull ParaOpId operatorId, @Nonnull Properties properties) {
+    protected ParaOperatorItem(@Nonnull ParaOpId operatorId, @Nonnull Properties properties) {
         super(properties);
         this.operatorId = operatorId;
     }

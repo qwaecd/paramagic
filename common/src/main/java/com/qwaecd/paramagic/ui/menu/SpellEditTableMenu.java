@@ -4,7 +4,6 @@ import com.qwaecd.paramagic.tools.nbt.CrystalComponentUtils;
 import com.qwaecd.paramagic.ui.inventory.*;
 import com.qwaecd.paramagic.ui.inventory.slot.SlotActionHandler;
 import com.qwaecd.paramagic.ui.inventory.slot.UISlot;
-import com.qwaecd.paramagic.ui.widget.node.PTTreeNode;
 import com.qwaecd.paramagic.world.item.ParaOperatorItem;
 import lombok.Getter;
 import net.minecraft.server.level.ServerPlayer;

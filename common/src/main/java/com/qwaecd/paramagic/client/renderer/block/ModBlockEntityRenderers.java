@@ -1,6 +1,5 @@
-package com.qwaecd.paramagic.client.renderer;
+package com.qwaecd.paramagic.client.renderer.block;
 
-import com.qwaecd.paramagic.client.renderer.entity.SpellEditTableRenderer;
 import com.qwaecd.paramagic.world.block.ModBlockEntityTypes;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
@@ -8,7 +7,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 
 
-public final class ModEntityRenderers {
+public final class ModBlockEntityRenderers {
 
     public static void init(RendererProvider provider) {
         create(provider, ModBlockEntityTypes.SPELL_EDIT_TABLE, SpellEditTableRenderer::new);
