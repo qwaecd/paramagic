@@ -41,6 +41,11 @@ public class ParaNode {
         return this.componentId;
     }
 
+    @Nonnull
+    public String getNodePath() {
+        return this.componentId;
+    }
+
     @Nullable
     public ParaOperator getOperator() {
         return this.operator;

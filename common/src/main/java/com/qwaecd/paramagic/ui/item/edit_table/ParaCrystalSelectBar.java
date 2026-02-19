@@ -105,7 +105,11 @@ public class ParaCrystalSelectBar extends UIScrollView {
         }
 
         UISlot slot = slotNode.getSlot();
-        menu.getScreen().slotClicked(slot, context.event.button, ClickType.PICKUP_ALL);
+        if (UIManager.hasShiftKeyDown()) {
+            menu.getScreen().slotClicked(slot, context.event.button, ClickType.QUICK_MOVE);
+        } else {
+            menu.getScreen().slotClicked(slot, context.event.button, ClickType.PICKUP_ALL);
+        }
         context.consume();
     }
 

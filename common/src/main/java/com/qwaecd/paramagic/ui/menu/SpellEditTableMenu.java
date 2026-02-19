@@ -1,7 +1,6 @@
 package com.qwaecd.paramagic.ui.menu;
 
 import com.qwaecd.paramagic.ui.inventory.*;
-import com.qwaecd.paramagic.ui.inventory.slot.SlotAction;
 import com.qwaecd.paramagic.ui.inventory.slot.SlotActionHandler;
 import com.qwaecd.paramagic.ui.inventory.slot.UISlot;
 import lombok.Getter;
@@ -56,12 +55,11 @@ public class SpellEditTableMenu extends AbstractContainerMenu implements SlotAct
     }
 
     @Override
-    public void handleSlotAction(ServerPlayer player, int slotIndex, SlotAction action, String extraData) {
-        // 具体的节点树操作逻辑由后续功能实现
+    public boolean stillValid(Player player) {
+        return this.access.evaluate((level, blockPos) -> player.distanceToSqr((double)blockPos.getX() + 0.5D, (double)blockPos.getY() + 0.5D, (double)blockPos.getZ() + 0.5D) <= 64.0D, true);
     }
 
     @Override
-    public boolean stillValid(Player player) {
-        return this.access.evaluate((level, blockPos) -> player.distanceToSqr((double)blockPos.getX() + 0.5D, (double)blockPos.getY() + 0.5D, (double)blockPos.getZ() + 0.5D) <= 64.0D, true);
+    public void clickNode(ServerPlayer player, String nodePath) {
     }
 }

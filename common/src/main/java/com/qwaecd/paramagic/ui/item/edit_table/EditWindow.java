@@ -37,35 +37,37 @@ public class EditWindow extends UINode {
     void onContainerChanged(InventoryHolder inventory, UISlot slot) {
         ItemStack item = slot.getItem();
         if (!(item.getItem() instanceof ParaCrystalItem)) {
-            if (this.treeNode != null) {
-                this.canvas.removeChild(this.treeNode);
-                this.canvas.layout(this.worldRect.x, this.worldRect.y, this.worldRect.w, this.worldRect.h);
-            }
+            this.removeTreeNode();
             return;
         }
         if (!this.table.get().isItemStack(item)) {
-            if (this.treeNode != null) {
-                this.canvas.removeChild(this.treeNode);
-                this.canvas.layout(this.worldRect.x, this.worldRect.y, this.worldRect.w, this.worldRect.h);
-            }
+            this.removeTreeNode();
             return;
         }
         ParaCrystalComponent component = CrystalComponentUtils.getComponentFromItemStack(item);
         if (component == null) {
-            if (this.treeNode != null) {
-                this.canvas.removeChild(this.treeNode);
-                this.canvas.layout(this.worldRect.x, this.worldRect.y, this.worldRect.w, this.worldRect.h);
-            }
+            this.removeTreeNode();
             return;
-        }
-
-        if (this.treeNode != null) {
-            this.canvas.removeChild(this.treeNode);
         }
         ParaTree paraTree = new ParaTree(component.getParaData());
         paraTree.updateAll(component);
-        this.treeNode = new PTTreeNode(paraTree);
-        this.canvas.addChild(this.treeNode);
+        this.updateTreeNode(new PTTreeNode(paraTree));
+    }
+
+    private void removeTreeNode() {
+        if (this.treeNode != null) {
+            this.canvas.removeChild(this.treeNode);
+        }
+        this.treeNode = null;
+        this.canvas.layout(this.worldRect.x, this.worldRect.y, this.worldRect.w, this.worldRect.h);
+    }
+
+    private void updateTreeNode(@Nonnull PTTreeNode node) {
+        if (this.treeNode != null) {
+            this.canvas.removeChild(this.treeNode);
+        }
+        this.treeNode = node;
+        this.canvas.addChild(node);
         this.canvas.layout(this.worldRect.x, this.worldRect.y, this.worldRect.w, this.worldRect.h);
     }
 }
