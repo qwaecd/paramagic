@@ -1,6 +1,6 @@
 package com.qwaecd.paramagic.ui.item.edit_table;
 
-import com.qwaecd.paramagic.thaumaturgy.ParaCrystalComponent;
+import com.qwaecd.paramagic.thaumaturgy.ParaCrystalData;
 import com.qwaecd.paramagic.thaumaturgy.node.ParaTree;
 import com.qwaecd.paramagic.tools.nbt.CrystalComponentUtils;
 import com.qwaecd.paramagic.ui.core.ClipMod;
@@ -44,7 +44,7 @@ public class EditWindow extends UINode {
             this.removeTreeNode();
             return;
         }
-        ParaCrystalComponent component = CrystalComponentUtils.getComponentFromItemStack(item);
+        ParaCrystalData component = CrystalComponentUtils.getComponentFromItemStack(item);
         if (component == null) {
             this.removeTreeNode();
             return;

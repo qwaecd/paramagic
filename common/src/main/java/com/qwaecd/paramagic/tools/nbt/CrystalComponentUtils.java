@@ -1,7 +1,7 @@
 package com.qwaecd.paramagic.tools.nbt;
 
 import com.qwaecd.paramagic.network.codec.NBTCodec;
-import com.qwaecd.paramagic.thaumaturgy.ParaCrystalComponent;
+import com.qwaecd.paramagic.thaumaturgy.ParaCrystalData;
 import com.qwaecd.paramagic.thaumaturgy.operator.AllParaOperators;
 import com.qwaecd.paramagic.thaumaturgy.operator.OperatorType;
 import com.qwaecd.paramagic.thaumaturgy.operator.ParaOpId;
@@ -19,7 +19,7 @@ import javax.annotation.Nullable;
 public final class CrystalComponentUtils {
     private static final Logger LOGGER = LoggerFactory.getLogger(CrystalComponentUtils.class);
     @Nullable
-    public static ParaCrystalComponent getComponentFromTag(@Nullable CompoundTag tag) {
+    public static ParaCrystalData getComponentFromTag(@Nullable CompoundTag tag) {
         if (tag == null) {
             return null;
         }
@@ -28,10 +28,10 @@ public final class CrystalComponentUtils {
         if (!(paraTag instanceof CompoundTag crystalComponent)) {
             return null;
         }
-        return ParaCrystalComponent.fromCodec(new NBTCodec(crystalComponent));
+        return ParaCrystalData.fromCodec(new NBTCodec(crystalComponent));
     }
 
-    public static void writeComponentToTag(@Nonnull CompoundTag tag, @Nonnull ParaCrystalComponent component) {
+    public static void writeComponentToTag(@Nonnull CompoundTag tag, @Nonnull ParaCrystalData component) {
         CompoundTag crystalComponentTag = new CompoundTag();
         NBTCodec codec = new NBTCodec(crystalComponentTag);
         component.write(codec);
@@ -39,17 +39,17 @@ public final class CrystalComponentUtils {
     }
 
     @Nullable
-    public static ParaCrystalComponent getComponentFromItemStack(@Nonnull ItemStack item) {
+    public static ParaCrystalData getComponentFromItemStack(@Nonnull ItemStack item) {
         return getComponentFromTag(item.getTag());
     }
 
-    public static void writeComponentToItemStack(@Nonnull ItemStack item, @Nonnull ParaCrystalComponent component) {
+    public static void writeComponentToItemStack(@Nonnull ItemStack item, @Nonnull ParaCrystalData component) {
         CompoundTag tag = item.getOrCreateTag();
         writeComponentToTag(tag, component);
     }
 
     public static boolean insertParaOpIdToPath(
-            @Nonnull ParaOpId opId, @Nonnull String path, @Nonnull ParaCrystalComponent component
+            @Nonnull ParaOpId opId, @Nonnull String path, @Nonnull ParaCrystalData component
     ) {
         ParaOperator operator = AllParaOperators.createOperator(opId);
         if (operator == null) {

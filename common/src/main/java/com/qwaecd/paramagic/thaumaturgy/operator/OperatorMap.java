@@ -9,13 +9,13 @@ import javax.annotation.Nullable;
 import java.util.HashMap;
 import java.util.Map;
 
-public class OperatorMapComponent implements IDataSerializable {
+public class OperatorMap implements IDataSerializable {
     private final Map<String, ParaOpId> data = new HashMap<>();
 
-    public OperatorMapComponent() {
+    public OperatorMap() {
     }
 
-    public void set(OperatorMapComponent other) {
+    public void set(OperatorMap other) {
         this.data.clear();
         this.data.putAll(other.data);
     }
@@ -58,18 +58,18 @@ public class OperatorMapComponent implements IDataSerializable {
         }
     }
 
-    public static OperatorMapComponent fromCodec(DataCodec codec) {
+    public static OperatorMap fromCodec(DataCodec codec) {
         if (codec instanceof NBTCodec rootNbtCodec) {
             return readFromNBTCodec(rootNbtCodec);
         }
-        OperatorMapComponent component = new OperatorMapComponent();
+        OperatorMap component = new OperatorMap();
         component.updateFromCodec(codec);
         return component;
     }
 
-    private static OperatorMapComponent readFromNBTCodec(NBTCodec codec) {
+    private static OperatorMap readFromNBTCodec(NBTCodec codec) {
         CompoundTag tag = codec.getTag();
-        OperatorMapComponent component = new OperatorMapComponent();
+        OperatorMap component = new OperatorMap();
         for (String key : tag.getAllKeys()) {
             ParaOpId opId = codec.readObject(key, ParaOpId::fromCodec);
             component.put(key, opId);
@@ -79,7 +79,7 @@ public class OperatorMapComponent implements IDataSerializable {
 
     public void updateFromCodec(DataCodec codec) {
         if (codec instanceof NBTCodec rootNbtCodec) {
-            OperatorMapComponent newComponent = readFromNBTCodec(rootNbtCodec);
+            OperatorMap newComponent = readFromNBTCodec(rootNbtCodec);
             this.set(newComponent);
             return;
         }

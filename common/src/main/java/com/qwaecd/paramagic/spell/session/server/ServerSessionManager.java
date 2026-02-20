@@ -5,6 +5,7 @@ import com.qwaecd.paramagic.spell.caster.SpellCaster;
 import com.qwaecd.paramagic.spell.session.ISessionManager;
 import com.qwaecd.paramagic.spell.session.SpellSession;
 import com.qwaecd.paramagic.spell.state.SpellStateMachine;
+import com.qwaecd.paramagic.thaumaturgy.node.ParaTree;
 import com.qwaecd.paramagic.tools.ConditionalLogger;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
@@ -48,6 +49,21 @@ public class ServerSessionManager implements ISessionManager {
         }
 
         MachineSessionServer serverSession = new MachineSessionServer(UUID.randomUUID(), caster, machine, executor, level);
+        this.addSession(serverSession);
+        return serverSession;
+    }
+
+    @Nullable
+    public ArcSessionServer tryCreateArcSession(
+            ServerLevel level,
+            SpellCaster caster,
+            ParaTree tree
+    ) {
+        if (!caster.canStartSession(this)) {
+            return null;
+        }
+
+        ArcSessionServer serverSession = new ArcSessionServer(UUID.randomUUID(), caster, level, tree);
         this.addSession(serverSession);
         return serverSession;
     }

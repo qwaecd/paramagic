@@ -4,9 +4,8 @@ import com.qwaecd.paramagic.data.para.struct.ParaComponentData;
 import com.qwaecd.paramagic.data.para.struct.ParaData;
 import com.qwaecd.paramagic.platform.annotation.PlatformScope;
 import com.qwaecd.paramagic.platform.annotation.PlatformScopeType;
-import com.qwaecd.paramagic.thaumaturgy.ParaCrystalComponent;
+import com.qwaecd.paramagic.thaumaturgy.ParaCrystalData;
 import com.qwaecd.paramagic.thaumaturgy.operator.AllParaOperators;
-import com.qwaecd.paramagic.thaumaturgy.operator.OperatorMapComponent;
 import com.qwaecd.paramagic.thaumaturgy.operator.ParaOpId;
 import com.qwaecd.paramagic.thaumaturgy.operator.ParaOperator;
 import org.slf4j.Logger;
@@ -16,6 +15,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Consumer;
 
 @PlatformScope(PlatformScopeType.COMMON)
 public class ParaTree {
@@ -57,7 +57,7 @@ public class ParaTree {
         return this.nodes.get(ParaData.PARENT_ID);
     }
 
-    public void updateAll(ParaCrystalComponent component) {
+    public void updateAll(ParaCrystalData component) {
         for (ParaNode node : this.nodes.values()) {
             ParaOpId paraOpId = component.getOperatorId(node.getId());
             if (paraOpId == null) {
@@ -66,6 +66,12 @@ public class ParaTree {
             }
             ParaOperator op = AllParaOperators.createOperator(paraOpId);
             node.setOperator(op);
+        }
+    }
+
+    public void forEachNode(Consumer<ParaNode> action) {
+        for (ParaNode node : this.nodes.values()) {
+            action.accept(node);
         }
     }
 }

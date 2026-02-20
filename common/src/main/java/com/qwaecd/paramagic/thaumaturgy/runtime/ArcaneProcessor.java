@@ -16,6 +16,17 @@ public class ArcaneProcessor {
     @Nonnull
     private final ParaContext context;
 
+    /**
+     * 回转冷却，单位为秒
+     */
+    private float cycleCooldown;
+    /**
+     * 传导延迟，单位为秒
+     */
+    private float transmissionDelay;
+
+    private boolean isCycleCoolingDown;
+
     private final Deque<ParaNode> executionStack = new ArrayDeque<>();
 
     public ArcaneProcessor(@Nonnull ParaTree tree, @Nonnull ParaContext context) {
@@ -29,6 +40,8 @@ public class ArcaneProcessor {
         // 如果根节点都没有操作符，那么栈理论上应该是空的，也就是什么都不会执行
         if (operator != null) {
             root.setState(NodeState.EVALUATING);
+            // 这里不考虑传导延迟
+            this.cycleCooldown += operator.getCycleCooldown();
             this.context.addOperator(operator);
             this.pushNode(root);
         }
@@ -36,11 +49,35 @@ public class ArcaneProcessor {
 
 
     public void tick() {
+        final float deltaTime = 0.05f; // 20 ticks per second
+        this.transmissionDelay = Math.max(0.0f, this.transmissionDelay - deltaTime);
+
+        if (this.isCycleCoolingDown) {
+            this.cycleCooldown = Math.max(0.0f, this.cycleCooldown - deltaTime);
+            if (cycleCooldown <= 0.0f) {
+                this.isCycleCoolingDown = false;
+            }
+            return;
+        }
+
+        if (this.transmissionDelay > 0.0f) {
+            return;
+        }
+
         int depthBudget = 1;
         while (depthBudget > 0) {
             ParaNode stackTop = this.peekNode();
             if (stackTop == null) {
                 // 说明已经执行完成
+                // 进行回转判定
+                if (this.cycleCooldown < deltaTime) {
+                    this.reset();
+                    break;
+                }
+                if (!this.isCycleCoolingDown) {
+                    this.isCycleCoolingDown = true;
+                }
+                this.cycleCooldown -= deltaTime;
                 break;
             }
             ParaNode targetNode = this.findNextCandidate(stackTop);
@@ -52,6 +89,7 @@ public class ArcaneProcessor {
                         continue;
                     }
                     if (child.getState() == NodeState.PENDING) {
+                        this.addTime(operator);
                         child.setState(NodeState.VISITED);
                         this.context.addOperator(operator);
                     }
@@ -79,6 +117,15 @@ public class ArcaneProcessor {
 
     public void execute() {
         this.context.execute();
+    }
+
+    private void reset() {
+        this.isCycleCoolingDown = false;
+        this.transmissionDelay = 0.0f;
+        this.cycleCooldown = 0.0f;
+        this.executionStack.clear();
+        this.tree.forEachNode(node -> node.setState(NodeState.PENDING));
+        this.init();
     }
 
     private void pushNode(@Nonnull ParaNode node) {
@@ -122,5 +169,10 @@ public class ArcaneProcessor {
         }
 
         return candidate;
+    }
+
+    private void addTime(@Nonnull ParaOperator operator) {
+        this.cycleCooldown += operator.getCycleCooldown();
+        this.transmissionDelay += operator.getTransmissionDelay();
     }
 }

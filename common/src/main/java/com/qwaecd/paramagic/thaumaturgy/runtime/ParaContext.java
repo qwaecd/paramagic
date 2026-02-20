@@ -43,7 +43,11 @@ public final class ParaContext {
     }
 
     private void iterate(OperatorType type) {
-        Iterator<ParaOperator> iterator = this.operators.get(type).iterator();
+        List<ParaOperator> list = this.operators.get(type);
+        if (list == null) {
+            return;
+        }
+        Iterator<ParaOperator> iterator = list.iterator();
         while (iterator.hasNext()) {
             ParaOperator operator = iterator.next();
             boolean applied = operator.apply(this);
@@ -55,15 +59,12 @@ public final class ParaContext {
 
     private void prepareProjectiles() {
         this.projectiles.clear();
-        for (ParaOperator operator : this.operators.get(OperatorType.PROJECTILE)) {
-            operator.apply(this);
+        var list = this.operators.get(OperatorType.PROJECTILE);
+        if (list == null) {
+            return;
         }
-
-        Vec3 position = this.caster.position();
-        Vec3 forwarded = this.caster.forwardVector();
-        for (ProjectileEntity projectile : this.projectiles) {
-            projectile.setPosition((float) position.x, (float) position.y, (float) position.z);
-            projectile.setVelocity((float) forwarded.x, (float) forwarded.y, (float) forwarded.z);
+        for (ParaOperator operator : list) {
+            operator.apply(this);
         }
 
         this.operators.remove(OperatorType.PROJECTILE);

@@ -7,6 +7,11 @@ import com.qwaecd.paramagic.core.particle.emitter.ParticleBurst;
 import com.qwaecd.paramagic.core.particle.emitter.impl.LineEmitter;
 import com.qwaecd.paramagic.core.particle.emitter.impl.SphereEmitter;
 import com.qwaecd.paramagic.core.particle.emitter.property.type.VelocityModeStates;
+import com.qwaecd.paramagic.spell.api.SpellSpawner;
+import com.qwaecd.paramagic.spell.caster.PlayerCaster;
+import com.qwaecd.paramagic.thaumaturgy.ParaCrystalData;
+import com.qwaecd.paramagic.tools.nbt.CrystalComponentUtils;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.player.Player;
@@ -41,10 +46,25 @@ public class DebugWand extends Item {
 
     @Override
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand usedHand) {
-        if (level.isClientSide) {
+//        if (level.isClientSide) {
 //            this.spawnTestParticles(level, player);
+//        }
+        if (!level.isClientSide()) {
+            this.testArc(level, player, usedHand);
         }
         return InteractionResultHolder.success(player.getItemInHand(usedHand));
+    }
+
+    private void testArc(Level level, Player player, InteractionHand usedHand) {
+        ItemStack itemstack = player.getItemInHand(InteractionHand.OFF_HAND);
+        ParaCrystalData crystalData = CrystalComponentUtils.getComponentFromItemStack(itemstack);
+        if (crystalData == null) {
+            return;
+        }
+        PlayerCaster caster = PlayerCaster.create(player);
+
+        SpellSpawner.spawnOnServer((ServerLevel) level, caster, crystalData);
+        player.startUsingItem(usedHand);
     }
 
     private void spawnTestParticles(Level level, Player player) {

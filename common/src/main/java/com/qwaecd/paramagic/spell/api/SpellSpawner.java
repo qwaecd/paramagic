@@ -8,8 +8,10 @@ import com.qwaecd.paramagic.spell.builtin.BuiltinSpell;
 import com.qwaecd.paramagic.spell.builtin.BuiltinSpellEntry;
 import com.qwaecd.paramagic.spell.builtin.BuiltinSpellRegistry;
 import com.qwaecd.paramagic.spell.caster.SpellCaster;
+import com.qwaecd.paramagic.spell.config.CircleAssets;
 import com.qwaecd.paramagic.spell.session.SessionManagers;
 import com.qwaecd.paramagic.spell.session.SpellSessionRef;
+import com.qwaecd.paramagic.spell.session.server.ArcSessionServer;
 import com.qwaecd.paramagic.spell.session.server.MachineSessionServer;
 import com.qwaecd.paramagic.spell.session.server.ServerSession;
 import com.qwaecd.paramagic.spell.session.server.ServerSessionManager;
@@ -18,6 +20,8 @@ import com.qwaecd.paramagic.spell.session.store.SessionDataStore;
 import com.qwaecd.paramagic.spell.session.store.SessionDataValue;
 import com.qwaecd.paramagic.spell.state.AllMachineEvents;
 import com.qwaecd.paramagic.spell.state.SpellStateMachine;
+import com.qwaecd.paramagic.thaumaturgy.ParaCrystalData;
+import com.qwaecd.paramagic.thaumaturgy.node.ParaTree;
 import com.qwaecd.paramagic.world.entity.SpellAnchorEntity;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
@@ -29,6 +33,30 @@ import javax.annotation.Nullable;
 @SuppressWarnings("UnusedReturnValue")
 @PlatformScope(PlatformScopeType.SERVER)
 public class SpellSpawner {
+    @Nullable
+    public static ArcSessionServer spawnOnServer(
+            ServerLevel level,
+            SpellCaster caster,
+            ParaCrystalData crystal
+    ) {
+        ParaTree paraTree = new ParaTree(crystal.getParaData());
+        paraTree.updateAll(crystal);
+        ServerSessionManager manager = SessionManagers.getForServer(level);
+        ArcSessionServer session = manager.tryCreateArcSession(level, caster, paraTree);
+        if (session != null) {
+            processDataStore(session, level, caster);
+
+            SpellAnchorEntity spellAnchorEntity = new SpellAnchorEntity(level);
+            spellAnchorEntity.moveTo(caster.position());
+            level.addFreshEntity(spellAnchorEntity);
+
+            CircleAssets circleAssets = new CircleAssets(crystal.getParaData(), null);
+            SpellUnion union = SpellUnion.ofPara(SpellSessionRef.fromSession(session), circleAssets);
+            connect(session, spellAnchorEntity, union);
+        }
+        return session;
+    }
+
     @Nullable
     public static MachineSessionServer spawnInternalOnServer(ServerLevel level, SpellCaster caster, BuiltinSpellId spellId) {
         BuiltinSpellEntry entry = BuiltinSpellRegistry.getSpell(spellId);

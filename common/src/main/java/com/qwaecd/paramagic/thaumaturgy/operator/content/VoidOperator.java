@@ -12,4 +12,9 @@ public class VoidOperator extends ParaOperator {
     public VoidOperator() {
         super(OP_ID, ModItems.VOID_OPERATOR);
     }
+
+    @Override
+    public float getTransmissionDelay() {
+        return 1.0f / 40.0f;
+    }
 }

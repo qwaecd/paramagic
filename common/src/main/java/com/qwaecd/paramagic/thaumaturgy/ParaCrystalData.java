@@ -3,20 +3,20 @@ package com.qwaecd.paramagic.thaumaturgy;
 import com.qwaecd.paramagic.data.para.struct.ParaData;
 import com.qwaecd.paramagic.network.DataCodec;
 import com.qwaecd.paramagic.network.IDataSerializable;
-import com.qwaecd.paramagic.thaumaturgy.operator.OperatorMapComponent;
+import com.qwaecd.paramagic.thaumaturgy.operator.OperatorMap;
 import com.qwaecd.paramagic.thaumaturgy.operator.ParaOpId;
 import com.qwaecd.paramagic.thaumaturgy.operator.ParaOperator;
 
 import javax.annotation.Nonnull;
 
-public class ParaCrystalComponent implements IDataSerializable {
+public class ParaCrystalData implements IDataSerializable {
     @Nonnull
     private ParaData paraData;
-    private final OperatorMapComponent operatorMap;
+    private final OperatorMap operatorMap;
 
-    public ParaCrystalComponent(@Nonnull ParaData paraData) {
+    public ParaCrystalData(@Nonnull ParaData paraData) {
         this.paraData = paraData;
-        this.operatorMap = new OperatorMapComponent();
+        this.operatorMap = new OperatorMap();
     }
 
     @Nonnull
@@ -46,10 +46,10 @@ public class ParaCrystalComponent implements IDataSerializable {
         codec.writeObject("operatorMap", this.operatorMap);
     }
 
-    public static ParaCrystalComponent fromCodec(DataCodec codec) {
+    public static ParaCrystalData fromCodec(DataCodec codec) {
         ParaData paraData = codec.readObject("paraData", ParaData::fromCodec);
-        OperatorMapComponent map = codec.readObject("operatorMap", OperatorMapComponent::fromCodec);
-        ParaCrystalComponent component = new ParaCrystalComponent(paraData);
+        OperatorMap map = codec.readObject("operatorMap", OperatorMap::fromCodec);
+        ParaCrystalData component = new ParaCrystalData(paraData);
         component.operatorMap.set(map);
         return component;
     }

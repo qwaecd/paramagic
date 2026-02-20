@@ -39,4 +39,10 @@ public abstract class ParaOperator {
     public boolean apply(ParaContext context) {
         return true;
     }
+
+    public float getCycleCooldown() {
+        return 0.05f;
+    }
+
+    public abstract float getTransmissionDelay();
 }

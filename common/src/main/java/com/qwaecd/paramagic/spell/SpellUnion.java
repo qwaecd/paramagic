@@ -1,8 +1,8 @@
 package com.qwaecd.paramagic.spell;
 
-import com.qwaecd.paramagic.data.para.struct.ParaData;
 import com.qwaecd.paramagic.network.DataCodec;
 import com.qwaecd.paramagic.network.IDataSerializable;
+import com.qwaecd.paramagic.spell.config.CircleAssets;
 import com.qwaecd.paramagic.spell.session.SpellSessionRef;
 
 import javax.annotation.Nonnull;
@@ -18,18 +18,18 @@ public final class SpellUnion implements IDataSerializable {
     private final BuiltinSpellId builtinId;
 
     @Nullable
-    private final ParaData paraData;
+    private final CircleAssets circleAssets;
 
     private SpellUnion(
             boolean isBuiltin,
             @Nonnull SpellSessionRef ref,
             @Nullable BuiltinSpellId builtinId,
-            @Nullable ParaData paraData
+            @Nullable CircleAssets circleAssets
             ) {
         this.isBuiltin = isBuiltin;
         this.sessionRef = ref;
         this.builtinId = builtinId;
-        this.paraData = paraData;
+        this.circleAssets = circleAssets;
     }
 
     public static SpellUnion ofBuiltin(
@@ -37,6 +37,13 @@ public final class SpellUnion implements IDataSerializable {
             @Nonnull BuiltinSpellId builtinId
     ) {
         return new SpellUnion(true, ref, builtinId, null);
+    }
+
+    public static SpellUnion ofPara(
+            @Nonnull SpellSessionRef ref,
+            @Nonnull CircleAssets circleAssets
+    ) {
+        return new SpellUnion(false, ref, null, circleAssets);
     }
 
     public boolean isBuiltinSpell() {
@@ -54,8 +61,8 @@ public final class SpellUnion implements IDataSerializable {
     }
 
     @Nullable
-    public ParaData getParaData() {
-        return this.paraData;
+    public CircleAssets getCircleAssets() {
+        return this.circleAssets;
     }
 
     @Override
@@ -67,8 +74,8 @@ public final class SpellUnion implements IDataSerializable {
                     Objects.requireNonNull(this.builtinId, "builtinId is null for builtin spell")
             );
         } else {
-            codec.writeObject("paraData",
-                    Objects.requireNonNull(this.paraData, "paraData is null for para spell")
+            codec.writeObject("circleAssets",
+                    Objects.requireNonNull(this.circleAssets, "circleAssets is null for para spell")
             );
         }
     }
@@ -80,8 +87,8 @@ public final class SpellUnion implements IDataSerializable {
             BuiltinSpellId builtinId = codec.readObject("builtinId", BuiltinSpellId::fromCodec);
             return new SpellUnion(true, ref, builtinId, null);
         } else {
-            ParaData paraData = codec.readObject("paraData", ParaData::fromCodec);
-            return new SpellUnion(false, ref, null, paraData);
+            CircleAssets circleAssets = codec.readObject("circleAssets", CircleAssets::fromCodec);
+            return new SpellUnion(false, ref, null, circleAssets);
         }
     }
 
@@ -90,7 +97,7 @@ public final class SpellUnion implements IDataSerializable {
                 this.isBuiltin,
                 this.sessionRef.copy(),
                 this.builtinId,
-                this.paraData
+                this.circleAssets
         );
     }
 }

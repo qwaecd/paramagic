@@ -64,12 +64,12 @@ public class SpellAnchorEntity extends Entity {
     @Override
     public void onSyncedDataUpdated(@Nonnull EntityDataAccessor<?> key) {
         if (this.level().isClientSide() && OPTIONAL_SPELL_UNION.equals(key)) {
-            this.createSessionOnClient();
+            this.createSpellOnClient();
         }
     }
 
     @PlatformScope(PlatformScopeType.CLIENT)
-    private void createSessionOnClient() {
+    private void createSpellOnClient() {
         SpellUnion spellUnion = this.entityData.get(OPTIONAL_SPELL_UNION).orElseThrow(() -> new RuntimeException("SpellUnion is empty on client when creating session"));
 
         if (spellUnion.isBuiltinSpell()) {
@@ -81,6 +81,7 @@ public class SpellAnchorEntity extends Entity {
             SpellSpawnerClient.spawnInternalOnClient(this.level(), spellUnion.getSessionRef(), builtinId, this);
         } else {
             // Para spell
+            SpellSpawnerClient.spawnOnClient(this.level(), spellUnion.getSessionRef(), spellUnion.getCircleAssets(),this);
         }
     }
 

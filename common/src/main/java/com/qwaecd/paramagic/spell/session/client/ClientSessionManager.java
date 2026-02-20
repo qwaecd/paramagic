@@ -5,6 +5,7 @@ import com.qwaecd.paramagic.spell.builtin.BuiltinSpellEntry;
 import com.qwaecd.paramagic.spell.builtin.BuiltinSpellRegistry;
 import com.qwaecd.paramagic.spell.builtin.client.BuiltinSpellVisualRegistry;
 import com.qwaecd.paramagic.spell.builtin.client.VisualEntry;
+import com.qwaecd.paramagic.spell.config.CircleAssets;
 import com.qwaecd.paramagic.spell.session.ISessionManager;
 import com.qwaecd.paramagic.spell.session.SpellSession;
 import com.qwaecd.paramagic.spell.session.SpellSessionRef;
@@ -22,7 +23,6 @@ import java.util.Queue;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.function.Consumer;
 
 public class ClientSessionManager implements ISessionManager {
     private static final ConditionalLogger LOGGER = ConditionalLogger.create(ClientSessionManager.class);
@@ -48,24 +48,43 @@ public class ClientSessionManager implements ISessionManager {
     @SuppressWarnings("unused")
     public void tickAll(final ClientLevel clientLevel, final float deltaTime) {
         this.flushPendingRemovals();
-        this.forEachSessionSafe(session -> {
-            session.tick(deltaTime);
-            if (session.canRemoveFromManager()) {
-                this.pendingRemovals.add(session);
-            }
-        });
-    }
-
-    private void forEachSessionSafe(Consumer<ClientSession> consumer) {
         for (var entry : this.sessions.entrySet()) {
+            ClientSession session = entry.getValue();
             try {
-                consumer.accept(entry.getValue());
+                session.tick(deltaTime);
+                if (session.canRemoveFromManager()) {
+                    this.pendingRemovals.add(session);
+                }
             } catch (Exception e) {
                 LOGGER.logIfDev(l ->
                         l.error("Error while ticking session {}: {}", entry.getKey(), e)
                 );
             }
         }
+    }
+
+    @Nullable
+    public ArcSessionClient tryCreateArcSession(
+            Level level,
+            SpellSessionRef sessionRef,
+            CircleAssets assets,
+            Entity fallbackSource
+    ) {
+        Entity casterSource = CasterUtils.tryFindCaster(level, sessionRef);
+        if (casterSource == null) {
+            LOGGER.logIfDev(l ->
+                    l.warn("Failed to find caster for session {}: casterEntityUuid={}, casterNetworkId={}",
+                            sessionRef.serverSessionId,
+                            sessionRef.casterEntityUuid,
+                            sessionRef.casterNetworkId
+                    )
+            );
+        }
+        HybridCasterSource hybridCasterSource = HybridCasterSource.create(casterSource, fallbackSource);
+
+        ArcSessionClient session = new ArcSessionClient(sessionRef.serverSessionId, hybridCasterSource, assets);
+        this.addSession(session);
+        return session;
     }
 
     @Nullable

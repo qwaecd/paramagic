@@ -9,7 +9,7 @@ import lombok.Getter;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-public class CircleAssets implements IDataSerializable {
+public final class CircleAssets implements IDataSerializable {
     @Nonnull
     @Getter
     private final ParaData paraData;

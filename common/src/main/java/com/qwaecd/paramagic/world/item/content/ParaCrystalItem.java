@@ -2,7 +2,10 @@ package com.qwaecd.paramagic.world.item.content;
 
 import com.qwaecd.paramagic.data.para.struct.ParaData;
 import com.qwaecd.paramagic.data.para.util.ParaComponentBuilder;
-import com.qwaecd.paramagic.thaumaturgy.ParaCrystalComponent;
+import com.qwaecd.paramagic.feature.effect.explosion.ExplosionAssets;
+import com.qwaecd.paramagic.spell.config.CircleAssets;
+import com.qwaecd.paramagic.thaumaturgy.ParaCrystalData;
+import com.qwaecd.paramagic.thaumaturgy.node.ParaTree;
 import com.qwaecd.paramagic.tools.nbt.CrystalComponentUtils;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
@@ -24,8 +27,11 @@ public class ParaCrystalItem extends Item {
         }
 
         ItemStack crystal = player.getItemInHand(usedHand);
-        this.test(crystal);
-        ParaCrystalComponent paraCrystal = CrystalComponentUtils.getComponentFromItemStack(crystal);
+//        this.test(crystal);
+        CircleAssets assets = ExplosionAssets.create();
+        ParaCrystalData crystalData = new ParaCrystalData(assets.getParaData());
+        CrystalComponentUtils.writeComponentToItemStack(crystal, crystalData);
+        ParaCrystalData paraCrystal = CrystalComponentUtils.getComponentFromItemStack(crystal);
 
         return super.use(level, player, usedHand);
     }
@@ -70,7 +76,7 @@ public class ParaCrystalItem extends Item {
             builder1.endChild();
         }
         ParaData paraData = new ParaData(builder.build());
-        ParaCrystalComponent crystalComponent = new ParaCrystalComponent(paraData);
+        ParaCrystalData crystalComponent = new ParaCrystalData(paraData);
         CrystalComponentUtils.writeComponentToItemStack(crystal, crystalComponent);
     }
 }

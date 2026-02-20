@@ -38,8 +38,13 @@ public class PlayerCaster extends BaseSpellCaster implements SpellCaster {
     }
 
     @Override
+    public Vec3 eyePosition() {
+        return this.source.getEyePosition();
+    }
+
+    @Override
     public Vec3 forwardVector() {
-        return this.source.getForward();
+        return this.source.getLookAngle();
     }
 
     public static PlayerCaster create(Player player) {

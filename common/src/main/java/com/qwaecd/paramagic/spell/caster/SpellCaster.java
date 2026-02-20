@@ -13,5 +13,6 @@ public interface SpellCaster {
     boolean canStartSession(ServerSessionManager manager);
     boolean shouldContinueSession(ServerSessionManager manager);
     Vec3 position();
+    Vec3 eyePosition();
     Vec3 forwardVector();
 }
