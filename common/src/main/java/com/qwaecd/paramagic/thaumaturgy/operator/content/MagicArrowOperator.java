@@ -10,7 +10,10 @@ import com.qwaecd.paramagic.world.item.ModItems;
 import net.minecraft.world.phys.Vec3;
 
 public class MagicArrowOperator extends ProjectileOperator {
-    public static final ParaOpId OP_ID = ParaOpId.of(ModRL.inModSpace("magic_arrow_operator"), OperatorType.PROJECTILE);
+    public static final ParaOpId OP_ID = ParaOpId.of(
+            ModRL.inModSpace("magic_arrow_operator"),
+            new ParaOpId.Properties(OperatorType.PROJECTILE, 0.05f, 0.1f)
+    );
     public MagicArrowOperator() {
         super(OP_ID, ModItems.MAGIC_ARROW_OPERATOR);
     }
@@ -28,15 +31,5 @@ public class MagicArrowOperator extends ProjectileOperator {
         projectile.setInaccuracy(1.0f);
         context.addProjectile(projectile);
         return true;
-    }
-
-    @Override
-    public float getTransmissionDelay() {
-        return 0.05f;
-    }
-
-    @Override
-    public float getCycleCooldown() {
-        return 0.1f;
     }
 }

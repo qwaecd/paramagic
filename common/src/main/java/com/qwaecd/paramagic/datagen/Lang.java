@@ -30,13 +30,6 @@ public class Lang {
         return languages.get(key);
     }
 
-    public static void getFor(String key, Consumer<Lang> consumer) {
-        Lang lang = languages.get(key);
-        if (lang != null) {
-            consumer.accept(lang);
-        }
-    }
-
     @FunctionalInterface
     public interface LangConsumer {
         void accept(String key, Lang lang);
@@ -54,5 +47,8 @@ public class Lang {
         of("item.paramagic.void_operator", "Void Operator", "空参量");
         of("item.paramagic.magic_arrow_operator", "Magic Arrow", "魔法箭");
         of("item.paramagic.para_crystal", "Para Crystal", "魔力水晶");
+        of("tooltip.paramagic.para_operator_item.operator_type", "Operator Type: ", "法术类型: ");
+        of("tooltip.paramagic.para_operator_item.transmission_delay", "Transmission Delay: ", "传导延迟: ");
+        of("tooltip.paramagic.para_operator_item.cycle_cooldown", "Cycle Cooldown: ", "回转冷却: ");
     }
 }

@@ -41,8 +41,10 @@ public abstract class ParaOperator {
     }
 
     public float getCycleCooldown() {
-        return 0.05f;
+        return this.id.getCycleCooldown();
     }
 
-    public abstract float getTransmissionDelay();
+    public float getTransmissionDelay() {
+        return this.id.getTransmissionDelay();
+    }
 }

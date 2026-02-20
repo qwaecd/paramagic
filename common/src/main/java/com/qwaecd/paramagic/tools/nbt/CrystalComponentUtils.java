@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.Objects;
 
 public final class CrystalComponentUtils {
     private static final Logger LOGGER = LoggerFactory.getLogger(CrystalComponentUtils.class);
@@ -75,9 +76,8 @@ public final class CrystalComponentUtils {
             CompoundTag paraTag = tag.getCompound("para");
             CompoundTag operatorMap = paraTag.getCompound("operatorMap");
             CompoundTag entry = operatorMap.getCompound(path);
-            if (!(entry.contains("id") && entry.contains("type"))) {
-                entry.putInt("type", opId.type.id);
-                entry.putString("id", opId.id.toString());
+            if (!(entry.contains(ParaOpId.OPERATOR_ID_KEY))) {
+                entry.putString(ParaOpId.OPERATOR_ID_KEY, opId.id.toString());
                 operatorMap.put(path, entry);
             }
             return true;
@@ -101,12 +101,12 @@ public final class CrystalComponentUtils {
                 return ItemStack.EMPTY;
             }
             CompoundTag entry = operatorMap.getCompound(path);
-            if (!(entry.contains("id") && entry.contains("id"))) {
+            if (!(entry.contains(ParaOpId.OPERATOR_ID_KEY))) {
                 return ItemStack.EMPTY;
             }
-            String opId = entry.getString("id");
-            int type = entry.getInt("type");
-            ParaOpId paraOpId = ParaOpId.of(ModRL.ofString(opId), OperatorType.fromId(type));
+            String opIdStr = entry.getString(ParaOpId.OPERATOR_ID_KEY);
+            ParaOpId paraOpId = AllParaOperators.getIdByString(opIdStr);
+            Objects.requireNonNull(paraOpId, "Operator ID " + opIdStr + " not found in AllParaOperators");
             ParaOperator operator = AllParaOperators.createOperator(paraOpId);
             if (operator == null) {
                 return ItemStack.EMPTY;

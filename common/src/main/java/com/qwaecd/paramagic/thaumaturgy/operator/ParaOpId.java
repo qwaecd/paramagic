@@ -17,17 +17,30 @@ public final class ParaOpId implements IDataSerializable {
     @Nonnull
     public final OperatorType type;
 
-    private ParaOpId(@Nonnull ResourceLocation id, @Nonnull OperatorType type) {
+    public final float cycleCooldown;
+    public final float transmissionDelay;
+
+    private ParaOpId(@Nonnull ResourceLocation id, @Nonnull Properties prop) {
         this.id = id;
-        this.type = type;
+        this.type = prop.type;
+        this.cycleCooldown = prop.cycleCooldown;
+        this.transmissionDelay = prop.transmissionDelay;
     }
 
-    public static ParaOpId of(@Nonnull ResourceLocation id, OperatorType type) {
-        return new ParaOpId(id, type);
+    public static ParaOpId of(@Nonnull ResourceLocation id, Properties prop) {
+        return new ParaOpId(id, prop);
     }
 
-    public static ParaOpId from(String namespace, String path, OperatorType type) {
-        return ParaOpId.of(ModRL.of(namespace, path), type);
+    public static ParaOpId from(String namespace, String path, Properties prop) {
+        return ParaOpId.of(ModRL.of(namespace, path), prop);
+    }
+
+    public float getCycleCooldown() {
+        return this.cycleCooldown;
+    }
+
+    public float getTransmissionDelay() {
+        return this.transmissionDelay;
     }
 
     @Override
@@ -43,17 +56,45 @@ public final class ParaOpId implements IDataSerializable {
         return Objects.equals(this.id, other.id);
     }
 
+    public static final String OPERATOR_ID_KEY = "operatorId";
+
     @Override
     public void write(DataCodec codec) {
-        codec.writeInt("type", this.type.id);
-        codec.writeString("id", this.id.toString());
+        codec.writeString(OPERATOR_ID_KEY, this.id.toString());
     }
 
     public static ParaOpId fromCodec(DataCodec codec) {
-        int type = codec.readInt("type");
-        String idStr = codec.readString("id");
-        OperatorType operatorType = OperatorType.fromId(type);
-        ResourceLocation id = new ResourceLocation(idStr);
-        return ParaOpId.of(id, operatorType);
+        String idStr = codec.readString(OPERATOR_ID_KEY);
+        ParaOpId paraOpId = AllParaOperators.getIdByString(idStr);
+        if (paraOpId == null) {
+            throw new IllegalArgumentException("Unknown ParaOpId: " + idStr);
+        }
+        return paraOpId;
+    }
+
+    public static class Properties {
+        public final OperatorType type;
+        public float cycleCooldown;
+        public float transmissionDelay;
+
+        public Properties(OperatorType type, float transmissionDelay, float cycleCooldown) {
+            this.type = type;
+            this.transmissionDelay = transmissionDelay;
+            this.cycleCooldown = cycleCooldown;
+        }
+
+        public Properties(OperatorType type) {
+            this(type, 0.01f, 0.05f);
+        }
+
+        public Properties cycleCooldown(float cycleCooldown) {
+            this.cycleCooldown = cycleCooldown;
+            return this;
+        }
+
+        public Properties transmissionDelay(float transmissionDelay) {
+            this.transmissionDelay = transmissionDelay;
+            return this;
+        }
     }
 }

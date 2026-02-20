@@ -7,14 +7,11 @@ import com.qwaecd.paramagic.tools.ModRL;
 import com.qwaecd.paramagic.world.item.ModItems;
 
 public class VoidOperator extends ParaOperator {
-    public static final ParaOpId OP_ID = ParaOpId.of(ModRL.inModSpace("void_operator"), OperatorType.FLOW);
+    public static final ParaOpId OP_ID = ParaOpId.of(ModRL.inModSpace("void_operator"),
+            new ParaOpId.Properties(OperatorType.FLOW, 0.0f, 0.025f)
+    );
 
     public VoidOperator() {
         super(OP_ID, ModItems.VOID_OPERATOR);
-    }
-
-    @Override
-    public float getTransmissionDelay() {
-        return 1.0f / 40.0f;
     }
 }
