@@ -2,12 +2,11 @@ package com.qwaecd.paramagic.thaumaturgy.runtime;
 
 import com.qwaecd.paramagic.spell.caster.SpellCaster;
 import com.qwaecd.paramagic.spell.session.server.ServerSession;
+import com.qwaecd.paramagic.thaumaturgy.ProjectileEntity;
 import com.qwaecd.paramagic.thaumaturgy.operator.OperatorType;
 import com.qwaecd.paramagic.thaumaturgy.operator.ParaOperator;
-import com.qwaecd.paramagic.thaumaturgy.ProjectileEntity;
 import lombok.Getter;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.phys.Vec3;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;

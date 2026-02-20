@@ -2,14 +2,10 @@ package com.qwaecd.paramagic.spell.session.client;
 
 import com.qwaecd.paramagic.assembler.AssemblyException;
 import com.qwaecd.paramagic.assembler.ParaComposer;
-import com.qwaecd.paramagic.core.render.TransformSample;
 import com.qwaecd.paramagic.feature.circle.MagicCircle;
 import com.qwaecd.paramagic.feature.circle.MagicCircleManager;
 import com.qwaecd.paramagic.spell.config.CircleAssets;
 import com.qwaecd.paramagic.spell.session.SessionState;
-import com.qwaecd.paramagic.spell.util.transform.BillboardFunction;
-import com.qwaecd.paramagic.spell.util.transform.FixedAnchorFunction;
-import com.qwaecd.paramagic.spell.util.transform.FollowCasterFunction;
 import com.qwaecd.paramagic.spell.util.transform.LambdaFunction;
 import com.qwaecd.paramagic.spell.view.CasterTransformSource;
 import com.qwaecd.paramagic.spell.view.HybridCasterSource;

@@ -3,7 +3,6 @@ package com.qwaecd.paramagic.spell.session.server;
 import com.qwaecd.paramagic.network.Networking;
 import com.qwaecd.paramagic.network.packet.session.S2CSessionDataSyncPacket;
 import com.qwaecd.paramagic.spell.caster.SpellCaster;
-import com.qwaecd.paramagic.spell.session.SessionState;
 import com.qwaecd.paramagic.spell.session.SpellSession;
 import com.qwaecd.paramagic.spell.session.store.SessionDataStore;
 import com.qwaecd.paramagic.spell.session.store.SessionDataSyncPayload;

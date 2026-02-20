@@ -1,7 +1,8 @@
 package com.qwaecd.paramagic.ui.menu;
 
 import com.qwaecd.paramagic.tools.nbt.CrystalComponentUtils;
-import com.qwaecd.paramagic.ui.inventory.*;
+import com.qwaecd.paramagic.ui.inventory.ContainerHolder;
+import com.qwaecd.paramagic.ui.inventory.PlayerInventoryHolder;
 import com.qwaecd.paramagic.ui.inventory.slot.SlotActionHandler;
 import com.qwaecd.paramagic.ui.inventory.slot.UISlot;
 import com.qwaecd.paramagic.world.item.ParaOperatorItem;
