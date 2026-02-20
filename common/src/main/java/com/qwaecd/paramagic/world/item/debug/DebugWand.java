@@ -12,6 +12,7 @@ import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.UseAnim;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Vector3f;
@@ -29,9 +30,19 @@ public class DebugWand extends Item {
     }
 
     @Override
+    public int getUseDuration(ItemStack stack) {
+        return Short.MAX_VALUE * 20;
+    }
+
+    @Override
+    public UseAnim getUseAnimation(ItemStack stack) {
+        return UseAnim.BOW;
+    }
+
+    @Override
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand usedHand) {
         if (level.isClientSide) {
-            this.spawnTestParticles(level, player);
+//            this.spawnTestParticles(level, player);
         }
         return InteractionResultHolder.success(player.getItemInHand(usedHand));
     }

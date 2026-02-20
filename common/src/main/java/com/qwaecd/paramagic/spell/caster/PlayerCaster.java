@@ -28,8 +28,18 @@ public class PlayerCaster extends BaseSpellCaster implements SpellCaster {
     }
 
     @Override
+    public boolean shouldContinueSession(ServerSessionManager manager) {
+        return this.source.isUsingItem();
+    }
+
+    @Override
     public Vec3 position() {
         return this.source.position();
+    }
+
+    @Override
+    public Vec3 forwardVector() {
+        return this.source.getForward();
     }
 
     public static PlayerCaster create(Player player) {

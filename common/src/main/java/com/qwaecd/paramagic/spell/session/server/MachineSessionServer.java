@@ -45,7 +45,10 @@ public class MachineSessionServer extends ServerSession implements ServerSession
         this.executor.tick(this, this.machine.currentPhase(), level);
 
         // 当前 tick ，状态机已经完成运行，则标记为逻辑完成
-        if (this.machineCompleted() && !isState(SessionState.FINISHED_LOGICALLY)) {
+        if (this.machineCompleted()
+                && !isState(SessionState.FINISHED_LOGICALLY) // 防止重复调用 setState
+                && !isState(SessionState.INTERRUPTED) // 防止处于中断状态的 session 被错误地标记为完成
+        ) {
             this.setSessionState(SessionState.FINISHED_LOGICALLY);
             return;
         }
@@ -80,6 +83,12 @@ public class MachineSessionServer extends ServerSession implements ServerSession
         this.machine.removeListener(listener);
     }
 
+    @Override
+    public void casterDisconnected() {
+        this.forceInterrupt();
+    }
+
+    @Override
     public void interrupt() {
         this.setSessionState(SessionState.INTERRUPTED);
         this.machine.interrupt();

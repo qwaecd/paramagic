@@ -65,7 +65,7 @@ public class SpellStateMachine {
                 // 该事件已过期, 忽略
                 continue;
             }
-            processEvent(envelope.getEvent());
+            this.processEvent(envelope.getEvent());
             processed++;
         }
         if (processed >= MAX_EVENTS_PER_TICK) {
@@ -74,13 +74,13 @@ public class SpellStateMachine {
 //            this.eventQueue.clear();
         }
 
-        if (this.currentPhase != null && !isCompleted()) {
+        if (this.currentPhase != null && !this.isCompleted()) {
             this.currentPhase.update(this.context, deltaTime);
 
             final SpellPhaseType phaseType = this.currentPhase.getPhaseType();
-            forEachListenerSafe(listener -> listener.onTick(phaseType, deltaTime));
+            this.forEachListenerSafe(listener -> listener.onTick(phaseType, deltaTime));
         } else {
-            endSpell(EndSpellReason.COMPLETED);
+            this.endSpell(EndSpellReason.COMPLETED);
         }
     }
 
@@ -91,7 +91,7 @@ public class SpellStateMachine {
 
     private void processEvent(MachineEvent event) {
         if (systemEvents.contains(event)) {
-            processSystemEvent(event);
+            this.processSystemEvent(event);
             return;
         }
 
@@ -99,22 +99,22 @@ public class SpellStateMachine {
             Transition transition = this.currentPhase.onEvent(this.context, event);
             if (transition != null) {
                 // 进行状态转换
-                handleTransition(transition);
+                this.handleTransition(transition);
             }
         }
     }
 
     private void processSystemEvent(MachineEvent event) {
         if (event.equals(AllMachineEvents.INTERRUPT)) {
-            endSpell(EndSpellReason.INTERRUPTED);
+            this.endSpell(EndSpellReason.INTERRUPTED);
         }
         if (event.equals(AllMachineEvents.END_SPELL)) {
-            endSpell(EndSpellReason.COMPLETED);
+            this.endSpell(EndSpellReason.COMPLETED);
         }
     }
 
     public void postEvent(MachineEvent event) {
-        postEventBounded(event, true);
+        this.postEventBounded(event, true);
     }
 
     public void postEventBounded(MachineEvent event, boolean bindToPhase) {
@@ -123,7 +123,7 @@ public class SpellStateMachine {
     }
 
     public void interrupt() {
-        postEventBounded(AllMachineEvents.INTERRUPT, false);
+        this.postEventBounded(AllMachineEvents.INTERRUPT, false);
     }
 
     public void forceInterrupt() {
@@ -147,7 +147,7 @@ public class SpellStateMachine {
         }
         switch (triggerPoint) {
             case ON_ENTER, ON_EXIT ->
-                    forEachListenerSafe(listener -> listener.onEffectTriggered(triggerPoint, type));
+                    this.forEachListenerSafe(listener -> listener.onEffectTriggered(triggerPoint, type));
             default -> {
             }
         }
@@ -162,7 +162,7 @@ public class SpellStateMachine {
             this.sessionCallback.onPhaseChanged(oldPhase, newPhase);
         }
 
-        forEachListenerSafe(listener -> listener.onPhaseChanged(oldPhase, newPhase));
+        this.forEachListenerSafe(listener -> listener.onPhaseChanged(oldPhase, newPhase));
     }
 
     private void handleTransition(@Nonnull Transition transition) {
@@ -183,7 +183,7 @@ public class SpellStateMachine {
             throw new NullPointerException("Target phase '" + targetPhase + "' not found in phase connection.");
         }
 
-        changePhase(newPhase);
+        this.changePhase(newPhase);
     }
 
     private void endSpell(EndSpellReason reason) {
@@ -195,13 +195,13 @@ public class SpellStateMachine {
 
         switch (reason) {
             case COMPLETED: {
-                forEachListenerSafe(SpellPhaseListener::onSpellCompleted);
+                this.forEachListenerSafe(SpellPhaseListener::onSpellCompleted);
                 break;
             }
             case INTERRUPTED:
             case FAILED:
             default: {
-                forEachListenerSafe(SpellPhaseListener::onSpellInterrupted);
+                this.forEachListenerSafe(SpellPhaseListener::onSpellInterrupted);
                 break;
             }
         }
@@ -220,7 +220,7 @@ public class SpellStateMachine {
         this.currentPhase.onEnter(this.context);
 
         if (oldPhase != null) {
-            notifyStateChanged(oldPhase.getPhaseType(), newPhase.getPhaseType());
+            this.notifyStateChanged(oldPhase.getPhaseType(), newPhase.getPhaseType());
         }
     }
 

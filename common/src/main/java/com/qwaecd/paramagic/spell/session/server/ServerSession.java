@@ -3,6 +3,7 @@ package com.qwaecd.paramagic.spell.session.server;
 import com.qwaecd.paramagic.network.Networking;
 import com.qwaecd.paramagic.network.packet.session.S2CSessionDataSyncPacket;
 import com.qwaecd.paramagic.spell.caster.SpellCaster;
+import com.qwaecd.paramagic.spell.session.SessionState;
 import com.qwaecd.paramagic.spell.session.SpellSession;
 import com.qwaecd.paramagic.spell.session.store.SessionDataStore;
 import com.qwaecd.paramagic.spell.session.store.SessionDataSyncPayload;
@@ -25,6 +26,11 @@ public abstract class ServerSession extends SpellSession implements AutoCloseabl
     protected final ServerLevel level;
     protected final int trackingDistance;
 
+    /**
+     * 用于告诉 ServerSessionManager 不要重复调用{@code casterDisconnected()}的字段.
+     */
+    boolean disconnected = false;
+
     @Nonnull
     @Getter
     protected final SpellCaster caster;
@@ -42,6 +48,10 @@ public abstract class ServerSession extends SpellSession implements AutoCloseabl
 
     public abstract void tickOnLevel(ServerLevel level, float deltaTime);
 
+    public void casterDisconnected() {
+        this.interrupt();
+    }
+
     @Override
     public boolean canRemoveFromManager() {
         return super.canRemoveFromManager();
@@ -54,7 +64,8 @@ public abstract class ServerSession extends SpellSession implements AutoCloseabl
     }
 
     public void syncDataStore() {
-        this.forEachTrackingPlayer(player -> Networking.get().sendToPlayer(player, this.createFullSyncPacket()));
+        S2CSessionDataSyncPacket syncPacket = this.createFullSyncPacket();
+        this.forEachTrackingPlayer(player -> Networking.get().sendToPlayer(player, syncPacket));
     }
 
     protected void forEachTrackingPlayer(Consumer<ServerPlayer> action) {

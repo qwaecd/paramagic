@@ -1,5 +1,6 @@
 package com.qwaecd.paramagic.thaumaturgy.operator;
 
+import com.qwaecd.paramagic.thaumaturgy.operator.content.MagicArrowOperator;
 import com.qwaecd.paramagic.thaumaturgy.operator.content.VoidOperator;
 
 import javax.annotation.Nonnull;
@@ -23,6 +24,7 @@ public final class AllParaOperators {
 
     public static void registerAll() {
         registerOperator(VoidOperator::new);
+        registerOperator(MagicArrowOperator::new);
     }
 
     @Nullable

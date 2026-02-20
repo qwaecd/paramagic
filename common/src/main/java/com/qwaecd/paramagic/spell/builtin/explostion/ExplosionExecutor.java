@@ -99,6 +99,7 @@ public class ExplosionExecutor extends SpellExecutor {
     }
 
     private void setClear() {
+        this.spawner.setInterrupted();
         if (this.levelCache == null) {
             return;
         }
@@ -115,16 +116,26 @@ public class ExplosionExecutor extends SpellExecutor {
         private float currentTime = 0.0f;
         private boolean shouldSpawn = false;
 
+        private boolean interrupted = false;
+
         @Setter
         private Vec3 center = Vec3.ZERO;
 
         void tick() {
+            if (this.interrupted) {
+                return;
+            }
             this.currentTime += tickPerSecond;
             if (this.currentTime >= this.nextSpawnInterval) {
                 this.currentTime = 0.0f;
                 this.nextSpawnInterval = random.nextFloat(0.5f, 5.0f);
                 this.shouldSpawn = true;
             }
+        }
+
+        void setInterrupted() {
+            this.interrupted = true;
+            this.shouldSpawn = false;
         }
 
         @Nullable
@@ -156,7 +167,7 @@ public class ExplosionExecutor extends SpellExecutor {
         }
 
         boolean shouldSpawn() {
-            return this.shouldSpawn;
+            return this.shouldSpawn && !this.interrupted;
         }
     }
 

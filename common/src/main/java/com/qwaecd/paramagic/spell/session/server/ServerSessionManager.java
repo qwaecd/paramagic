@@ -16,7 +16,6 @@ import java.lang.ref.WeakReference;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.function.Consumer;
 
 public class ServerSessionManager implements ISessionManager {
     private static final ConditionalLogger LOGGER = ConditionalLogger.create(ServerSessionManager.class);
@@ -71,18 +70,20 @@ public class ServerSessionManager implements ISessionManager {
     private void tickAll(final ServerLevel serverLevel, final float deltaTime) {
         this.flushPendingRemovals();
 
-        this.forEachSessionSafe(session -> {
-            session.tickOnLevel(serverLevel, deltaTime);
-            if (session.canRemoveFromManager()) {
-                this.pendingRemovals.add(session);
-            }
-        });
-    }
-
-    private void forEachSessionSafe(Consumer<ServerSession> consumer) {
         for (var entry : this.sessions.entrySet()) {
+            ServerSession session = entry.getValue();
             try {
-                consumer.accept(entry.getValue());
+                if (!session.getCaster().shouldContinueSession(this) && !session.disconnected) {
+                    session.disconnected = true;
+                    session.casterDisconnected();
+                }
+
+                if (session.canRemoveFromManager()) {
+                    this.pendingRemovals.add(session);
+                    continue;
+                }
+
+                session.tickOnLevel(serverLevel, deltaTime);
             } catch (Exception e) {
                 LOGGER.logIfDev(logger ->
                         logger.error("Error while processing spell session {} in level {}", entry.getKey(), this.levelKey, e)

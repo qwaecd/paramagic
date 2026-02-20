@@ -50,7 +50,10 @@ public class MachineSessionClient extends ClientSession implements ClientSession
         this.machine.update(deltaTime);
         this.renderer.gameTick(this, this.machine.currentPhase());
         // 当前 tick ，状态机已经完成运行，则标记为逻辑完成
-        if (this.machineCompleted() && !isState(SessionState.FINISHED_LOGICALLY)) {
+        if (this.machineCompleted()
+                && !isState(SessionState.FINISHED_LOGICALLY) // 防止重复调用 setState
+                && !isState(SessionState.INTERRUPTED) // 防止处于中断状态的 session 被错误地标记为完成
+        ) {
             this.setSessionState(SessionState.FINISHED_LOGICALLY);
             return;
         }

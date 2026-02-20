@@ -6,9 +6,6 @@ import com.qwaecd.paramagic.spell.builtin.BuiltinSpellEntry;
 import com.qwaecd.paramagic.spell.builtin.BuiltinSpellRegistry;
 import com.qwaecd.paramagic.spell.builtin.explostion.ExplosionSpell;
 import com.qwaecd.paramagic.spell.caster.PlayerCaster;
-import com.qwaecd.paramagic.spell.session.SessionManagers;
-import com.qwaecd.paramagic.spell.session.server.ServerSession;
-import com.qwaecd.paramagic.spell.session.server.ServerSessionManager;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
@@ -19,9 +16,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Rarity;
 import net.minecraft.world.item.UseAnim;
 import net.minecraft.world.level.Level;
-
-import java.util.UUID;
-
 
 public class ExplosionWand extends Item {
     public ExplosionWand() {
@@ -61,13 +55,6 @@ public class ExplosionWand extends Item {
 
     @Override
     public void releaseUsing(ItemStack stack, Level level, LivingEntity livingEntity, int timeCharged) {
-        UUID casterId = livingEntity.getUUID();
-        if (level instanceof ServerLevel serverLevel) {
-            ServerSessionManager sm = SessionManagers.getForServer(serverLevel);
-            for (ServerSession serverSession : sm.getSessionsByUUID(casterId)) {
-                serverSession.interrupt();
-            }
-        }
     }
 
     @Override

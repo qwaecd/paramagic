@@ -7,6 +7,7 @@ import com.qwaecd.paramagic.thaumaturgy.operator.ParaOperator;
 import com.qwaecd.paramagic.thaumaturgy.ProjectileEntity;
 import lombok.Getter;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.phys.Vec3;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -57,6 +58,14 @@ public final class ParaContext {
         for (ParaOperator operator : this.operators.get(OperatorType.PROJECTILE)) {
             operator.apply(this);
         }
+
+        Vec3 position = this.caster.position();
+        Vec3 forwarded = this.caster.forwardVector();
+        for (ProjectileEntity projectile : this.projectiles) {
+            projectile.setPosition((float) position.x, (float) position.y, (float) position.z);
+            projectile.setVelocity((float) forwarded.x, (float) forwarded.y, (float) forwarded.z);
+        }
+
         this.operators.remove(OperatorType.PROJECTILE);
     }
 
