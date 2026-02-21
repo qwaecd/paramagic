@@ -56,6 +56,7 @@ public class UIAnimator<T> {
         if (alpha >= 1.0f) {
             if (this.cycle) {
                 this.elapsedTime = 0.0f;
+                return;
             }
             this.finished = true;
             if (this.onRemove != null) {
