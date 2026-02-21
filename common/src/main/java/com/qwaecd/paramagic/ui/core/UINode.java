@@ -1,5 +1,9 @@
 package com.qwaecd.paramagic.ui.core;
 
+import com.qwaecd.paramagic.tools.anim.Interpolator;
+import com.qwaecd.paramagic.ui.animation.UIAnimationSystem;
+import com.qwaecd.paramagic.ui.animation.UIAnimator;
+import com.qwaecd.paramagic.ui.animation.ValueSetter;
 import com.qwaecd.paramagic.ui.api.UIRenderContext;
 import com.qwaecd.paramagic.ui.api.event.UIEventContext;
 import com.qwaecd.paramagic.ui.api.event.UIEventKey;
@@ -136,7 +140,7 @@ public class UINode {
 
     public void addChild(Collection<UINode> child) {
         for (UINode node : child) {
-            this.addChild(child);
+            this.addChild(node);
         }
     }
 
@@ -148,8 +152,29 @@ public class UINode {
 
     public void removeChild(Collection<UINode> child) {
         for (UINode node : child) {
-            this.removeChild(child);
+            this.removeChild(node);
         }
+    }
+
+    protected <T> UIAnimator<T> animate(
+            T animatable,
+            UIAnimator<T> animator
+    ) {
+        UIAnimationSystem.getInstance().addAnimator(animator);
+        return animator;
+    }
+
+    protected <T> UIAnimator<T> animate(
+            T animatable,
+            T start,
+            T end,
+            float duration,
+            Interpolator<T> interpolator,
+            ValueSetter<T> setter
+    ) {
+        UIAnimator<T> animator = new UIAnimator<>(start, end, duration, interpolator, setter);
+        this.animate(animatable, animator);
+        return animator;
     }
 
     /**

@@ -21,7 +21,7 @@ public class UIScrollView extends UINode {
     /**
      * 滚动灵敏度
      */
-    protected float sensitivity = 16.0f;
+    protected float sensitivity = 64.0f;
     /**
      * 子节点在滚动方向上的内容总长度（基于 localRect 计算）
      */

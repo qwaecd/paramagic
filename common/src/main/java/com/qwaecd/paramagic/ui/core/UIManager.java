@@ -1,6 +1,7 @@
 package com.qwaecd.paramagic.ui.core;
 
 import com.qwaecd.paramagic.ui.MenuContent;
+import com.qwaecd.paramagic.ui.animation.UIAnimationSystem;
 import com.qwaecd.paramagic.ui.api.TooltipRenderer;
 import com.qwaecd.paramagic.ui.api.UIRenderContext;
 import com.qwaecd.paramagic.ui.api.event.AllUIEvents;
@@ -26,11 +27,14 @@ import java.util.function.Consumer;
  */
 public class UIManager {
     private static final Logger LOGGER = LoggerFactory.getLogger(UIManager.class);
+
+    @Nullable
+    private static UIManager instance;
     @Nullable
     private final MenuContent menuContent;
     private final MouseStateMachine mouseStateMachine;
 
-    private final Queue<UITask> deferredTasks = new ArrayDeque<>();
+    private final Map<TaskStage, Queue<UITask>> deferredTasks = new EnumMap<>(TaskStage.class);
     @Getter
     @Nonnull
     private final TooltipRenderer tooltipRenderer;
@@ -57,24 +61,48 @@ public class UIManager {
         this.overlayRoot = new OverlayRoot(this);
     }
 
+    /**
+     * 个人不是很建议使用这个函数，因为 UIManager 的生命周期无法随时保证是正确的
+     */
+    @Nullable
+    public static UIManager getInstance() {
+        return instance;
+    }
+
     public void init() {
+        instance = this;
         this.rootNode.layout(this.rootNode.localRect.x, this.rootNode.localRect.y, this.rootNode.localRect.w, this.rootNode.localRect.h);
     }
 
     public void render(UIRenderContext context) {
+        this.processDeferredTasks(TaskStage.BEFORE_RENDER);
+        UIAnimationSystem.getInstance().updateAll(context.deltaTime);
         this.rootNode.renderTree(context);
         this.overlayRoot.renderOverlay(context);
+        this.processDeferredTasks(TaskStage.AFTER_RENDER);
     }
 
     /**
-     * 添加一个延迟任务, 该任务会在当前事件分发完成后执行
+     * 添加一个延迟任务
      */
     public void offerDeferredTask(@Nonnull UITask task) {
-        this.deferredTasks.offer(task);
+        this.deferredTasks.computeIfAbsent(task.taskStage, (k) -> new ArrayDeque<>()).offer(task);
     }
 
     public void flushMouseOvering() {
         this.processMouseOverAndLeave(this.mouseStateMachine.mouseX(), this.mouseStateMachine.mouseY());
+    }
+
+    public void offerOveringTestTask() {
+        this.offerOveringTestTask(false);
+    }
+
+    public void offerOveringTestTask(boolean now) {
+        if (now) {
+            this.processMouseOverAndLeave(this.mouseStateMachine.mouseX(), this.mouseStateMachine.mouseY());
+        } else {
+            this.offerDeferredTask(UITask.create(UIManager::flushMouseOvering, TaskStage.AFTER_RENDER));
+        }
     }
 
     /**
@@ -203,15 +231,7 @@ public class UIManager {
             }
         }
 
-        while (this.deferredTasks.peek() != null) {
-            UITask task = this.deferredTasks.poll();
-            try {
-                task.execute(this);
-            } catch (Exception e) {
-                LOGGER.error("Exception occurred while executing deferred UI task.", e);
-            }
-        }
-
+        this.processDeferredTasks(TaskStage.AFTER_EVENT);
         return context.isConsumed();
     }
 
@@ -295,5 +315,19 @@ public class UIManager {
 
     public static boolean hasAltKeyDown() {
         return Screen.hasAltDown();
+    }
+
+    private void processDeferredTasks(TaskStage stage) {
+        Queue<UITask> tasks = this.deferredTasks.get(stage);
+        if (tasks != null) {
+            while (tasks.peek() != null) {
+                UITask task = tasks.poll();
+                try {
+                    task.execute(this);
+                } catch (Exception e) {
+                    LOGGER.error("Exception occurred while executing deferred UI task.", e);
+                }
+            }
+        }
     }
 }

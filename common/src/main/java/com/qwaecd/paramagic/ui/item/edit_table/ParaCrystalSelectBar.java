@@ -1,16 +1,17 @@
 package com.qwaecd.paramagic.ui.item.edit_table;
 
+import com.qwaecd.paramagic.tools.anim.Interpolation;
 import com.qwaecd.paramagic.ui.MenuContent;
+import com.qwaecd.paramagic.ui.animation.UIAnimationSystem;
+import com.qwaecd.paramagic.ui.animation.UIAnimator;
 import com.qwaecd.paramagic.ui.api.event.AllUIEvents;
 import com.qwaecd.paramagic.ui.api.event.UIEventContext;
-import com.qwaecd.paramagic.ui.core.ClipMod;
-import com.qwaecd.paramagic.ui.core.UIManager;
-import com.qwaecd.paramagic.ui.core.UINode;
-import com.qwaecd.paramagic.ui.core.UITask;
+import com.qwaecd.paramagic.ui.core.*;
 import com.qwaecd.paramagic.ui.event.EventPhase;
 import com.qwaecd.paramagic.ui.event.impl.DoubleClick;
 import com.qwaecd.paramagic.ui.event.impl.MouseClick;
 import com.qwaecd.paramagic.ui.event.impl.MouseRelease;
+import com.qwaecd.paramagic.ui.event.impl.WheelEvent;
 import com.qwaecd.paramagic.ui.inventory.InventoryHolder;
 import com.qwaecd.paramagic.ui.inventory.slot.UISlot;
 import com.qwaecd.paramagic.ui.io.mouse.MouseButton;
@@ -21,17 +22,20 @@ import com.qwaecd.paramagic.ui.widget.node.ItemNode;
 import com.qwaecd.paramagic.ui.widget.node.SlotNode;
 import net.minecraft.world.inventory.ClickType;
 
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
 public class ParaCrystalSelectBar extends UIScrollView {
-    private static final UITask reOvering = UITask.create(UIManager::flushMouseOvering);
     private InventoryHolder inventory;
 
     // List 的索引并不代表着 inventory 的槽位索引，槽位索引由 SlotNode 内部维护
     private final List<SlotNode> items = new ArrayList<>();
     private UIPanel panel;
     private final float panelOffsetY = 4.0f;
+
+    @Nullable
+    private UIAnimator<Float> scrollAnimator;
 
     public ParaCrystalSelectBar() {
         super(false);
@@ -49,7 +53,7 @@ public class ParaCrystalSelectBar extends UIScrollView {
                 EventPhase.BUBBLING,
                 (context) -> {
                     if (!context.isConsumed()) {
-                        context.manager.offerDeferredTask(reOvering);
+//                        context.manager.offerOveringTestTask();
                         this.onMouseScroll(context);
                         context.consume();
                     }
@@ -111,6 +115,31 @@ public class ParaCrystalSelectBar extends UIScrollView {
             menu.getScreen().slotClicked(slot, context.event.button, ClickType.PICKUP_ALL);
         }
         context.consume();
+    }
+
+    @Override
+    protected void onMouseScroll(UIEventContext<WheelEvent> context) {
+        final float start = this.viewOffset;
+        UIManager manager = context.manager;
+        super.onMouseScroll(context);
+        if (this.scrollAnimator != null) {
+            // TODO: 可以实现动画合并
+            if (!this.scrollAnimator.isFinished()) {
+                return;
+            }
+            UIAnimationSystem.getInstance().removeAnimator(this.scrollAnimator);
+        }
+        this.scrollAnimator = new UIAnimator<>(
+                start, this.viewOffset, 0.2f,
+                Interpolation::easeOutSine,
+                ((interpolationValue, value) -> this.viewOffset = interpolationValue)
+        ).setOnUpdate(offset -> {
+            manager.offerOveringTestTask();
+            this.clampViewOffset();
+            this.recalculateContentExtent();
+            this.layoutChildren();
+        });
+        UIAnimationSystem.getInstance().addAnimator(this.scrollAnimator);
     }
 
     public int initInventory(InventoryHolder inv) {

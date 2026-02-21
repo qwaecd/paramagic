@@ -100,7 +100,11 @@ public class PTTreeNode extends UINode {
     public void mouseMoveListener(double mouseX, double mouseY, MouseStateMachine mouseState) {
         final float size = 4.0f;
         this.itemNode.worldRect.set((float) (mouseX - size * 0.5f), (float) (mouseY - size * 0.5f), size, size);
-        ParaNode node = this.findNode((float) mouseX, (float) mouseY);
+        this.hoveringItemTest((float) mouseX, (float) mouseY);
+    }
+
+    private void hoveringItemTest(float mouseX, float mouseY) {
+        ParaNode node = this.findNode(mouseX, mouseY);
         if (node == null || this.menu == null) {
             if (menu != null) {
                 menu.setHoveringItemNode(null);
@@ -123,6 +127,8 @@ public class PTTreeNode extends UINode {
             this.menu = context.manager.getMenuContentOrThrow();
         }
         context.manager.registerMouseMovingListener(this);
+        MouseOver event = context.event;
+        this.hoveringItemTest((float) event.mouseX, (float) event.mouseY);
     }
 
     @Override

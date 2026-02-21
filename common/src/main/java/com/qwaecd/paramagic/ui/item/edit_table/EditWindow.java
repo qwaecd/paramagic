@@ -4,6 +4,7 @@ import com.qwaecd.paramagic.thaumaturgy.ParaCrystalData;
 import com.qwaecd.paramagic.thaumaturgy.node.ParaTree;
 import com.qwaecd.paramagic.tools.nbt.CrystalComponentUtils;
 import com.qwaecd.paramagic.ui.core.ClipMod;
+import com.qwaecd.paramagic.ui.core.UIManager;
 import com.qwaecd.paramagic.ui.core.UINode;
 import com.qwaecd.paramagic.ui.inventory.InventoryHolder;
 import com.qwaecd.paramagic.ui.inventory.slot.UISlot;
@@ -53,6 +54,11 @@ public class EditWindow extends UINode {
         paraTree.updateAll(component);
         PTTreeNode ptTreeNode = new PTTreeNode(paraTree);
         this.updateTreeNode(ptTreeNode);
+
+        UIManager manager = UIManager.getInstance();
+        if (manager != null) {
+            manager.offerOveringTestTask(true);
+        }
     }
 
     private void removeTreeNode() {
