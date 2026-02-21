@@ -48,11 +48,11 @@ public class SpellSpawner {
 
             SpellAnchorEntity spellAnchorEntity = new SpellAnchorEntity(level);
             spellAnchorEntity.moveTo(caster.position());
-            level.addFreshEntity(spellAnchorEntity);
 
             CircleAssets circleAssets = new CircleAssets(crystal.getParaData(), null);
             SpellUnion union = SpellUnion.ofPara(SpellSessionRef.fromSession(session), circleAssets);
             connect(session, spellAnchorEntity, union);
+            level.addFreshEntity(spellAnchorEntity);
         }
         return session;
     }

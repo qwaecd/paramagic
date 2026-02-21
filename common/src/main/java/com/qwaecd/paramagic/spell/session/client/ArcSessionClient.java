@@ -2,6 +2,7 @@ package com.qwaecd.paramagic.spell.session.client;
 
 import com.qwaecd.paramagic.assembler.AssemblyException;
 import com.qwaecd.paramagic.assembler.ParaComposer;
+import com.qwaecd.paramagic.client.animation.DefaultCircleAnim;
 import com.qwaecd.paramagic.feature.circle.MagicCircle;
 import com.qwaecd.paramagic.feature.circle.MagicCircleManager;
 import com.qwaecd.paramagic.spell.config.CircleAssets;
@@ -57,6 +58,14 @@ public class ArcSessionClient extends ClientSession {
                 magicCircle = new MagicCircle();
                 LOGGER.warn("Failed to assemble MagicCircle for ArcSessionClient. Session ID: {}, Error: {}", sessionId, e.getMessage());
             }
+
+            if (assets.getAnimBindingConfig() == null) {
+                magicCircle.getTransform().setScale(0.0f);
+                DefaultCircleAnim defaultCircleAnim = new DefaultCircleAnim(magicCircle, new Vector3f(1.0f, 1.0f, 1.0f), 0.7f);
+                defaultCircleAnim.setRotationSpeed((float) Math.toRadians(-45.0f));
+                magicCircle.setAnimator(defaultCircleAnim);
+            }
+
             // lambda 简直是世界上最伟大的发明喵
             LambdaFunction lambdaFunction = new LambdaFunction((item, caster, tempSample) -> {
                 caster.applyTo(tempSample);

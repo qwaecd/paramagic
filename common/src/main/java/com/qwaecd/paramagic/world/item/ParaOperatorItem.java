@@ -53,42 +53,49 @@ public abstract class ParaOperatorItem extends Item {
         };
         components.add(
                 Component.translatable("tooltip.paramagic.para_operator_item.operator_type")
-                        .withStyle(ChatFormatting.GREEN, ChatFormatting.BOLD)
-                        .append(operatorType)
+                        .withStyle(ChatFormatting.GREEN).append(operatorType)
         );
 
         float delay = id.getTransmissionDelay();
-        ChatFormatting delayFormat;
-        if (delay < 0.5f) {
-            delayFormat = ChatFormatting.GREEN;
-        } else if (delay < 1.0f) {
-            delayFormat = ChatFormatting.YELLOW;
-        } else if (delay < 3.0f) {
-            delayFormat = ChatFormatting.RED;
-        } else {
-            delayFormat = ChatFormatting.DARK_RED;
-        }
+        ChatFormatting delayFormat = getTimeFormatting(delay);
         Component transmissionDelayStyle = Component.literal(String.valueOf(delay)).withStyle(delayFormat);
         components.add(
                 Component.translatable("tooltip.paramagic.para_operator_item.transmission_delay")
-                        .withStyle(ChatFormatting.DARK_GREEN, ChatFormatting.BOLD).append(transmissionDelayStyle)
+                        .withStyle(ChatFormatting.DARK_GREEN).append(transmissionDelayStyle)
         );
 
-        float cycleCooldown = this.operatorId.getCycleCooldown();
-        ChatFormatting cycleCooldownFormat;
-        if (cycleCooldown < 1.0f) {
-            cycleCooldownFormat = ChatFormatting.GREEN;
-        } else if (delay < 2.0f) {
-            cycleCooldownFormat = ChatFormatting.YELLOW;
-        } else if (delay < 5.0f) {
-            cycleCooldownFormat = ChatFormatting.RED;
-        } else {
-            cycleCooldownFormat = ChatFormatting.DARK_RED;
-        }
+        float cycleCooldown = id.getCycleCooldown();
+        ChatFormatting cycleCooldownFormat = getTimeFormatting(cycleCooldown);
         Component cycleCooldownStyle = Component.literal(String.valueOf(cycleCooldown)).withStyle(cycleCooldownFormat);
         components.add(
                 Component.translatable("tooltip.paramagic.para_operator_item.cycle_cooldown")
-                        .withStyle(ChatFormatting.BLUE, ChatFormatting.BOLD).append(cycleCooldownStyle)
+                        .withStyle(ChatFormatting.DARK_PURPLE).append(cycleCooldownStyle)
         );
+
+        this.appendDescribeHoverText(stack, level, components, isAdvanced);
+    }
+
+    protected void appendDescribeHoverText(
+            ItemStack stack,
+            @Nullable Level level,
+            List<Component> components,
+            TooltipFlag isAdvanced
+    ) {
+    }
+
+    public static ChatFormatting getTimeFormatting(float time) {
+        ChatFormatting formatting;
+        if (time < 0.05f) {
+            formatting = ChatFormatting.GREEN;
+        } else if (time < 0.5f) {
+            formatting = ChatFormatting.WHITE;
+        }else if (time < 1.0f) {
+            formatting = ChatFormatting.YELLOW;
+        } else if (time < 3.0f) {
+            formatting = ChatFormatting.RED;
+        } else {
+            formatting = ChatFormatting.DARK_RED;
+        }
+        return formatting;
     }
 }

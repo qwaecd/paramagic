@@ -2,10 +2,8 @@ package com.qwaecd.paramagic.datagen;
 
 import lombok.Getter;
 
-import javax.annotation.Nullable;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.function.Consumer;
 
 public class Lang {
     private static final Map<String, Lang> languages = new HashMap<>();
@@ -25,11 +23,6 @@ public class Lang {
         return lang;
     }
 
-    @Nullable
-    public static Lang get(String key) {
-        return languages.get(key);
-    }
-
     @FunctionalInterface
     public interface LangConsumer {
         void accept(String key, Lang lang);
@@ -47,8 +40,10 @@ public class Lang {
         of("item.paramagic.void_operator", "Void Operator", "空参量");
         of("item.paramagic.magic_arrow_operator", "Magic Arrow", "魔法箭");
         of("item.paramagic.para_crystal", "Para Crystal", "魔力水晶");
-        of("tooltip.paramagic.para_operator_item.operator_type", "Operator Type: ", "法术类型: ");
-        of("tooltip.paramagic.para_operator_item.transmission_delay", "Transmission Delay: ", "传导延迟: ");
-        of("tooltip.paramagic.para_operator_item.cycle_cooldown", "Cycle Cooldown: ", "回转冷却: ");
+        of("tooltip.paramagic.para_operator_item.operator_type", "§lOperator Type: §r", "§l法术类型: §r");
+        of("tooltip.paramagic.para_operator_item.transmission_delay", "§lTransmission Delay: §r", "§l传导延迟: §r");
+        of("tooltip.paramagic.para_operator_item.cycle_cooldown", "§lCycle Cooldown: §r", "§l回转冷却: §r");
+        of("tooltip.paramagic.magic_arrow_operator.describe", "Shoots a magic arrow forward", "向前射出一支魔法箭");
+        of("tooltip.paramagic.void_operator.describe", "Do noting", "什么也不做");
     }
 }

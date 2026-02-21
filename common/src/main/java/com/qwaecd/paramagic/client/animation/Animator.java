@@ -8,13 +8,13 @@ import java.util.List;
 
 public class Animator {
     @Getter
-    private final List<AnimationTrack> tracks;
-    private float currentTime = 0.0f;
+    protected final List<AnimationTrack> tracks;
+    protected float currentTime = 0.0f;
     @Setter
-    private float speed = 1.0f;
+    protected float speed = 1.0f;
     @Setter
-    private boolean isPlaying = true;
-    private float duration = 0.0f;
+    protected boolean isPlaying = true;
+    protected float duration = 0.0f;
 
     public Animator() {
         this.tracks = new ArrayList<>();
