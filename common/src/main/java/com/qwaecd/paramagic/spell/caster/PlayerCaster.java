@@ -29,7 +29,7 @@ public class PlayerCaster extends BaseSpellCaster implements SpellCaster {
 
     @Override
     public boolean shouldContinueSession(ServerSessionManager manager) {
-        return this.source.isUsingItem();
+        return this.source.isUsingItem() && !this.source.isRemoved();
     }
 
     @Override

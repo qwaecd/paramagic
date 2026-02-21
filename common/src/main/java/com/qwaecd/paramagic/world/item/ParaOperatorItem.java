@@ -89,7 +89,7 @@ public abstract class ParaOperatorItem extends Item {
             formatting = ChatFormatting.GREEN;
         } else if (time < 0.5f) {
             formatting = ChatFormatting.WHITE;
-        }else if (time < 1.0f) {
+        } else if (time < 1.0f) {
             formatting = ChatFormatting.YELLOW;
         } else if (time < 3.0f) {
             formatting = ChatFormatting.RED;

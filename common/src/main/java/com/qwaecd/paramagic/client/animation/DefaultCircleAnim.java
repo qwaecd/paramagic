@@ -63,9 +63,10 @@ public class DefaultCircleAnim extends Animator {
         this.currentTime += deltaTime * speed;
         Transform transform = renderable.getTransform();
         if (!this.fullScale) {
-            float lerpX = Interpolation.lerp(this.initialScale.x, this.targetScale.x, Math.min(1.0f, this.currentTime / this.scaleDuration));
-            float lerpY = Interpolation.lerp(this.initialScale.y, this.targetScale.y, Math.min(1.0f, this.currentTime / this.scaleDuration));
-            float lerpZ = Interpolation.lerp(this.initialScale.z, this.targetScale.z, Math.min(1.0f, this.currentTime / this.scaleDuration));
+            float alpha = this.currentTime / this.scaleDuration;
+            float lerpX = Interpolation.lerp(this.initialScale.x, this.targetScale.x, Math.min(1.0f, alpha));
+            float lerpY = Interpolation.lerp(this.initialScale.y, this.targetScale.y, Math.min(1.0f, alpha));
+            float lerpZ = Interpolation.lerp(this.initialScale.z, this.targetScale.z, Math.min(1.0f, alpha));
             transform.setScale(lerpX, lerpY, lerpZ);
             if (this.currentTime >= this.scaleDuration) {
                 this.fullScale = true;

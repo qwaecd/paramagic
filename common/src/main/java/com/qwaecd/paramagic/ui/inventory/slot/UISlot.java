@@ -18,16 +18,17 @@ public class UISlot extends Slot {
     protected final int slotId;
     private boolean slotEnabled = true;
     private boolean draggable = true;
+    private static final int MAGIC_NUMBER = -943;
 
     public UISlot(InventoryHolder inv, int slotId) {
-        super(EMPTY_CONTAINER, slotId, -123, -123);
+        super(EMPTY_CONTAINER, slotId, MAGIC_NUMBER, MAGIC_NUMBER);
         this.inventory = inv;
         this.slotId = slotId;
         this.index = slotId;
     }
 
     public UISlot(InventoryHolder inv, int slotId, int index) {
-        super(EMPTY_CONTAINER, slotId, -123, -123);
+        super(EMPTY_CONTAINER, slotId, MAGIC_NUMBER, MAGIC_NUMBER);
         this.inventory = inv;
         this.slotId = slotId;
         this.index = index;
