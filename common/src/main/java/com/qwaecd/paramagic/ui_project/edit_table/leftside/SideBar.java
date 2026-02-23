@@ -1,21 +1,30 @@
 package com.qwaecd.paramagic.ui_project.edit_table.leftside;
 
 import com.qwaecd.paramagic.ui.api.UIRenderContext;
-import com.qwaecd.paramagic.ui.core.ClipMod;
-import com.qwaecd.paramagic.ui.core.UINode;
+import com.qwaecd.paramagic.ui.api.event.UIEventContext;
+import com.qwaecd.paramagic.ui.core.*;
+import com.qwaecd.paramagic.ui.event.impl.MouseLeave;
+import com.qwaecd.paramagic.ui.event.impl.MouseOver;
+import com.qwaecd.paramagic.ui.event.impl.MouseRelease;
 import com.qwaecd.paramagic.ui.inventory.ContainerHolder;
 import com.qwaecd.paramagic.ui.inventory.InventoryHolder;
 import com.qwaecd.paramagic.ui.inventory.slot.UISlot;
+import com.qwaecd.paramagic.ui.io.mouse.CursorType;
+import com.qwaecd.paramagic.ui.io.mouse.MouseStateMachine;
+import com.qwaecd.paramagic.ui.widget.node.MouseCaptureNode;
 import com.qwaecd.paramagic.ui_project.edit_table.BarState;
 import com.qwaecd.paramagic.ui_project.edit_table.SpellEditTableUI;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public class SideBar extends UINode {
-    @Nonnull
-    private final ParaSelectBar paraSelectBar;
+
     @Nonnull
     private final ParaStructEditNode structEditNode;
+
+    @Nonnull
+    private final ResizeNode resizeNode;
 
     @Nonnull
     private BarState state;
@@ -23,8 +32,105 @@ public class SideBar extends UINode {
     public SideBar() {
         this.state = BarState.NULL;
         this.clipMod = ClipMod.RECT;
-        this.paraSelectBar = new ParaSelectBar();
+        this.localRect.set(
+                0.0f, 0.0f,
+                94.3f, this.getWindowHeight() / this.getGuiScale()
+        );
+
         this.structEditNode = new ParaStructEditNode();
+        this.resizeNode = new ResizeNode(this);
+        this.addChild(this.resizeNode);
+    }
+
+    public static final class ResizeNode extends MouseCaptureNode {
+        @Nonnull
+        private final SideBar sideBar;
+        public ResizeNode(@Nonnull SideBar sideBar) {
+            this.sideBar = sideBar;
+            this.localRect.w = 4.0f;
+        }
+
+        @Override
+        public void onMouseMove(double mouseX, double mouseY, MouseStateMachine mouseState) {
+            if (this.ignoreTransform) {
+                return;
+            }
+            // 计算鼠标在父节点坐标系下的位置
+            UINode parent = this.getParent();
+            if (parent == null) {
+                this.localRect.x = (float) mouseX - this.grabOffsetX;
+//                this.localRect.y = (float) mouseY - this.grabOffsetY;
+                this.layout(
+                        0.0f, 0.0f,
+                        this.localRect.w, this.localRect.h
+                );
+            } else {
+                this.localRect.x = (float) mouseX - parent.getWorldRect().x - this.grabOffsetX;
+//                this.localRect.y = (float) mouseY - parent.getWorldRect().y - this.grabOffsetY;
+
+                this.layout(
+                        parent.getWorldRect().x, parent.getWorldRect().y,
+                        parent.getWorldRect().w, parent.getWorldRect().h
+                );
+            }
+            final float newWidth = (float) (this.sideBar.localRect.w + mouseState.deltaX());
+            this.sideBar.resize(newWidth);
+            UIManager manager = UIManager.getInstance();
+            if (manager != null) {
+                manager.offerDeferredTask(UITask.create(UIManager::layoutAll, TaskStage.AFTER_EVENT));
+            }
+        }
+
+        @Override
+        protected void onMouseRelease(UIEventContext<MouseRelease> context) {
+            super.onMouseRelease(context);
+        }
+
+        @Override
+        protected void onMouseOver(UIEventContext<MouseOver> context) {
+            if (context.isConsumed()) {
+                return;
+            }
+            CursorType.setCursor(CursorType.RESIZE_HORIZONTAL);
+            context.consume();
+        }
+
+        @Override
+        protected void onMouseLeave(UIEventContext<MouseLeave> context) {
+            if (context.isConsumed()) {
+                return;
+            }
+            CursorType.setCursor(CursorType.ARROW);
+            context.consume();
+        }
+
+        @Override
+        protected void render(@Nonnull UIRenderContext context) {
+            if (!this.visible) {
+                return;
+            }
+            context.fill(worldRect.x, worldRect.y, worldRect.x + worldRect.w, worldRect.y + worldRect.h, 0x80FFFFFF);
+        }
+    }
+
+    @Override
+    @Nullable
+    public UINode getMouseOverNode(float mouseX, float mouseY) {
+        UINode node = this.resizeNode.getMouseOverNode(mouseX, mouseY);
+        if (node != null) {
+            return node;
+        }
+        return super.getMouseOverNode(mouseX, mouseY);
+    }
+
+    @Override
+    @Nullable
+    public UINode getTopmostHitNode(float mouseX, float mouseY) {
+        UINode node = this.resizeNode.getTopmostHitNode(mouseX, mouseY);
+        if (node != null) {
+            return node;
+        }
+        return super.getTopmostHitNode(mouseX, mouseY);
     }
 
     /**
@@ -38,16 +144,10 @@ public class SideBar extends UINode {
         if (this.state == BarState.CRYSTAL_EDIT) {
             this.removeChild(this.structEditNode);
         }
-        if (this.state != BarState.PARA_SELECT) {
-            this.addChild(this.paraSelectBar);
-        }
         this.state = BarState.PARA_SELECT;
     }
 
     public void changeToCrystalEdit() {
-        if (this.state == BarState.PARA_SELECT) {
-            this.removeChild(this.paraSelectBar);
-        }
         if (this.state != BarState.CRYSTAL_EDIT) {
             this.addChild(this.structEditNode);
         }
@@ -55,9 +155,7 @@ public class SideBar extends UINode {
     }
 
     public void changeToNull() {
-        if (this.state == BarState.PARA_SELECT) {
-            this.removeChild(this.paraSelectBar);
-        } else if (this.state == BarState.CRYSTAL_EDIT) {
+        if (this.state == BarState.CRYSTAL_EDIT) {
             this.removeChild(this.structEditNode);
         }
         this.state = BarState.NULL;
@@ -65,9 +163,12 @@ public class SideBar extends UINode {
 
     @Override
     public void layout(float parentX, float parentY, float parentW, float parentH) {
-        this.localRect.set(
-                0.0f, 0.0f,
-                94.3f, this.getWindowHeight() / this.getGuiScale()
+        this.structEditNode.localRect.set(this.localRect);
+        this.resizeNode.localRect.set(
+                this.localRect.w - resizeNode.localRect.w,
+                0.0f,
+                resizeNode.localRect.w,
+                this.localRect.h
         );
         super.layout(parentX, parentY, parentW, parentH);
     }
@@ -84,5 +185,11 @@ public class SideBar extends UINode {
 
     public void onContainerChanged(SpellEditTableUI mainUI, InventoryHolder container, UISlot slot) {
         this.structEditNode.onContainerChanged(mainUI, container, slot);
+    }
+
+    void resize(float newWidth) {
+        final float delta = newWidth - this.localRect.w;
+        this.localRect.w = newWidth;
+        this.worldRect.w += delta;
     }
 }

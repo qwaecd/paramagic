@@ -10,6 +10,7 @@ import com.qwaecd.paramagic.ui.api.event.UIEventKey;
 import com.qwaecd.paramagic.ui.event.EventPhase;
 import com.qwaecd.paramagic.ui.event.UIEvent;
 import com.qwaecd.paramagic.ui.event.impl.*;
+import com.qwaecd.paramagic.ui.io.mouse.CursorType;
 import com.qwaecd.paramagic.ui.io.mouse.MouseStateMachine;
 import com.qwaecd.paramagic.ui.overlay.OverlayRoot;
 import lombok.Getter;
@@ -307,6 +308,7 @@ public class UIManager {
 
     public void onClose() {
         UIAnimationSystem.getInstance().close();
+        CursorType.setCursor(CursorType.ARROW);
     }
 
     public static boolean hasShiftKeyDown() {
@@ -333,5 +335,9 @@ public class UIManager {
                 }
             }
         }
+    }
+
+    public void layoutAll() {
+        this.rootNode.layout(this.rootNode.localRect.x, this.rootNode.localRect.y, this.rootNode.localRect.w, this.rootNode.localRect.h);
     }
 }

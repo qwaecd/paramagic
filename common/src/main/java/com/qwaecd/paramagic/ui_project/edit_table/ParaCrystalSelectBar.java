@@ -122,7 +122,6 @@ public class ParaCrystalSelectBar extends UIScrollView {
     @Override
     protected void onMouseScroll(UIEventContext<WheelEvent> context) {
         final float start = this.viewOffset;
-        UIManager manager = context.manager;
         super.onMouseScroll(context);
         if (this.scrollAnimator != null) {
             // TODO: 可以实现动画合并
@@ -131,6 +130,7 @@ public class ParaCrystalSelectBar extends UIScrollView {
             }
             UIAnimationSystem.getInstance().removeAnimator(this.scrollAnimator);
         }
+        UIManager manager = context.manager;
         this.scrollAnimator = this.animate(
                 start, this.viewOffset, 0.15f,
                 Interpolation::easeOutSine,

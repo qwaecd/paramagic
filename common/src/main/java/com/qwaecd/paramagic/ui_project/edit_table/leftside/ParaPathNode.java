@@ -5,6 +5,8 @@ import com.qwaecd.paramagic.ui.api.event.UIEventContext;
 import com.qwaecd.paramagic.ui.core.UINode;
 import com.qwaecd.paramagic.ui.event.impl.DoubleClick;
 import com.qwaecd.paramagic.ui.event.impl.MouseClick;
+import com.qwaecd.paramagic.ui.event.impl.MouseLeave;
+import com.qwaecd.paramagic.ui.event.impl.MouseOver;
 import com.qwaecd.paramagic.ui.util.UIColor;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
@@ -15,8 +17,11 @@ import javax.annotation.Nullable;
 
 public class ParaPathNode extends UINode {
     private static final float childrenIndentation = 8.0f;
-    private static final float defaultNodeWidth = 16.0f;
     private static final float defaultNodeHeight = 8.0f;
+
+    private boolean folded = false;
+
+    private boolean mouseOvering = false;
 
     @Nullable
     private Component path;
@@ -27,6 +32,26 @@ public class ParaPathNode extends UINode {
 
     public ParaPathNode(@Nonnull String path) {
         this(Component.literal(path));
+    }
+
+    public void setFolded(boolean folded) {
+        this.folded = folded;
+        if (folded) {
+            // 折叠递归禁用子节点
+            for (UINode child : this.children) {
+                if (child instanceof ParaPathNode paraPathNode) {
+                    paraPathNode.setFolded(true);
+                    paraPathNode.disable();
+                }
+            }
+        } else {
+            // 展开只展开直接子节点
+            for (UINode child : this.children) {
+                if (child instanceof ParaPathNode paraPathNode) {
+                    paraPathNode.enable();
+                }
+            }
+        }
     }
 
     public void setParaPath(Component path) {
@@ -41,8 +66,11 @@ public class ParaPathNode extends UINode {
         return defaultNodeHeight;
     }
 
-    private float getSubtreeHeight() {
+    public float getSubtreeHeight() {
         float totalHeight = this.getNodeHeight();
+        if (this.folded) {
+            return totalHeight;
+        }
         for (UINode child : this.children) {
             if (child instanceof ParaPathNode paraPathNode) {
                 totalHeight += paraPathNode.getSubtreeHeight();
@@ -59,15 +87,26 @@ public class ParaPathNode extends UINode {
 
     @Override
     protected void onDoubleClick(UIEventContext<DoubleClick> context) {
+        this.setFolded(!this.folded);
+        context.consume();
+    }
+
+    @Override
+    protected void onMouseOver(UIEventContext<MouseOver> context) {
+        this.mouseOvering = true;
+    }
+
+    @Override
+    protected void onMouseLeave(UIEventContext<MouseLeave> context) {
+        this.mouseOvering = false;
     }
 
     @Override
     public void layout(float parentX, float parentY, float parentW, float parentH) {
-        float nodeWidth = defaultNodeWidth;
+        float nodeWidth = this.parent == null ? parentW : parent.localRect.w;
         float nodeHeight = defaultNodeHeight;
         if (this.path != null) {
             Font font = Minecraft.getInstance().font;
-            nodeWidth = font.width(this.path);
             nodeHeight = font.lineHeight;
         }
         this.localRect.setWH(nodeWidth, nodeHeight);
@@ -80,6 +119,10 @@ public class ParaPathNode extends UINode {
 
         float nextChildY = nodeHeight;
         for (UINode child : this.children) {
+            if (this.folded) {
+                child.disable();
+                continue;
+            }
             child.localRect.setXY(childrenIndentation, nextChildY);
             if (child instanceof ParaPathNode paraPathNode) {
                 nextChildY += paraPathNode.getSubtreeHeight();
@@ -101,6 +144,12 @@ public class ParaPathNode extends UINode {
             }
             context.drawText(this.path, this.worldRect.x + offsetX, this.worldRect.y + offsetY, UIColor.WHITE);
         }
-        context.fill(worldRect.x, worldRect.y, worldRect.x + worldRect.w, worldRect.y + worldRect.h, UIColor.fromRGBA(127, 127, 127, 50));
+        int color;
+        if (this.mouseOvering) {
+            color = UIColor.fromRGBA(127, 127, 230, 127);
+        } else {
+            color = UIColor.fromRGBA(127, 127, 127, 127);
+        }
+        context.fill(worldRect.x, worldRect.y, worldRect.x + worldRect.w, worldRect.y + worldRect.h, color);
     }
 }

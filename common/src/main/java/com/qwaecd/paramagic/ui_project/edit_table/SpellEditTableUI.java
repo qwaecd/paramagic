@@ -16,6 +16,7 @@ import com.qwaecd.paramagic.ui.util.Rect;
 import com.qwaecd.paramagic.ui.widget.UIButton;
 import com.qwaecd.paramagic.ui.widget.UILabel;
 import com.qwaecd.paramagic.ui.widget.node.SlotNode;
+import com.qwaecd.paramagic.ui_project.edit_table.leftside.ParaSelectBar;
 import com.qwaecd.paramagic.ui_project.edit_table.leftside.SideBar;
 
 import javax.annotation.Nonnull;
@@ -28,6 +29,7 @@ public class SpellEditTableUI extends UINode {
     private final UIModeButtonGroup buttonGroup;
     private final EditWindow editWindow;
     private final SideBar sideBar;
+    private final ParaSelectBar paraSelectBar;
     private final ParaCrystalSelectBar crystalSelectBar;
 
     @Nonnull
@@ -37,12 +39,12 @@ public class SpellEditTableUI extends UINode {
         super();
         this.editWindow = new EditWindow();
         this.sideBar = new SideBar();
+        this.paraSelectBar = new ParaSelectBar();
         this.crystalSelectBar = new ParaCrystalSelectBar();
         this.buttonGroup = new UIModeButtonGroup(this.sideBar, this);
-        this.addChild(this.buttonGroup);
         this.addChild(this.editWindow);
+        this.addChild(this.buttonGroup);
         this.addChild(this.crystalSelectBar);
-        this.addChild(this.sideBar);
 
         this.addDebugButton();
     }
@@ -103,14 +105,24 @@ public class SpellEditTableUI extends UINode {
         }
         if (state == BarState.PARA_SELECT) {
             this.sideBar.changeToParaSelectBar();
+            this.removeChild(this.sideBar);
+            if (!this.containsChild(this.paraSelectBar)) {
+                this.addChild(this.paraSelectBar);
+            }
             this.editWindow.setTreeEditActive(true);
         }
         if (state == BarState.CRYSTAL_EDIT) {
             this.sideBar.changeToCrystalEdit();
+            if (!this.containsChild(this.sideBar)) {
+                this.addChild(this.sideBar);
+            }
+            this.removeChild(this.paraSelectBar);
             this.editWindow.setTreeEditActive(false);
         }
         if (state == BarState.NULL) {
             this.sideBar.changeToNull();
+            this.removeChild(this.sideBar);
+            this.removeChild(this.paraSelectBar);
             this.editWindow.setTreeEditActive(false);
         }
         this.barState = state;
