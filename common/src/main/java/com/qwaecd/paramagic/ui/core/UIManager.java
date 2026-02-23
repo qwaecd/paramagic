@@ -305,6 +305,10 @@ public class UIManager {
         return this.menuContent;
     }
 
+    public void onClose() {
+        UIAnimationSystem.getInstance().close();
+    }
+
     public static boolean hasShiftKeyDown() {
         return Screen.hasShiftDown();
     }

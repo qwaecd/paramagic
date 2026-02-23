@@ -11,6 +11,8 @@ public final class UIAnimationSystem {
 
     private final Queue<UIAnimator<?>> pendingRemove = new ConcurrentLinkedQueue<>();
 
+    private UIAnimationSystem() {}
+
     public static UIAnimationSystem getInstance() {
         if (instance == null) {
             instance = new UIAnimationSystem();
@@ -40,5 +42,10 @@ public final class UIAnimationSystem {
 
     public void removeAnimator(UIAnimator<?> animator) {
         this.pendingRemove.offer(animator);
+    }
+
+    public void close() {
+        this.animators.clear();
+        this.pendingRemove.clear();
     }
 }

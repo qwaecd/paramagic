@@ -129,6 +129,10 @@ public class UINode {
         }
     }
 
+    public boolean containsChild(UINode node) {
+        return this.children.contains(node);
+    }
+
     public void addChild(UINode child) {
         if (child.parent != null) {
             child.parent.removeChild(child);
@@ -157,7 +161,6 @@ public class UINode {
     }
 
     protected <T> UIAnimator<T> animate(
-            T animatable,
             UIAnimator<T> animator
     ) {
         UIAnimationSystem.getInstance().addAnimator(animator);
@@ -165,7 +168,6 @@ public class UINode {
     }
 
     protected <T> UIAnimator<T> animate(
-            T animatable,
             T start,
             T end,
             float duration,
@@ -173,7 +175,7 @@ public class UINode {
             ValueSetter<T> setter
     ) {
         UIAnimator<T> animator = new UIAnimator<>(start, end, duration, interpolator, setter);
-        this.animate(animatable, animator);
+        this.animate(animator);
         return animator;
     }
 
@@ -408,6 +410,16 @@ public class UINode {
         }
         return x >= this.worldRect.x && x < this.worldRect.x + this.worldRect.w
             && y >= this.worldRect.y && y < this.worldRect.y + this.worldRect.h;
+    }
+
+    public void enable() {
+        this.visible = true;
+        this.hitTestable = true;
+    }
+
+    public void disable() {
+        this.visible = false;
+        this.hitTestable = false;
     }
 
     public boolean isVisible() {

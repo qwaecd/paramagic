@@ -12,12 +12,15 @@ public class MouseCaptureNode extends UINode {
     protected float grabOffsetX = 0.0f;
     protected float grabOffsetY = 0.0f;
 
+    protected boolean ignoreTransform = false;
     @Override
     protected void onMouseClick(UIEventContext<MouseClick> context) {
         if (this.captured) {
             return;
         }
-
+        if (this.ignoreTransform) {
+            return;
+        }
         MouseClick event = context.event;
         context.getManager().captureNode(this);
         this.captured = true;
@@ -37,6 +40,9 @@ public class MouseCaptureNode extends UINode {
 
     @Override
     public void onMouseMove(double mouseX, double mouseY, MouseStateMachine mouseState) {
+        if (this.ignoreTransform) {
+            return;
+        }
         // 计算鼠标在父节点坐标系下的位置
         UINode parent = this.getParent();
         if (parent == null) {
@@ -55,5 +61,9 @@ public class MouseCaptureNode extends UINode {
                     parent.getWorldRect().w, parent.getWorldRect().h
             );
         }
+    }
+
+    public void setIgnoreTransform(boolean ignored) {
+        this.ignoreTransform = ignored;
     }
 }

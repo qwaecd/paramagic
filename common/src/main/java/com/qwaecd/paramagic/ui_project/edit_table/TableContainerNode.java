@@ -1,4 +1,4 @@
-package com.qwaecd.paramagic.ui.item.edit_table;
+package com.qwaecd.paramagic.ui_project.edit_table;
 
 import com.qwaecd.paramagic.ui.MenuContent;
 import com.qwaecd.paramagic.ui.api.event.AllUIEvents;

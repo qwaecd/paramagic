@@ -1,26 +1,22 @@
-package com.qwaecd.paramagic.ui.widget;
+package com.qwaecd.paramagic.ui_project.edit_table;
 
 import com.qwaecd.paramagic.ui.api.UIRenderContext;
+import com.qwaecd.paramagic.ui.api.event.AllUIEvents;
 import com.qwaecd.paramagic.ui.api.event.UIEventContext;
 import com.qwaecd.paramagic.ui.core.UINode;
 import com.qwaecd.paramagic.ui.event.impl.DoubleClick;
 import com.qwaecd.paramagic.ui.event.impl.MouseClick;
-import com.qwaecd.paramagic.ui.event.impl.MouseRelease;
-import com.qwaecd.paramagic.ui.util.Rect;
 import com.qwaecd.paramagic.ui.util.UIColor;
 
 import javax.annotation.Nonnull;
 
-public class UIButton extends UINode {
-    protected boolean pressed = false;
+public class ChangeButton extends UINode {
+    private boolean pressed;
 
-    public UIButton() {
-        super();
-    }
+    public static final float BUTTON_SIZE = 32.0f;
 
-    public UIButton(Rect localRect) {
-        super();
-        this.localRect.set(localRect);
+    public ChangeButton() {
+        this.localRect.setWH(BUTTON_SIZE, BUTTON_SIZE);
     }
 
     @Override
@@ -28,28 +24,17 @@ public class UIButton extends UINode {
         if (this.pressed) {
             return;
         }
-        context.manager.captureNode(this);
         this.pressed = true;
         context.consumeAndStopPropagation();
     }
 
     @Override
     protected void onDoubleClick(UIEventContext<DoubleClick> context) {
-        if (this.pressed) {
-            return;
-        }
-        context.manager.captureNode(this);
-        this.pressed = true;
-        context.consumeAndStopPropagation();
+        this.onMouseClick(UIEventContext.upcast(AllUIEvents.MOUSE_CLICK, context));
     }
 
-    @Override
-    protected void onMouseRelease(UIEventContext<MouseRelease> context) {
-        if (this.pressed) {
-            this.pressed = false;
-            context.getManager().releaseCapture();
-            context.consume();
-        }
+    void setPressed(boolean pressed) {
+        this.pressed = pressed;
     }
 
     @Override
@@ -60,10 +45,5 @@ public class UIButton extends UINode {
         } else {
             context.drawQuad(this.worldRect, UIColor.fromRGBA(127, 127, 127, 200));
         }
-    }
-
-    @Override
-    public void layout(float parentX, float parentY, float parentW, float parentH) {
-        super.layout(parentX, parentY, parentW, parentH);
     }
 }

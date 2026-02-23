@@ -1,4 +1,4 @@
-package com.qwaecd.paramagic.ui.item.edit_table;
+package com.qwaecd.paramagic.ui_project.edit_table;
 
 import com.qwaecd.paramagic.tools.anim.Interpolation;
 import com.qwaecd.paramagic.ui.MenuContent;
@@ -131,8 +131,8 @@ public class ParaCrystalSelectBar extends UIScrollView {
             }
             UIAnimationSystem.getInstance().removeAnimator(this.scrollAnimator);
         }
-        this.scrollAnimator = new UIAnimator<>(
-                start, this.viewOffset, 0.2f,
+        this.scrollAnimator = this.animate(
+                start, this.viewOffset, 0.15f,
                 Interpolation::easeOutSine,
                 ((interpolationValue, value) -> this.viewOffset = interpolationValue)
         ).setOnUpdate(offset -> {
@@ -141,7 +141,6 @@ public class ParaCrystalSelectBar extends UIScrollView {
             this.recalculateContentExtent();
             this.layoutChildren();
         });
-        UIAnimationSystem.getInstance().addAnimator(this.scrollAnimator);
     }
 
     public int initInventory(InventoryHolder inv) {

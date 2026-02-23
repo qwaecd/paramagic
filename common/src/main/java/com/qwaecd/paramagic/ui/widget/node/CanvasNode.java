@@ -24,6 +24,7 @@ public class CanvasNode extends MouseCaptureNode {
     // 画布缩放
     protected float zoom = 1.0f;
 
+
     public CanvasNode() {
         this.backgroundColor = UIColor.of(1, 1, 1, 200);
         this.sizeMode = SizeMode.FILL;
@@ -62,6 +63,9 @@ public class CanvasNode extends MouseCaptureNode {
     @Override
     public void onMouseScroll(UIEventContext<WheelEvent> context) {
         if (context.isConsumed()) {
+            return;
+        }
+        if (this.ignoreTransform) {
             return;
         }
         WheelEvent event = context.event;
@@ -111,6 +115,9 @@ public class CanvasNode extends MouseCaptureNode {
 
     @Override
     public void onMouseMove(double mouseX, double mouseY, MouseStateMachine mouseState) {
+        if (this.ignoreTransform) {
+            return;
+        }
         this.panX += (float) mouseState.deltaX();
         this.panY += (float) mouseState.deltaY();
         this.relayout();
@@ -123,6 +130,9 @@ public class CanvasNode extends MouseCaptureNode {
      * @param newZoom 新的缩放比例, 不可以是 负数 或 0.
      */
     protected void onZoomChanged(float mouseX, float mouseY, float newZoom) {
+        if (this.ignoreTransform) {
+            return;
+        }
         float canvasX = (mouseX - this.worldRect.x - this.panX) / this.zoom;
         float canvasY = (mouseY - this.worldRect.y - this.panY) / this.zoom;
         this.zoom = newZoom;

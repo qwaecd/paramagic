@@ -1,4 +1,4 @@
-package com.qwaecd.paramagic.ui.item.edit_table;
+package com.qwaecd.paramagic.ui_project.edit_table;
 
 import com.qwaecd.paramagic.thaumaturgy.ParaCrystalData;
 import com.qwaecd.paramagic.thaumaturgy.node.ParaTree;
@@ -18,15 +18,14 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 public class EditWindow extends UINode {
-    @Nonnull
-    private final TableContainerProvider table;
     @Nullable
     private PTTreeNode treeNode;
 
     private final CanvasNode canvas;
 
-    public EditWindow(@Nonnull TableContainerProvider spellEditTableUI) {
-        this.table = spellEditTableUI;
+    private boolean treeEditActive = false;
+
+    public EditWindow() {
         this.localRect.setWH(220, 180);
         this.backgroundColor = UIColor.of(129, 64, 0, 255);
         this.layoutParams.center();
@@ -35,13 +34,14 @@ public class EditWindow extends UINode {
         this.addChild(this.canvas);
     }
 
-    void onContainerChanged(InventoryHolder inventory, UISlot slot) {
+    void onContainerChanged(SpellEditTableUI mainUI, InventoryHolder container, UISlot slot) {
         ItemStack item = slot.getItem();
         if (!(item.getItem() instanceof ParaCrystalItem)) {
             this.removeTreeNode();
             return;
         }
-        if (!this.table.get().isItemStack(item)) {
+
+        if (!mainUI.getContainerNode().isItemStack(item)) {
             this.removeTreeNode();
             return;
         }
@@ -61,6 +61,21 @@ public class EditWindow extends UINode {
         }
     }
 
+    void setTreeEditActive(boolean treeEditActive) {
+        this.treeEditActive = treeEditActive;
+        if (treeEditActive) {
+            if (!this.canvas.containsChild(this.treeNode) && treeNode != null) {
+                this.canvas.addChild(treeNode);
+            }
+            this.canvas.setIgnoreTransform(false);
+        } else {
+            if (this.canvas.containsChild(this.treeNode)) {
+                this.canvas.removeChild(this.treeNode);
+            }
+            this.canvas.setIgnoreTransform(true);
+        }
+    }
+
     private void removeTreeNode() {
         if (this.treeNode != null) {
             this.canvas.removeChild(this.treeNode);
@@ -74,6 +89,9 @@ public class EditWindow extends UINode {
             this.canvas.removeChild(this.treeNode);
         }
         this.treeNode = node;
+        if (!this.treeEditActive) {
+            return;
+        }
         this.canvas.addChild(node);
         this.canvas.layout(this.worldRect.x, this.worldRect.y, this.worldRect.w, this.worldRect.h);
     }

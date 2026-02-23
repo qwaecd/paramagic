@@ -186,4 +186,10 @@ public abstract class MCContainerScreen<T extends AbstractContainerMenu> extends
     public void setFocused(boolean focused) {
         super.setFocused(focused);
     }
+
+    @Override
+    public void onClose() {
+        super.onClose();
+        this.manager.onClose();
+    }
 }

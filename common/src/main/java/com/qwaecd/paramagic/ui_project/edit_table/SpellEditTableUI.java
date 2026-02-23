@@ -1,41 +1,48 @@
-package com.qwaecd.paramagic.ui.item.edit_table;
+package com.qwaecd.paramagic.ui_project.edit_table;
 
 import com.qwaecd.paramagic.ui.MenuContent;
 import com.qwaecd.paramagic.ui.api.UIRenderContext;
 import com.qwaecd.paramagic.ui.api.event.AllUIEvents;
+import com.qwaecd.paramagic.ui.core.TaskStage;
 import com.qwaecd.paramagic.ui.core.UIManager;
 import com.qwaecd.paramagic.ui.core.UINode;
+import com.qwaecd.paramagic.ui.core.UITask;
 import com.qwaecd.paramagic.ui.event.EventPhase;
 import com.qwaecd.paramagic.ui.inventory.ContainerHolder;
 import com.qwaecd.paramagic.ui.inventory.InventoryHolder;
 import com.qwaecd.paramagic.ui.inventory.slot.UISlot;
 import com.qwaecd.paramagic.ui.menu.SpellEditTableMenu;
 import com.qwaecd.paramagic.ui.util.Rect;
-import com.qwaecd.paramagic.ui.util.UIColor;
 import com.qwaecd.paramagic.ui.widget.UIButton;
 import com.qwaecd.paramagic.ui.widget.UILabel;
 import com.qwaecd.paramagic.ui.widget.node.SlotNode;
+import com.qwaecd.paramagic.ui_project.edit_table.leftside.SideBar;
 
 import javax.annotation.Nonnull;
 import java.util.Objects;
 
-public class SpellEditTableUI extends UINode implements TableContainerProvider {
+public class SpellEditTableUI extends UINode {
     private UIManager manager;
 
     private TableContainerNode tableContainerNode;
+    private final UIModeButtonGroup buttonGroup;
     private final EditWindow editWindow;
-    private final ParaSelectBar paraSelectBar;
+    private final SideBar sideBar;
     private final ParaCrystalSelectBar crystalSelectBar;
-    private final UIColor color = UIColor.TRANSPARENT;
+
+    @Nonnull
+    private BarState barState = BarState.NULL;
 
     public SpellEditTableUI() {
         super();
-        this.editWindow = new EditWindow(this);
-        this.paraSelectBar = new ParaSelectBar();
+        this.editWindow = new EditWindow();
+        this.sideBar = new SideBar();
         this.crystalSelectBar = new ParaCrystalSelectBar();
+        this.buttonGroup = new UIModeButtonGroup(this.sideBar, this);
+        this.addChild(this.buttonGroup);
         this.addChild(this.editWindow);
-        this.addChild(this.paraSelectBar);
         this.addChild(this.crystalSelectBar);
+        this.addChild(this.sideBar);
 
         this.addDebugButton();
     }
@@ -50,14 +57,21 @@ public class SpellEditTableUI extends UINode implements TableContainerProvider {
         int inventorySize = this.crystalSelectBar.initInventory(inventory);
 
         ContainerHolder tableContainer = ((SpellEditTableMenu) menu.getMenu()).getContainer();
-        tableContainer.registerListener(this.editWindow::onContainerChanged);
-        SlotNode containerSlot = new SlotNode(new UISlot(tableContainer,0, inventorySize + tableContainer.size() - 1));
+        tableContainer.registerListener(this::onContainerChanged);
+        UISlot containerUISlot = new UISlot(tableContainer, 0, inventorySize + tableContainer.size() - 1);
+        SlotNode containerSlot = new SlotNode(containerUISlot);
         this.tableContainerNode = new TableContainerNode(containerSlot);
         this.addChild(tableContainerNode);
+
+        this.sideBar.initContainer(this, tableContainer, containerUISlot);
     }
 
-    @Override
-    public TableContainerNode get() {
+    private void onContainerChanged(InventoryHolder container, UISlot slot) {
+        this.editWindow.onContainerChanged(this, container, slot);
+        this.sideBar.onContainerChanged(this, container, slot);
+    }
+
+    public TableContainerNode getContainerNode() {
         return this.tableContainerNode;
     }
 
@@ -66,16 +80,52 @@ public class SpellEditTableUI extends UINode implements TableContainerProvider {
         this.setToFullScreen();
         super.layout(this.localRect.x, this.localRect.y, this.localRect.w, this.localRect.h);
         this.tableContainerNode.localRect.setXY(
-                editWindow.localRect.x,
-                editWindow.localRect.y + editWindow.localRect.h + 4.0f
+                editWindow.localRect.x + editWindow.localRect.w + 4.0f,
+                editWindow.localRect.y
         );
+        this.buttonGroup.localRect.setXY(
+                editWindow.localRect.x,
+                editWindow.localRect.y - this.buttonGroup.localRect.h - 4.0f
+        );
+
         this.tableContainerNode.layout(this.localRect.x, this.localRect.y, this.localRect.w, this.localRect.h);
+        this.buttonGroup.layout(this.localRect.x, this.localRect.y, this.localRect.w, this.localRect.h);
     }
 
     @Override
     public void render(@Nonnull UIRenderContext context) {
-        context.drawQuad(this.worldRect, color);
+        super.render(context);
     }
+
+    public void changeBarState(BarState state) {
+        if (state == this.barState) {
+            return;
+        }
+        if (state == BarState.PARA_SELECT) {
+            this.sideBar.changeToParaSelectBar();
+            this.editWindow.setTreeEditActive(true);
+        }
+        if (state == BarState.CRYSTAL_EDIT) {
+            this.sideBar.changeToCrystalEdit();
+            this.editWindow.setTreeEditActive(false);
+        }
+        if (state == BarState.NULL) {
+            this.sideBar.changeToNull();
+            this.editWindow.setTreeEditActive(false);
+        }
+        this.barState = state;
+        this.deferredLayout();
+    }
+
+    private void deferredLayout() {
+        this.manager.offerDeferredTask(
+                UITask.create(
+                        manager -> this.layout(this.localRect.x, this.localRect.y, this.localRect.w, this.localRect.h),
+                        TaskStage.AFTER_EVENT
+                )
+        );
+    }
+
 
     private void addDebugButton() {
         UIButton button = new UIButton(new Rect(0, 0, 60, 20));
