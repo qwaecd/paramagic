@@ -3,6 +3,7 @@ package com.qwaecd.paramagic.ui_project.edit_table;
 import com.qwaecd.paramagic.thaumaturgy.ParaCrystalData;
 import com.qwaecd.paramagic.thaumaturgy.node.ParaTree;
 import com.qwaecd.paramagic.tools.nbt.CrystalComponentUtils;
+import com.qwaecd.paramagic.ui.api.UIRenderContext;
 import com.qwaecd.paramagic.ui.core.ClipMod;
 import com.qwaecd.paramagic.ui.core.UIManager;
 import com.qwaecd.paramagic.ui.core.UINode;
@@ -20,6 +21,12 @@ import javax.annotation.Nullable;
 public class EditWindow extends UINode {
     @Nullable
     private PTTreeNode treeNode;
+
+    private static final EditTableSprite editWindow = new EditTableSprite(
+            43, 24,
+            236, 196,
+            -8, -8
+    );
 
     private final CanvasNode canvas;
 
@@ -74,6 +81,12 @@ public class EditWindow extends UINode {
             }
             this.canvas.setIgnoreTransform(true);
         }
+    }
+
+    @Override
+    protected void renderBackGround(UIRenderContext context) {
+        context.renderSprite(editWindow, this.worldRect.x + editWindow.spriteOffsetX, this.worldRect.y + editWindow.spriteOffsetY);
+
     }
 
     private void removeTreeNode() {

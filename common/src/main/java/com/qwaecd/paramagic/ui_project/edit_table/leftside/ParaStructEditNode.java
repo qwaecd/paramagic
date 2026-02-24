@@ -10,7 +10,6 @@ import com.qwaecd.paramagic.ui.animation.UIAnimator;
 import com.qwaecd.paramagic.ui.api.UIRenderContext;
 import com.qwaecd.paramagic.ui.api.event.AllUIEvents;
 import com.qwaecd.paramagic.ui.api.event.UIEventContext;
-import com.qwaecd.paramagic.ui.core.ClipMod;
 import com.qwaecd.paramagic.ui.core.UIManager;
 import com.qwaecd.paramagic.ui.core.UINode;
 import com.qwaecd.paramagic.ui.event.EventPhase;
@@ -35,7 +34,6 @@ public class ParaStructEditNode extends UIScrollView {
 
     public ParaStructEditNode() {
         super(false);
-        this.clipMod = ClipMod.NONE;
         this.sensitivity = 64.0f;
     }
 
@@ -109,7 +107,7 @@ public class ParaStructEditNode extends UIScrollView {
         this.scrollAnimator = this.animate(
                 start, this.viewOffset, 0.1f,
                 Interpolation::easeOutSine,
-                ((interpolationValue, value) -> this.viewOffset = interpolationValue)
+                (interpolationValue -> this.viewOffset = interpolationValue)
         ).setOnUpdate(offset -> {
             manager.offerOveringTestTask();
             this.clampViewOffset();

@@ -34,7 +34,7 @@ public class UIAnimator<T> {
         this.duration = duration;
         this.interpolator = interpolator;
         this.setter = setter;
-        this.elapsedTime = 0f;
+        this.elapsedTime = 0.0f;
         this.finished = false;
     }
 
@@ -46,7 +46,7 @@ public class UIAnimator<T> {
         this.elapsedTime += deltaTime;
         float alpha = Math.min(this.elapsedTime / this.duration, 1.0f);
         T currentValue = this.interpolator.interpolate(this.start, this.end, alpha);
-        this.setter.set(currentValue, this.end);
+        this.setter.set(currentValue);
 
         if (this.onUpdate != null) {
             this.onUpdate.accept(currentValue);

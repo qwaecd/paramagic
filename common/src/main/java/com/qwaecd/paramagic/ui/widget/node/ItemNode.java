@@ -1,12 +1,15 @@
 package com.qwaecd.paramagic.ui.widget.node;
 
+import com.qwaecd.paramagic.tools.ModRL;
 import com.qwaecd.paramagic.ui.MenuContent;
 import com.qwaecd.paramagic.ui.api.UIRenderContext;
 import com.qwaecd.paramagic.ui.api.event.UIEventContext;
 import com.qwaecd.paramagic.ui.core.UINode;
 import com.qwaecd.paramagic.ui.event.impl.MouseLeave;
 import com.qwaecd.paramagic.ui.event.impl.MouseOver;
+import com.qwaecd.paramagic.ui.util.Sprite;
 import com.qwaecd.paramagic.ui.util.UIColor;
+import com.qwaecd.paramagic.ui_project.edit_table.EditTableSprite;
 import net.minecraft.world.item.ItemStack;
 
 import javax.annotation.Nonnull;
@@ -20,6 +23,12 @@ public class ItemNode extends UINode {
     protected boolean isHovering = false;
 
     protected final int highLightColor = -2130706433;
+
+    protected static final EditTableSprite itemSlotSprit = new EditTableSprite(
+            41, 0,
+            20, 20,
+            -2, -2
+    );
 
     public ItemNode() {
         this.backgroundColor = UIColor.of(183, 126, 50, 255);
@@ -70,6 +79,11 @@ public class ItemNode extends UINode {
         if (this.isHovering) {
             this.renderSlotHighlight(context);
         }
+    }
+
+    @Override
+    protected void renderBackGround(UIRenderContext context) {
+        context.renderSprite(itemSlotSprit, this.worldRect.x + itemSlotSprit.spriteOffsetX, this.worldRect.y + itemSlotSprit.spriteOffsetY);
     }
 
     protected void renderSlotHighlight(UIRenderContext context) {

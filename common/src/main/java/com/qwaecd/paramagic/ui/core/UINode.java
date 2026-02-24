@@ -368,6 +368,12 @@ public class UINode {
     }
 
     /**
+     * 在进行裁切之前渲染背景内容，渲染的内容不会被本节点的裁切所影响，但是会受父节点影响.
+     */
+    protected void renderBackGround(UIRenderContext context) {
+    }
+
+    /**
      * 在调试模式下调用该函数渲染调试信息.
      */
     public void renderDebug(@Nonnull UIRenderContext context) {
@@ -378,9 +384,10 @@ public class UINode {
      * 渲染节点及其子节点的树
      */
     public void renderTree(UIRenderContext context) {
+        this.renderBackGround(context);
         boolean hasClip = (this.clipMod == ClipMod.RECT);
         if (hasClip) {
-            context.pushClipRect(this.worldRect);
+            context.pushClipRect(this.getClipRect());
         }
 
         if (this.isVisible()) {
@@ -400,6 +407,11 @@ public class UINode {
         }
     }
 
+    @Nonnull
+    protected Rect getClipRect() {
+        return this.worldRect;
+    }
+
     /**
      * 检查鼠标是否可以命中该元素, 元素不可见的情况下也可能命中.
      * @see #contains(float mouseX, float mouseY)
@@ -408,8 +420,8 @@ public class UINode {
         if (!this.hitTestable) {
             return false;
         }
-        return x >= this.worldRect.x && x < this.worldRect.x + this.worldRect.w
-            && y >= this.worldRect.y && y < this.worldRect.y + this.worldRect.h;
+        return x >= this.getClipRect().x && x < this.getClipRect().x + this.getClipRect().w
+            && y >= this.getClipRect().y && y < this.getClipRect().y + this.getClipRect().h;
     }
 
     public void enable() {

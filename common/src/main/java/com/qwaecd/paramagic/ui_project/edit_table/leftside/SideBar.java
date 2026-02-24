@@ -163,6 +163,7 @@ public class SideBar extends UINode {
 
     @Override
     public void layout(float parentX, float parentY, float parentW, float parentH) {
+        this.localRect.h = this.getWindowHeight() / this.getGuiScale();
         this.structEditNode.localRect.set(this.localRect);
         this.resizeNode.localRect.set(
                 this.localRect.w - resizeNode.localRect.w,

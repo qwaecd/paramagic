@@ -245,7 +245,11 @@ public class PTTreeNode extends UINode {
         view.translate(x, y, 0.0f);
         view.scale(zoom, zoom, 1.0f);
         RenderSystem.applyModelViewMatrix();
-        context.fill(-half, -half, half, half, UIColor.fromRGBA(255, 0, 0, 255));
+        context.renderSprite(
+                ItemNode.itemSlotSprit,
+                -half + ItemNode.itemSlotSprit.spriteOffsetX, -half + ItemNode.itemSlotSprit.spriteOffsetY
+        );
+//        context.fill(-half, -half, half, half, UIColor.fromRGBA(255, 0, 0, 255));
 
         ItemStack renderStack = entry.getRenderStack();
         if (renderStack != null) {

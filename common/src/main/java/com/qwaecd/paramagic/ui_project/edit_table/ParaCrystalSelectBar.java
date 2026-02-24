@@ -4,6 +4,7 @@ import com.qwaecd.paramagic.tools.anim.Interpolation;
 import com.qwaecd.paramagic.ui.MenuContent;
 import com.qwaecd.paramagic.ui.animation.UIAnimationSystem;
 import com.qwaecd.paramagic.ui.animation.UIAnimator;
+import com.qwaecd.paramagic.ui.api.UIRenderContext;
 import com.qwaecd.paramagic.ui.api.event.AllUIEvents;
 import com.qwaecd.paramagic.ui.api.event.UIEventContext;
 import com.qwaecd.paramagic.ui.core.ClipMod;
@@ -17,7 +18,6 @@ import com.qwaecd.paramagic.ui.event.impl.WheelEvent;
 import com.qwaecd.paramagic.ui.inventory.InventoryHolder;
 import com.qwaecd.paramagic.ui.inventory.slot.UISlot;
 import com.qwaecd.paramagic.ui.io.mouse.MouseButton;
-import com.qwaecd.paramagic.ui.util.UIColor;
 import com.qwaecd.paramagic.ui.widget.UIPanel;
 import com.qwaecd.paramagic.ui.widget.UIScrollView;
 import com.qwaecd.paramagic.ui.widget.node.ItemNode;
@@ -39,11 +39,16 @@ public class ParaCrystalSelectBar extends UIScrollView {
     @Nullable
     private UIAnimator<Float> scrollAnimator;
 
+    private static final EditTableSprite paraSelectBar = new EditTableSprite(
+            0, 0,
+            40, 188,
+            -4, -4
+    );
+
     public ParaCrystalSelectBar() {
         super(false);
         this.localRect.setWH(32, 180);
         this.layoutParams.disable();
-        this.backgroundColor = UIColor.of(172, 122, 52, 255);
         this.clipMod = ClipMod.RECT;
 
         this.addListener();
@@ -55,7 +60,6 @@ public class ParaCrystalSelectBar extends UIScrollView {
                 EventPhase.BUBBLING,
                 (context) -> {
                     if (!context.isConsumed()) {
-//                        context.manager.offerOveringTestTask();
                         this.onMouseScroll(context);
                         context.consume();
                     }
@@ -134,7 +138,7 @@ public class ParaCrystalSelectBar extends UIScrollView {
         this.scrollAnimator = this.animate(
                 start, this.viewOffset, 0.15f,
                 Interpolation::easeOutSine,
-                ((interpolationValue, value) -> this.viewOffset = interpolationValue)
+                (interpolationValue -> this.viewOffset = interpolationValue)
         ).setOnUpdate(offset -> {
             manager.offerOveringTestTask();
             this.clampViewOffset();
@@ -180,7 +184,7 @@ public class ParaCrystalSelectBar extends UIScrollView {
         float windowH = this.getWindowHeight() / this.getGuiScale();
         float windowW = this.getWindowWidth() / this.getGuiScale();
         this.localRect.setXY(
-                windowW - this.localRect.w - 4.0f,
+                windowW - this.localRect.w - 8.0f,
                 (windowH - this.localRect.h) / 2.0f
         );
 
@@ -190,6 +194,11 @@ public class ParaCrystalSelectBar extends UIScrollView {
                 this.panelOffsetY
         );
         super.layout(parentX, parentY, parentW, parentH);
+    }
+
+    @Override
+    protected void renderBackGround(UIRenderContext context) {
+        context.renderSprite(paraSelectBar, this.worldRect.x + paraSelectBar.spriteOffsetX, this.worldRect.y + paraSelectBar.spriteOffsetY);
     }
 
     @Override

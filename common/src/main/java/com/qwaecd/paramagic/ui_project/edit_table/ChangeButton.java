@@ -13,7 +13,7 @@ import javax.annotation.Nonnull;
 public class ChangeButton extends UINode {
     private boolean pressed;
 
-    public static final float BUTTON_SIZE = 32.0f;
+    public static final float BUTTON_SIZE = 16.0f;
 
     public ChangeButton() {
         this.localRect.setWH(BUTTON_SIZE, BUTTON_SIZE);
