@@ -8,6 +8,7 @@ import com.qwaecd.paramagic.ui.event.EventPhase;
 import com.qwaecd.paramagic.ui.event.impl.DoubleClick;
 import com.qwaecd.paramagic.ui.event.impl.MouseClick;
 import com.qwaecd.paramagic.ui_project.edit_table.leftside.SideBar;
+import net.minecraft.network.chat.Component;
 
 import javax.annotation.Nonnull;
 
@@ -22,6 +23,8 @@ public class UIModeButtonGroup extends UINode {
         this.sideBar = sideBar;
         this.paraSelect = new ChangeButton();
         this.crystalEdit = new ChangeButton();
+        this.crystalEdit.setText(Component.literal("crystalEdit"));
+        this.paraSelect.setText(Component.literal("tree"));
         this.addChild(this.paraSelect);
         this.addChild(this.crystalEdit);
 
@@ -73,7 +76,8 @@ public class UIModeButtonGroup extends UINode {
     @Override
     public void layout(float parentX, float parentY, float parentW, float parentH) {
         this.crystalEdit.localRect.setXY(0.0f, 0.0f);
-        this.paraSelect.localRect.setXY(ChangeButton.BUTTON_SIZE + 4.0f, 0.0f);
+        this.crystalEdit.localRect.setWH(ChangeButton.BUTTON_SIZE * 4.0f, ChangeButton.BUTTON_SIZE * 1.5f);
+        this.paraSelect.localRect.setXY(this.crystalEdit.localRect.w + 8.0f, 0.0f);
         super.layout(parentX, parentY, parentW, parentH);
     }
 

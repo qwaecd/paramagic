@@ -2,12 +2,14 @@ package com.qwaecd.paramagic.ui.api;
 
 import com.qwaecd.paramagic.ui.MCRenderBackend;
 import com.qwaecd.paramagic.ui.core.UIManager;
+import com.qwaecd.paramagic.ui.util.NineSliceSprite;
 import com.qwaecd.paramagic.ui.util.Rect;
 import com.qwaecd.paramagic.ui.util.Sprite;
 import com.qwaecd.paramagic.ui.util.UIColor;
 import lombok.Getter;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
@@ -16,7 +18,7 @@ import java.util.ArrayDeque;
 import java.util.Deque;
 
 @SuppressWarnings({"UnusedReturnValue", "unused"})
-public class UIRenderContext {
+public final class UIRenderContext {
     @Getter
     @Nonnull
     public final UIManager manager;
@@ -166,6 +168,90 @@ public class UIRenderContext {
 
     public void renderSprite(Sprite sprite, int x, int y) {
         this.backend.renderSprite(sprite, x, y);
+    }
+
+    public void renderNineSliceSprite(NineSliceSprite sprite, int x, int y, int width, int height) {
+        if (width <= 0 || height <= 0) {
+            return;
+        }
+
+        Sprite[] slices = sprite.getSlices();
+
+        int left = slices[0].width;
+        int right = slices[2].width;
+        int top = slices[0].height;
+        int bottom = slices[6].height;
+
+        int centerWidth;
+        if (width >= left + right) {
+            centerWidth = width - left - right;
+        } else {
+            float ratio = (float) width / (left + right);
+            left = Math.round(left * ratio);
+            right = width - left;
+            centerWidth = 0;
+        }
+
+        int centerHeight;
+        if (height >= top + bottom) {
+            centerHeight = height - top - bottom;
+        } else {
+            float ratio = (float) height / (top + bottom);
+            top = Math.round(top * ratio);
+            bottom = height - top;
+            centerHeight = 0;
+        }
+
+        int[] colWidths = new int[]{left, centerWidth, right};
+        int[] rowHeights = new int[]{top, centerHeight, bottom};
+        int[] xOffsets = new int[]{0, left, left + centerWidth};
+        int[] yOffsets = new int[]{0, top, top + centerHeight};
+
+        for (int row = 0; row < 3; row++) {
+            for (int col = 0; col < 3; col++) {
+                int drawWidth = colWidths[col];
+                int drawHeight = rowHeights[row];
+                if (drawWidth <= 0 || drawHeight <= 0) {
+                    continue;
+                }
+
+                Sprite slice = slices[row * 3 + col];
+                this.blit(
+                        slice.texture,
+                        x + xOffsets[col], y + yOffsets[row],
+                        drawWidth, drawHeight,
+                        slice.u, slice.v,
+                        slice.width, slice.height,
+                        slice.texWidth, slice.texHeight
+                );
+            }
+        }
+    }
+
+    /**
+     * Blits a portion of the texture specified by the atlas location onto the screen at the given position and dimensions with texture coordinates.<br>
+     * 在指定位置和尺寸上将纹理图集中指定纹理的一部分绘制到屏幕上，并使用纹理坐标。
+     * @param atlasLocation 纹理图
+     * @param x 绘制区域左上角的 x 坐标
+     * @param y 绘制区域左上角的 y 坐标
+     * @param width 在屏幕上绘制的宽度
+     * @param height 在屏幕上绘制的高度
+     * @param uOffset 纹理图集内选取区域的起始 x（水平）坐标
+     * @param vOffset 纹理图集内选取区域的起始 y（垂直）坐标
+     * @param uWidth 从纹理图集中要取的区域宽（单位是像素）
+     * @param vHeight 从纹理图集中要取的区域高（单位是像素）
+     * @param textureWidth 纹理整体的宽度
+     * @param textureHeight 纹理整体的高度
+     */
+    public void blit(
+            ResourceLocation atlasLocation,
+            int x, int y,
+            int width, int height,
+            float uOffset, float vOffset,
+            int uWidth, int vHeight,
+            int textureWidth, int textureHeight
+    ) {
+        this.backend.blit(atlasLocation, x, y, width, height, uOffset, vOffset, uWidth, vHeight, textureWidth, textureHeight);
     }
 
     /**

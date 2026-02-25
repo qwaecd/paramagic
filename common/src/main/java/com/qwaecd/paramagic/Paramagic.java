@@ -25,4 +25,8 @@ public class Paramagic {
 		AllEmitterProperties.registerAll();
 		BuiltinSpellRegistry.init();
 	}
+
+	public static boolean isDevEnv() {
+		return Services.PLATFORM.isDevelopmentEnvironment();
+	}
 }

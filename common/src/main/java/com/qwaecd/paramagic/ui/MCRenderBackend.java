@@ -6,6 +6,7 @@ import com.qwaecd.paramagic.ui.util.Sprite;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
@@ -68,6 +69,25 @@ public class MCRenderBackend implements UIRenderBackend {
                 sprite.u, sprite.v,
                 sprite.width, sprite.height,
                 sprite.texWidth, sprite.texHeight
+        );
+    }
+
+    @Override
+    public void blit(
+            ResourceLocation atlasLocation,
+            int x, int y,
+            int width, int height,
+            float uOffset, float vOffset,
+            int uWidth, int vHeight,
+            int textureWidth, int textureHeight
+    ) {
+        this.guiGraphics.blit(
+                atlasLocation,
+                x, y,
+                width, height,
+                uOffset, vOffset,
+                uWidth, vHeight,
+                textureWidth, textureHeight
         );
     }
 

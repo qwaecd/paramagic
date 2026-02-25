@@ -26,7 +26,6 @@ public class CanvasNode extends MouseCaptureNode {
 
 
     public CanvasNode() {
-        this.backgroundColor = UIColor.of(1, 1, 1, 200);
         this.sizeMode = SizeMode.FILL;
         this.clipMod = ClipMod.RECT;
 

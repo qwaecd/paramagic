@@ -36,7 +36,7 @@ public class DebugWand extends Item {
 
     @Override
     public int getUseDuration(ItemStack stack) {
-        return Short.MAX_VALUE * 20;
+        return Integer.MAX_VALUE;
     }
 
     @Override

@@ -4,6 +4,7 @@ import com.qwaecd.paramagic.ui.util.Rect;
 import com.qwaecd.paramagic.ui.util.Sprite;
 import com.qwaecd.paramagic.ui.util.UIColor;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
@@ -57,7 +58,40 @@ public interface UIRenderBackend {
      * @param x 绘制区域左上角的 x 坐标.
      * @param y 绘制区域左上角的 y 坐标.
      */
-    void renderSprite(Sprite sprite, int x, int y);
+    default void renderSprite(Sprite sprite, int x, int y) {
+        this.blit(
+                sprite.texture,
+                x, y,
+                sprite.u, sprite.v,
+                sprite.u, sprite.v,
+                sprite.width, sprite.height,
+                sprite.texWidth, sprite.texHeight
+        );
+    }
+
+    /**
+     * Blits a portion of the texture specified by the atlas location onto the screen at the given position and dimensions with texture coordinates.<br>
+     * 在指定位置和尺寸上将纹理图集中指定纹理的一部分绘制到屏幕上，并使用纹理坐标。
+     * @param atlasLocation 纹理图
+     * @param x 绘制区域左上角的 x 坐标
+     * @param y 绘制区域左上角的 y 坐标
+     * @param width 在屏幕上绘制的宽度
+     * @param height 在屏幕上绘制的高度
+     * @param uOffset 纹理图集内选取区域的起始 x（水平）坐标
+     * @param vOffset 纹理图集内选取区域的起始 y（垂直）坐标
+     * @param uWidth 从纹理图集中要取的区域宽（单位是像素）
+     * @param vHeight 从纹理图集中要取的区域高（单位是像素）
+     * @param textureWidth 纹理整体的宽度
+     * @param textureHeight 纹理整体的高度
+     */
+    void blit(
+            ResourceLocation atlasLocation,
+            int x, int y,
+            int width, int height,
+            float uOffset, float vOffset,
+            int uWidth, int vHeight,
+            int textureWidth, int textureHeight
+    );
 
     void renderItem(ItemStack stack, int x, int y);
 
