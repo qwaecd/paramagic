@@ -8,6 +8,7 @@ import com.qwaecd.paramagic.ui.event.impl.MouseClick;
 import com.qwaecd.paramagic.ui.event.impl.MouseLeave;
 import com.qwaecd.paramagic.ui.event.impl.MouseOver;
 import com.qwaecd.paramagic.ui.util.UIColor;
+import com.qwaecd.paramagic.ui_project.edit_table.EditTableSprite;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.network.chat.Component;
@@ -16,6 +17,17 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 public class ParaPathNode extends UINode {
+    private static final EditTableSprite arrowRight = new EditTableSprite(
+            64, 0,
+            8, 8,
+            0, 0
+    );
+    private static final EditTableSprite arrowDown = new EditTableSprite(
+            72, 0,
+            8, 8,
+            0, 0
+    );
+
     private static final float childrenIndentation = 8.0f;
     private static final float defaultNodeHeight = 8.0f;
 
@@ -83,6 +95,7 @@ public class ParaPathNode extends UINode {
 
     @Override
     protected void onMouseClick(UIEventContext<MouseClick> context) {
+        context.consume();
     }
 
     @Override
@@ -135,6 +148,9 @@ public class ParaPathNode extends UINode {
 
     @Override
     protected void render(@Nonnull UIRenderContext context) {
+        if (!this.isVisible()) {
+            return;
+        }
         if (this.path != null) {
             final float offsetX = 2.0f;
             final float offsetY = 1.0f;
@@ -142,14 +158,21 @@ public class ParaPathNode extends UINode {
             if (this.localRect.w != lineHeight + offsetY * 2.0f) {
                 this.localRect.w = lineHeight + offsetY * 2.0f;
             }
-            context.drawText(this.path, this.worldRect.x + offsetX, this.worldRect.y + offsetY, UIColor.WHITE);
+            if (this.mouseOvering) {
+                context.drawText(this.path, this.worldRect.x + offsetX, this.worldRect.y + offsetY, UIColor.fromRGBA(255, 231, 136, 255));
+            } else {
+                context.drawText(this.path, this.worldRect.x + offsetX, this.worldRect.y + offsetY, UIColor.WHITE);
+            }
         }
-        int color;
-        if (this.mouseOvering) {
-            color = UIColor.fromRGBA(127, 127, 230, 127);
+        if (this.children.isEmpty()) {
+            return;
+        }
+
+        final float arrowX = this.worldRect.x - 8.0f;
+        if (this.folded) {
+            context.renderSprite(arrowRight, arrowX, this.worldRect.y);
         } else {
-            color = UIColor.fromRGBA(127, 127, 127, 127);
+            context.renderSprite(arrowDown, arrowX, this.worldRect.y);
         }
-        context.fill(worldRect.x, worldRect.y, worldRect.x + worldRect.w, worldRect.y + worldRect.h, color);
     }
 }

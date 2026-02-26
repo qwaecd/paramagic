@@ -42,7 +42,7 @@ public class SpellEditTableUI extends UINode {
         this.sideBar = new SideBar();
         this.paraSelectBar = new ParaSelectBar();
         this.crystalSelectBar = new ParaCrystalSelectBar();
-        this.buttonGroup = new UIModeButtonGroup(this.sideBar, this);
+        this.buttonGroup = new UIModeButtonGroup(this.sideBar, this, this.editWindow.localRect.w);
         this.addChild(this.editWindow);
         this.addChild(this.buttonGroup);
         this.addChild(this.crystalSelectBar);
@@ -90,7 +90,7 @@ public class SpellEditTableUI extends UINode {
         );
         this.buttonGroup.localRect.setXY(
                 editWindow.localRect.x,
-                editWindow.localRect.y - this.buttonGroup.localRect.h - 16.0f
+                editWindow.localRect.y - buttonGroup.localRect.h - 18.0f
         );
 
         this.tableContainerNode.layout(this.localRect.x, this.localRect.y, this.localRect.w, this.localRect.h);

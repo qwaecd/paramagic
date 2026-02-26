@@ -16,6 +16,8 @@ import com.qwaecd.paramagic.ui.event.EventPhase;
 import com.qwaecd.paramagic.ui.event.impl.WheelEvent;
 import com.qwaecd.paramagic.ui.inventory.InventoryHolder;
 import com.qwaecd.paramagic.ui.inventory.slot.UISlot;
+import com.qwaecd.paramagic.ui.util.UIColor;
+import com.qwaecd.paramagic.ui.widget.UILabel;
 import com.qwaecd.paramagic.ui.widget.UIScrollView;
 import com.qwaecd.paramagic.ui_project.edit_table.SpellEditTableUI;
 import com.qwaecd.paramagic.world.item.content.ParaCrystalItem;
@@ -28,18 +30,52 @@ import javax.annotation.Nullable;
 public class ParaStructEditNode extends UIScrollView {
     @Nullable
     private ParaPathNode rootPathNode;
+    private final float rootPathNodeOffsetY = 16.0f;
+
+    private final StructHeader header;
 
     @Nullable
     private UIAnimator<Float> scrollAnimator;
 
     public ParaStructEditNode() {
         super(false);
+        this.header = new StructHeader();
+        this.header.localRect.setWH(this.localRect.w, rootPathNodeOffsetY);
+        this.addChild(this.header);
+
         this.sensitivity = 64.0f;
+    }
+
+    public static class StructHeader extends UINode {
+        private final UILabel label;
+        public StructHeader() {
+            this.label = new UILabel(Component.translatable("gui.paramagic.spell_edit_table.para_struct"));
+            this.label.getLayoutParams().center();
+            this.addChild(this.label);
+        }
+
+        @Override
+        protected void render(@Nonnull UIRenderContext context) {
+        }
+
+        @Override
+        public void layout(float parentX, float parentY, float parentW, float parentH) {
+            super.layout(parentX, parentY, parentW, parentH);
+        }
+
+        @Override
+        protected void renderBackGround(UIRenderContext context) {
+            context.fill(
+                    this.worldRect.x, this.worldRect.y,
+                    this.worldRect.x + this.worldRect.w,
+                    this.worldRect.y + this.worldRect.h,
+                    UIColor.fromRGBA(141, 85, 55, 255)
+            );
+        }
     }
 
     @Override
     protected void render(@Nonnull UIRenderContext context) {
-        super.render(context);
     }
 
     public void updateFromParaData(@Nonnull ParaData paraData) {
@@ -55,6 +91,7 @@ public class ParaStructEditNode extends UIScrollView {
         }
         this.rootPathNode = pathNode;
         this.addChild(pathNode);
+        this.rootPathNode.localRect.setXY(0.0f, rootPathNodeOffsetY);
         this.reLayoutPathNode();
         pathNode.addListener(
                 AllUIEvents.MOUSE_DOUBLE_CLICK,
@@ -90,6 +127,7 @@ public class ParaStructEditNode extends UIScrollView {
 
     @Override
     public void layout(float parentX, float parentY, float parentW, float parentH) {
+        this.header.localRect.setWH(this.localRect.w, rootPathNodeOffsetY);
         super.layout(parentX, parentY, parentW, parentH);
     }
 

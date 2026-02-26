@@ -45,5 +45,12 @@ public class Lang {
         of("tooltip.paramagic.para_operator_item.cycle_cooldown", "§lCycle Cooldown: §r", "§l回转冷却: §r");
         of("tooltip.paramagic.magic_arrow_operator.describe", "Shoots a magic arrow forward", "向前射出一支魔法箭");
         of("tooltip.paramagic.void_operator.describe", "Do noting", "什么也不做");
+        gui();
+    }
+
+    private static void gui() {
+        of("gui.paramagic.spell_edit_table.para_struct", "Para Struct", "参量结构");
+        of("gui.paramagic.spell_edit_table.crystal_edit", "Crystal", "水晶编辑");
+        of("gui.paramagic.spell_edit_table.para_tree", "Para Tree", "法术树");
     }
 }

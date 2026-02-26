@@ -83,6 +83,14 @@ public class UILabel extends UINode {
         );
     }
 
+    public void setLabel(@Nonnull String label) {
+        this.label = Component.literal(label);
+    }
+
+    public void setLabel(@Nonnull Component label) {
+        this.label = label;
+    }
+
     public void setColor(UIColor color) {
         this.color = color;
     }

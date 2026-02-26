@@ -2,6 +2,7 @@ package com.qwaecd.paramagic.ui.widget;
 
 import com.qwaecd.paramagic.ui.api.event.UIEventContext;
 import com.qwaecd.paramagic.ui.core.ClipMod;
+import com.qwaecd.paramagic.ui.core.UIManager;
 import com.qwaecd.paramagic.ui.core.UINode;
 import com.qwaecd.paramagic.ui.event.impl.WheelEvent;
 import com.qwaecd.paramagic.ui.util.UILayout;
@@ -39,7 +40,7 @@ public class UIScrollView extends UINode {
     @Override
     protected void onMouseScroll(UIEventContext<WheelEvent> context) {
         WheelEvent event = context.event;
-        this.viewOffset += (float) event.scrollDelta * this.sensitivity;
+        this.viewOffset += (float) event.scrollDelta * this.getSensitivity();
         this.clampViewOffset();
         this.layoutChildren();
         context.consume();
@@ -113,7 +114,7 @@ public class UIScrollView extends UINode {
     }
 
     public float getSensitivity() {
-        return this.sensitivity;
+        return UIManager.hasCtrlKeyDown() ? this.sensitivity * 1.5f : this.sensitivity;
     }
 
     public float getViewOffset() {

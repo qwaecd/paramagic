@@ -11,6 +11,7 @@ import com.qwaecd.paramagic.ui.inventory.InventoryHolder;
 import com.qwaecd.paramagic.ui.inventory.slot.UISlot;
 import com.qwaecd.paramagic.ui.io.mouse.CursorType;
 import com.qwaecd.paramagic.ui.io.mouse.MouseStateMachine;
+import com.qwaecd.paramagic.ui.util.UIColor;
 import com.qwaecd.paramagic.ui.widget.node.MouseCaptureNode;
 import com.qwaecd.paramagic.ui_project.edit_table.BarState;
 import com.qwaecd.paramagic.ui_project.edit_table.SpellEditTableUI;
@@ -164,7 +165,10 @@ public class SideBar extends UINode {
     @Override
     public void layout(float parentX, float parentY, float parentW, float parentH) {
         this.localRect.h = this.getWindowHeight() / this.getGuiScale();
-        this.structEditNode.localRect.set(this.localRect);
+        this.structEditNode.localRect.set(
+                this.localRect.x, this.localRect.y,
+                this.localRect.w - this.resizeNode.localRect.w, this.localRect.h
+        );
         this.resizeNode.localRect.set(
                 this.localRect.w - resizeNode.localRect.w,
                 0.0f,
@@ -176,7 +180,15 @@ public class SideBar extends UINode {
 
     @Override
     protected void render(@Nonnull UIRenderContext context) {
-        super.render(context);
+        if (!this.isVisible()) {
+            return;
+        }
+        context.fill(
+                worldRect.x,
+                worldRect.y,
+                worldRect.x + worldRect.w, worldRect.y + worldRect.h,
+                UIColor.fromRGBA(50, 50, 50, 255)
+        );
     }
 
     @Nonnull

@@ -18,13 +18,13 @@ public class UIModeButtonGroup extends UINode {
     private final ChangeButton crystalEdit;
     private final SideBar sideBar;
 
-    public UIModeButtonGroup(SideBar sideBar, SpellEditTableUI spellEditTableUI) {
+    public UIModeButtonGroup(SideBar sideBar, SpellEditTableUI spellEditTableUI, float nodeW) {
         this.mainUI = spellEditTableUI;
         this.sideBar = sideBar;
         this.paraSelect = new ChangeButton();
         this.crystalEdit = new ChangeButton();
-        this.crystalEdit.setText(Component.literal("crystalEdit"));
-        this.paraSelect.setText(Component.literal("tree"));
+        this.crystalEdit.setText(Component.translatable("gui.paramagic.spell_edit_table.crystal_edit"));
+        this.paraSelect.setText(Component.translatable("gui.paramagic.spell_edit_table.para_tree"));
         this.addChild(this.paraSelect);
         this.addChild(this.crystalEdit);
 
@@ -49,7 +49,7 @@ public class UIModeButtonGroup extends UINode {
                 this::handleDoubleClick
         );
 
-        this.localRect.setWH(ChangeButton.BUTTON_SIZE + 4.0f, ChangeButton.BUTTON_SIZE);
+        this.localRect.setWH(nodeW, ChangeButton.BUTTON_SIZE);
     }
 
     private void handleClick(UIEventContext<MouseClick> context) {
@@ -75,9 +75,12 @@ public class UIModeButtonGroup extends UINode {
 
     @Override
     public void layout(float parentX, float parentY, float parentW, float parentH) {
+        final float gapX = 16.0f;
+        final float buttonW = (this.localRect.w - gapX) / 2.0f;
         this.crystalEdit.localRect.setXY(0.0f, 0.0f);
-        this.crystalEdit.localRect.setWH(ChangeButton.BUTTON_SIZE * 4.0f, ChangeButton.BUTTON_SIZE * 1.5f);
-        this.paraSelect.localRect.setXY(this.crystalEdit.localRect.w + 8.0f, 0.0f);
+        this.crystalEdit.localRect.setWH(buttonW, ChangeButton.BUTTON_SIZE * 1.5f);
+        this.paraSelect.localRect.setXY(this.crystalEdit.localRect.w + gapX, 0.0f);
+        this.paraSelect.localRect.setWH(buttonW, ChangeButton.BUTTON_SIZE * 1.5f);
         super.layout(parentX, parentY, parentW, parentH);
     }
 
