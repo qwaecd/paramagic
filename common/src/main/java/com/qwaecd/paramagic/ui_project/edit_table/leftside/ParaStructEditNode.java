@@ -3,6 +3,7 @@ package com.qwaecd.paramagic.ui_project.edit_table.leftside;
 import com.qwaecd.paramagic.data.para.struct.ParaComponentData;
 import com.qwaecd.paramagic.data.para.struct.ParaData;
 import com.qwaecd.paramagic.thaumaturgy.ParaCrystalData;
+import com.qwaecd.paramagic.tools.ModRL;
 import com.qwaecd.paramagic.tools.anim.Interpolation;
 import com.qwaecd.paramagic.tools.nbt.CrystalComponentUtils;
 import com.qwaecd.paramagic.ui.animation.UIAnimationSystem;
@@ -16,9 +17,10 @@ import com.qwaecd.paramagic.ui.event.EventPhase;
 import com.qwaecd.paramagic.ui.event.impl.WheelEvent;
 import com.qwaecd.paramagic.ui.inventory.InventoryHolder;
 import com.qwaecd.paramagic.ui.inventory.slot.UISlot;
-import com.qwaecd.paramagic.ui.util.UIColor;
+import com.qwaecd.paramagic.ui.util.NineSliceSprite;
 import com.qwaecd.paramagic.ui.widget.UILabel;
 import com.qwaecd.paramagic.ui.widget.UIScrollView;
+import com.qwaecd.paramagic.ui_project.edit_table.EditTableSprite;
 import com.qwaecd.paramagic.ui_project.edit_table.SpellEditTableUI;
 import com.qwaecd.paramagic.world.item.content.ParaCrystalItem;
 import net.minecraft.network.chat.Component;
@@ -47,6 +49,18 @@ public class ParaStructEditNode extends UIScrollView {
     }
 
     public static class StructHeader extends UINode {
+        static final NineSliceSprite headerBackGround =
+                NineSliceSprite.builder(ModRL.inModSpace("textures/gui/edit_table.png"), EditTableSprite.TEX_W, EditTableSprite.TEX_H)
+                        .slice(0, 0,  224, 16, 16)
+                        .slice(1, 16, 224, 32, 16)
+                        .slice(2, 48, 224, 16, 16)
+                        .slice(3, 0,  240, 16, 16)
+                        .slice(4, 16, 240, 32, 16)
+                        .slice(5, 48, 240, 16, 16)
+                        .slice(6, 0,  256, 16, 16)
+                        .slice(7, 16, 256, 32, 16)
+                        .slice(8, 48, 256, 16, 16)
+                        .build();
         private final UILabel label;
         public StructHeader() {
             this.label = new UILabel(Component.translatable("gui.paramagic.spell_edit_table.para_struct"));
@@ -65,11 +79,18 @@ public class ParaStructEditNode extends UIScrollView {
 
         @Override
         protected void renderBackGround(UIRenderContext context) {
-            context.fill(
-                    this.worldRect.x, this.worldRect.y,
-                    this.worldRect.x + this.worldRect.w,
-                    this.worldRect.y + this.worldRect.h,
-                    UIColor.fromRGBA(141, 85, 55, 255)
+//            context.fill(
+//                    this.worldRect.x, this.worldRect.y,
+//                    this.worldRect.x + this.worldRect.w,
+//                    this.worldRect.y + this.worldRect.h,
+//                    UIColor.fromRGBA(141, 85, 55, 255)
+//            );
+            context.renderNineSliceSprite(
+                    headerBackGround,
+                    (int) this.worldRect.x,
+                    (int) this.worldRect.y,
+                    (int) (this.worldRect.x + this.worldRect.w),
+                    (int) (this.worldRect.y + this.worldRect.h)
             );
         }
     }

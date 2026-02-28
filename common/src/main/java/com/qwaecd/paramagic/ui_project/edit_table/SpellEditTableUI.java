@@ -90,7 +90,7 @@ public class SpellEditTableUI extends UINode {
         );
         this.buttonGroup.localRect.setXY(
                 editWindow.localRect.x,
-                editWindow.localRect.y - buttonGroup.localRect.h - 18.0f
+                editWindow.localRect.y - buttonGroup.localRect.h - 8.0f
         );
 
         this.tableContainerNode.layout(this.localRect.x, this.localRect.y, this.localRect.w, this.localRect.h);

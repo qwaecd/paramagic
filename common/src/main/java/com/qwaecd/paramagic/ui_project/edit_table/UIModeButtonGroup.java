@@ -8,7 +8,6 @@ import com.qwaecd.paramagic.ui.event.EventPhase;
 import com.qwaecd.paramagic.ui.event.impl.DoubleClick;
 import com.qwaecd.paramagic.ui.event.impl.MouseClick;
 import com.qwaecd.paramagic.ui_project.edit_table.leftside.SideBar;
-import net.minecraft.network.chat.Component;
 
 import javax.annotation.Nonnull;
 
@@ -18,13 +17,24 @@ public class UIModeButtonGroup extends UINode {
     private final ChangeButton crystalEdit;
     private final SideBar sideBar;
 
+    private static final EditTableSprite crystal_edit = new EditTableSprite(
+            80, 0,
+            16, 16,
+            0, 0
+    );
+    private static final EditTableSprite para_tree = new EditTableSprite(
+            96, 0,
+            16, 16,
+            0, 0
+    );
+
     public UIModeButtonGroup(SideBar sideBar, SpellEditTableUI spellEditTableUI, float nodeW) {
         this.mainUI = spellEditTableUI;
         this.sideBar = sideBar;
-        this.paraSelect = new ChangeButton();
-        this.crystalEdit = new ChangeButton();
-        this.crystalEdit.setText(Component.translatable("gui.paramagic.spell_edit_table.crystal_edit"));
-        this.paraSelect.setText(Component.translatable("gui.paramagic.spell_edit_table.para_tree"));
+        this.paraSelect = new ChangeButton(para_tree);
+        this.crystalEdit = new ChangeButton(crystal_edit);
+//        this.crystalEdit.setText(Component.translatable("gui.paramagic.spell_edit_table.crystal_edit"));
+//        this.paraSelect.setText(Component.translatable("gui.paramagic.spell_edit_table.para_tree"));
         this.addChild(this.paraSelect);
         this.addChild(this.crystalEdit);
 
@@ -75,12 +85,11 @@ public class UIModeButtonGroup extends UINode {
 
     @Override
     public void layout(float parentX, float parentY, float parentW, float parentH) {
-        final float gapX = 16.0f;
-        final float buttonW = (this.localRect.w - gapX) / 2.0f;
+        final float gapX = 6.0f;
         this.crystalEdit.localRect.setXY(0.0f, 0.0f);
-        this.crystalEdit.localRect.setWH(buttonW, ChangeButton.BUTTON_SIZE * 1.5f);
+        this.crystalEdit.localRect.setWH(ChangeButton.BUTTON_SIZE, ChangeButton.BUTTON_SIZE);
         this.paraSelect.localRect.setXY(this.crystalEdit.localRect.w + gapX, 0.0f);
-        this.paraSelect.localRect.setWH(buttonW, ChangeButton.BUTTON_SIZE * 1.5f);
+        this.paraSelect.localRect.setWH(ChangeButton.BUTTON_SIZE, ChangeButton.BUTTON_SIZE);
         super.layout(parentX, parentY, parentW, parentH);
     }
 

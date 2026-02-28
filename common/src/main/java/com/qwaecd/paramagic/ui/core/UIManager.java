@@ -13,6 +13,7 @@ import com.qwaecd.paramagic.ui.event.impl.*;
 import com.qwaecd.paramagic.ui.io.mouse.CursorType;
 import com.qwaecd.paramagic.ui.io.mouse.MouseStateMachine;
 import com.qwaecd.paramagic.ui.overlay.OverlayRoot;
+import com.qwaecd.paramagic.ui.widget.ContextMenu;
 import lombok.Getter;
 import net.minecraft.client.gui.screens.Screen;
 import org.slf4j.Logger;
@@ -42,6 +43,8 @@ public class UIManager {
 
     @Nullable
     private UINode capturedNode;
+    @Nullable
+    private ContextMenu contextMenu;
 
     private final Set<UINode> mouseMovingListeners = new HashSet<>();
 
@@ -103,6 +106,17 @@ public class UIManager {
             this.processMouseOverAndLeave(this.mouseStateMachine.mouseX(), this.mouseStateMachine.mouseY());
         } else {
             this.offerDeferredTask(UITask.create(UIManager::flushMouseOvering, TaskStage.AFTER_RENDER));
+        }
+    }
+
+    public void createContextMenu(ContextMenu contextMenu) {
+        this.cancelContextMenu();
+        this.contextMenu = contextMenu;
+    }
+
+    public void cancelContextMenu() {
+        if (this.contextMenu != null) {
+            this.contextMenu.cancel();
         }
     }
 
@@ -213,6 +227,12 @@ public class UIManager {
         } else {
             UIHitResult hitResult = this.createHitPath(mouseX, mouseY);
             context = new UIEventContext<>(this, hitResult.getTop(), eventKey, event);
+
+            // 先发给 ContextMenu
+            if (this.contextMenu != null) {
+                this.contextMenu.handleEvent(context, EventPhase.CAPTURING);
+            }
+
             List<UINode> hitPath = hitResult.getHitPath();
 
             // 捕获阶段：从根到目标, 包括目标（索引 0 是根，索引越大越深）
