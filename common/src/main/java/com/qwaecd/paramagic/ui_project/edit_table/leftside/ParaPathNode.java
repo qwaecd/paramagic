@@ -2,12 +2,12 @@ package com.qwaecd.paramagic.ui_project.edit_table.leftside;
 
 import com.qwaecd.paramagic.ui.api.UIRenderContext;
 import com.qwaecd.paramagic.ui.api.event.UIEventContext;
+import com.qwaecd.paramagic.ui.core.UIManager;
 import com.qwaecd.paramagic.ui.core.UINode;
-import com.qwaecd.paramagic.ui.event.impl.DoubleClick;
-import com.qwaecd.paramagic.ui.event.impl.MouseClick;
-import com.qwaecd.paramagic.ui.event.impl.MouseLeave;
-import com.qwaecd.paramagic.ui.event.impl.MouseOver;
+import com.qwaecd.paramagic.ui.event.impl.*;
+import com.qwaecd.paramagic.ui.io.mouse.MouseButton;
 import com.qwaecd.paramagic.ui.util.UIColor;
+import com.qwaecd.paramagic.ui_project.edit_table.EditContextMenu;
 import com.qwaecd.paramagic.ui_project.edit_table.EditTableSprite;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
@@ -96,6 +96,19 @@ public class ParaPathNode extends UINode {
     @Override
     protected void onMouseClick(UIEventContext<MouseClick> context) {
         context.consume();
+    }
+
+    @Override
+    protected void onMouseRelease(UIEventContext<MouseRelease> context) {
+        MouseRelease event = context.event;
+        if (event.button == MouseButton.RIGHT.code) {
+            this.createRightClickMenu(context.manager, (int) event.mouseX, (int) event.mouseY);
+        }
+    }
+
+    private void createRightClickMenu(UIManager manager, float mouseX, float mouseY) {
+        EditContextMenu menu = new EditContextMenu(mouseX, mouseY);
+        manager.createContextMenu(menu);
     }
 
     @Override

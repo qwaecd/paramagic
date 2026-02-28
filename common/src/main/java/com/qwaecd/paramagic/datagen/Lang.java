@@ -52,5 +52,8 @@ public class Lang {
         of("gui.paramagic.spell_edit_table.para_struct", "Para Struct", "参量结构");
         of("gui.paramagic.spell_edit_table.crystal_edit", "Crystal", "水晶编辑");
         of("gui.paramagic.spell_edit_table.para_tree", "Para Tree", "法术树");
+        of("gui.paramagic.spell_edit_table.context_menu.add_path", "Add Para Path", "添加参量路径");
+        of("gui.paramagic.spell_edit_table.context_menu.remove_path", "Remove Para Path", "移除参量路径");
+        of("gui.paramagic.spell_edit_table.context_menu.open_window", "Open Edit Window", "打开编辑窗口");
     }
 }

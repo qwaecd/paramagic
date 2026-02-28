@@ -81,8 +81,13 @@ public class UIManager {
     public void render(UIRenderContext context) {
         this.processDeferredTasks(TaskStage.BEFORE_RENDER);
         UIAnimationSystem.getInstance().updateAll(context.deltaTime);
+
         this.rootNode.renderTree(context);
         this.overlayRoot.renderOverlay(context);
+        if (this.contextMenu != null) {
+            this.contextMenu.renderTree(context);
+        }
+
         this.processDeferredTasks(TaskStage.AFTER_RENDER);
     }
 
@@ -109,15 +114,17 @@ public class UIManager {
         }
     }
 
-    public void createContextMenu(ContextMenu contextMenu) {
+    public void createContextMenu(@Nonnull ContextMenu contextMenu) {
         this.cancelContextMenu();
         this.contextMenu = contextMenu;
+        this.contextMenu.layout(this.rootNode.localRect.x, this.rootNode.localRect.y, this.rootNode.localRect.w, this.rootNode.localRect.h);
     }
 
     public void cancelContextMenu() {
         if (this.contextMenu != null) {
             this.contextMenu.cancel();
         }
+        this.contextMenu = null;
     }
 
     /**
@@ -179,7 +186,15 @@ public class UIManager {
     }
 
     private void processMouseOverAndLeave(double mouseX, double mouseY) {
-        UINode newOver = this.rootNode.getMouseOverNode((float) mouseX, (float) mouseY);
+        UINode newOver = null;
+        if (this.contextMenu != null) {
+            newOver = this.contextMenu.getMouseOverNode((float) mouseX, (float) mouseY);
+        }
+
+        if (newOver == null) {
+            newOver = this.rootNode.getMouseOverNode((float) mouseX, (float) mouseY);
+        }
+
         if (this.mouseOver == null && newOver == null) {
             // 上一帧和当前帧都是 null
             return;
@@ -230,7 +245,11 @@ public class UIManager {
 
             // 先发给 ContextMenu
             if (this.contextMenu != null) {
-                this.contextMenu.handleEvent(context, EventPhase.CAPTURING);
+                if (this.contextMenu.hitTest((float) mouseX, (float) mouseY)) {
+                    this.contextMenu.dispatchTargetEvent(context);
+                } else {
+                    this.cancelContextMenu();
+                }
             }
 
             List<UINode> hitPath = hitResult.getHitPath();

@@ -217,7 +217,7 @@ public class UINode {
 
 
     @SuppressWarnings("unchecked")
-    final void dispatchTargetEvent(UIEventContext<? extends UIEvent> context) {
+    protected final void dispatchTargetEvent(UIEventContext<? extends UIEvent> context) {
         UIEventKey<?> key = context.getEventKey();
         switch (key.eventId) {
             case 0 -> this.onMouseClick((UIEventContext<MouseClick>) context);
