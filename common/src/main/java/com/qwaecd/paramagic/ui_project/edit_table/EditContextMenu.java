@@ -15,10 +15,10 @@ import net.minecraft.network.chat.Component;
 import javax.annotation.Nonnull;
 
 public class EditContextMenu extends ContextMenu {
-    private static final float menuWidth = 30.0f;
+    private static final float minMenuWidth = 30.0f;
     public EditContextMenu(double mouseX, double mouseY) {
         this.localRect.setXY((float) mouseX, (float) mouseY);
-        this.localRect.w = menuWidth;
+        this.localRect.w = minMenuWidth;
 
         this.addChild(new Content(Component.translatable("gui.paramagic.spell_edit_table.context_menu.add_path")));
         this.addChild(new Content(Component.translatable("gui.paramagic.spell_edit_table.context_menu.remove_path")));
@@ -30,7 +30,7 @@ public class EditContextMenu extends ContextMenu {
         final float textOffsetX = 4.0f;
         final float textGapY = 2.0f;
         float childY = textGapY * 2.0f;
-        float maxChildW = menuWidth;
+        float maxChildW = minMenuWidth;
         for (UINode child : this.children) {
             if (child instanceof Content content) {
                 content.localRect.setXY(textOffsetX, childY);

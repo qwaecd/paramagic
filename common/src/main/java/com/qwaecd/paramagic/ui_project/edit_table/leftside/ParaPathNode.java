@@ -1,5 +1,6 @@
 package com.qwaecd.paramagic.ui_project.edit_table.leftside;
 
+import com.qwaecd.paramagic.data.para.struct.ParaComponentData;
 import com.qwaecd.paramagic.ui.api.UIRenderContext;
 import com.qwaecd.paramagic.ui.api.event.UIEventContext;
 import com.qwaecd.paramagic.ui.core.UIManager;
@@ -9,6 +10,7 @@ import com.qwaecd.paramagic.ui.io.mouse.MouseButton;
 import com.qwaecd.paramagic.ui.util.UIColor;
 import com.qwaecd.paramagic.ui_project.edit_table.EditContextMenu;
 import com.qwaecd.paramagic.ui_project.edit_table.EditTableSprite;
+import com.qwaecd.paramagic.ui_project.edit_table.cache.ParaStruct;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.network.chat.Component;
@@ -17,6 +19,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 public class ParaPathNode extends UINode {
+    private static final UIColor hoveringTextColor = UIColor.of(255, 231, 136, 255);
     private static final EditTableSprite arrowRight = new EditTableSprite(
             64, 0,
             8, 8,
@@ -28,6 +31,8 @@ public class ParaPathNode extends UINode {
             0, 0
     );
 
+    protected boolean selected = false;
+
     private static final float childrenIndentation = 8.0f;
     private static final float defaultNodeHeight = 8.0f;
 
@@ -38,12 +43,31 @@ public class ParaPathNode extends UINode {
     @Nullable
     private Component path;
 
-    public ParaPathNode(@Nullable Component path) {
+    private final ParaStruct struct = new ParaStruct();
+
+    ParaPathNode(@Nullable Component path) {
         this.path = path;
     }
 
-    public ParaPathNode(@Nonnull String path) {
-        this(Component.literal(path));
+    public ParaPathNode(@Nonnull ParaComponentData data) {
+        this.path = Component.literal(data.getComponentId());
+        this.struct.updateFromParaComponent(data);
+    }
+
+    public void setName(String name) {
+        this.struct.setName(name);
+    }
+
+    public void setSelected(boolean selected) {
+        this.selected = selected;
+    }
+
+    public boolean isSelected() {
+        return this.selected;
+    }
+
+    public void removeName() {
+        this.struct.setName(null);
     }
 
     public void setFolded(boolean folded) {
@@ -171,11 +195,15 @@ public class ParaPathNode extends UINode {
             if (this.localRect.w != lineHeight + offsetY * 2.0f) {
                 this.localRect.w = lineHeight + offsetY * 2.0f;
             }
-            if (this.mouseOvering) {
-                context.drawText(this.path, this.worldRect.x + offsetX, this.worldRect.y + offsetY, UIColor.fromRGBA(255, 231, 136, 255));
+            UIColor textColor;
+            if (this.selected) {
+                textColor = UIColor.GREEN;
+            } else if (this.mouseOvering) {
+                textColor = hoveringTextColor;
             } else {
-                context.drawText(this.path, this.worldRect.x + offsetX, this.worldRect.y + offsetY, UIColor.WHITE);
+                textColor = UIColor.WHITE;
             }
+            context.drawText(this.path, this.worldRect.x + offsetX, this.worldRect.y + offsetY, textColor);
         }
         if (this.children.isEmpty()) {
             return;

@@ -14,9 +14,11 @@ import com.qwaecd.paramagic.ui.api.event.UIEventContext;
 import com.qwaecd.paramagic.ui.core.UIManager;
 import com.qwaecd.paramagic.ui.core.UINode;
 import com.qwaecd.paramagic.ui.event.EventPhase;
+import com.qwaecd.paramagic.ui.event.impl.MouseClick;
 import com.qwaecd.paramagic.ui.event.impl.WheelEvent;
 import com.qwaecd.paramagic.ui.inventory.InventoryHolder;
 import com.qwaecd.paramagic.ui.inventory.slot.UISlot;
+import com.qwaecd.paramagic.ui.io.mouse.MouseButton;
 import com.qwaecd.paramagic.ui.util.NineSliceSprite;
 import com.qwaecd.paramagic.ui.widget.UILabel;
 import com.qwaecd.paramagic.ui.widget.UIScrollView;
@@ -39,6 +41,9 @@ public class ParaStructEditNode extends UIScrollView {
     @Nullable
     private UIAnimator<Float> scrollAnimator;
 
+    @Nullable
+    private ParaPathNode currentSelectedNode;
+
     public ParaStructEditNode() {
         super(false);
         this.header = new StructHeader();
@@ -48,62 +53,27 @@ public class ParaStructEditNode extends UIScrollView {
         this.sensitivity = 64.0f;
     }
 
-    public static class StructHeader extends UINode {
-        static final NineSliceSprite headerBackGround =
-                NineSliceSprite.builder(ModRL.inModSpace("textures/gui/edit_table.png"), EditTableSprite.TEX_W, EditTableSprite.TEX_H)
-                        .slice(0, 0,  224, 16, 16)
-                        .slice(1, 16, 224, 32, 16)
-                        .slice(2, 48, 224, 16, 16)
-                        .slice(3, 0,  240, 16, 16)
-                        .slice(4, 16, 240, 32, 16)
-                        .slice(5, 48, 240, 16, 16)
-                        .slice(6, 0,  256, 16, 16)
-                        .slice(7, 16, 256, 32, 16)
-                        .slice(8, 48, 256, 16, 16)
-                        .build();
-        private final UILabel label;
-        public StructHeader() {
-            this.label = new UILabel(Component.translatable("gui.paramagic.spell_edit_table.para_struct"));
-            this.label.getLayoutParams().center();
-            this.addChild(this.label);
-        }
-
-        @Override
-        protected void render(@Nonnull UIRenderContext context) {
-        }
-
-        @Override
-        public void layout(float parentX, float parentY, float parentW, float parentH) {
-            super.layout(parentX, parentY, parentW, parentH);
-        }
-
-        @Override
-        protected void renderBackGround(UIRenderContext context) {
-//            context.fill(
-//                    this.worldRect.x, this.worldRect.y,
-//                    this.worldRect.x + this.worldRect.w,
-//                    this.worldRect.y + this.worldRect.h,
-//                    UIColor.fromRGBA(141, 85, 55, 255)
-//            );
-            context.renderNineSliceSprite(
-                    headerBackGround,
-                    (int) this.worldRect.x,
-                    (int) this.worldRect.y,
-                    (int) (this.worldRect.x + this.worldRect.w),
-                    (int) (this.worldRect.y + this.worldRect.h)
-            );
-        }
-    }
-
     @Override
     protected void render(@Nonnull UIRenderContext context) {
     }
 
     public void updateFromParaData(@Nonnull ParaData paraData) {
         ParaComponentData root = paraData.rootComponent;
-        ParaPathNode rootNode = new ParaPathNode(root.getComponentId());
+        ParaPathNode rootNode = new ParaPathNode(root);
         this.buildComponentNode(root, rootNode);
         this.flushPathNode(rootNode);
+    }
+
+
+    private void handlePathNodeClicked(UIEventContext<MouseClick> context) {
+        if (!(context.targetNode instanceof ParaPathNode pathNode)) {
+            return;
+        }
+        if (this.currentSelectedNode != null) {
+            this.currentSelectedNode.setSelected(false);
+        }
+        pathNode.setSelected(true);
+        this.currentSelectedNode = pathNode;
     }
 
     private void flushPathNode(@Nonnull ParaPathNode pathNode) {
@@ -114,6 +84,13 @@ public class ParaStructEditNode extends UIScrollView {
         this.addChild(pathNode);
         this.rootPathNode.localRect.setXY(0.0f, rootPathNodeOffsetY);
         this.reLayoutPathNode();
+
+        pathNode.addListener(
+                AllUIEvents.MOUSE_CLICK,
+                EventPhase.BUBBLING,
+                this::handlePathNodeClicked
+        );
+
         pathNode.addListener(
                 AllUIEvents.MOUSE_DOUBLE_CLICK,
                 EventPhase.BUBBLING,
@@ -136,14 +113,14 @@ public class ParaStructEditNode extends UIScrollView {
 
     private void buildComponentNode(ParaComponentData parentData, ParaPathNode parentNode) {
         for (ParaComponentData child : parentData.getChildren()) {
-            ParaPathNode childNode = new ParaPathNode(child.getComponentId());
+            ParaPathNode childNode = new ParaPathNode(child);
             parentNode.addChild(childNode);
             this.buildComponentNode(child, childNode);
         }
-        for (int i = 0; i < 10; i++) {
-            ParaPathNode childNode = new ParaPathNode(Component.literal("test" + i));
-            parentNode.addChild(childNode);
-        }
+//        for (int i = 0; i < 10; i++) {
+//            ParaPathNode childNode = new ParaPathNode(Component.literal("test" + i));
+//            parentNode.addChild(childNode);
+//        }
     }
 
     @Override
@@ -222,6 +199,53 @@ public class ParaStructEditNode extends UIScrollView {
         if (this.rootPathNode != null) {
             this.removeChild(this.rootPathNode);
             this.rootPathNode = null;
+        }
+    }
+
+    public static class StructHeader extends UINode {
+        static final NineSliceSprite headerBackGround =
+                NineSliceSprite.builder(ModRL.inModSpace("textures/gui/edit_table.png"), EditTableSprite.TEX_W, EditTableSprite.TEX_H)
+                        .slice(0, 0,  224, 16, 16)
+                        .slice(1, 16, 224, 32, 16)
+                        .slice(2, 48, 224, 16, 16)
+                        .slice(3, 0,  240, 16, 16)
+                        .slice(4, 16, 240, 32, 16)
+                        .slice(5, 48, 240, 16, 16)
+                        .slice(6, 0,  256, 16, 16)
+                        .slice(7, 16, 256, 32, 16)
+                        .slice(8, 48, 256, 16, 16)
+                        .build();
+        private final UILabel label;
+        public StructHeader() {
+            this.label = new UILabel(Component.translatable("gui.paramagic.spell_edit_table.para_struct"));
+            this.label.getLayoutParams().center();
+            this.addChild(this.label);
+        }
+
+        @Override
+        protected void render(@Nonnull UIRenderContext context) {
+        }
+
+        @Override
+        public void layout(float parentX, float parentY, float parentW, float parentH) {
+            super.layout(parentX, parentY, parentW, parentH);
+        }
+
+        @Override
+        protected void renderBackGround(UIRenderContext context) {
+//            context.fill(
+//                    this.worldRect.x, this.worldRect.y,
+//                    this.worldRect.x + this.worldRect.w,
+//                    this.worldRect.y + this.worldRect.h,
+//                    UIColor.fromRGBA(141, 85, 55, 255)
+//            );
+            context.renderNineSliceSprite(
+                    headerBackGround,
+                    (int) this.worldRect.x,
+                    (int) this.worldRect.y,
+                    (int) (this.worldRect.x + this.worldRect.w),
+                    (int) (this.worldRect.y + this.worldRect.h)
+            );
         }
     }
 }
