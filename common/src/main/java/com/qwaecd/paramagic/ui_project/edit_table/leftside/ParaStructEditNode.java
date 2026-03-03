@@ -15,6 +15,7 @@ import com.qwaecd.paramagic.ui.core.UIManager;
 import com.qwaecd.paramagic.ui.core.UINode;
 import com.qwaecd.paramagic.ui.event.EventPhase;
 import com.qwaecd.paramagic.ui.event.impl.MouseClick;
+import com.qwaecd.paramagic.ui.event.impl.MouseRelease;
 import com.qwaecd.paramagic.ui.event.impl.WheelEvent;
 import com.qwaecd.paramagic.ui.inventory.InventoryHolder;
 import com.qwaecd.paramagic.ui.inventory.slot.UISlot;
@@ -22,6 +23,7 @@ import com.qwaecd.paramagic.ui.io.mouse.MouseButton;
 import com.qwaecd.paramagic.ui.util.NineSliceSprite;
 import com.qwaecd.paramagic.ui.widget.UILabel;
 import com.qwaecd.paramagic.ui.widget.UIScrollView;
+import com.qwaecd.paramagic.ui_project.edit_table.EditContextMenu;
 import com.qwaecd.paramagic.ui_project.edit_table.EditTableSprite;
 import com.qwaecd.paramagic.ui_project.edit_table.SpellEditTableUI;
 import com.qwaecd.paramagic.world.item.content.ParaCrystalItem;
@@ -64,6 +66,20 @@ public class ParaStructEditNode extends UIScrollView {
         this.flushPathNode(rootNode);
     }
 
+    private void handleReleaseOnPathNode(UIEventContext<MouseRelease> context) {
+        MouseRelease event = context.event;
+        if (event.button != MouseButton.RIGHT.code) {
+            return;
+        }
+        this.createRightClickMenu(context.manager, (int) event.mouseX, (int) event.mouseY);
+        context.consume();
+    }
+
+    private void createRightClickMenu(UIManager manager, float mouseX, float mouseY) {
+        EditContextMenu menu = new EditContextMenu(mouseX, mouseY);
+        manager.createContextMenu(menu);
+    }
+
 
     private void handlePathNodeClicked(UIEventContext<MouseClick> context) {
         if (!(context.targetNode instanceof ParaPathNode pathNode)) {
@@ -85,22 +101,11 @@ public class ParaStructEditNode extends UIScrollView {
         this.rootPathNode.localRect.setXY(0.0f, rootPathNodeOffsetY);
         this.reLayoutPathNode();
 
-        pathNode.addListener(
-                AllUIEvents.MOUSE_CLICK,
-                EventPhase.BUBBLING,
-                this::handlePathNodeClicked
-        );
+        pathNode.addListener(AllUIEvents.MOUSE_CLICK, EventPhase.BUBBLING, this::handlePathNodeClicked);
+        pathNode.addListener(AllUIEvents.MOUSE_RELEASE, EventPhase.BUBBLING, this::handleReleaseOnPathNode);
 
-        pathNode.addListener(
-                AllUIEvents.MOUSE_DOUBLE_CLICK,
-                EventPhase.BUBBLING,
-                context -> this.reLayoutPathNode()
-        );
-        pathNode.addListener(
-                AllUIEvents.WHEEL,
-                EventPhase.BUBBLING,
-                this::onMouseScroll
-        );
+        pathNode.addListener(AllUIEvents.MOUSE_DOUBLE_CLICK, EventPhase.BUBBLING, context -> this.reLayoutPathNode());
+        pathNode.addListener(AllUIEvents.WHEEL, EventPhase.BUBBLING, this::onMouseScroll);
     }
 
     private void reLayoutPathNode() {

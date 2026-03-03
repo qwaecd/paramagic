@@ -123,19 +123,6 @@ public class ParaPathNode extends UINode {
     }
 
     @Override
-    protected void onMouseRelease(UIEventContext<MouseRelease> context) {
-        MouseRelease event = context.event;
-        if (event.button == MouseButton.RIGHT.code) {
-            this.createRightClickMenu(context.manager, (int) event.mouseX, (int) event.mouseY);
-        }
-    }
-
-    private void createRightClickMenu(UIManager manager, float mouseX, float mouseY) {
-        EditContextMenu menu = new EditContextMenu(mouseX, mouseY);
-        manager.createContextMenu(menu);
-    }
-
-    @Override
     protected void onDoubleClick(UIEventContext<DoubleClick> context) {
         this.setFolded(!this.folded);
         context.consume();

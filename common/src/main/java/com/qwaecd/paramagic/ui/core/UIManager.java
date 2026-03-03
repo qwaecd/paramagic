@@ -240,13 +240,30 @@ public class UIManager {
                 captured.handleEvent(context, EventPhase.BUBBLING);
             }
         } else {
-            UIHitResult hitResult = this.createHitPath(mouseX, mouseY);
+            UIHitResult hitResult = this.createHitPath(this.rootNode, mouseX, mouseY);
             context = new UIEventContext<>(this, hitResult.getTop(), eventKey, event);
 
             // 先发给 ContextMenu
             if (this.contextMenu != null) {
                 if (this.contextMenu.hitTest((float) mouseX, (float) mouseY)) {
-                    this.contextMenu.dispatchTargetEvent(context);
+                    UIHitResult internalResult = this.createHitPath(this.contextMenu, mouseX, mouseY);
+                    UIEventContext<E> internalEvent = new UIEventContext<>(this, internalResult.getTop(), eventKey, event);
+                    List<UINode> menuResultPath = internalResult.getHitPath();
+                    // 在 ContextMenu 内部的目标阶段
+                    if (!menuResultPath.isEmpty() && !internalEvent.isPropagationStopped()) {
+                        UINode target = menuResultPath.get(menuResultPath.size() - 1);
+                        target.dispatchTargetEvent(internalEvent);
+                    }
+                    // 在 ContextMenu 内部的冒泡阶段
+                    for (int i = menuResultPath.size() - 1; i >= 0 && !internalEvent.isPropagationStopped(); i--) {
+                        menuResultPath.get(i).handleEvent(internalEvent, EventPhase.BUBBLING);
+                    }
+                    if (internalEvent.isConsumed()) {
+                        context.consume();
+                    }
+                    if (internalEvent.isPropagationStopped()) {
+                        context.stopPropagation();
+                    }
                 } else {
                     this.cancelContextMenu();
                 }
@@ -280,8 +297,8 @@ public class UIManager {
      * 所有路径上的节点都会被加入到命中路径中, 包括没有经过命中测试的节点.
      */
     @Nonnull
-    public UIHitResult createHitPath(double mouseX, double mouseY) {
-        UINode topmost = this.rootNode.getTopmostHitNode((float) mouseX, (float) mouseY);
+    public UIHitResult createHitPath(UINode beginNode, double mouseX, double mouseY) {
+        UINode topmost = beginNode.getTopmostHitNode((float) mouseX, (float) mouseY);
         UIHitResult hitResult = UIHitResult.createEmpty();
 
         if (topmost != null) {
