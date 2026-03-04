@@ -26,6 +26,7 @@ import com.qwaecd.paramagic.ui.widget.UIScrollView;
 import com.qwaecd.paramagic.ui_project.edit_table.EditContextMenu;
 import com.qwaecd.paramagic.ui_project.edit_table.EditTableSprite;
 import com.qwaecd.paramagic.ui_project.edit_table.SpellEditTableUI;
+import com.qwaecd.paramagic.ui_project.edit_table.cache.ParaEditCache;
 import com.qwaecd.paramagic.world.item.content.ParaCrystalItem;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
@@ -37,6 +38,12 @@ public class ParaStructEditNode extends UIScrollView {
     @Nullable
     private ParaPathNode rootPathNode;
     private final float rootPathNodeOffsetY = 16.0f;
+
+    /**
+     * 真实数据构建的根节点，用于在缓存不存在时作为 fallback 显示。
+     */
+    @Nullable
+    private ParaPathNode realRootPathNode;
 
     private final StructHeader header;
 
@@ -55,15 +62,51 @@ public class ParaStructEditNode extends UIScrollView {
         this.sensitivity = 64.0f;
     }
 
+    @Nullable
+    public ParaPathNode getCurrentSelectedNode() {
+        return this.currentSelectedNode;
+    }
+
+    /**
+     * 获取当前真实数据根节点（非缓存）。
+     */
+    @Nullable
+    public ParaPathNode getRealRootPathNode() {
+        return this.realRootPathNode;
+    }
+
     @Override
     protected void render(@Nonnull UIRenderContext context) {
     }
 
     public void updateFromParaData(@Nonnull ParaData paraData) {
         ParaComponentData root = paraData.rootComponent;
-        ParaPathNode rootNode = new ParaPathNode(root);
-        this.buildComponentNode(root, rootNode);
-        this.flushPathNode(rootNode);
+        ParaPathNode realNode = new ParaPathNode(root);
+        this.buildComponentNode(root, realNode);
+        this.realRootPathNode = realNode;
+
+        // 缓存优先：如果存在缓存则使用缓存的根节点，否则使用真实数据
+        if (ParaEditCache.hasCache()) {
+            ParaEditCache editCache = ParaEditCache.getCache();
+            //noinspection DataFlowIssue
+            this.flushPathNode(editCache.getRootNode());
+        } else {
+            this.flushPathNode(realNode);
+        }
+    }
+
+    /**
+     * 刷新显示的节点树。在缓存变更后调用以更新 UI。
+     */
+    public void refreshDisplay() {
+        if (ParaEditCache.hasCache()) {
+            ParaEditCache editCache = ParaEditCache.getCache();
+            //noinspection DataFlowIssue
+            this.flushPathNode(editCache.getRootNode());
+        } else if (this.realRootPathNode != null) {
+            this.flushPathNode(this.realRootPathNode);
+        }
+        this.reLayoutPathNode();
     }
 
     private void handleReleaseOnPathNode(UIEventContext<MouseRelease> context) {
@@ -76,8 +119,8 @@ public class ParaStructEditNode extends UIScrollView {
     }
 
     private void createRightClickMenu(UIManager manager, float mouseX, float mouseY) {
-        EditContextMenu menu = new EditContextMenu(mouseX, mouseY);
-        manager.createContextMenu(menu);
+        EditContextMenu menu = new EditContextMenu(mouseX, mouseY, this);
+        manager.displayContextMenu(menu);
     }
 
 

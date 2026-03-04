@@ -43,15 +43,56 @@ public class ParaPathNode extends UINode {
     @Nullable
     private Component path;
 
-    private final ParaStruct struct = new ParaStruct();
+    private final ParaStruct struct;
 
-    ParaPathNode(@Nullable Component path) {
+    public ParaPathNode(@Nullable Component path) {
         this.path = path;
+        this.struct = new ParaStruct();
+    }
+
+    private ParaPathNode(@Nullable Component path, @Nonnull ParaStruct struct) {
+        this.path = path;
+        this.struct = struct;
     }
 
     public ParaPathNode(@Nonnull ParaComponentData data) {
         this.path = Component.literal(data.getComponentId());
-        this.struct.updateFromParaComponent(data);
+        this.struct = new ParaStruct(data);
+    }
+
+    @Nonnull
+    public ParaStruct getStruct() {
+        return this.struct;
+    }
+
+    /**
+     * 深拷贝当前节点及其所有子节点，缓存与真实数据不共享任何可变对象引用。
+     */
+    @Nonnull
+    public ParaPathNode deepCopy() {
+        ParaStruct copiedStruct = this.struct.deepCopy();
+        Component copiedPath = this.path;
+        ParaPathNode copy = new ParaPathNode(copiedPath, copiedStruct);
+        for (UINode child : this.children) {
+            if (child instanceof ParaPathNode paraChild) {
+                copy.addChild(paraChild.deepCopy());
+            }
+        }
+        return copy;
+    }
+
+    /**
+     * 向当前节点末尾添加一个子节点。
+     */
+    public void addChildNode(@Nonnull ParaPathNode child) {
+        this.addChild(child);
+    }
+
+    /**
+     * 从当前节点移除指定子节点。
+     */
+    public void removeChildNode(@Nonnull ParaPathNode child) {
+        this.removeChild(child);
     }
 
     public void setName(String name) {
@@ -190,7 +231,14 @@ public class ParaPathNode extends UINode {
             } else {
                 textColor = UIColor.WHITE;
             }
-            context.drawText(this.path, this.worldRect.x + offsetX, this.worldRect.y + offsetY, textColor);
+            // 优先显示 struct.name，若为 null 则显示 componentId (path)
+            Component displayText;
+            if (this.struct.getName() != null) {
+                displayText = Component.literal(this.struct.getName());
+            } else {
+                displayText = this.path;
+            }
+            context.drawText(displayText, this.worldRect.x + offsetX, this.worldRect.y + offsetY, textColor);
         }
         if (this.children.isEmpty()) {
             return;

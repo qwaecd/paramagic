@@ -14,6 +14,7 @@ import com.qwaecd.paramagic.ui.io.mouse.CursorType;
 import com.qwaecd.paramagic.ui.io.mouse.MouseStateMachine;
 import com.qwaecd.paramagic.ui.overlay.OverlayRoot;
 import com.qwaecd.paramagic.ui.widget.ContextMenu;
+import com.qwaecd.paramagic.ui_project.edit_table.cache.ParaEditCache;
 import lombok.Getter;
 import net.minecraft.client.gui.screens.Screen;
 import org.slf4j.Logger;
@@ -114,7 +115,7 @@ public class UIManager {
         }
     }
 
-    public void createContextMenu(@Nonnull ContextMenu contextMenu) {
+    public void displayContextMenu(@Nonnull ContextMenu contextMenu) {
         this.cancelContextMenu();
         this.contextMenu = contextMenu;
         this.contextMenu.layout(this.rootNode.localRect.x, this.rootNode.localRect.y, this.rootNode.localRect.w, this.rootNode.localRect.h);

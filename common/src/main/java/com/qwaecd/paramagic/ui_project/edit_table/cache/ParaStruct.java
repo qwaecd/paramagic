@@ -75,4 +75,25 @@ public final class ParaStruct {
         data.color.set(this.color);
         data.setIntensity(this.intensity);
     }
+
+    public int getComponentType() {
+        return this.componentType;
+    }
+
+    public void setComponentType(int componentType) {
+        this.componentType = componentType;
+    }
+
+    @Nonnull
+    public ParaStruct deepCopy() {
+        ParaStruct copy = new ParaStruct();
+        copy.componentType = this.componentType;
+        copy.name = this.name;
+        copy.position = new Vector3f(this.position);
+        copy.rotation = new Quaternionf(this.rotation);
+        copy.scale = new Vector3f(this.scale);
+        copy.color = new Vector4f(this.color);
+        copy.intensity = this.intensity;
+        return copy;
+    }
 }
