@@ -12,6 +12,7 @@ import com.qwaecd.paramagic.ui.util.UIColor;
 import com.qwaecd.paramagic.ui.widget.ContextMenu;
 import com.qwaecd.paramagic.ui_project.edit_table.cache.ParaEditCache;
 import com.qwaecd.paramagic.ui_project.edit_table.cache.ParaStruct;
+import com.qwaecd.paramagic.ui_project.edit_table.cache.ParaStructEditWindow;
 import com.qwaecd.paramagic.ui_project.edit_table.leftside.ParaPathNode;
 import com.qwaecd.paramagic.ui_project.edit_table.leftside.ParaStructEditNode;
 import net.minecraft.client.Minecraft;
@@ -19,6 +20,7 @@ import net.minecraft.client.gui.Font;
 import net.minecraft.network.chat.Component;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.function.Consumer;
 
 public class EditContextMenu extends ContextMenu {
@@ -106,7 +108,13 @@ public class EditContextMenu extends ContextMenu {
             return;
         }
 
+        boolean hasCacheBefore = ParaEditCache.hasCache();
+
         ParaEditCache editCache = ParaEditCache.ensureCache(realRoot);
+
+        if (!hasCacheBefore) {
+            this.structEditNode.refreshDisplay();
+        }
 
         // 在缓存中找到对应的选中节点
         ParaPathNode cachedSelected = this.findNodeInCache(editCache.getRootNode(), selectedNode);
@@ -123,6 +131,7 @@ public class EditContextMenu extends ContextMenu {
         }
 
         parentPathNode.removeChildNode(cachedSelected);
+        this.structEditNode.notifyRemovePathNode(cachedSelected);
         editCache.markDirty();
         this.structEditNode.refreshDisplay();
     }
@@ -136,13 +145,35 @@ public class EditContextMenu extends ContextMenu {
             Paramagic.LOG.debug("openWindowAction: no node selected, operation ignored.");
             return;
         }
+
+        ParaPathNode realRoot = this.structEditNode.getRealRootPathNode();
+        if (realRoot == null) {
+            return;
+        }
+
+        boolean hasCacheBefore = ParaEditCache.hasCache();
+        ParaEditCache editCache = ParaEditCache.ensureCache(realRoot);
+
+        if (!hasCacheBefore) {
+            this.structEditNode.refreshDisplay();
+            // 缓存是新创建的，这里选中的依然是原始节点，无法在缓存中找到对应节点，不允许打开编辑窗口
+            return;
+        }
+
+        ParaPathNode cachedSelected = this.findNodeInCache(editCache.getRootNode(), selectedNode);
+        if (cachedSelected == null) {
+            return;
+        }
+
+        ParaStructEditWindow window = new ParaStructEditWindow(cachedSelected.getStruct());
+        this.structEditNode.createParaEditWindow(window);
     }
 
     /**
      * 在缓存树中查找与原始选中节点对应的节点。
      * 由于缓存是从真实数据深拷贝的，通过路径位置进行匹配。
      */
-    @javax.annotation.Nullable
+    @Nullable
     private ParaPathNode findNodeInCache(@Nonnull ParaPathNode cacheRoot, @Nonnull ParaPathNode targetNode) {
         // 如果目标节点就是缓存中的节点（已经在缓存树中），直接返回
         if (cacheRoot == targetNode) {

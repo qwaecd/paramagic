@@ -4,6 +4,8 @@ import com.qwaecd.paramagic.ui.MenuContent;
 import com.qwaecd.paramagic.ui.animation.UIAnimationSystem;
 import com.qwaecd.paramagic.ui.api.TooltipRenderer;
 import com.qwaecd.paramagic.ui.api.UIRenderContext;
+import com.qwaecd.paramagic.ui.api.WidgetProvider;
+import com.qwaecd.paramagic.ui.api.WidgetRegister;
 import com.qwaecd.paramagic.ui.api.event.AllUIEvents;
 import com.qwaecd.paramagic.ui.api.event.UIEventContext;
 import com.qwaecd.paramagic.ui.api.event.UIEventKey;
@@ -14,7 +16,6 @@ import com.qwaecd.paramagic.ui.io.mouse.CursorType;
 import com.qwaecd.paramagic.ui.io.mouse.MouseStateMachine;
 import com.qwaecd.paramagic.ui.overlay.OverlayRoot;
 import com.qwaecd.paramagic.ui.widget.ContextMenu;
-import com.qwaecd.paramagic.ui_project.edit_table.cache.ParaEditCache;
 import lombok.Getter;
 import net.minecraft.client.gui.screens.Screen;
 import org.slf4j.Logger;
@@ -43,6 +44,9 @@ public class UIManager {
     private final TooltipRenderer tooltipRenderer;
 
     @Nullable
+    private final WidgetRegister widgetRegister;
+
+    @Nullable
     private UINode capturedNode;
     @Nullable
     private ContextMenu contextMenu;
@@ -63,6 +67,16 @@ public class UIManager {
         this.rootNode = rootNode;
         this.mouseStateMachine = new MouseStateMachine();
         this.tooltipRenderer = tooltipRenderer;
+        this.widgetRegister = null;
+        this.overlayRoot = new OverlayRoot(this);
+    }
+
+    public UIManager(UINode rootNode, @Nonnull TooltipRenderer tooltipRenderer, @Nullable MenuContent menuContent, WidgetRegister widgetRegister) {
+        this.menuContent = menuContent;
+        this.rootNode = rootNode;
+        this.mouseStateMachine = new MouseStateMachine();
+        this.tooltipRenderer = tooltipRenderer;
+        this.widgetRegister = widgetRegister;
         this.overlayRoot = new OverlayRoot(this);
     }
 
@@ -77,6 +91,14 @@ public class UIManager {
     public void init() {
         instance = this;
         this.rootNode.layout(this.rootNode.localRect.x, this.rootNode.localRect.y, this.rootNode.localRect.w, this.rootNode.localRect.h);
+    }
+
+    public void addMCWidget(WidgetProvider<?> widgetProvider) {
+        if (this.widgetRegister != null) {
+            this.widgetRegister.addMCWidget(widgetProvider);
+        } else {
+            LOGGER.warn("Attempted to add a MC widget, but this UIManager does not have a WidgetRegister.");
+        }
     }
 
     public void render(UIRenderContext context) {
@@ -290,7 +312,12 @@ public class UIManager {
         }
 
         this.processDeferredTasks(TaskStage.AFTER_EVENT);
-        return context.isConsumed();
+
+        if (context.isAllowMCProcessing()) {
+            return false;
+        } else {
+            return context.isConsumed();
+        }
     }
 
     /**

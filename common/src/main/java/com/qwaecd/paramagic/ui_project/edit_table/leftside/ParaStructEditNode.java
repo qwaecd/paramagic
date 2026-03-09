@@ -27,6 +27,7 @@ import com.qwaecd.paramagic.ui_project.edit_table.EditContextMenu;
 import com.qwaecd.paramagic.ui_project.edit_table.EditTableSprite;
 import com.qwaecd.paramagic.ui_project.edit_table.SpellEditTableUI;
 import com.qwaecd.paramagic.ui_project.edit_table.cache.ParaEditCache;
+import com.qwaecd.paramagic.ui_project.edit_table.cache.ParaStructEditWindow;
 import com.qwaecd.paramagic.world.item.content.ParaCrystalItem;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
@@ -35,6 +36,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 public class ParaStructEditNode extends UIScrollView {
+    private final SideBar sideBar;
     @Nullable
     private ParaPathNode rootPathNode;
     private final float rootPathNodeOffsetY = 16.0f;
@@ -53,13 +55,22 @@ public class ParaStructEditNode extends UIScrollView {
     @Nullable
     private ParaPathNode currentSelectedNode;
 
-    public ParaStructEditNode() {
+    public ParaStructEditNode(SideBar sideBar) {
         super(false);
+        this.sideBar = sideBar;
         this.header = new StructHeader();
         this.header.localRect.setWH(this.localRect.w, rootPathNodeOffsetY);
         this.addChild(this.header);
 
         this.sensitivity = 64.0f;
+    }
+
+    public void createParaEditWindow(ParaStructEditWindow window) {
+        this.sideBar.createParaEditWindow(window);
+    }
+
+    public void closeParaEditWindow() {
+        this.sideBar.closeParaEditWindow();
     }
 
     @Nullable
@@ -77,6 +88,21 @@ public class ParaStructEditNode extends UIScrollView {
 
     @Override
     protected void render(@Nonnull UIRenderContext context) {
+    }
+
+    @Override
+    public void removeChild(UINode child) {
+        if (child == this.currentSelectedNode) {
+            this.currentSelectedNode = null;
+        }
+        super.removeChild(child);
+    }
+
+    public void notifyRemovePathNode(ParaPathNode node) {
+        if (node == this.currentSelectedNode) {
+            this.sideBar.closeParaEditWindow();
+            this.currentSelectedNode = null;
+        }
     }
 
     public void updateFromParaData(@Nonnull ParaData paraData) {
@@ -133,6 +159,7 @@ public class ParaStructEditNode extends UIScrollView {
         }
         pathNode.setSelected(true);
         this.currentSelectedNode = pathNode;
+        this.sideBar.changeEditStruct(pathNode);
     }
 
     private void flushPathNode(@Nonnull ParaPathNode pathNode) {

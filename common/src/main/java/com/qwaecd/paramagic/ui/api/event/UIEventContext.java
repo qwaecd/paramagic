@@ -21,6 +21,8 @@ public class UIEventContext<E extends UIEvent> {
     private boolean consumed = false;
     private boolean propagationStopped = false;
 
+    private boolean allowMCProcessing = false;
+
     public UIEventContext(@Nonnull UIManager manager, UINode targetNode, @Nonnull UIEventKey<E> eventKey, @Nonnull E event) {
         this.manager = manager;
         this.targetNode = targetNode;
@@ -57,6 +59,14 @@ public class UIEventContext<E extends UIEvent> {
 
     public void stopPropagation() {
         this.propagationStopped = true;
+    }
+
+    public boolean isAllowMCProcessing() {
+        return this.allowMCProcessing;
+    }
+
+    public void allowMCProcessing(boolean allow) {
+        this.allowMCProcessing = allow;
     }
 
     public void consumeAndStopPropagation() {

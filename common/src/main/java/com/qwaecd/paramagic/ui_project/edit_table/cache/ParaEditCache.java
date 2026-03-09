@@ -9,7 +9,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 @PlatformScope(PlatformScopeType.CLIENT)
-public class ParaEditCache {
+public final class ParaEditCache {
     @Nullable
     private static ParaEditCache cache;
 

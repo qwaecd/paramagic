@@ -15,6 +15,7 @@ import com.qwaecd.paramagic.ui.util.UIColor;
 import com.qwaecd.paramagic.ui.widget.node.MouseCaptureNode;
 import com.qwaecd.paramagic.ui_project.edit_table.BarState;
 import com.qwaecd.paramagic.ui_project.edit_table.SpellEditTableUI;
+import com.qwaecd.paramagic.ui_project.edit_table.cache.ParaStructEditWindow;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -24,6 +25,8 @@ public class SideBar extends UINode {
     @Nonnull
     private final ParaStructEditNode structEditNode;
 
+    @Nullable
+    private ParaStructEditWindow editWindow;
     @Nonnull
     private final ResizeNode resizeNode;
 
@@ -38,9 +41,28 @@ public class SideBar extends UINode {
                 94.3f, this.getWindowHeight() / this.getGuiScale()
         );
 
-        this.structEditNode = new ParaStructEditNode();
+        this.structEditNode = new ParaStructEditNode(this);
         this.resizeNode = new ResizeNode(this);
         this.addChild(this.resizeNode);
+    }
+
+    public void createParaEditWindow(@Nonnull ParaStructEditWindow window) {
+        this.removeChild(this.editWindow);
+        this.addChild(window);
+        this.editWindow = window;
+    }
+
+    public void changeEditStruct(@Nonnull ParaPathNode pathNode) {
+        if (this.editWindow != null) {
+            this.editWindow.setEditStruct(pathNode.getStruct());
+        }
+    }
+
+    public void closeParaEditWindow() {
+        if (this.editWindow != null) {
+            this.removeChild(this.editWindow);
+            this.editWindow = null;
+        }
     }
 
     public static final class ResizeNode extends MouseCaptureNode {

@@ -17,6 +17,7 @@ import com.qwaecd.paramagic.ui.util.Rect;
 import com.qwaecd.paramagic.ui.widget.UIButton;
 import com.qwaecd.paramagic.ui.widget.UILabel;
 import com.qwaecd.paramagic.ui.widget.node.SlotNode;
+import com.qwaecd.paramagic.ui.widget.node.TypingBox;
 import com.qwaecd.paramagic.ui_project.edit_table.leftside.ParaSelectBar;
 import com.qwaecd.paramagic.ui_project.edit_table.leftside.SideBar;
 
@@ -165,5 +166,10 @@ public class SpellEditTableUI extends UINode {
         );
         button.getLayoutParams().botton();
         this.addChild(button);
+
+        TypingBox typingBox = new TypingBox();
+        typingBox.localRect.set(0, 0, 40, 20);
+        typingBox.getLayoutParams().top();
+        this.addChild(typingBox);
     }
 }

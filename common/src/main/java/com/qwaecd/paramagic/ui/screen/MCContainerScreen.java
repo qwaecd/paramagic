@@ -5,12 +5,15 @@ import com.qwaecd.paramagic.ui.MCRenderBackend;
 import com.qwaecd.paramagic.ui.MenuContent;
 import com.qwaecd.paramagic.ui.api.TooltipRenderer;
 import com.qwaecd.paramagic.ui.api.UIRenderContext;
+import com.qwaecd.paramagic.ui.api.WidgetProvider;
+import com.qwaecd.paramagic.ui.api.WidgetRegister;
 import com.qwaecd.paramagic.ui.core.UIManager;
 import com.qwaecd.paramagic.ui.core.UINode;
 import com.qwaecd.paramagic.ui.inventory.IContainerScreen;
 import com.qwaecd.paramagic.ui.inventory.slot.UISlot;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.events.GuiEventListener;
+import net.minecraft.client.gui.narration.NarratableEntry;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.gui.screens.inventory.MenuAccess;
@@ -55,8 +58,19 @@ public abstract class MCContainerScreen<T extends AbstractContainerMenu> extends
                 MCContainerScreen.this.renderTooltipWithItem(itemStack, guiGraphics, mouseX, mouseY);
             }
         };
+
+        WidgetRegister widgetRegister = new WidgetRegister() {
+            @Override
+            public void addMCWidget(WidgetProvider<?> widgetProvider) {
+                MCContainerScreen.this.addWidget(widgetProvider.get());
+            }
+            @Override
+            public void removeMCWidget(GuiEventListener widget) {
+                MCContainerScreen.this.removeWidget(widget);
+            }
+        };
         MenuContent content = new MenuContent(menu, this, playerInventory);
-        this.manager = new UIManager(rootNode, tooltipRenderer, content);
+        this.manager = new UIManager(rootNode, tooltipRenderer, content, widgetRegister);
     }
 
     @Override
@@ -173,7 +187,8 @@ public abstract class MCContainerScreen<T extends AbstractContainerMenu> extends
     }
 
     @Override
-    public @Nullable GuiEventListener getFocused() {
+    @Nullable
+    public GuiEventListener getFocused() {
         return super.getFocused();
     }
 
