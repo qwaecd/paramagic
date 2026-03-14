@@ -37,6 +37,8 @@ public class UINode {
     protected Map<UIEventKey<?>, PhaseBucket> eventListeners;
     @Nullable
     protected UINode parent;
+    @Nullable
+    private UIManager manager;
     protected boolean visible;
     protected boolean hitTestable = true;
     @Setter
@@ -74,6 +76,7 @@ public class UINode {
     public UINode() {
         this.children = new ArrayList<>();
         this.parent = null;
+        this.manager = null;
         this.visible = true;
         this.clipMod = ClipMod.NONE;
         this.sizeMode = SizeMode.FIXED;
@@ -85,6 +88,7 @@ public class UINode {
     public UINode(@Nonnull UINode parent) {
         this.children = new ArrayList<>();
         this.parent = parent;
+        this.manager = null;
         this.visible = true;
         this.clipMod = ClipMod.NONE;
         this.sizeMode = SizeMode.FIXED;
@@ -140,6 +144,9 @@ public class UINode {
 
         this.children.add(child);
         child.parent = this;
+        if (this.manager != null) {
+            child.attachToManager(this.manager);
+        }
     }
 
     public void addChild(Collection<UINode> child) {
@@ -150,6 +157,9 @@ public class UINode {
 
     public void removeChild(UINode child) {
         if (this.children.remove(child)) {
+            if (this.manager != null) {
+                child.detachFromManager();
+            }
             child.parent = null;
         }
     }
@@ -213,6 +223,12 @@ public class UINode {
      * 在鼠标移出节点时调用.
      */
     protected void onMouseLeave(UIEventContext<MouseLeave> context) {
+    }
+
+    protected void onAttached(@Nonnull UIManager manager) {
+    }
+
+    protected void onDetached(@Nonnull UIManager manager) {
     }
 
 
@@ -467,6 +483,30 @@ public class UINode {
         return this.parent;
     }
 
+    @Nullable
+    public UIManager getManager() {
+        return this.manager;
+    }
+
+    public boolean isAttached() {
+        return this.manager != null;
+    }
+
+    public boolean isSameAsOrDescendantOf(@Nullable UINode node) {
+        UINode current = this;
+        while (current != null) {
+            if (current == node) {
+                return true;
+            }
+            current = current.parent;
+        }
+        return false;
+    }
+
+    public boolean containsInSubtree(@Nullable UINode node) {
+        return node != null && node.isSameAsOrDescendantOf(this);
+    }
+
     public void setDebugMod(boolean debugMod) {
         this.debugMod = debugMod;
     }
@@ -509,6 +549,35 @@ public class UINode {
         for (int i = this.children.size() - 1; i >= 0; --i) {
             action.accept(this.children.get(i));
         }
+    }
+
+    final void attachToManager(@Nonnull UIManager manager) {
+        if (this.manager == manager) {
+            return;
+        }
+        if (this.manager != null) {
+            throw new IllegalStateException("This node is already attached to another UIManager.");
+        }
+
+        this.manager = manager;
+        this.onAttached(manager);
+        for (UINode child : List.copyOf(this.children)) {
+            child.attachToManager(manager);
+        }
+    }
+
+    final void detachFromManager() {
+        if (this.manager == null) {
+            return;
+        }
+
+        UIManager currentManager = this.manager;
+        for (UINode child : List.copyOf(this.children)) {
+            child.detachFromManager();
+        }
+        currentManager.onNodeDetached(this);
+        this.onDetached(currentManager);
+        this.manager = null;
     }
 
     protected float getWindowWidth() {

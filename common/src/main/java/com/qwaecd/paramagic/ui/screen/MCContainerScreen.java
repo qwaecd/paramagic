@@ -5,13 +5,12 @@ import com.qwaecd.paramagic.ui.MCRenderBackend;
 import com.qwaecd.paramagic.ui.MenuContent;
 import com.qwaecd.paramagic.ui.api.TooltipRenderer;
 import com.qwaecd.paramagic.ui.api.UIRenderContext;
-import com.qwaecd.paramagic.ui.api.WidgetProvider;
-import com.qwaecd.paramagic.ui.api.WidgetRegister;
 import com.qwaecd.paramagic.ui.core.UIManager;
 import com.qwaecd.paramagic.ui.core.UINode;
 import com.qwaecd.paramagic.ui.inventory.IContainerScreen;
 import com.qwaecd.paramagic.ui.inventory.slot.UISlot;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.Renderable;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.narration.NarratableEntry;
 import net.minecraft.client.gui.screens.Screen;
@@ -30,6 +29,8 @@ import javax.annotation.Nullable;
 @SuppressWarnings("RedundantMethodOverride")
 public abstract class MCContainerScreen<T extends AbstractContainerMenu> extends AbstractContainerScreen<T> implements MenuAccess<T>, IContainerScreen {
     protected final UIManager manager;
+    @Nonnull
+    private final NativeWidgetHost nativeWidgetHost;
 
     protected static final class ContextCache {
         protected UIRenderContext renderContext;
@@ -59,18 +60,9 @@ public abstract class MCContainerScreen<T extends AbstractContainerMenu> extends
             }
         };
 
-        WidgetRegister widgetRegister = new WidgetRegister() {
-            @Override
-            public void addMCWidget(WidgetProvider<?> widgetProvider) {
-                MCContainerScreen.this.addWidget(widgetProvider.get());
-            }
-            @Override
-            public void removeMCWidget(GuiEventListener widget) {
-                MCContainerScreen.this.removeWidget(widget);
-            }
-        };
         MenuContent content = new MenuContent(menu, this, playerInventory);
-        this.manager = new UIManager(rootNode, tooltipRenderer, content, widgetRegister);
+        this.nativeWidgetHost = new NativeWidgetHost(this);
+        this.manager = new UIManager(rootNode, tooltipRenderer, content, this.nativeWidgetHost);
     }
 
     @Override
@@ -109,15 +101,13 @@ public abstract class MCContainerScreen<T extends AbstractContainerMenu> extends
 
     @Override
     public void render(@Nonnull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
-        super.render(guiGraphics, mouseX, mouseY, partialTick);
         if (this.minecraft == null) {
             return;
         }
         final float deltaTime = TimeProvider.getDeltaTime(this.minecraft);
         this.cache.renderContext.reset(guiGraphics, deltaTime, mouseX, mouseY);
-//        UIRenderContext context = new UIRenderContext(
-//                this.manager, guiGraphics, new MCRenderBackend(guiGraphics, this.font), deltaTime, mouseX, mouseY
-//        );
+        this.manager.prepareRender(this.cache.renderContext);
+        super.render(guiGraphics, mouseX, mouseY, partialTick);
         this.manager.render(cache.renderContext);
     }
 
@@ -135,6 +125,7 @@ public abstract class MCContainerScreen<T extends AbstractContainerMenu> extends
         if (this.manager.onMouseClick(mouseX, mouseY, button)) {
             return true;
         }
+        this.manager.clearNativeWidgetFocus();
         return super.mouseClicked(mouseX, mouseY, button);
     }
 
@@ -206,5 +197,21 @@ public abstract class MCContainerScreen<T extends AbstractContainerMenu> extends
     public void onClose() {
         super.onClose();
         this.manager.onClose();
+    }
+
+    boolean forwardVanillaMouseClicked(double mouseX, double mouseY, int button) {
+        return super.mouseClicked(mouseX, mouseY, button);
+    }
+
+    boolean forwardVanillaMouseReleased(double mouseX, double mouseY, int button) {
+        return super.mouseReleased(mouseX, mouseY, button);
+    }
+
+    <W extends GuiEventListener & Renderable & NarratableEntry> void addNativeRenderableWidget(W widget) {
+        super.addRenderableWidget(widget);
+    }
+
+    void removeNativeWidget(GuiEventListener widget) {
+        super.removeWidget(widget);
     }
 }

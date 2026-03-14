@@ -4,8 +4,6 @@ import com.qwaecd.paramagic.ui.MenuContent;
 import com.qwaecd.paramagic.ui.animation.UIAnimationSystem;
 import com.qwaecd.paramagic.ui.api.TooltipRenderer;
 import com.qwaecd.paramagic.ui.api.UIRenderContext;
-import com.qwaecd.paramagic.ui.api.WidgetProvider;
-import com.qwaecd.paramagic.ui.api.WidgetRegister;
 import com.qwaecd.paramagic.ui.api.event.AllUIEvents;
 import com.qwaecd.paramagic.ui.api.event.UIEventContext;
 import com.qwaecd.paramagic.ui.api.event.UIEventKey;
@@ -14,7 +12,9 @@ import com.qwaecd.paramagic.ui.event.UIEvent;
 import com.qwaecd.paramagic.ui.event.impl.*;
 import com.qwaecd.paramagic.ui.io.mouse.CursorType;
 import com.qwaecd.paramagic.ui.io.mouse.MouseStateMachine;
+import com.qwaecd.paramagic.ui.nativewidget.NativeWidgetNode;
 import com.qwaecd.paramagic.ui.overlay.OverlayRoot;
+import com.qwaecd.paramagic.ui.screen.NativeWidgetHost;
 import com.qwaecd.paramagic.ui.widget.ContextMenu;
 import lombok.Getter;
 import net.minecraft.client.gui.screens.Screen;
@@ -44,7 +44,7 @@ public class UIManager {
     private final TooltipRenderer tooltipRenderer;
 
     @Nullable
-    private final WidgetRegister widgetRegister;
+    private final NativeWidgetHost nativeWidgetHost;
 
     @Nullable
     private UINode capturedNode;
@@ -67,16 +67,16 @@ public class UIManager {
         this.rootNode = rootNode;
         this.mouseStateMachine = new MouseStateMachine();
         this.tooltipRenderer = tooltipRenderer;
-        this.widgetRegister = null;
+        this.nativeWidgetHost = null;
         this.overlayRoot = new OverlayRoot(this);
     }
 
-    public UIManager(UINode rootNode, @Nonnull TooltipRenderer tooltipRenderer, @Nullable MenuContent menuContent, WidgetRegister widgetRegister) {
+    public UIManager(UINode rootNode, @Nonnull TooltipRenderer tooltipRenderer, @Nullable MenuContent menuContent, @Nullable NativeWidgetHost nativeWidgetHost) {
         this.menuContent = menuContent;
         this.rootNode = rootNode;
         this.mouseStateMachine = new MouseStateMachine();
         this.tooltipRenderer = tooltipRenderer;
-        this.widgetRegister = widgetRegister;
+        this.nativeWidgetHost = nativeWidgetHost;
         this.overlayRoot = new OverlayRoot(this);
     }
 
@@ -90,21 +90,18 @@ public class UIManager {
 
     public void init() {
         instance = this;
+        this.rootNode.attachToManager(this);
         this.rootNode.layout(this.rootNode.localRect.x, this.rootNode.localRect.y, this.rootNode.localRect.w, this.rootNode.localRect.h);
+        this.syncNativeWidgets();
     }
 
-    public void addMCWidget(WidgetProvider<?> widgetProvider) {
-        if (this.widgetRegister != null) {
-            this.widgetRegister.addMCWidget(widgetProvider);
-        } else {
-            LOGGER.warn("Attempted to add a MC widget, but this UIManager does not have a WidgetRegister.");
-        }
+    public void prepareRender(UIRenderContext context) {
+        this.processDeferredTasks(TaskStage.BEFORE_RENDER);
+        UIAnimationSystem.getInstance().updateAll(context.deltaTime);
+        this.syncNativeWidgets();
     }
 
     public void render(UIRenderContext context) {
-        this.processDeferredTasks(TaskStage.BEFORE_RENDER);
-        UIAnimationSystem.getInstance().updateAll(context.deltaTime);
-
         this.rootNode.renderTree(context);
         this.overlayRoot.renderOverlay(context);
         if (this.contextMenu != null) {
@@ -158,6 +155,10 @@ public class UIManager {
         boolean accepted = this.mouseStateMachine.onMouseClick(mouseX, mouseY, button);
         if (!accepted) {
             return false;
+        }
+
+        if (!this.isNativeWidgetTarget(mouseX, mouseY)) {
+            this.clearNativeWidgetFocus();
         }
 
         if (this.mouseStateMachine.isDoubleClick()) {
@@ -313,11 +314,7 @@ public class UIManager {
 
         this.processDeferredTasks(TaskStage.AFTER_EVENT);
 
-        if (context.isAllowMCProcessing()) {
-            return false;
-        } else {
-            return context.isConsumed();
-        }
+        return context.isConsumed();
     }
 
     /**
@@ -391,6 +388,10 @@ public class UIManager {
     }
 
     public void onClose() {
+        this.rootNode.detachFromManager();
+        if (instance == this) {
+            instance = null;
+        }
         UIAnimationSystem.getInstance().close();
         CursorType.setCursor(CursorType.ARROW);
     }
@@ -423,5 +424,97 @@ public class UIManager {
 
     public void layoutAll() {
         this.rootNode.layout(this.rootNode.localRect.x, this.rootNode.localRect.y, this.rootNode.localRect.w, this.rootNode.localRect.h);
+        this.syncNativeWidgets();
+    }
+
+    public void bindNativeWidget(@Nonnull NativeWidgetNode<?, ?> node) {
+        if (this.nativeWidgetHost == null) {
+            LOGGER.warn("Attempted to bind a native widget node, but this UIManager does not have a NativeWidgetHost.");
+            return;
+        }
+        this.nativeWidgetHost.bind(node);
+    }
+
+    public void unbindNativeWidget(@Nonnull NativeWidgetNode<?, ?> node) {
+        if (this.nativeWidgetHost == null) {
+            return;
+        }
+        this.nativeWidgetHost.unbind(node);
+    }
+
+    public void syncNativeWidget(@Nonnull NativeWidgetNode<?, ?> node) {
+        if (this.nativeWidgetHost == null) {
+            return;
+        }
+        this.nativeWidgetHost.sync(node);
+    }
+
+    public void syncNativeWidgets() {
+        if (this.nativeWidgetHost == null) {
+            return;
+        }
+        this.nativeWidgetHost.syncAll();
+    }
+
+    public void focusNativeWidget(@Nonnull NativeWidgetNode<?, ?> node) {
+        if (this.nativeWidgetHost == null) {
+            return;
+        }
+        this.nativeWidgetHost.focus(node);
+    }
+
+    public void clearNativeWidgetFocus() {
+        if (this.nativeWidgetHost == null) {
+            return;
+        }
+        this.nativeWidgetHost.clearFocus();
+    }
+
+    public boolean dispatchNativeWidgetMouseClick(@Nonnull NativeWidgetNode<?, ?> node, double mouseX, double mouseY, int button) {
+        if (this.nativeWidgetHost == null) {
+            return false;
+        }
+        return this.nativeWidgetHost.dispatchMouseClick(node, mouseX, mouseY, button);
+    }
+
+    public boolean forwardMouseClickToVanilla(double mouseX, double mouseY, int button) {
+        if (this.nativeWidgetHost == null) {
+            LOGGER.warn("Attempted to forward mouse click to vanilla, but this UIManager does not have a NativeWidgetHost.");
+            return false;
+        }
+        return this.nativeWidgetHost.forwardVanillaMouseClick(mouseX, mouseY, button);
+    }
+
+    public boolean forwardMouseReleaseToVanilla(double mouseX, double mouseY, int button) {
+        if (this.nativeWidgetHost == null) {
+            LOGGER.warn("Attempted to forward mouse release to vanilla, but this UIManager does not have a NativeWidgetHost.");
+            return false;
+        }
+        return this.nativeWidgetHost.forwardVanillaMouseRelease(mouseX, mouseY, button);
+    }
+
+    void onNodeDetached(@Nonnull UINode node) {
+        if (node.containsInSubtree(this.capturedNode)) {
+            this.capturedNode = null;
+        }
+        if (node.containsInSubtree(this.mouseOver)) {
+            this.mouseOver = null;
+        }
+        if (node.containsInSubtree(this.contextMenu)) {
+            this.contextMenu = null;
+        }
+        this.mouseMovingListeners.removeIf(node::containsInSubtree);
+    }
+
+    private boolean isNativeWidgetTarget(double mouseX, double mouseY) {
+        UINode target;
+        if (this.capturedNode != null) {
+            target = this.capturedNode;
+        } else if (this.contextMenu != null && this.contextMenu.hitTest((float) mouseX, (float) mouseY)) {
+            target = this.createHitPath(this.contextMenu, mouseX, mouseY).getTop();
+        } else {
+            target = this.createHitPath(this.rootNode, mouseX, mouseY).getTop();
+        }
+        return target instanceof NativeWidgetNode<?, ?>;
     }
 }

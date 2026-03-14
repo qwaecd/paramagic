@@ -1,55 +1,66 @@
 package com.qwaecd.paramagic.ui.widget.node;
 
-import com.qwaecd.paramagic.ui.api.event.AllUIEvents;
-import com.qwaecd.paramagic.ui.api.event.UIEventContext;
-import com.qwaecd.paramagic.ui.core.UIManager;
-import com.qwaecd.paramagic.ui.core.UINode;
 import com.qwaecd.paramagic.ui.MCEditBox;
-import com.qwaecd.paramagic.ui.event.impl.DoubleClick;
-import com.qwaecd.paramagic.ui.event.impl.MouseClick;
+import com.qwaecd.paramagic.ui.nativewidget.NativeWidgetAdapter;
+import com.qwaecd.paramagic.ui.nativewidget.NativeWidgetNode;
 import net.minecraft.network.chat.Component;
 
 import javax.annotation.Nonnull;
+import java.util.Objects;
 
-public class TypingBox extends UINode {
+public class TypingBox extends NativeWidgetNode<MCEditBox, TypingBox> {
+    private static final NativeWidgetAdapter<TypingBox, MCEditBox> ADAPTER = new NativeWidgetAdapter<>() {
+        @Override
+        @Nonnull
+        public MCEditBox createWidget(@Nonnull TypingBox node) {
+            MCEditBox box = new MCEditBox(0, 0, 0, 0, Component.empty());
+            box.setResponder(node::onTextChanged);
+            return box;
+        }
+
+        @Override
+        public void syncWidget(@Nonnull TypingBox node, @Nonnull MCEditBox widget) {
+            widget.resize(node.worldRect);
+            widget.active = node.isHitTestable();
+            widget.visible = node.isVisible();
+            widget.setEditable(node.editable);
+            widget.setMaxLength(node.maxLength);
+            if (!Objects.equals(widget.getValue(), node.text)) {
+                widget.setValue(node.text);
+            }
+        }
+    };
+
     @Nonnull
-    private final MCEditBox box;
+    private String text = "";
+    private boolean editable = true;
+    private int maxLength = 32;
 
     public TypingBox() {
-        this.box = new MCEditBox(
-                (int) this.localRect.x, (int) this.localRect.y,
-                (int) this.localRect.w, (int) this.localRect.h,
-                Component.empty()
-        );
-
-        UIManager manager = UIManager.getInstance();
-        if (manager != null) {
-            manager.addMCWidget(() -> this.box);
-        }
+        super(ADAPTER);
     }
 
-    @Override
-    protected void onMouseClick(UIEventContext<MouseClick> context) {
-        context.consume();
-        context.allowMCProcessing(true);
+    private void onTextChanged(@Nonnull String text) {
+        this.text = text;
     }
 
-    @Override
-    protected void onDoubleClick(UIEventContext<DoubleClick> context) {
-        this.onMouseClick(UIEventContext.upcast(AllUIEvents.MOUSE_CLICK, context));
+    public void setText(@Nonnull String text) {
+        this.text = text;
+        this.syncNativeWidget();
     }
 
-    public void setText(String text) {
-        this.box.setValue(text);
-    }
-
+    @Nonnull
     public String getText() {
-        return this.box.getValue();
+        return this.text;
     }
 
-    @Override
-    public void layout(float parentX, float parentY, float parentW, float parentH) {
-        super.layout(parentX, parentY, parentW, parentH);
-        this.box.resize(this.worldRect);
+    public void setEditable(boolean editable) {
+        this.editable = editable;
+        this.syncNativeWidget();
+    }
+
+    public void setMaxLength(int maxLength) {
+        this.maxLength = maxLength;
+        this.syncNativeWidget();
     }
 }

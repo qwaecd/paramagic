@@ -62,7 +62,7 @@ public class EditWindow extends UINode {
         PTTreeNode ptTreeNode = new PTTreeNode(paraTree);
         this.updateTreeNode(ptTreeNode);
 
-        UIManager manager = UIManager.getInstance();
+        UIManager manager = this.getManager();
         if (manager != null) {
             manager.offerOveringTestTask(true);
         }

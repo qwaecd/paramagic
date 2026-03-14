@@ -31,7 +31,7 @@ public class ParaStructEditWindow extends MouseCaptureNode {
             return;
         }
         super.onMouseClick(context);
-        context.allowMCProcessing(true);
+        context.getManager().forwardMouseClickToVanilla(context.event.mouseX, context.event.mouseY, context.event.button);
     }
 
     @Override
@@ -40,6 +40,6 @@ public class ParaStructEditWindow extends MouseCaptureNode {
             return;
         }
         super.onMouseRelease(context);
-        context.allowMCProcessing(true);
+        context.getManager().forwardMouseReleaseToVanilla(context.event.mouseX, context.event.mouseY, context.event.button);
     }
 }

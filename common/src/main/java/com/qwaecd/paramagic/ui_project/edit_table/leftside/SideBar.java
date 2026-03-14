@@ -98,7 +98,7 @@ public class SideBar extends UINode {
             }
             final float newWidth = (float) (this.sideBar.localRect.w + mouseState.deltaX());
             this.sideBar.resize(newWidth);
-            UIManager manager = UIManager.getInstance();
+            UIManager manager = this.getManager();
             if (manager != null) {
                 manager.offerDeferredTask(UITask.create(UIManager::layoutAll, TaskStage.AFTER_EVENT));
             }
