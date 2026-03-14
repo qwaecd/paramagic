@@ -1,5 +1,6 @@
 package com.qwaecd.paramagic.ui.screen;
 
+import com.qwaecd.paramagic.ui.MCEditBox;
 import com.qwaecd.paramagic.ui.nativewidget.NativeWidgetNode;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Renderable;
@@ -23,6 +24,24 @@ public final class NativeWidgetHost {
 
     public NativeWidgetHost(@Nonnull MCContainerScreen<?> screen) {
         this.screen = screen;
+    }
+
+    public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+        if (this.focusedNode == null) {
+            return false;
+        }
+        GuiEventListener widget = this.focusedNode.getNativeWidget();
+        if (widget == null) {
+            return false;
+        }
+        if (widget instanceof MCEditBox box) {
+            // 哎我草 keyPressed 事件在处理 E 键这种会返回 false, 还要特判一下能不能被输入到框里
+            if (box.canConsumeInput()) {
+                box.keyPressed(keyCode, scanCode, modifiers);
+                return true;
+            }
+        }
+        return widget.keyPressed(keyCode, scanCode, modifiers);
     }
 
     public void bind(@Nonnull NativeWidgetNode<?, ?> node) {
@@ -50,6 +69,10 @@ public final class NativeWidgetHost {
 
         this.screen.removeNativeWidget(widget);
         node.unbindNativeWidget();
+    }
+
+    public Set<NativeWidgetNode<?, ?>> getAttachedNodes() {
+        return Collections.unmodifiableSet(this.attachedNodes);
     }
 
     public void sync(@Nonnull NativeWidgetNode<?, ?> node) {

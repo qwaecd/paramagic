@@ -47,9 +47,14 @@ public class SideBar extends UINode {
     }
 
     public void createParaEditWindow(@Nonnull ParaStructEditWindow window) {
-        this.removeChild(this.editWindow);
-        this.addChild(window);
-        this.editWindow = window;
+        if (this.parent != null) {
+            this.parent.removeChild(this.editWindow);
+            this.parent.addChild(window);
+            this.editWindow = window;
+        }
+        if (this.getManager() != null) {
+            this.getManager().layoutAll();
+        }
     }
 
     public void changeEditStruct(@Nonnull ParaPathNode pathNode) {
@@ -59,10 +64,15 @@ public class SideBar extends UINode {
     }
 
     public void closeParaEditWindow() {
-        if (this.editWindow != null) {
-            this.removeChild(this.editWindow);
+        if (this.editWindow != null && this.parent != null) {
+            this.parent.removeChild(this.editWindow);
             this.editWindow = null;
         }
+    }
+
+    @Override
+    protected void onDetached(@Nonnull UIManager manager) {
+        this.closeParaEditWindow();
     }
 
     public static final class ResizeNode extends MouseCaptureNode {

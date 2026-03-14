@@ -33,13 +33,14 @@ public final class UIRenderContext {
 
     public int mouseX;
     public int mouseY;
+    public float partialTick;
 
     public UIRenderContext(
             @Nonnull UIManager manager,
             @Nullable GuiGraphics guiGraphics,
             @Nonnull UIRenderBackend backend,
             float deltaTime,
-            int mouseX, int mouseY
+            int mouseX, int mouseY, float partialTick
     )
     {
         this.manager = manager;
@@ -49,12 +50,13 @@ public final class UIRenderContext {
         this.clipStack = new ArrayDeque<>();
         this.mouseX = mouseX;
         this.mouseY = mouseY;
+        this.partialTick = partialTick;
     }
 
     public void reset(
             @Nonnull GuiGraphics guiGraphics,
             float deltaTime,
-            int mouseX, int mouseY
+            int mouseX, int mouseY, float partialTick
     ) {
         this.guiGraphics = guiGraphics;
 
@@ -65,7 +67,12 @@ public final class UIRenderContext {
         this.deltaTime = deltaTime;
         this.mouseX = mouseX;
         this.mouseY = mouseY;
+        this.partialTick = partialTick;
         this.clipStack.clear();
+    }
+
+    public GuiGraphics getNative() {
+        return this.guiGraphics;
     }
 
     public void pushClipRect(@Nonnull Rect rect) {

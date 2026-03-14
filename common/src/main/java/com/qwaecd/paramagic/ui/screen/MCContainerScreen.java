@@ -9,6 +9,8 @@ import com.qwaecd.paramagic.ui.core.UIManager;
 import com.qwaecd.paramagic.ui.core.UINode;
 import com.qwaecd.paramagic.ui.inventory.IContainerScreen;
 import com.qwaecd.paramagic.ui.inventory.slot.UISlot;
+import com.qwaecd.paramagic.ui.nativewidget.NativeWidgetNode;
+import com.qwaecd.paramagic.ui.widget.node.TypingBox;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Renderable;
 import net.minecraft.client.gui.components.events.GuiEventListener;
@@ -69,7 +71,7 @@ public abstract class MCContainerScreen<T extends AbstractContainerMenu> extends
     protected void init() {
         super.init();
         this.manager.init();
-        this.cache.setRenderContext(new UIRenderContext(this.manager, null, new MCRenderBackend(null, this.font), 0, 0, 0));
+        this.cache.setRenderContext(new UIRenderContext(this.manager, null, new MCRenderBackend(null, this.font), 0, 0, 0, 0));
     }
 
     @Override
@@ -105,7 +107,7 @@ public abstract class MCContainerScreen<T extends AbstractContainerMenu> extends
             return;
         }
         final float deltaTime = TimeProvider.getDeltaTime(this.minecraft);
-        this.cache.renderContext.reset(guiGraphics, deltaTime, mouseX, mouseY);
+        this.cache.renderContext.reset(guiGraphics, deltaTime, mouseX, mouseY, partialTick);
         this.manager.prepareRender(this.cache.renderContext);
         super.render(guiGraphics, mouseX, mouseY, partialTick);
         this.manager.render(cache.renderContext);
@@ -159,7 +161,7 @@ public abstract class MCContainerScreen<T extends AbstractContainerMenu> extends
 
     @Override
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
-        return super.keyPressed(keyCode, scanCode, modifiers);
+        return !this.nativeWidgetHost.keyPressed(keyCode, scanCode, modifiers) && super.keyPressed(keyCode, scanCode, modifiers);
     }
 
     @Override

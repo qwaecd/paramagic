@@ -1,5 +1,6 @@
 package com.qwaecd.paramagic.ui.nativewidget;
 
+import com.qwaecd.paramagic.ui.api.UIRenderContext;
 import com.qwaecd.paramagic.ui.api.event.UIEventContext;
 import com.qwaecd.paramagic.ui.core.UIManager;
 import com.qwaecd.paramagic.ui.core.UINode;
@@ -99,6 +100,14 @@ public abstract class NativeWidgetNode<W extends GuiEventListener & Renderable &
     public void layout(float parentX, float parentY, float parentW, float parentH) {
         super.layout(parentX, parentY, parentW, parentH);
         this.syncNativeWidget();
+    }
+
+    @Override
+    protected void render(@Nonnull UIRenderContext context) {
+        if (this.nativeWidget == null) {
+            return;
+        }
+        this.nativeWidget.render(context.getNative(), context.mouseX, context.mouseY, context.partialTick);
     }
 
     @Override

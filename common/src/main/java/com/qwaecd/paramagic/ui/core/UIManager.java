@@ -98,7 +98,6 @@ public class UIManager {
     public void prepareRender(UIRenderContext context) {
         this.processDeferredTasks(TaskStage.BEFORE_RENDER);
         UIAnimationSystem.getInstance().updateAll(context.deltaTime);
-        this.syncNativeWidgets();
     }
 
     public void render(UIRenderContext context) {

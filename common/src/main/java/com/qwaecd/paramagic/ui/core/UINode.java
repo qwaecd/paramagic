@@ -564,6 +564,10 @@ public class UINode {
         for (UINode child : List.copyOf(this.children)) {
             child.attachToManager(manager);
         }
+        this.afterChildAttachedToManager();
+    }
+
+    protected void afterChildAttachedToManager() {
     }
 
     final void detachFromManager() {

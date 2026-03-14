@@ -166,10 +166,5 @@ public class SpellEditTableUI extends UINode {
         );
         button.getLayoutParams().botton();
         this.addChild(button);
-
-        TypingBox typingBox = new TypingBox();
-        typingBox.localRect.set(0, 0, 80, 20);
-        typingBox.getLayoutParams().top();
-        this.addChild(typingBox);
     }
 }
