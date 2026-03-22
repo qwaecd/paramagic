@@ -17,7 +17,6 @@ import com.qwaecd.paramagic.ui.util.Rect;
 import com.qwaecd.paramagic.ui.widget.UIButton;
 import com.qwaecd.paramagic.ui.widget.UILabel;
 import com.qwaecd.paramagic.ui.widget.node.SlotNode;
-import com.qwaecd.paramagic.ui.widget.node.TypingBox;
 import com.qwaecd.paramagic.ui_project.edit_table.leftside.ParaSelectBar;
 import com.qwaecd.paramagic.ui_project.edit_table.leftside.SideBar;
 

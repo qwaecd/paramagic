@@ -1,9 +1,9 @@
 package com.qwaecd.paramagic.ui;
 
+import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.qwaecd.paramagic.ui.api.UIRenderBackend;
 import com.qwaecd.paramagic.ui.util.Rect;
 import com.qwaecd.paramagic.ui.util.Sprite;
-import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.RenderType;

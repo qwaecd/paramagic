@@ -12,7 +12,6 @@ import com.qwaecd.paramagic.ui.event.impl.MouseClick;
 import com.qwaecd.paramagic.ui.event.impl.MouseRelease;
 import com.qwaecd.paramagic.ui.event.impl.WheelEvent;
 import com.qwaecd.paramagic.ui.io.mouse.MouseStateMachine;
-import com.qwaecd.paramagic.ui.util.UIColor;
 import com.qwaecd.paramagic.ui.util.UILayout;
 
 import javax.annotation.Nonnull;

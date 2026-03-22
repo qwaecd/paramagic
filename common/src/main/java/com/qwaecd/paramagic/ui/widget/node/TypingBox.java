@@ -1,11 +1,9 @@
 package com.qwaecd.paramagic.ui.widget.node;
 
 import com.qwaecd.paramagic.ui.MCEditBox;
-import com.qwaecd.paramagic.ui.api.UIRenderContext;
 import com.qwaecd.paramagic.ui.nativewidget.NativeWidgetAdapter;
 import com.qwaecd.paramagic.ui.nativewidget.NativeWidgetNode;
 import net.minecraft.network.chat.Component;
-import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;

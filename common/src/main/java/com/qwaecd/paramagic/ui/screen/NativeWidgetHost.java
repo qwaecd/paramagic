@@ -3,9 +3,7 @@ package com.qwaecd.paramagic.ui.screen;
 import com.qwaecd.paramagic.ui.MCEditBox;
 import com.qwaecd.paramagic.ui.nativewidget.NativeWidgetNode;
 import net.minecraft.client.gui.components.AbstractWidget;
-import net.minecraft.client.gui.components.Renderable;
 import net.minecraft.client.gui.components.events.GuiEventListener;
-import net.minecraft.client.gui.narration.NarratableEntry;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;

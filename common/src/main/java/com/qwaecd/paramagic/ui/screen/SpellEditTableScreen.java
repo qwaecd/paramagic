@@ -2,8 +2,8 @@ package com.qwaecd.paramagic.ui.screen;
 
 import com.qwaecd.paramagic.platform.annotation.PlatformScope;
 import com.qwaecd.paramagic.platform.annotation.PlatformScopeType;
-import com.qwaecd.paramagic.ui_project.edit_table.SpellEditTableUI;
 import com.qwaecd.paramagic.ui.menu.SpellEditTableMenu;
+import com.qwaecd.paramagic.ui_project.edit_table.SpellEditTableUI;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.MenuAccess;
 import net.minecraft.network.chat.Component;

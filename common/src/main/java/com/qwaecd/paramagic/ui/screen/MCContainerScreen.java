@@ -9,8 +9,6 @@ import com.qwaecd.paramagic.ui.core.UIManager;
 import com.qwaecd.paramagic.ui.core.UINode;
 import com.qwaecd.paramagic.ui.inventory.IContainerScreen;
 import com.qwaecd.paramagic.ui.inventory.slot.UISlot;
-import com.qwaecd.paramagic.ui.nativewidget.NativeWidgetNode;
-import com.qwaecd.paramagic.ui.widget.node.TypingBox;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Renderable;
 import net.minecraft.client.gui.components.events.GuiEventListener;
