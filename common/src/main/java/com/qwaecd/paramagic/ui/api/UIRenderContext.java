@@ -109,6 +109,14 @@ public final class UIRenderContext {
         this.backend.drawQuad(rect, color.color);
     }
 
+    public void fillBilinearGradient(Rect rect, int topLeft, int topRight, int bottomRight, int bottomLeft) {
+        this.backend.fillBilinearGradient(rect, topLeft, topRight, bottomRight, bottomLeft);
+    }
+
+    public void fillBilinearGradient(float x, float y, float w, float h, int topLeft, int topRight, int bottomRight, int bottomLeft) {
+        this.backend.fillBilinearGradient((int) x, (int) y, (int) w, (int) h, topLeft, topRight, bottomRight, bottomLeft);
+    }
+
     public void vLine(int x, int minY, int maxY, int color) {
         this.backend.vLine(x, minY, maxY, color);
     }

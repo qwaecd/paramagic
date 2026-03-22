@@ -7,7 +7,7 @@ import net.minecraft.client.gui.Font;
 
 import javax.annotation.Nullable;
 
-abstract class EditSection extends UINode {
+public abstract class EditSection extends UINode {
     static final float ROW_GAP = 2.0f;
     static final float INPUT_HEIGHT = 14.0f;
     static final float LABEL_HEIGHT = 10.0f;

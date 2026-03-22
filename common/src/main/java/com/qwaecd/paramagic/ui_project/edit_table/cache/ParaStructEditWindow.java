@@ -3,7 +3,13 @@ package com.qwaecd.paramagic.ui_project.edit_table.cache;
 import com.qwaecd.paramagic.data.para.struct.ParaComponentType;
 import com.qwaecd.paramagic.tools.ModRL;
 import com.qwaecd.paramagic.ui.api.UIRenderContext;
+import com.qwaecd.paramagic.ui.api.event.AllUIEvents;
+import com.qwaecd.paramagic.ui.api.event.UIEventContext;
 import com.qwaecd.paramagic.ui.core.UINode;
+import com.qwaecd.paramagic.ui.event.EventPhase;
+import com.qwaecd.paramagic.ui.event.impl.DoubleClick;
+import com.qwaecd.paramagic.ui.event.impl.MouseClick;
+import com.qwaecd.paramagic.ui.event.impl.MouseRelease;
 import com.qwaecd.paramagic.ui.util.NineSliceSprite;
 import com.qwaecd.paramagic.ui.widget.node.MouseCaptureNode;
 import com.qwaecd.paramagic.ui_project.edit_table.EditTableSprite;
@@ -44,6 +50,7 @@ public class ParaStructEditWindow extends MouseCaptureNode {
         this.struct = struct;
         this.localRect.setWH(WINDOW_WIDTH, 0);
         this.localRect.setXY(50.0f, 40.0f);
+        this.installBubblingFallbacks();
 
         this.baseSections = new EditSection[]{
                 new BasicInfoSection(),
@@ -57,6 +64,33 @@ public class ParaStructEditWindow extends MouseCaptureNode {
         }
 
         this.updateTypeSection(struct);
+    }
+
+    private void installBubblingFallbacks() {
+        this.addListener(AllUIEvents.MOUSE_CLICK, EventPhase.BUBBLING, this::forwardBubblingMouseClick);
+        this.addListener(AllUIEvents.MOUSE_DOUBLE_CLICK, EventPhase.BUBBLING, this::forwardBubblingDoubleClick);
+        this.addListener(AllUIEvents.MOUSE_RELEASE, EventPhase.BUBBLING, this::forwardBubblingMouseRelease);
+    }
+
+    private void forwardBubblingMouseClick(UIEventContext<MouseClick> context) {
+        if (context.isConsumed() || context.getTargetNode() == this) {
+            return;
+        }
+        this.onMouseClick(context);
+    }
+
+    private void forwardBubblingDoubleClick(UIEventContext<DoubleClick> context) {
+        if (context.isConsumed() || context.getTargetNode() == this) {
+            return;
+        }
+        this.onMouseClick(UIEventContext.upcast(AllUIEvents.MOUSE_CLICK, context));
+    }
+
+    private void forwardBubblingMouseRelease(UIEventContext<MouseRelease> context) {
+        if (context.isConsumed() || context.getTargetNode() == this) {
+            return;
+        }
+        this.onMouseRelease(context);
     }
 
     @Override

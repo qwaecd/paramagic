@@ -3,12 +3,16 @@ package com.qwaecd.paramagic.ui;
 import com.qwaecd.paramagic.ui.api.UIRenderBackend;
 import com.qwaecd.paramagic.ui.util.Rect;
 import com.qwaecd.paramagic.ui.util.Sprite;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.FastColor;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.Nullable;
+import org.joml.Matrix4f;
 
 public class MCRenderBackend implements UIRenderBackend {
     private GuiGraphics guiGraphics;
@@ -107,6 +111,19 @@ public class MCRenderBackend implements UIRenderBackend {
     }
 
     @Override
+    public void fillBilinearGradient(int x, int y, int w, int h, int topLeft, int topRight, int bottomRight, int bottomLeft) {
+        VertexConsumer consumer = this.guiGraphics.bufferSource().getBuffer(RenderType.gui());
+        Matrix4f matrix = this.guiGraphics.pose().last().pose();
+
+        putVertex(consumer, matrix, x, y, topLeft);
+        putVertex(consumer, matrix, x, y + h, bottomLeft);
+        putVertex(consumer, matrix, x + w, y + h, bottomRight);
+        putVertex(consumer, matrix, x + w, y, topRight);
+
+        this.guiGraphics.flush();
+    }
+
+    @Override
     public void fill(int minX, int minY, int maxX, int maxY, int color) {
         this.guiGraphics.fill(minX, minY, maxX, maxY, color);
     }
@@ -124,6 +141,17 @@ public class MCRenderBackend implements UIRenderBackend {
     @Override
     public void renderOutline(int x, int y, int w, int h, int color) {
         this.guiGraphics.renderOutline(x, y, w, h, color);
+    }
+
+    private static void putVertex(VertexConsumer consumer, Matrix4f matrix, float x, float y, int color) {
+        consumer.vertex(matrix, x, y, 0.0f)
+                .color(
+                        (float) FastColor.ARGB32.red(color) / 255.0f,
+                        (float) FastColor.ARGB32.green(color) / 255.0f,
+                        (float) FastColor.ARGB32.blue(color) / 255.0f,
+                        (float) FastColor.ARGB32.alpha(color) / 255.0f
+                )
+                .endVertex();
     }
 
     public void setGuiGraphics(GuiGraphics gg) {

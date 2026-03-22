@@ -98,6 +98,13 @@ public interface UIRenderBackend {
     void renderItemDecorations(ItemStack stack, int x, int y, @Nullable String text);
 
     void drawQuad(Rect rect, int color);
+    void fillBilinearGradient(int x, int y, int w, int h, int topLeft, int topRight, int bottomRight, int bottomLeft);
+    default void fillBilinearGradient(Rect rect, int topLeft, int topRight, int bottomRight, int bottomLeft) {
+        this.fillBilinearGradient(
+                (int) rect.x, (int) rect.y, (int) rect.w, (int) rect.h,
+                topLeft, topRight, bottomRight, bottomLeft
+        );
+    }
 
     /**
      * 在指定的区域绘制纯色矩形
