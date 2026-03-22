@@ -56,13 +56,16 @@ public class ColorRgbaEditorNode extends UINode {
     private DragTarget dragTarget = DragTarget.NONE;
 
     public ColorRgbaEditorNode() {
+        // 颜色标题文本由 UILabel 子节点自己渲染，不在本节点的 render() 中手工绘制。
         this.titleLabel = createLabel("Color:");
+        // RGBA 分量标签同样由 UILabel 子节点负责渲染。
         this.componentLabels = new UILabel[]{
                 createLabel("R:"),
                 createLabel("G:"),
                 createLabel("B:"),
                 createLabel("A:")
         };
+        // RGBA 数值输入框由 TypingBox 原生控件节点自行渲染。
         this.componentBoxes = new TypingBox[]{
                 createBox(),
                 createBox(),
@@ -153,7 +156,9 @@ public class ColorRgbaEditorNode extends UINode {
         Vector3f hueColor = hsvToRgb(this.hue, 1.0f, 1.0f);
         int pureHue = UIColor.fromRGBA4f(hueColor.x, hueColor.y, hueColor.z, 1.0f);
 
+        // SV 主选色面板：先画当前 hue 的纯色底图。
         context.drawQuad(worldSv, pureHue);
+        // 再叠加一层从左到右的白色 -> 透明渐变，用来降低 saturation。
         context.fillBilinearGradient(
                 worldSv,
                 UIColor.WHITE.color,
@@ -161,6 +166,7 @@ public class ColorRgbaEditorNode extends UINode {
                 UIColor.fromRGBA(255, 255, 255, 0),
                 UIColor.WHITE.color
         );
+        // 最后叠加一层从上到下的透明 -> 黑色渐变，用来降低 value。
         context.fillBilinearGradient(
                 worldSv,
                 UIColor.fromRGBA(0, 0, 0, 0),
@@ -168,21 +174,28 @@ public class ColorRgbaEditorNode extends UINode {
                 UIColor.BLACK.color,
                 UIColor.BLACK.color
         );
+        // SV 面板外框。
         context.renderOutline(worldSv, OUTLINE_COLOR);
 
+        // 右侧 Hue 色相条。
         renderHueStrip(context, worldHue);
         context.renderOutline(worldHue, OUTLINE_COLOR);
 
+        // Alpha 滑条底部的棋盘格背景，用来表达透明度。
         renderCheckerboard(context, worldAlpha, 4);
         int leftAlpha = UIColor.fromRGBA4f(this.rgba.x, this.rgba.y, this.rgba.z, 0.0f);
         int rightAlpha = UIColor.fromRGBA4f(this.rgba.x, this.rgba.y, this.rgba.z, 1.0f);
+        // Alpha 滑条本体：同一 RGB 从透明到不透明的渐变覆盖。
         context.fillBilinearGradient(worldAlpha, leftAlpha, rightAlpha, rightAlpha, leftAlpha);
         context.renderOutline(worldAlpha, OUTLINE_COLOR);
 
+        // 预览块底部的棋盘格背景。
         renderCheckerboard(context, worldPreview, 4);
+        // 当前颜色预览块本体。
         context.drawQuad(worldPreview, UIColor.fromRGBA4f(this.rgba.x, this.rgba.y, this.rgba.z, this.rgba.w));
         context.renderOutline(worldPreview, OUTLINE_COLOR);
 
+        // 三处交互指示器：SV 圆框、Hue 横线、Alpha 竖线。
         renderIndicators(context, worldSv, worldHue, worldAlpha);
     }
 
@@ -328,6 +341,7 @@ public class ColorRgbaEditorNode extends UINode {
             float segmentH = rect.h / segments;
             int topColor = UIColor.fromRGBA4f(top.x, top.y, top.z, 1.0f);
             int bottomColor = UIColor.fromRGBA4f(bottom.x, bottom.y, bottom.z, 1.0f);
+            // Hue 色相条由多个纵向小段拼起来，每段内部做上下线性渐变。
             context.fillBilinearGradient(
                     rect.x,
                     segmentY,
@@ -342,21 +356,25 @@ public class ColorRgbaEditorNode extends UINode {
     }
 
     private void renderIndicators(UIRenderContext context, Rect worldSv, Rect worldHue, Rect worldAlpha) {
+        // SV 面板中的选中点，用双层描边强调当前位置。
         float svX = worldSv.x + this.saturation * worldSv.w;
         float svY = worldSv.y + (1.0f - this.value) * worldSv.h;
         context.renderOutline((int) svX - 2, (int) svY - 2, 5, 5, INDICATOR_DARK);
         context.renderOutline((int) svX - 1, (int) svY - 1, 3, 3, INDICATOR_LIGHT);
 
+        // Hue 色相条中的横向游标。
         int hueY = (int) (worldHue.y + this.hue * worldHue.h);
         context.hLine((int) worldHue.x - 1, (int) (worldHue.x + worldHue.w), hueY, INDICATOR_DARK);
         context.hLine((int) worldHue.x, (int) (worldHue.x + worldHue.w - 1), hueY + 1, INDICATOR_LIGHT);
 
+        // Alpha 滑条中的纵向游标。
         int alphaX = (int) (worldAlpha.x + this.alpha * worldAlpha.w);
         context.vLine(alphaX, (int) worldAlpha.y - 1, (int) (worldAlpha.y + worldAlpha.h), INDICATOR_DARK);
         context.vLine(alphaX + 1, (int) worldAlpha.y, (int) (worldAlpha.y + worldAlpha.h - 1), INDICATOR_LIGHT);
     }
 
     private static void renderCheckerboard(UIRenderContext context, Rect rect, int cellSize) {
+        // 透明背景棋盘格：供 Alpha 滑条和预览块复用。
         int cols = Math.max(1, (int) Math.ceil(rect.w / cellSize));
         int rows = Math.max(1, (int) Math.ceil(rect.h / cellSize));
         for (int row = 0; row < rows; row++) {
