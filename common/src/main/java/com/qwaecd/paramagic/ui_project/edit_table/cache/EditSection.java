@@ -52,4 +52,14 @@ abstract class EditSection extends UINode {
     interface FloatConsumer {
         void accept(float value);
     }
+
+    @FunctionalInterface
+    interface IntSupplier {
+        int get();
+    }
+
+    @FunctionalInterface
+    interface IntConsumer {
+        void accept(int value);
+    }
 }

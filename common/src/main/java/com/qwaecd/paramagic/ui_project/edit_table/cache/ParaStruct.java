@@ -2,6 +2,7 @@ package com.qwaecd.paramagic.ui_project.edit_table.cache;
 
 import com.qwaecd.paramagic.data.para.struct.ParaComponentData;
 import com.qwaecd.paramagic.data.para.struct.ParaComponentType;
+import com.qwaecd.paramagic.data.para.struct.components.VoidParaData;
 import lombok.Getter;
 import lombok.Setter;
 import org.joml.Quaternionf;
@@ -34,6 +35,9 @@ public final class ParaStruct {
     @Setter
     private float intensity;
 
+    @Nullable
+    private EditableTypeProps typeProps;
+
     public ParaStruct() {
         this.position = new Vector3f();
         this.rotation = new Quaternionf();
@@ -57,6 +61,14 @@ public final class ParaStruct {
         return "UnknownType(" + this.componentType + ")";
     }
 
+    /**
+     * Returns the type-specific editable props, or {@code null} for VOID / unknown types.
+     */
+    @Nullable
+    public EditableTypeProps getTypeProps() {
+        return this.typeProps;
+    }
+
     public void updateFromParaComponent(ParaComponentData data) {
         this.componentType = data.getComponentType();
         this.name = data.getName();
@@ -65,8 +77,18 @@ public final class ParaStruct {
         this.scale.set(data.scale);
         this.color.set(data.color);
         this.intensity = data.getIntensity();
+
+        this.typeProps = createTypePropsFor(this.componentType);
+        if (this.typeProps != null) {
+            this.typeProps.updateFrom(data);
+        }
     }
 
+    /**
+     * Writes only the common base properties back to an existing data object.
+     * Type-specific final fields are <b>not</b> touched — use
+     * {@link #rebuildComponentData()} when type-specific changes need to be committed.
+     */
     public void applyToParaComponent(ParaComponentData data) {
         data.setName(this.name);
         data.position.set(this.position);
@@ -74,6 +96,23 @@ public final class ParaStruct {
         data.scale.set(this.scale);
         data.color.set(this.color);
         data.setIntensity(this.intensity);
+    }
+
+    /**
+     * Rebuilds a complete {@link ParaComponentData} from this edit cache.
+     * Type-specific final fields are set at construction via {@link EditableTypeProps#createComponentData()};
+     * base properties are applied on top via {@link #applyToParaComponent(ParaComponentData)}.
+     */
+    @Nonnull
+    public ParaComponentData rebuildComponentData() {
+        ParaComponentData data;
+        if (this.typeProps != null) {
+            data = this.typeProps.createComponentData();
+        } else {
+            data = new VoidParaData();
+        }
+        this.applyToParaComponent(data);
+        return data;
     }
 
     public int getComponentType() {
@@ -94,6 +133,15 @@ public final class ParaStruct {
         copy.scale = new Vector3f(this.scale);
         copy.color = new Vector4f(this.color);
         copy.intensity = this.intensity;
+        copy.typeProps = this.typeProps != null ? this.typeProps.deepCopy() : null;
         return copy;
+    }
+
+    @Nullable
+    private static EditableTypeProps createTypePropsFor(int componentType) {
+        if (componentType == ParaComponentType.RING.ID()) return new EditableRingProps();
+        if (componentType == ParaComponentType.POLYGON.ID()) return new EditablePolygonProps();
+        if (componentType == ParaComponentType.CURVY_STAR.ID()) return new EditableCurvyStarProps();
+        return null;
     }
 }
