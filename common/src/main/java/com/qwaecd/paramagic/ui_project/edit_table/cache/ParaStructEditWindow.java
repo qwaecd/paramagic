@@ -53,7 +53,7 @@ public class ParaStructEditWindow extends MouseCaptureNode {
         this.installBubblingFallbacks();
 
         this.baseSections = new EditSection[]{
-                new BasicInfoSection(),
+                new BasicInfoSection(this::handleComponentTypeChanged),
                 new TransformSection(),
                 new MaterialSection()
         };
@@ -148,6 +148,15 @@ public class ParaStructEditWindow extends MouseCaptureNode {
         if (this.typeSection != null) {
             this.typeSection.syncFromStruct();
         }
+    }
+
+    private void handleComponentTypeChanged() {
+        if (this.struct == null) {
+            return;
+        }
+        this.updateTypeSection(this.struct);
+        this.syncFromStruct();
+        this.relayout();
     }
 
     @Override

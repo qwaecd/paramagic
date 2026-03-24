@@ -10,9 +10,6 @@ import com.qwaecd.paramagic.network.DataCodec;
  * 没有几何形状的组件数据，仅用于组织结构。
  */
 public class VoidParaData extends ParaComponentData {
-    static {
-        register(ParaComponentType.VOID.ID(), VoidParaData::fromCodec);
-    }
     public VoidParaData() {
         super();
     }

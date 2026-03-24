@@ -12,7 +12,15 @@ class MaterialSection extends EditSection {
         this.addChild(this.colorEditor);
         this.colorEditor.setChangeListener(value -> {
             if (this.struct != null) {
+                boolean changed =
+                        Float.compare(this.struct.getColor().x, value.x) != 0
+                                || Float.compare(this.struct.getColor().y, value.y) != 0
+                                || Float.compare(this.struct.getColor().z, value.z) != 0
+                                || Float.compare(this.struct.getColor().w, value.w) != 0;
                 this.struct.getColor().set(value);
+                if (changed) {
+                    markCacheDirty();
+                }
             }
         });
 

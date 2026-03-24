@@ -3,7 +3,10 @@ package com.qwaecd.paramagic.ui_project.edit_table.cache;
 import com.qwaecd.paramagic.ui.core.UINode;
 import com.qwaecd.paramagic.ui.widget.UILabel;
 import com.qwaecd.paramagic.ui.widget.node.TypingBox;
+import com.qwaecd.paramagic.ui_project.edit_table.util.EditInputRules;
 import net.minecraft.client.gui.Font;
+
+import java.util.function.IntUnaryOperator;
 
 /**
  * A row control that displays a title label on one line
@@ -30,14 +33,23 @@ class LabeledIntRow extends UINode {
     }
 
     void bind(EditSection.IntSupplier getter, EditSection.IntConsumer setter) {
+        this.bind(getter, setter, value -> value);
+    }
+
+    void bind(EditSection.IntSupplier getter, EditSection.IntConsumer setter, IntUnaryOperator validator) {
         this.box.setFocusChangeListener(focused -> {
             if (focused) return;
-            String text = this.box.getText();
+            int oldValue = getter.get();
             try {
-                int value = Integer.parseInt(text);
-                setter.accept(value);
+                int value = EditInputRules.parseClampedInt(this.box.getText());
+                setter.accept(validator.applyAsInt(value));
+                int currentValue = getter.get();
+                this.box.setText(String.valueOf(currentValue));
+                if (oldValue != currentValue) {
+                    EditSection.markCacheDirty();
+                }
             } catch (NumberFormatException e) {
-                this.box.setText(String.valueOf(getter.get()));
+                this.box.setText(String.valueOf(oldValue));
             }
         });
     }

@@ -3,8 +3,10 @@ package com.qwaecd.paramagic.ui_project.edit_table.cache;
 import com.qwaecd.paramagic.ui.core.UINode;
 import com.qwaecd.paramagic.ui.widget.UILabel;
 import com.qwaecd.paramagic.ui.widget.node.TypingBox;
+import com.qwaecd.paramagic.ui_project.edit_table.util.EditInputRules;
 import net.minecraft.client.gui.Font;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 public abstract class EditSection extends UINode {
@@ -41,6 +43,18 @@ public abstract class EditSection extends UINode {
         box.setMaxLength(maxLength);
         this.addChild(box);
         return box;
+    }
+
+    protected static void markCacheDirty() {
+        ParaEditCache cache = ParaEditCache.getCache();
+        if (cache != null) {
+            cache.markDirty();
+        }
+    }
+
+    @Nonnull
+    protected static String validateStringInput(@Nullable String text) {
+        return EditInputRules.validateString(text);
     }
 
     @FunctionalInterface

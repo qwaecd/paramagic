@@ -44,10 +44,6 @@ public class PolygonParaData extends ParaComponentData {
      * 如果想要实现 1.0 个方块的边厚度，你需要将 {@code lineWidth} 设置为 2.0。
      */
     public final float lineWidth;
-
-    static {
-        register(ParaComponentType.POLYGON.ID(), PolygonParaData::fromCodec);
-    }
     public PolygonParaData(float radius, int sides, float startAngle, float lineWidth) {
         super();
         this.radius = radius;

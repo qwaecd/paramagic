@@ -8,9 +8,6 @@ public class RingParaData extends ParaComponentData {
     public final float innerRadius;
     public final float outerRadius;
     public final int segments;
-    static {
-        register(ParaComponentType.RING.ID(), RingParaData::fromCodec);
-    }
 
     public RingParaData(float innerRadius, float outerRadius, int segments) {
         super();

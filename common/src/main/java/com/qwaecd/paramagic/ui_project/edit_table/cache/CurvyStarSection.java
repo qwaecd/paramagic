@@ -1,5 +1,6 @@
 package com.qwaecd.paramagic.ui_project.edit_table.cache;
 
+import com.qwaecd.paramagic.ui_project.edit_table.util.EditInputRules;
 import net.minecraft.client.gui.Font;
 
 class CurvyStarSection extends EditSection {
@@ -20,7 +21,8 @@ class CurvyStarSection extends EditSection {
         this.addChild(this.sidesRow);
         this.sidesRow.bind(
                 () -> this.struct != null ? starProps().getSides() : 0,
-                v -> { if (this.struct != null) starProps().setSides(v); });
+                v -> { if (this.struct != null) starProps().setSides(v); },
+                v -> EditInputRules.clampMinInt(v, 3));
 
         this.curvatureRow = new LabeledFloatRow("Curvature:", 16);
         this.addChild(this.curvatureRow);

@@ -11,10 +11,6 @@ public class CurvyStarParaData extends ParaComponentData {
     public final float startAngle;
     public final float lineWidth;
 
-    static {
-        register(ParaComponentType.CURVY_STAR.ID(), CurvyStarParaData::fromCodec);
-    }
-
     public CurvyStarParaData(float radius, int sides, float curvature, float startAngle, float lineWidth) {
         super();
         this.radius = radius;

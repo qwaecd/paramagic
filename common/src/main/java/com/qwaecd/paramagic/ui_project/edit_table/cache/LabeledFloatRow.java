@@ -3,6 +3,7 @@ package com.qwaecd.paramagic.ui_project.edit_table.cache;
 import com.qwaecd.paramagic.ui.core.UINode;
 import com.qwaecd.paramagic.ui.widget.UILabel;
 import com.qwaecd.paramagic.ui.widget.node.TypingBox;
+import com.qwaecd.paramagic.ui_project.edit_table.util.EditInputRules;
 import net.minecraft.client.gui.Font;
 
 /**
@@ -32,16 +33,17 @@ class LabeledFloatRow extends UINode {
     void bind(EditSection.FloatSupplier getter, EditSection.FloatConsumer setter) {
         this.box.setFocusChangeListener(focused -> {
             if (focused) return;
-            String text = this.box.getText();
+            float oldValue = getter.get();
             try {
-                float value = Float.parseFloat(text);
-                if (Float.isFinite(value)) {
-                    setter.accept(value);
-                } else {
-                    this.box.setText(String.valueOf(getter.get()));
+                float value = EditInputRules.parseFiniteFloat(this.box.getText());
+                setter.accept(value);
+                float currentValue = getter.get();
+                this.box.setText(String.valueOf(currentValue));
+                if (Float.compare(oldValue, currentValue) != 0) {
+                    EditSection.markCacheDirty();
                 }
             } catch (NumberFormatException e) {
-                this.box.setText(String.valueOf(getter.get()));
+                this.box.setText(String.valueOf(oldValue));
             }
         });
     }

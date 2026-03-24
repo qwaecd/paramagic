@@ -10,6 +10,7 @@ import com.qwaecd.paramagic.ui.io.mouse.MouseStateMachine;
 import com.qwaecd.paramagic.ui.util.Rect;
 import com.qwaecd.paramagic.ui.util.UIColor;
 import com.qwaecd.paramagic.ui.widget.UILabel;
+import com.qwaecd.paramagic.ui_project.edit_table.util.EditInputRules;
 import net.minecraft.client.gui.Font;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
@@ -235,9 +236,8 @@ public class ColorRgbaEditorNode extends UINode {
     }
 
     private void commitComponentBox(int index) {
-        String text = this.componentBoxes[index].getText();
         try {
-            int value255 = clamp255(Integer.parseInt(text));
+            int value255 = clamp255(EditInputRules.parseClampedInt(this.componentBoxes[index].getText()));
             switch (index) {
                 case 0 -> this.rgba.x = value255 / 255.0f;
                 case 1 -> this.rgba.y = value255 / 255.0f;

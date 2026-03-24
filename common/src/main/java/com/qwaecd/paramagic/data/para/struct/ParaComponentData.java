@@ -1,10 +1,9 @@
 package com.qwaecd.paramagic.data.para.struct;
 
-import com.qwaecd.paramagic.Paramagic;
+import com.qwaecd.paramagic.data.para.AllParaComponentData;
 import com.qwaecd.paramagic.data.para.ParaStructureFrozenException;
 import com.qwaecd.paramagic.network.DataCodec;
 import com.qwaecd.paramagic.network.IDataSerializable;
-import com.qwaecd.paramagic.platform.Services;
 import lombok.Getter;
 import lombok.Setter;
 import org.joml.Quaternionf;
@@ -13,10 +12,7 @@ import org.joml.Vector4f;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.function.Function;
 
 /**
  * Also can be called MagicCircleComponentData. Base class for all magic circle element components.
@@ -24,7 +20,6 @@ import java.util.function.Function;
  * 也可以叫 MagicCircleComponentData，是所有法阵元素组件的基类.
  */
 public abstract class ParaComponentData implements IDataSerializable {
-    private static final Map<Integer, Function<DataCodec, ? extends ParaComponentData>> REGISTRY = new HashMap<>();
     /**
      * 单个ParaData下的树路径，也可作为唯一ID, 该值非 null.
      */
@@ -64,17 +59,6 @@ public abstract class ParaComponentData implements IDataSerializable {
         this.intensity = 0.0f;
     }
 
-    public static void register(int componentType, Function<DataCodec, ? extends ParaComponentData> constructor) {
-        if (REGISTRY.containsKey(componentType)) {
-            String message = "ParaComponentData type " + componentType + " is already registered.";
-            if (Services.PLATFORM.isDevelopmentEnvironment()) {
-                throw new IllegalStateException(message);
-            }
-            Paramagic.LOG.error(message);
-            return;
-        }
-        REGISTRY.put(componentType, constructor);
-    }
     public final void addChild(ParaComponentData child) {
         if (child == null) {
             throw new NullPointerException("Cannot add null child to ParaComponentData");
@@ -180,10 +164,6 @@ public abstract class ParaComponentData implements IDataSerializable {
 
     public static ParaComponentData fromCodecBase(DataCodec codec) {
         final int componentType = codec.readInt("type");
-        Function<DataCodec, ? extends ParaComponentData> dataCodecFunction = REGISTRY.get(componentType);
-        if (dataCodecFunction != null) {
-            return dataCodecFunction.apply(codec);
-        }
-        throw new UnsupportedOperationException("Unsupported ParaComponentData type: " + componentType);
+        return AllParaComponentData.require(componentType).getFactory().apply(codec);
     }
 }

@@ -2,6 +2,9 @@ package com.qwaecd.paramagic.ui_project.edit_table.cache;
 
 import com.qwaecd.paramagic.data.para.struct.ParaComponentData;
 import com.qwaecd.paramagic.data.para.struct.ParaComponentType;
+import com.qwaecd.paramagic.data.para.struct.components.CurvyStarParaData;
+import com.qwaecd.paramagic.data.para.struct.components.PolygonParaData;
+import com.qwaecd.paramagic.data.para.struct.components.RingParaData;
 import com.qwaecd.paramagic.data.para.struct.components.VoidParaData;
 import lombok.Getter;
 import lombok.Setter;
@@ -121,6 +124,10 @@ public final class ParaStruct {
 
     public void setComponentType(int componentType) {
         this.componentType = componentType;
+        this.typeProps = createTypePropsFor(componentType);
+        if (this.typeProps != null) {
+            this.typeProps.updateFrom(createDefaultComponentDataFor(componentType));
+        }
     }
 
     @Nonnull
@@ -143,5 +150,13 @@ public final class ParaStruct {
         if (componentType == ParaComponentType.POLYGON.ID()) return new EditablePolygonProps();
         if (componentType == ParaComponentType.CURVY_STAR.ID()) return new EditableCurvyStarProps();
         return null;
+    }
+
+    @Nonnull
+    private static ParaComponentData createDefaultComponentDataFor(int componentType) {
+        if (componentType == ParaComponentType.RING.ID()) return new RingParaData(0.0f, 0.0f, 3);
+        if (componentType == ParaComponentType.POLYGON.ID()) return new PolygonParaData(0.0f, 3);
+        if (componentType == ParaComponentType.CURVY_STAR.ID()) return new CurvyStarParaData(0.0f, 3);
+        return new VoidParaData();
     }
 }

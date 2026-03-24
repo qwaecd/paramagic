@@ -1,5 +1,6 @@
 package com.qwaecd.paramagic.ui_project.edit_table.cache;
 
+import com.qwaecd.paramagic.ui_project.edit_table.util.EditInputRules;
 import net.minecraft.client.gui.Font;
 
 class PolygonSection extends EditSection {
@@ -19,7 +20,8 @@ class PolygonSection extends EditSection {
         this.addChild(this.sidesRow);
         this.sidesRow.bind(
                 () -> this.struct != null ? polygonProps().getSides() : 0,
-                v -> { if (this.struct != null) polygonProps().setSides(v); });
+                v -> { if (this.struct != null) polygonProps().setSides(v); },
+                v -> EditInputRules.clampMinInt(v, 3));
 
         this.startAngleRow = new LabeledFloatRow("Start Angle:", 16);
         this.addChild(this.startAngleRow);

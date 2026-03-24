@@ -1,5 +1,6 @@
 package com.qwaecd.paramagic.ui_project.edit_table.cache;
 
+import com.qwaecd.paramagic.ui_project.edit_table.util.EditInputRules;
 import net.minecraft.client.gui.Font;
 
 class RingSection extends EditSection {
@@ -24,7 +25,8 @@ class RingSection extends EditSection {
         this.addChild(this.segmentsRow);
         this.segmentsRow.bind(
                 () -> this.struct != null ? ringProps().getSegments() : 0,
-                v -> { if (this.struct != null) ringProps().setSegments(v); });
+                v -> { if (this.struct != null) ringProps().setSegments(v); },
+                v -> EditInputRules.clampMinInt(v, 3));
     }
 
     private EditableRingProps ringProps() {
