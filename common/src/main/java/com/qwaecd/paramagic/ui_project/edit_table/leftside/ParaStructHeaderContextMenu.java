@@ -14,6 +14,7 @@ import net.minecraft.network.chat.Component;
 
 import javax.annotation.Nonnull;
 import java.util.function.BooleanSupplier;
+import java.util.function.Consumer;
 
 final class ParaStructHeaderContextMenu extends ContextMenu {
     private static final float MIN_MENU_WIDTH = 72.0f;
@@ -60,13 +61,13 @@ final class ParaStructHeaderContextMenu extends ContextMenu {
         @Nonnull
         private final BooleanSupplier enabledSupplier;
         @Nonnull
-        private final java.util.function.Consumer<UIEventContext<MouseClick>> action;
+        private final Consumer<UIEventContext<MouseClick>> action;
         private boolean hovered = false;
 
         private MenuItem(
                 @Nonnull Component text,
                 @Nonnull BooleanSupplier enabledSupplier,
-                @Nonnull java.util.function.Consumer<UIEventContext<MouseClick>> action
+                @Nonnull Consumer<UIEventContext<MouseClick>> action
         ) {
             this.text = text;
             this.enabledSupplier = enabledSupplier;

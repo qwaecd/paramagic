@@ -8,7 +8,6 @@ import com.qwaecd.paramagic.data.para.struct.components.PolygonParaData;
 import com.qwaecd.paramagic.data.para.struct.components.RingParaData;
 import com.qwaecd.paramagic.data.para.struct.components.VoidParaData;
 import com.qwaecd.paramagic.network.DataCodec;
-import com.qwaecd.paramagic.platform.Services;
 import net.minecraft.network.chat.Component;
 
 import javax.annotation.Nullable;
@@ -63,7 +62,7 @@ public final class AllParaComponentData {
     ) {
         if (REGISTRY.containsKey(componentType)) {
             String message = "ParaComponentData type " + componentType + " is already registered.";
-            if (Services.PLATFORM.isDevelopmentEnvironment()) {
+            if (Paramagic.isDevEnv()) {
                 throw new IllegalStateException(message);
             }
             Paramagic.LOG.error(message);

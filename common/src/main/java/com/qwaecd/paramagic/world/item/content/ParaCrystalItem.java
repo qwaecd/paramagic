@@ -2,8 +2,6 @@ package com.qwaecd.paramagic.world.item.content;
 
 import com.qwaecd.paramagic.data.para.struct.ParaData;
 import com.qwaecd.paramagic.data.para.util.ParaComponentBuilder;
-import com.qwaecd.paramagic.feature.effect.explosion.ExplosionAssets;
-import com.qwaecd.paramagic.spell.config.CircleAssets;
 import com.qwaecd.paramagic.thaumaturgy.ParaCrystalData;
 import com.qwaecd.paramagic.tools.nbt.CrystalComponentUtils;
 import net.minecraft.world.InteractionHand;
