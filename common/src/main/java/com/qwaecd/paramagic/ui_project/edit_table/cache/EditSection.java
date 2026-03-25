@@ -5,6 +5,7 @@ import com.qwaecd.paramagic.ui.widget.UILabel;
 import com.qwaecd.paramagic.ui.widget.node.TypingBox;
 import com.qwaecd.paramagic.ui_project.edit_table.util.EditInputRules;
 import net.minecraft.client.gui.Font;
+import net.minecraft.network.chat.Component;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -30,7 +31,7 @@ public abstract class EditSection extends UINode {
 
     abstract void syncFromStruct();
 
-    protected UILabel createLabel(String text) {
+    protected UILabel createLabel(Component text) {
         UILabel label = new UILabel(text);
         label.setHitTestable(false);
         this.addChild(label);

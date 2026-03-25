@@ -3,11 +3,11 @@ package com.qwaecd.paramagic.ui_project.edit_table.cache;
 import com.qwaecd.paramagic.ui.widget.node.ColorRgbaEditorNode;
 import net.minecraft.client.gui.Font;
 
-class MaterialSection extends EditSection {
+public class MaterialSection extends EditSection {
     private final ColorRgbaEditorNode colorEditor;
     private final LabeledFloatRow intensityRow;
 
-    MaterialSection() {
+    public MaterialSection() {
         this.colorEditor = new ColorRgbaEditorNode();
         this.addChild(this.colorEditor);
         this.colorEditor.setChangeListener(value -> {
@@ -24,7 +24,7 @@ class MaterialSection extends EditSection {
             }
         });
 
-        this.intensityRow = new LabeledFloatRow("Intensity:", 16);
+        this.intensityRow = new LabeledFloatRow(LabelTexts.intensityRowText, 16);
         this.addChild(this.intensityRow);
         this.intensityRow.bind(
                 () -> this.struct != null ? this.struct.getIntensity() : 0,
@@ -48,7 +48,9 @@ class MaterialSection extends EditSection {
 
     @Override
     void syncFromStruct() {
-        if (this.struct == null) return;
+        if (this.struct == null) {
+            return;
+        }
         this.colorEditor.setColor(this.struct.getColor());
         this.intensityRow.sync(this.struct.getIntensity());
     }

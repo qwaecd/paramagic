@@ -5,6 +5,7 @@ import com.qwaecd.paramagic.ui.widget.UILabel;
 import com.qwaecd.paramagic.ui.widget.node.TypingBox;
 import com.qwaecd.paramagic.ui_project.edit_table.util.EditInputRules;
 import net.minecraft.client.gui.Font;
+import net.minecraft.network.chat.Component;
 
 import java.util.function.IntUnaryOperator;
 
@@ -12,14 +13,14 @@ import java.util.function.IntUnaryOperator;
  * A row control that displays a title label on one line
  * followed by a single full-width integer input box on the next line.
  */
-class LabeledIntRow extends UINode {
+public class LabeledIntRow extends UINode {
     private static final float INPUT_HEIGHT = EditSection.INPUT_HEIGHT;
     private static final float LABEL_HEIGHT = EditSection.LABEL_HEIGHT;
 
     private final UILabel titleLabel;
     private final TypingBox box;
 
-    LabeledIntRow(String title, int maxLength) {
+    public LabeledIntRow(Component title, int maxLength) {
         this.setHitTestable(false);
 
         this.titleLabel = new UILabel(title);

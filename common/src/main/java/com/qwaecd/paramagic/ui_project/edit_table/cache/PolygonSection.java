@@ -3,33 +3,33 @@ package com.qwaecd.paramagic.ui_project.edit_table.cache;
 import com.qwaecd.paramagic.ui_project.edit_table.util.EditInputRules;
 import net.minecraft.client.gui.Font;
 
-class PolygonSection extends EditSection {
+public class PolygonSection extends EditSection {
     private final LabeledFloatRow radiusRow;
     private final LabeledIntRow sidesRow;
     private final LabeledFloatRow startAngleRow;
     private final LabeledFloatRow lineWidthRow;
 
     PolygonSection() {
-        this.radiusRow = new LabeledFloatRow("Radius:", 16);
+        this.radiusRow = new LabeledFloatRow(LabelTexts.radiusRowText, 16);
         this.addChild(this.radiusRow);
         this.radiusRow.bind(
                 () -> this.struct != null ? polygonProps().getRadius() : 0,
                 v -> { if (this.struct != null) polygonProps().setRadius(v); });
 
-        this.sidesRow = new LabeledIntRow("Sides:", 8);
+        this.sidesRow = new LabeledIntRow(LabelTexts.sidesRowText, 8);
         this.addChild(this.sidesRow);
         this.sidesRow.bind(
                 () -> this.struct != null ? polygonProps().getSides() : 0,
                 v -> { if (this.struct != null) polygonProps().setSides(v); },
                 v -> EditInputRules.clampMinInt(v, 3));
 
-        this.startAngleRow = new LabeledFloatRow("Start Angle:", 16);
+        this.startAngleRow = new LabeledFloatRow(LabelTexts.startAngleRowText, 16);
         this.addChild(this.startAngleRow);
         this.startAngleRow.bind(
                 () -> this.struct != null ? polygonProps().getStartAngle() : 0,
                 v -> { if (this.struct != null) polygonProps().setStartAngle(v); });
 
-        this.lineWidthRow = new LabeledFloatRow("Line Width:", 16);
+        this.lineWidthRow = new LabeledFloatRow(LabelTexts.lineWidthRowText, 16);
         this.addChild(this.lineWidthRow);
         this.lineWidthRow.bind(
                 () -> this.struct != null ? polygonProps().getLineWidth() : 0,
@@ -65,7 +65,9 @@ class PolygonSection extends EditSection {
 
     @Override
     void syncFromStruct() {
-        if (this.struct == null) return;
+        if (this.struct == null) {
+            return;
+        }
         EditablePolygonProps props = polygonProps();
         this.radiusRow.sync(props.getRadius());
         this.sidesRow.sync(props.getSides());

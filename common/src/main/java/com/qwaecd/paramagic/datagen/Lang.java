@@ -46,6 +46,14 @@ public class Lang {
         of("tooltip.paramagic.magic_arrow_operator.describe", "Shoots a magic arrow forward", "向前射出一支魔法箭");
         of("tooltip.paramagic.void_operator.describe", "Do noting", "什么也不做");
         gui();
+        paraType();
+    }
+
+    private static void paraType() {
+        of("paramagic.para_component_type.void", "Void", "空");
+        of("paramagic.para_component_type.ring", "Ring", "圆环");
+        of("paramagic.para_component_type.polygon", "Polygon", "正多边形");
+        of("paramagic.para_component_type.curvy_star", "Curvy Star", "弧边形");
     }
 
     private static void gui() {
@@ -55,5 +63,24 @@ public class Lang {
         of("gui.paramagic.spell_edit_table.context_menu.add_path", "Add Para Path", "添加参量路径");
         of("gui.paramagic.spell_edit_table.context_menu.remove_path", "Remove Para Path", "移除参量路径");
         of("gui.paramagic.spell_edit_table.context_menu.open_window", "Open Edit Window", "打开编辑窗口");
+
+        // Labels in edit window
+        of("gui.paramagic.spell_edit_table.label_texts.color", "Color:", "颜色:");
+
+        of("gui.paramagic.spell_edit_table.label_texts.name", "Name:", "节点名称:");
+        of("gui.paramagic.spell_edit_table.label_texts.type", "ParaType:", "参量类型:");
+
+        of("gui.paramagic.spell_edit_table.label_texts.radius", "Radius:", "半径:");
+        of("gui.paramagic.spell_edit_table.label_texts.sides", "Sides:", "边数:");
+        of("gui.paramagic.spell_edit_table.label_texts.start_angle", "Start Angle:", "起始角:");
+        of("gui.paramagic.spell_edit_table.label_texts.line_width", "Line Width:", "线宽:");
+        of("gui.paramagic.spell_edit_table.label_texts.inner_radius", "Inner Radius:", "内半径:");
+        of("gui.paramagic.spell_edit_table.label_texts.outer_radius", "Outer Radius:", "外半径:");
+        of("gui.paramagic.spell_edit_table.label_texts.segments", "Segments:", "分段数:");
+        of("gui.paramagic.spell_edit_table.label_texts.curvature", "Curvature:", "曲率:");
+        of("gui.paramagic.spell_edit_table.label_texts.intensity", "Intensity:", "发光强度:");
+        of("gui.paramagic.spell_edit_table.label_texts.position", "Position:", "位置:");
+        of("gui.paramagic.spell_edit_table.label_texts.rotation", "Rotation:", "旋转:");
+        of("gui.paramagic.spell_edit_table.label_texts.scale", "Scale:", "缩放:");
     }
 }

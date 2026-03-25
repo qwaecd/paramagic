@@ -3,25 +3,25 @@ package com.qwaecd.paramagic.ui_project.edit_table.cache;
 import com.qwaecd.paramagic.ui_project.edit_table.util.EditInputRules;
 import net.minecraft.client.gui.Font;
 
-class RingSection extends EditSection {
+public class RingSection extends EditSection {
     private final LabeledFloatRow innerRadiusRow;
     private final LabeledFloatRow outerRadiusRow;
     private final LabeledIntRow segmentsRow;
 
-    RingSection() {
-        this.innerRadiusRow = new LabeledFloatRow("Inner Radius:", 16);
+    public RingSection() {
+        this.innerRadiusRow = new LabeledFloatRow(LabelTexts.innerRadiusRowText, 16);
         this.addChild(this.innerRadiusRow);
         this.innerRadiusRow.bind(
                 () -> this.struct != null ? ringProps().getInnerRadius() : 0,
                 v -> { if (this.struct != null) ringProps().setInnerRadius(v); });
 
-        this.outerRadiusRow = new LabeledFloatRow("Outer Radius:", 16);
+        this.outerRadiusRow = new LabeledFloatRow(LabelTexts.outerRadiusRowText, 16);
         this.addChild(this.outerRadiusRow);
         this.outerRadiusRow.bind(
                 () -> this.struct != null ? ringProps().getOuterRadius() : 0,
                 v -> { if (this.struct != null) ringProps().setOuterRadius(v); });
 
-        this.segmentsRow = new LabeledIntRow("Segments:", 8);
+        this.segmentsRow = new LabeledIntRow(LabelTexts.segmentsRowText, 8);
         this.addChild(this.segmentsRow);
         this.segmentsRow.bind(
                 () -> this.struct != null ? ringProps().getSegments() : 0,

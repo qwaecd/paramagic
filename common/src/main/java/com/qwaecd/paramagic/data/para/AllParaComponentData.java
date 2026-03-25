@@ -94,9 +94,9 @@ public final class AllParaComponentData {
     }
 
     public static void registerAll() {
-        register(ParaComponentType.VOID.ID(), "VOID", VoidParaData::fromCodec);
-        register(ParaComponentType.RING.ID(), "RING", RingParaData::fromCodec);
-        register(ParaComponentType.POLYGON.ID(), "POLYGON", PolygonParaData::fromCodec);
-        register(ParaComponentType.CURVY_STAR.ID(), "CURVY_STAR", CurvyStarParaData::fromCodec);
+        register(ParaComponentType.VOID.ID(), Component.translatable("paramagic.para_component_type.void"), VoidParaData::fromCodec);
+        register(ParaComponentType.RING.ID(), Component.translatable("paramagic.para_component_type.ring"), RingParaData::fromCodec);
+        register(ParaComponentType.POLYGON.ID(), Component.translatable("paramagic.para_component_type.polygon"), PolygonParaData::fromCodec);
+        register(ParaComponentType.CURVY_STAR.ID(), Component.translatable("paramagic.para_component_type.curvy_star"), CurvyStarParaData::fromCodec);
     }
 }

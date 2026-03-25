@@ -12,6 +12,7 @@ import com.qwaecd.paramagic.ui.util.UIColor;
 import com.qwaecd.paramagic.ui.widget.UILabel;
 import com.qwaecd.paramagic.ui_project.edit_table.util.EditInputRules;
 import net.minecraft.client.gui.Font;
+import net.minecraft.network.chat.Component;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
 
@@ -20,6 +21,7 @@ import javax.annotation.Nullable;
 import java.util.function.Consumer;
 
 public class ColorRgbaEditorNode extends UINode {
+    public static final Component colorTitle = Component.translatable("gui.paramagic.spell_edit_table.label_texts.color");
     static final float ROW_GAP = 2.0f;
     static final float INPUT_HEIGHT = 14.0f;
     static final float LABEL_HEIGHT = 10.0f;
@@ -58,7 +60,7 @@ public class ColorRgbaEditorNode extends UINode {
 
     public ColorRgbaEditorNode() {
         // 颜色标题文本由 UILabel 子节点自己渲染，不在本节点的 render() 中手工绘制。
-        this.titleLabel = createLabel("Color:");
+        this.titleLabel = createLabel(colorTitle);
         // RGBA 分量标签同样由 UILabel 子节点负责渲染。
         this.componentLabels = new UILabel[]{
                 createLabel("R:"),
@@ -401,6 +403,14 @@ public class ColorRgbaEditorNode extends UINode {
 
     @Nonnull
     private UILabel createLabel(@Nonnull String text) {
+        UILabel label = new UILabel(text);
+        label.setHitTestable(false);
+        this.addChild(label);
+        return label;
+    }
+
+    @Nonnull
+    private UILabel createLabel(@Nonnull Component text) {
         UILabel label = new UILabel(text);
         label.setHitTestable(false);
         this.addChild(label);

@@ -5,12 +5,13 @@ import com.qwaecd.paramagic.ui.widget.UILabel;
 import com.qwaecd.paramagic.ui.widget.node.TypingBox;
 import com.qwaecd.paramagic.ui_project.edit_table.util.EditInputRules;
 import net.minecraft.client.gui.Font;
+import net.minecraft.network.chat.Component;
 
 /**
  * A row control that displays a title label followed by N float input boxes
  * with component labels (e.g. "Position:" then [x:][___][y:][___][z:][___]).
  */
-class LabeledVecRow extends UINode {
+public class LabeledVecRow extends UINode {
     private static final float INPUT_HEIGHT = EditSection.INPUT_HEIGHT;
     private static final float LABEL_HEIGHT = EditSection.LABEL_HEIGHT;
     private static final float COMPONENT_GAP = EditSection.COMPONENT_GAP;
@@ -19,7 +20,7 @@ class LabeledVecRow extends UINode {
     private final UILabel[] compLabels;
     private final TypingBox[] boxes;
 
-    LabeledVecRow(String title, String... compLabelTexts) {
+    public LabeledVecRow(Component title, String... compLabelTexts) {
         this.setHitTestable(false);
 
         this.titleLabel = new UILabel(title);

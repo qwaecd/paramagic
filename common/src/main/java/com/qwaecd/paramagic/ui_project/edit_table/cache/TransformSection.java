@@ -2,13 +2,13 @@ package com.qwaecd.paramagic.ui_project.edit_table.cache;
 
 import net.minecraft.client.gui.Font;
 
-class TransformSection extends EditSection {
+public class TransformSection extends EditSection {
     private final LabeledVecRow positionRow;
     private final LabeledVecRow rotationRow;
     private final LabeledVecRow scaleRow;
 
-    TransformSection() {
-        this.positionRow = new LabeledVecRow("Position:", "x:", "y:", "z:");
+    public TransformSection() {
+        this.positionRow = new LabeledVecRow(LabelTexts.positionRowText, "x:", "y:", "z:");
         this.addChild(this.positionRow);
         this.positionRow.bind(0,
                 () -> this.struct != null ? this.struct.getPosition().x : 0,
@@ -20,7 +20,7 @@ class TransformSection extends EditSection {
                 () -> this.struct != null ? this.struct.getPosition().z : 0,
                 v -> { if (this.struct != null) this.struct.getPosition().z = v; });
 
-        this.rotationRow = new LabeledVecRow("Rotation:", "x:", "y:", "z:", "w:");
+        this.rotationRow = new LabeledVecRow(LabelTexts.rotationRowText, "x:", "y:", "z:", "w:");
         this.addChild(this.rotationRow);
         this.rotationRow.bind(0,
                 () -> this.struct != null ? this.struct.getRotation().x : 0,
@@ -35,7 +35,7 @@ class TransformSection extends EditSection {
                 () -> this.struct != null ? this.struct.getRotation().w : 0,
                 v -> { if (this.struct != null) this.struct.getRotation().w = v; });
 
-        this.scaleRow = new LabeledVecRow("Scale:", "x:", "y:", "z:");
+        this.scaleRow = new LabeledVecRow(LabelTexts.scaleRowText, "x:", "y:", "z:");
         this.addChild(this.scaleRow);
         this.scaleRow.bind(0,
                 () -> this.struct != null ? this.struct.getScale().x : 0,

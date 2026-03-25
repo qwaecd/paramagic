@@ -5,19 +5,20 @@ import com.qwaecd.paramagic.ui.widget.UILabel;
 import com.qwaecd.paramagic.ui.widget.node.TypingBox;
 import com.qwaecd.paramagic.ui_project.edit_table.util.EditInputRules;
 import net.minecraft.client.gui.Font;
+import net.minecraft.network.chat.Component;
 
 /**
  * A row control that displays a title label on one line
  * followed by a single full-width float input box on the next line.
  */
-class LabeledFloatRow extends UINode {
+public class LabeledFloatRow extends UINode {
     private static final float INPUT_HEIGHT = EditSection.INPUT_HEIGHT;
     private static final float LABEL_HEIGHT = EditSection.LABEL_HEIGHT;
 
     private final UILabel titleLabel;
     private final TypingBox box;
 
-    LabeledFloatRow(String title, int maxLength) {
+    public LabeledFloatRow(Component title, int maxLength) {
         this.setHitTestable(false);
 
         this.titleLabel = new UILabel(title);

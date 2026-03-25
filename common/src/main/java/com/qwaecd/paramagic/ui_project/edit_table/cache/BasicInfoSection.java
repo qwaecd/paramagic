@@ -3,7 +3,6 @@ package com.qwaecd.paramagic.ui_project.edit_table.cache;
 import com.qwaecd.paramagic.data.para.AllParaComponentData;
 import com.qwaecd.paramagic.ui.api.UIRenderContext;
 import com.qwaecd.paramagic.ui.api.event.UIEventContext;
-import com.qwaecd.paramagic.ui.core.UIManager;
 import com.qwaecd.paramagic.ui.core.UINode;
 import com.qwaecd.paramagic.ui.event.impl.MouseClick;
 import com.qwaecd.paramagic.ui.event.impl.MouseLeave;
@@ -24,18 +23,18 @@ import java.util.Collection;
 import java.util.Objects;
 import java.util.function.Consumer;
 
-class BasicInfoSection extends EditSection {
+public class BasicInfoSection extends EditSection {
     private final UILabel nameLabel;
     private final TypingBox nameBox;
     private final UILabel typeLabel;
     private final TypePickerButton typeButton;
     private final Runnable onTypeChanged;
 
-    BasicInfoSection(@Nonnull Runnable onTypeChanged) {
+    public BasicInfoSection(@Nonnull Runnable onTypeChanged) {
         this.onTypeChanged = onTypeChanged;
-        this.nameLabel = createLabel("Name:");
+        this.nameLabel = createLabel(LabelTexts.nameLabelText);
         this.nameBox = createInputBox(128);
-        this.typeLabel = createLabel("Type:");
+        this.typeLabel = createLabel(LabelTexts.typeLabelText);
         this.typeButton = new TypePickerButton(this::openTypeMenu);
         this.addChild(this.typeButton);
 
@@ -56,8 +55,8 @@ class BasicInfoSection extends EditSection {
     @Override
     void layoutContent(Font font, float contentW) {
         float textVOffset = (INPUT_HEIGHT - font.lineHeight) / 2.0f;
-        float nameLabelW = font.width("Name:") + 2;
-        float typeLabelW = font.width("Type:") + 2;
+        float nameLabelW = font.width(LabelTexts.nameLabelText) + 2;
+        float typeLabelW = font.width(LabelTexts.typeLabelText) + 2;
 
         float y = 0.0f;
         this.nameLabel.localRect.setXY(0, y + textVOffset);
