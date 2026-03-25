@@ -40,13 +40,13 @@ public class TransformSection extends EditSection {
         this.scaleRow = new LabeledVecRow(LabelTexts.scaleRowText, "x:", "y:", "z:");
         this.addChild(this.scaleRow);
         this.scaleRow.bind(0,
-                () -> this.struct != null ? this.struct.getScale().x : 0,
+                () -> this.struct != null ? this.struct.getScale().x : 1.0f,
                 v -> { if (this.struct != null) this.struct.getScale().x = v; });
         this.scaleRow.bind(1,
-                () -> this.struct != null ? this.struct.getScale().y : 0,
+                () -> this.struct != null ? this.struct.getScale().y : 1.0f,
                 v -> { if (this.struct != null) this.struct.getScale().y = v; });
         this.scaleRow.bind(2,
-                () -> this.struct != null ? this.struct.getScale().z : 0,
+                () -> this.struct != null ? this.struct.getScale().z : 1.0f,
                 v -> { if (this.struct != null) this.struct.getScale().z = v; });
     }
 

@@ -20,12 +20,12 @@ public final class ParaEditCacheRules {
         return ParaEditCacheState.UNSUBMITTED;
     }
 
-    public static boolean canCreateCache(boolean hasRealRoot, @Nullable ParaEditCache cache) {
-        return hasRealRoot && cache == null;
+    public static boolean canCreateCache(boolean hasCacheSeedRoot, @Nullable ParaEditCache cache) {
+        return hasCacheSeedRoot && cache == null;
     }
 
-    public static boolean canRebuildCache(boolean hasRealRoot, @Nullable ParaEditCache cache) {
-        return hasRealRoot && cache != null;
+    public static boolean canRebuildCache(boolean hasCacheSeedRoot, @Nullable ParaEditCache cache) {
+        return hasCacheSeedRoot && cache != null;
     }
 
     public static boolean canSubmit(@Nullable ParaEditCache cache) {

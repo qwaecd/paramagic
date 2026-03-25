@@ -48,9 +48,9 @@ public final class ParaStruct {
     public ParaStruct() {
         this.position = new Vector3f();
         this.rotation = new Quaternionf();
-        this.scale = new Vector3f();
+        this.scale = new Vector3f(1.0f);
         this.color = new Vector4f();
-        this.intensity = 0.5f;
+        this.intensity = 0.2f;
     }
 
     public ParaStruct(ParaComponentData data) {
@@ -158,9 +158,9 @@ public final class ParaStruct {
 
     @Nonnull
     private static ParaComponentData createDefaultComponentDataFor(int componentType) {
-        if (componentType == ParaComponentType.RING.ID()) return new RingParaData(0.0f, 0.0f, 3);
-        if (componentType == ParaComponentType.POLYGON.ID()) return new PolygonParaData(0.0f, 3);
-        if (componentType == ParaComponentType.CURVY_STAR.ID()) return new CurvyStarParaData(0.0f, 3);
+        if (componentType == ParaComponentType.RING.ID()) return new RingParaData(3.2f, 3.8f, 64);
+        if (componentType == ParaComponentType.POLYGON.ID()) return new PolygonParaData(4.4f, 4, 0.0f, 0.2f);
+        if (componentType == ParaComponentType.CURVY_STAR.ID()) return new CurvyStarParaData(4.8f, 6, -1.0f, 0.0f, 0.2f);
         return new VoidParaData();
     }
 }

@@ -29,7 +29,7 @@ public class MaterialSection extends EditSection {
         this.intensityRow = new LabeledFloatRow(LabelTexts.intensityRowText, 16);
         this.addChild(this.intensityRow);
         this.intensityRow.bind(
-                () -> this.struct != null ? this.struct.getIntensity() : 0,
+                () -> this.struct != null ? this.struct.getIntensity() : 0.15f,
                 v -> { if (this.struct != null) this.struct.setIntensity(v); });
     }
 

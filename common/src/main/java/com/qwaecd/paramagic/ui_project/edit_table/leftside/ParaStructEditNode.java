@@ -1,6 +1,7 @@
 package com.qwaecd.paramagic.ui_project.edit_table.leftside;
 
 import com.qwaecd.paramagic.data.para.struct.ParaComponentData;
+import com.qwaecd.paramagic.data.para.struct.ParaComponentType;
 import com.qwaecd.paramagic.data.para.struct.ParaData;
 import com.qwaecd.paramagic.thaumaturgy.ParaCrystalData;
 import com.qwaecd.paramagic.tools.ModRL;
@@ -45,6 +46,12 @@ public class ParaStructEditNode extends UIScrollView {
      */
     @Nullable
     private ParaPathNode realRootPathNode;
+    /**
+     * 用于“创建缓存/重建缓存”的种子根节点。
+     * 有真实数据时等同于真实根节点；无 NBT 的空白水晶时为默认 VOID 根节点。
+     */
+    @Nullable
+    private ParaPathNode cacheSeedRootPathNode;
 
     private final StructHeader header;
 
@@ -85,6 +92,23 @@ public class ParaStructEditNode extends UIScrollView {
         return this.realRootPathNode;
     }
 
+    @Nullable
+    public ParaPathNode getCacheSeedRootPathNode() {
+        return this.cacheSeedRootPathNode;
+    }
+
+    @Nullable
+    public ParaEditCache ensureEditCacheFromSeedRoot() {
+        ParaEditCache cache = ParaEditCache.getCache();
+        if (cache != null) {
+            return cache;
+        }
+        if (this.cacheSeedRootPathNode == null) {
+            return null;
+        }
+        return ParaEditCache.createCache(this.cacheSeedRootPathNode);
+    }
+
     @Override
     protected void render(@Nonnull UIRenderContext context) {
     }
@@ -109,6 +133,7 @@ public class ParaStructEditNode extends UIScrollView {
         ParaPathNode realNode = new ParaPathNode(root);
         this.buildComponentNode(root, realNode);
         this.realRootPathNode = realNode;
+        this.cacheSeedRootPathNode = realNode;
 
         // 缓存优先：如果存在缓存则使用缓存的根节点，否则使用真实数据
         if (ParaEditCache.hasCache()) {
@@ -134,12 +159,12 @@ public class ParaStructEditNode extends UIScrollView {
         this.reLayoutPathNode();
     }
 
-    public boolean canCreateCacheFromRealRoot() {
-        return ParaEditCacheRules.canCreateCache(this.realRootPathNode != null, ParaEditCache.getCache());
+    public boolean canCreateCacheFromSeedRoot() {
+        return ParaEditCacheRules.canCreateCache(this.cacheSeedRootPathNode != null, ParaEditCache.getCache());
     }
 
-    public boolean canRebuildCacheFromRealRoot() {
-        return ParaEditCacheRules.canRebuildCache(this.realRootPathNode != null, ParaEditCache.getCache());
+    public boolean canRebuildCacheFromSeedRoot() {
+        return ParaEditCacheRules.canRebuildCache(this.cacheSeedRootPathNode != null, ParaEditCache.getCache());
     }
 
     public boolean canSubmitCurrentCache() {
@@ -147,23 +172,23 @@ public class ParaStructEditNode extends UIScrollView {
         return cache != null && ParaEditSubmitController.canSubmit(cache);
     }
 
-    public void createCacheFromRealRoot() {
-        if (!this.canCreateCacheFromRealRoot()) {
+    public void createCacheFromSeedRoot() {
+        if (!this.canCreateCacheFromSeedRoot()) {
             return;
         }
         this.clearCurrentSelection();
         //noinspection DataFlowIssue
-        ParaEditCache.createCache(this.realRootPathNode);
+        ParaEditCache.createCache(this.cacheSeedRootPathNode);
         this.refreshDisplay();
     }
 
-    public void rebuildCacheFromRealRoot() {
-        if (!this.canRebuildCacheFromRealRoot()) {
+    public void rebuildCacheFromSeedRoot() {
+        if (!this.canRebuildCacheFromSeedRoot()) {
             return;
         }
         this.clearCurrentSelection();
         //noinspection DataFlowIssue
-        ParaEditCache.createCache(this.realRootPathNode);
+        ParaEditCache.createCache(this.cacheSeedRootPathNode);
         this.refreshDisplay();
     }
 
@@ -304,15 +329,21 @@ public class ParaStructEditNode extends UIScrollView {
         this.clearCurrentSelection();
         ItemStack item = slot.getItem();
         if (!(item.getItem() instanceof ParaCrystalItem)) {
+            this.realRootPathNode = null;
+            this.cacheSeedRootPathNode = null;
             this.removePathNode();
             return;
         }
         if (!mainUI.getContainerNode().isItemStack(item)) {
+            this.realRootPathNode = null;
+            this.cacheSeedRootPathNode = null;
             this.removePathNode();
             return;
         }
         ParaCrystalData crystalData = CrystalComponentUtils.getComponentFromItemStack(item);
         if (crystalData == null) {
+            this.realRootPathNode = null;
+            this.cacheSeedRootPathNode = this.createDefaultCacheSeedRootNode();
             this.removePathNode();
             return;
         }
@@ -325,6 +356,13 @@ public class ParaStructEditNode extends UIScrollView {
             this.removeChild(this.rootPathNode);
             this.rootPathNode = null;
         }
+    }
+
+    @Nonnull
+    private ParaPathNode createDefaultCacheSeedRootNode() {
+        ParaPathNode rootNode = new ParaPathNode(Component.literal(ParaData.PARENT_ID));
+        rootNode.getStruct().setComponentType(ParaComponentType.VOID.ID());
+        return rootNode;
     }
 
     public static class StructHeader extends UINode {

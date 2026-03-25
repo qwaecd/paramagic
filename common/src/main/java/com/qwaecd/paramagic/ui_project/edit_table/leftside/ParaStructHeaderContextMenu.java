@@ -24,13 +24,13 @@ final class ParaStructHeaderContextMenu extends ContextMenu {
 
         this.addChild(new MenuItem(
                 Component.translatable("gui.paramagic.spell_edit_table.header_menu.create_cache"),
-                structEditNode::canCreateCacheFromRealRoot,
-                context -> structEditNode.createCacheFromRealRoot()
+                structEditNode::canCreateCacheFromSeedRoot,
+                context -> structEditNode.createCacheFromSeedRoot()
         ));
         this.addChild(new MenuItem(
                 Component.translatable("gui.paramagic.spell_edit_table.header_menu.rebuild_cache"),
-                structEditNode::canRebuildCacheFromRealRoot,
-                context -> structEditNode.rebuildCacheFromRealRoot()
+                structEditNode::canRebuildCacheFromSeedRoot,
+                context -> structEditNode.rebuildCacheFromSeedRoot()
         ));
         this.addChild(new MenuItem(
                 Component.translatable("gui.paramagic.spell_edit_table.header_menu.submit_struct"),

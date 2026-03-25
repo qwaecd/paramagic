@@ -21,16 +21,16 @@ public class ParaCrystalItem extends Item {
 
     @Override
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand usedHand) {
-        if (level.isClientSide()) {
-            return super.use(level, player, usedHand);
-        }
+//        if (level.isClientSide()) {
+//            return super.use(level, player, usedHand);
+//        }
 
-        ItemStack crystal = player.getItemInHand(usedHand);
+//        ItemStack crystal = player.getItemInHand(usedHand);
 //        this.test(crystal);
-        CircleAssets assets = ExplosionAssets.create();
-        ParaCrystalData crystalData = new ParaCrystalData(assets.getParaData());
-        CrystalComponentUtils.writeComponentToItemStack(crystal, crystalData);
-        ParaCrystalData paraCrystal = CrystalComponentUtils.getComponentFromItemStack(crystal);
+//        CircleAssets assets = ExplosionAssets.create();
+//        ParaCrystalData crystalData = new ParaCrystalData(assets.getParaData());
+//        CrystalComponentUtils.writeComponentToItemStack(crystal, crystalData);
+//        ParaCrystalData paraCrystal = CrystalComponentUtils.getComponentFromItemStack(crystal);
 
         return super.use(level, player, usedHand);
     }

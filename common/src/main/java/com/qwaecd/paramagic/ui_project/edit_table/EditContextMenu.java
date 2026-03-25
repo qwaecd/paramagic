@@ -61,15 +61,12 @@ public class EditContextMenu extends ContextMenu {
             return;
         }
 
-        ParaPathNode realRoot = this.structEditNode.getRealRootPathNode();
-        if (realRoot == null) {
-            Paramagic.LOG.debug("addPathAction: no real root node, operation ignored.");
+        boolean hasCacheBefore = ParaEditCache.hasCache();
+        ParaEditCache editCache = this.structEditNode.ensureEditCacheFromSeedRoot();
+        if (editCache == null) {
+            Paramagic.LOG.debug("addPathAction: no cache seed root, operation ignored.");
             return;
         }
-
-        boolean hasCacheBefore = ParaEditCache.hasCache();
-
-        ParaEditCache editCache = ParaEditCache.ensureCache(realRoot);
 
         if (!hasCacheBefore) {
             this.structEditNode.refreshDisplay();
@@ -102,15 +99,12 @@ public class EditContextMenu extends ContextMenu {
             return;
         }
 
-        ParaPathNode realRoot = this.structEditNode.getRealRootPathNode();
-        if (realRoot == null) {
-            Paramagic.LOG.debug("removePathAction: no real root node, operation ignored.");
+        boolean hasCacheBefore = ParaEditCache.hasCache();
+        ParaEditCache editCache = this.structEditNode.ensureEditCacheFromSeedRoot();
+        if (editCache == null) {
+            Paramagic.LOG.debug("removePathAction: no cache seed root, operation ignored.");
             return;
         }
-
-        boolean hasCacheBefore = ParaEditCache.hasCache();
-
-        ParaEditCache editCache = ParaEditCache.ensureCache(realRoot);
 
         if (!hasCacheBefore) {
             this.structEditNode.refreshDisplay();
@@ -146,18 +140,14 @@ public class EditContextMenu extends ContextMenu {
             return;
         }
 
-        ParaPathNode realRoot = this.structEditNode.getRealRootPathNode();
-        if (realRoot == null) {
+        boolean hasCacheBefore = ParaEditCache.hasCache();
+        ParaEditCache editCache = this.structEditNode.ensureEditCacheFromSeedRoot();
+        if (editCache == null) {
             return;
         }
 
-        boolean hasCacheBefore = ParaEditCache.hasCache();
-        ParaEditCache editCache = ParaEditCache.ensureCache(realRoot);
-
         if (!hasCacheBefore) {
             this.structEditNode.refreshDisplay();
-            // 缓存是新创建的，这里选中的依然是原始节点，无法在缓存中找到对应节点，不允许打开编辑窗口
-            return;
         }
 
         ParaPathNode cachedSelected = this.findNodeInCache(editCache.getRootNode(), selectedNode);

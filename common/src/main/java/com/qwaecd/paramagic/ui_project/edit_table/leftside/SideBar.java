@@ -38,7 +38,7 @@ public class SideBar extends UINode {
         this.clipMod = ClipMod.RECT;
         this.localRect.set(
                 0.0f, 0.0f,
-                94.3f, this.getWindowHeight() / this.getGuiScale()
+                120.0f, this.getWindowHeight() / this.getGuiScale()
         );
 
         this.structEditNode = new ParaStructEditNode(this);

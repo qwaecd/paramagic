@@ -57,8 +57,8 @@ public class ExplosionParaNode {
 
     ParaComponentData genComponentData(String paraName) {
         final float intensity = 0.4f;
-        final Vector4f ringColor = new Vector4f(1.1f, 0.6f, 0.5f, 0.8f);
-        final Vector4f starColor = new Vector4f(1.0f, 0.5f, 0.5f, 0.8f);
+        final Vector4f ringColor = new Vector4f(1.9f, 0.8f, 0.8f, 1.0f);
+        final Vector4f starColor = new Vector4f(1.5f, 0.7f, 0.8f, 1.0f);
         return new ParaComponentBuilder().withName(paraName)
                 // 中心结构
                 .beginChild(new RingParaData(1.1f, 1.17f, 64))

@@ -15,7 +15,7 @@ void main(){
     o_bloomColor = vec4(0.0, 0.0, 0.0, 1.0);
     const float threshold = 0.1;
     if (u_emissiveIntensity > threshold) {
-        o_bloomColor = vec4(growHDRColor - threshold, 1.0);
+        o_bloomColor = vec4(growHDRColor * vertex_color.a, 1.0);
     }
     o_color = vertex_color;
 }

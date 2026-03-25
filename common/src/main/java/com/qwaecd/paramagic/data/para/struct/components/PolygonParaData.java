@@ -57,7 +57,7 @@ public class PolygonParaData extends ParaComponentData {
         this.radius = radius;
         this.sides = Math.max(sides, 3);
         this.startAngle = 0.0f;
-        this.lineWidth = 4.0f;
+        this.lineWidth = 0.2f;
     }
 
     @Override
