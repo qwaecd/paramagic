@@ -21,9 +21,13 @@ import com.qwaecd.paramagic.ui.inventory.InventoryHolder;
 import com.qwaecd.paramagic.ui.inventory.slot.UISlot;
 import com.qwaecd.paramagic.ui.io.mouse.MouseButton;
 import com.qwaecd.paramagic.ui.util.NineSliceSprite;
+import com.qwaecd.paramagic.ui.util.UIColor;
 import com.qwaecd.paramagic.ui.widget.UILabel;
 import com.qwaecd.paramagic.ui.widget.UIScrollView;
+import com.qwaecd.paramagic.ui_project.edit_table.ParaEditCacheRules;
+import com.qwaecd.paramagic.ui_project.edit_table.ParaEditCacheState;
 import com.qwaecd.paramagic.ui_project.edit_table.EditContextMenu;
+import com.qwaecd.paramagic.ui_project.edit_table.ParaEditSubmitController;
 import com.qwaecd.paramagic.ui_project.edit_table.EditTableSprite;
 import com.qwaecd.paramagic.ui_project.edit_table.SpellEditTableUI;
 import com.qwaecd.paramagic.ui_project.edit_table.cache.ParaEditCache;
@@ -58,7 +62,7 @@ public class ParaStructEditNode extends UIScrollView {
     public ParaStructEditNode(SideBar sideBar) {
         super(false);
         this.sideBar = sideBar;
-        this.header = new StructHeader();
+        this.header = new StructHeader(this);
         this.header.localRect.setWH(this.localRect.w, rootPathNodeOffsetY);
         this.addChild(this.header);
 
@@ -135,6 +139,47 @@ public class ParaStructEditNode extends UIScrollView {
         this.reLayoutPathNode();
     }
 
+    public boolean canCreateCacheFromRealRoot() {
+        return ParaEditCacheRules.canCreateCache(this.realRootPathNode != null, ParaEditCache.getCache());
+    }
+
+    public boolean canRebuildCacheFromRealRoot() {
+        return ParaEditCacheRules.canRebuildCache(this.realRootPathNode != null, ParaEditCache.getCache());
+    }
+
+    public boolean canSubmitCurrentCache() {
+        ParaEditCache cache = ParaEditCache.getCache();
+        return cache != null && ParaEditSubmitController.canSubmit(cache);
+    }
+
+    public void createCacheFromRealRoot() {
+        if (!this.canCreateCacheFromRealRoot()) {
+            return;
+        }
+        this.clearCurrentSelection();
+        //noinspection DataFlowIssue
+        ParaEditCache.createCache(this.realRootPathNode);
+        this.refreshDisplay();
+    }
+
+    public void rebuildCacheFromRealRoot() {
+        if (!this.canRebuildCacheFromRealRoot()) {
+            return;
+        }
+        this.clearCurrentSelection();
+        //noinspection DataFlowIssue
+        ParaEditCache.createCache(this.realRootPathNode);
+        this.refreshDisplay();
+    }
+
+    public void submitCurrentCache() {
+        ParaEditCache cache = ParaEditCache.getCache();
+        if (cache == null) {
+            return;
+        }
+        ParaEditSubmitController.submit(cache);
+    }
+
     private void handleReleaseOnPathNode(UIEventContext<MouseRelease> context) {
         MouseRelease event = context.event;
         if (event.button != MouseButton.RIGHT.code) {
@@ -147,6 +192,14 @@ public class ParaStructEditNode extends UIScrollView {
     private void createRightClickMenu(UIManager manager, float mouseX, float mouseY) {
         EditContextMenu menu = new EditContextMenu(mouseX, mouseY, this);
         manager.displayContextMenu(menu);
+    }
+
+    private void clearCurrentSelection() {
+        if (this.currentSelectedNode != null) {
+            this.currentSelectedNode.setSelected(false);
+            this.currentSelectedNode = null;
+        }
+        this.sideBar.closeParaEditWindow();
     }
 
 
@@ -252,6 +305,8 @@ public class ParaStructEditNode extends UIScrollView {
     }
 
     void onContainerChanged(SpellEditTableUI mainUI, InventoryHolder container, UISlot slot) {
+        ParaEditCache.clearCache();
+        this.clearCurrentSelection();
         ItemStack item = slot.getItem();
         if (!(item.getItem() instanceof ParaCrystalItem)) {
             this.removePathNode();
@@ -290,20 +345,51 @@ public class ParaStructEditNode extends UIScrollView {
                         .slice(7, 16, 256, 32, 16)
                         .slice(8, 48, 256, 16, 16)
                         .build();
+        public static final Component STATUS_NO_CACHE =
+                Component.translatable("gui.paramagic.spell_edit_table.header_status.no_cache");
+        public static final Component STATUS_UNSUBMITTED =
+                Component.translatable("gui.paramagic.spell_edit_table.header_status.unsubmitted");
+        public static final Component STATUS_PENDING =
+                Component.translatable("gui.paramagic.spell_edit_table.header_status.pending");
+        public static final Component STATUS_SUBMITTED =
+                Component.translatable("gui.paramagic.spell_edit_table.header_status.submitted");
+
+        @Nonnull
+        private final ParaStructEditNode owner;
         private final UILabel label;
-        public StructHeader() {
+        private final UILabel statusLabel;
+
+        public StructHeader(@Nonnull ParaStructEditNode owner) {
+            this.owner = owner;
             this.label = new UILabel(Component.translatable("gui.paramagic.spell_edit_table.para_struct"));
             this.label.getLayoutParams().center();
+            this.label.setHitTestable(false);
+            this.statusLabel = new UILabel(STATUS_NO_CACHE);
+            this.statusLabel.setHitTestable(false);
+            this.statusLabel.setColor(UIColor.of(255, 231, 136, 255));
             this.addChild(this.label);
+            this.addChild(this.statusLabel);
         }
 
         @Override
         protected void render(@Nonnull UIRenderContext context) {
+            this.syncStatusLabelLayout();
+        }
+
+        @Override
+        protected void onMouseRelease(UIEventContext<MouseRelease> context) {
+            MouseRelease event = context.event;
+            if (event.button != MouseButton.RIGHT.code) {
+                return;
+            }
+            context.manager.displayContextMenu(new ParaStructHeaderContextMenu(event.mouseX, event.mouseY, this.owner));
+            context.consumeAndStopPropagation();
         }
 
         @Override
         public void layout(float parentX, float parentY, float parentW, float parentH) {
             super.layout(parentX, parentY, parentW, parentH);
+            this.syncStatusLabelLayout();
         }
 
         @Override
@@ -321,6 +407,26 @@ public class ParaStructEditNode extends UIScrollView {
                     (int) (this.worldRect.x + this.worldRect.w),
                     (int) (this.worldRect.y + this.worldRect.h)
             );
+        }
+
+        @Nonnull
+        private Component getStatusText() {
+            ParaEditCacheState state = ParaEditCacheRules.resolveState(ParaEditCache.getCache());
+            return switch (state) {
+                case NO_CACHE -> STATUS_NO_CACHE;
+                case PENDING_CONFIRMATION -> STATUS_PENDING;
+                case SUBMITTED -> STATUS_SUBMITTED;
+                case UNSUBMITTED -> STATUS_UNSUBMITTED;
+            };
+        }
+
+        private void syncStatusLabelLayout() {
+            this.statusLabel.setLabel(this.getStatusText());
+            this.statusLabel.layout(this.worldRect.x, this.worldRect.y, this.worldRect.w, this.worldRect.h);
+            float statusX = Math.max(4.0f, this.localRect.w - this.statusLabel.localRect.w - 6.0f);
+            float statusY = Math.max(0.0f, (this.localRect.h - this.statusLabel.localRect.h) / 2.0f);
+            this.statusLabel.localRect.setXY(statusX, statusY);
+            this.statusLabel.layout(this.worldRect.x, this.worldRect.y, this.worldRect.w, this.worldRect.h);
         }
     }
 }

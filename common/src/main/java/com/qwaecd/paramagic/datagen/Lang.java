@@ -63,6 +63,13 @@ public class Lang {
         of("gui.paramagic.spell_edit_table.context_menu.add_path", "Add Para Path", "添加参量路径");
         of("gui.paramagic.spell_edit_table.context_menu.remove_path", "Remove Para Path", "移除参量路径");
         of("gui.paramagic.spell_edit_table.context_menu.open_window", "Open Edit Window", "打开编辑窗口");
+        of("gui.paramagic.spell_edit_table.header_menu.create_cache", "Create Cache", "创建缓存");
+        of("gui.paramagic.spell_edit_table.header_menu.rebuild_cache", "Rebuild Cache", "重建缓存");
+        of("gui.paramagic.spell_edit_table.header_menu.submit_struct", "Submit Struct", "提交当前结构");
+        of("gui.paramagic.spell_edit_table.header_status.no_cache", "No Cache", "无缓存");
+        of("gui.paramagic.spell_edit_table.header_status.unsubmitted", "Unsubmitted", "未提交");
+        of("gui.paramagic.spell_edit_table.header_status.pending", "Pending", "等待确认");
+        of("gui.paramagic.spell_edit_table.header_status.submitted", "Submitted", "已提交");
 
         // Labels in edit window
         of("gui.paramagic.spell_edit_table.label_texts.color", "Color:", "颜色:");

@@ -3,6 +3,7 @@ package com.qwaecd.paramagic.network;
 import com.qwaecd.paramagic.network.api.PlatformNetworking;
 import com.qwaecd.paramagic.network.handler.ServerSlotActionHandler;
 import com.qwaecd.paramagic.network.packet.inventory.C2SClickTreeNodePacket;
+import com.qwaecd.paramagic.network.packet.inventory.C2SSubmitEditedParaDataPacket;
 
 public class Networking {
     public static final String PROTOCOL_VERSION = "1";
@@ -18,6 +19,7 @@ public class Networking {
 
     private static void registerAll(PlatformNetworking networking) {
         networking.register(C2SClickTreeNodePacket.IDENTIFIER, C2SClickTreeNodePacket.class, C2SClickTreeNodePacket::decode, ServerSlotActionHandler::clickNode);
+        networking.register(C2SSubmitEditedParaDataPacket.IDENTIFIER, C2SSubmitEditedParaDataPacket.class, C2SSubmitEditedParaDataPacket::decode, ServerSlotActionHandler::submitEditedParaData);
     }
 
     public static PlatformNetworking get() {

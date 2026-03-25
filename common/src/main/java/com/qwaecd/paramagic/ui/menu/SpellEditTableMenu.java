@@ -1,12 +1,22 @@
 package com.qwaecd.paramagic.ui.menu;
 
+import com.qwaecd.paramagic.Paramagic;
+import com.qwaecd.paramagic.data.para.struct.ParaComponentData;
+import com.qwaecd.paramagic.data.para.struct.ParaData;
+import com.qwaecd.paramagic.network.Networking;
+import com.qwaecd.paramagic.network.packet.inventory.S2CSubmitEditedParaDataResultPacket;
+import com.qwaecd.paramagic.thaumaturgy.ParaCrystalData;
+import com.qwaecd.paramagic.thaumaturgy.node.ParaTree;
+import com.qwaecd.paramagic.thaumaturgy.operator.OperatorMap;
 import com.qwaecd.paramagic.thaumaturgy.operator.ParaOpId;
+import com.qwaecd.paramagic.thaumaturgy.operator.RemovedOperatorHandler;
 import com.qwaecd.paramagic.tools.nbt.CrystalComponentUtils;
 import com.qwaecd.paramagic.ui.inventory.ContainerHolder;
 import com.qwaecd.paramagic.ui.inventory.PlayerInventoryHolder;
 import com.qwaecd.paramagic.ui.inventory.slot.SlotActionHandler;
 import com.qwaecd.paramagic.ui.inventory.slot.UISlot;
 import com.qwaecd.paramagic.world.item.ParaOperatorItem;
+import com.qwaecd.paramagic.world.item.content.ParaCrystalItem;
 import lombok.Getter;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.Container;
@@ -18,6 +28,9 @@ import net.minecraft.world.inventory.ContainerLevelAccess;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+
+import javax.annotation.Nonnull;
+import java.util.List;
 
 public class SpellEditTableMenu extends AbstractContainerMenu implements SlotActionHandler {
     private final ContainerLevelAccess access;
@@ -81,6 +94,42 @@ public class SpellEditTableMenu extends AbstractContainerMenu implements SlotAct
         }
     }
 
+    @Override
+    public void submitEditedParaData(ServerPlayer player, ParaData paraData) {
+        this.submitEditedParaData(player, paraData, -1L, -1);
+    }
+
+    public void submitEditedParaData(ServerPlayer player, ParaData paraData, long cacheToken, int cacheVersion) {
+        ItemStack crystal = this.container.getStackInSlot(0);
+        if (!(crystal.getItem() instanceof ParaCrystalItem)) {
+            this.sendSubmitResult(player, false, cacheToken, cacheVersion);
+            return;
+        }
+        if (!this.isAcceptableParaData(paraData)) {
+            Paramagic.LOG.warn("Rejected edited ParaData from player {} because validation failed.", player.getName().getString());
+            this.sendSubmitResult(player, false, cacheToken, cacheVersion);
+            return;
+        }
+
+        ParaCrystalData crystalData = CrystalComponentUtils.getComponentFromItemStack(crystal);
+        List<OperatorMap.Entry> oldOperators = crystalData != null
+                ? crystalData.getOperatorEntriesSnapshot()
+                : List.of();
+        this.access.execute((level, blockPos) -> RemovedOperatorHandler.handleRemovedOperators(level, oldOperators));
+
+        if (crystalData == null) {
+            crystalData = new ParaCrystalData(paraData);
+        } else {
+            crystalData.clearOperators();
+            crystalData.setParaData(paraData);
+        }
+
+        CrystalComponentUtils.writeComponentToItemStack(crystal, crystalData);
+        this.container.getContainer().setChanged();
+        this.broadcastChanges();
+        this.sendSubmitResult(player, true, cacheToken, cacheVersion);
+    }
+
     private boolean targetHasNoItem(String nodePath, ItemStack crystal, ItemStack carried) {
         Item carriedItem = carried.getItem();
         if (!(carriedItem instanceof ParaOperatorItem operatorItem)) {
@@ -137,5 +186,33 @@ public class SpellEditTableMenu extends AbstractContainerMenu implements SlotAct
             this.setCarried(toRemoved);
         }
         return success;
+    }
+
+    private boolean isAcceptableParaData(@Nonnull ParaData paraData) {
+        try {
+            return this.isAcceptableComponent(paraData.rootComponent, 1);
+        } catch (RuntimeException e) {
+            Paramagic.LOG.warn("Failed to validate edited ParaData on server.", e);
+            return false;
+        }
+    }
+
+    private boolean isAcceptableComponent(@Nonnull ParaComponentData componentData, int depth) {
+        if (depth > ParaTree.recursionLimit) {
+            return false;
+        }
+        for (ParaComponentData child : componentData.getChildren()) {
+            if (!this.isAcceptableComponent(child, depth + 1)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private void sendSubmitResult(ServerPlayer player, boolean success, long cacheToken, int cacheVersion) {
+        if (cacheToken < 0L || cacheVersion < 0) {
+            return;
+        }
+        Networking.get().sendToPlayer(player, new S2CSubmitEditedParaDataResultPacket(success, cacheToken, cacheVersion));
     }
 }

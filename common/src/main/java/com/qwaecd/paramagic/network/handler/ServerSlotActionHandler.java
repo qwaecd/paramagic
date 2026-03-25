@@ -2,6 +2,7 @@ package com.qwaecd.paramagic.network.handler;
 
 import com.qwaecd.paramagic.network.api.NetworkContext;
 import com.qwaecd.paramagic.network.packet.inventory.C2SClickTreeNodePacket;
+import com.qwaecd.paramagic.network.packet.inventory.C2SSubmitEditedParaDataPacket;
 import com.qwaecd.paramagic.ui.inventory.slot.SlotActionHandler;
 import net.minecraft.server.level.ServerPlayer;
 import org.slf4j.Logger;
@@ -33,5 +34,19 @@ public class ServerSlotActionHandler {
 
         SlotActionHandler handler = (SlotActionHandler) Objects.requireNonNull(player).containerMenu;
         handler.clickNode(player, packet.getNodePath());
+    }
+
+    public static void submitEditedParaData(C2SSubmitEditedParaDataPacket packet, NetworkContext context) {
+        ServerPlayer player = context.getPlayer();
+        if (!validatePlayerAndHandler(player)) {
+            return;
+        }
+
+        SlotActionHandler handler = (SlotActionHandler) Objects.requireNonNull(player).containerMenu;
+        if (handler instanceof com.qwaecd.paramagic.ui.menu.SpellEditTableMenu menu) {
+            menu.submitEditedParaData(player, packet.getParaData(), packet.getCacheToken(), packet.getCacheVersion());
+            return;
+        }
+        handler.submitEditedParaData(player, packet.getParaData());
     }
 }

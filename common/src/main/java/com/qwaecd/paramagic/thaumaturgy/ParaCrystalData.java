@@ -8,6 +8,7 @@ import com.qwaecd.paramagic.thaumaturgy.operator.ParaOpId;
 import com.qwaecd.paramagic.thaumaturgy.operator.ParaOperator;
 
 import javax.annotation.Nonnull;
+import java.util.List;
 
 public class ParaCrystalData implements IDataSerializable {
     @Nonnull
@@ -38,6 +39,15 @@ public class ParaCrystalData implements IDataSerializable {
 
     public void removeOperator(String path) {
         this.operatorMap.remove(path);
+    }
+
+    @Nonnull
+    public List<OperatorMap.Entry> getOperatorEntriesSnapshot() {
+        return this.operatorMap.getEntriesSnapshot();
+    }
+
+    public void clearOperators() {
+        this.operatorMap.clear();
     }
 
     @Override

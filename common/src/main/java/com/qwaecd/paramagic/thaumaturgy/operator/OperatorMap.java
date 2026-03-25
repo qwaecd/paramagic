@@ -6,7 +6,10 @@ import com.qwaecd.paramagic.network.codec.NBTCodec;
 import net.minecraft.nbt.CompoundTag;
 
 import javax.annotation.Nullable;
+import javax.annotation.Nonnull;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class OperatorMap implements IDataSerializable {
@@ -22,6 +25,15 @@ public class OperatorMap implements IDataSerializable {
 
     public void clear() {
         this.data.clear();
+    }
+
+    @Nonnull
+    public List<Entry> getEntriesSnapshot() {
+        List<Entry> result = new ArrayList<>(this.data.size());
+        for (Map.Entry<String, ParaOpId> entry : this.data.entrySet()) {
+            result.add(new Entry(entry.getKey(), entry.getValue()));
+        }
+        return List.copyOf(result);
     }
 
     @Nullable
@@ -92,4 +104,6 @@ public class OperatorMap implements IDataSerializable {
             this.data.put(path, opId);
         }
     }
+
+    public record Entry(@Nonnull String path, @Nonnull ParaOpId opId) {}
 }
