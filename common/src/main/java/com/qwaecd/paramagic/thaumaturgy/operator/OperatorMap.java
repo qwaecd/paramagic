@@ -5,8 +5,8 @@ import com.qwaecd.paramagic.network.IDataSerializable;
 import com.qwaecd.paramagic.network.codec.NBTCodec;
 import net.minecraft.nbt.CompoundTag;
 
-import javax.annotation.Nullable;
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;

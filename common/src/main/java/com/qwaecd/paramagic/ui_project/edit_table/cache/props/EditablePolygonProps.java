@@ -1,4 +1,4 @@
-package com.qwaecd.paramagic.ui_project.edit_table.cache;
+package com.qwaecd.paramagic.ui_project.edit_table.cache.props;
 
 import com.qwaecd.paramagic.data.para.struct.ParaComponentData;
 import com.qwaecd.paramagic.data.para.struct.components.PolygonParaData;
@@ -12,7 +12,7 @@ import javax.annotation.Nonnull;
  */
 @Getter
 @Setter
-final class EditablePolygonProps implements EditableTypeProps {
+public final class EditablePolygonProps implements EditableTypeProps {
     private float radius;
     private int sides;
     private float startAngle;

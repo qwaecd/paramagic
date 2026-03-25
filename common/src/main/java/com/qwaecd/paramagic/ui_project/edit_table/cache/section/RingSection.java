@@ -1,5 +1,9 @@
-package com.qwaecd.paramagic.ui_project.edit_table.cache;
+package com.qwaecd.paramagic.ui_project.edit_table.cache.section;
 
+import com.qwaecd.paramagic.ui_project.edit_table.cache.LabelTexts;
+import com.qwaecd.paramagic.ui_project.edit_table.cache.label.LabeledFloatRow;
+import com.qwaecd.paramagic.ui_project.edit_table.cache.label.LabeledIntRow;
+import com.qwaecd.paramagic.ui_project.edit_table.cache.props.EditableRingProps;
 import com.qwaecd.paramagic.ui_project.edit_table.util.EditInputRules;
 import net.minecraft.client.gui.Font;
 
@@ -34,7 +38,7 @@ public class RingSection extends EditSection {
     }
 
     @Override
-    void layoutContent(Font font, float contentW) {
+    public void layoutContent(Font font, float contentW) {
         float y = 0;
 
         this.innerRadiusRow.localRect.set(0, y, contentW, 0);
@@ -53,7 +57,7 @@ public class RingSection extends EditSection {
     }
 
     @Override
-    void syncFromStruct() {
+    public void syncFromStruct() {
         if (this.struct == null) return;
         EditableRingProps props = ringProps();
         this.innerRadiusRow.sync(props.getInnerRadius());

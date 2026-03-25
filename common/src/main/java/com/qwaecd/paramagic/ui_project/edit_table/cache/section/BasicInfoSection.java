@@ -1,4 +1,4 @@
-package com.qwaecd.paramagic.ui_project.edit_table.cache;
+package com.qwaecd.paramagic.ui_project.edit_table.cache.section;
 
 import com.qwaecd.paramagic.data.para.AllParaComponentData;
 import com.qwaecd.paramagic.ui.api.UIRenderContext;
@@ -9,10 +9,11 @@ import com.qwaecd.paramagic.ui.event.impl.MouseLeave;
 import com.qwaecd.paramagic.ui.event.impl.MouseOver;
 import com.qwaecd.paramagic.ui.event.impl.MouseRelease;
 import com.qwaecd.paramagic.ui.util.UIColor;
-import com.qwaecd.paramagic.ui.widget.UILabel;
-import com.qwaecd.paramagic.ui.widget.UIButton;
 import com.qwaecd.paramagic.ui.widget.ContextMenu;
+import com.qwaecd.paramagic.ui.widget.UIButton;
+import com.qwaecd.paramagic.ui.widget.UILabel;
 import com.qwaecd.paramagic.ui.widget.node.TypingBox;
+import com.qwaecd.paramagic.ui_project.edit_table.cache.LabelTexts;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.network.chat.Component;
@@ -53,7 +54,7 @@ public class BasicInfoSection extends EditSection {
     }
 
     @Override
-    void layoutContent(Font font, float contentW) {
+    public void layoutContent(Font font, float contentW) {
         float textVOffset = (INPUT_HEIGHT - font.lineHeight) / 2.0f;
         float nameLabelW = font.width(LabelTexts.nameLabelText) + 2;
         float typeLabelW = font.width(LabelTexts.typeLabelText) + 2;
@@ -70,7 +71,7 @@ public class BasicInfoSection extends EditSection {
     }
 
     @Override
-    void syncFromStruct() {
+    public void syncFromStruct() {
         if (this.struct == null) return;
         String name = this.struct.getName();
         this.nameBox.setText(name != null ? name : "");

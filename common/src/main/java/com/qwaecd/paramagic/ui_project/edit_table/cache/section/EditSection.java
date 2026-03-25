@@ -1,8 +1,10 @@
-package com.qwaecd.paramagic.ui_project.edit_table.cache;
+package com.qwaecd.paramagic.ui_project.edit_table.cache.section;
 
 import com.qwaecd.paramagic.ui.core.UINode;
 import com.qwaecd.paramagic.ui.widget.UILabel;
 import com.qwaecd.paramagic.ui.widget.node.TypingBox;
+import com.qwaecd.paramagic.ui_project.edit_table.cache.ParaEditCache;
+import com.qwaecd.paramagic.ui_project.edit_table.cache.ParaStruct;
 import com.qwaecd.paramagic.ui_project.edit_table.util.EditInputRules;
 import net.minecraft.client.gui.Font;
 import net.minecraft.network.chat.Component;
@@ -12,9 +14,9 @@ import javax.annotation.Nullable;
 
 public abstract class EditSection extends UINode {
     static final float ROW_GAP = 2.0f;
-    static final float INPUT_HEIGHT = 14.0f;
-    static final float LABEL_HEIGHT = 10.0f;
-    static final float COMPONENT_GAP = 4.0f;
+    public static final float INPUT_HEIGHT = 14.0f;
+    public static final float LABEL_HEIGHT = 10.0f;
+    public static final float COMPONENT_GAP = 4.0f;
 
     @Nullable
     protected ParaStruct struct;
@@ -23,13 +25,13 @@ public abstract class EditSection extends UINode {
         this.setHitTestable(false);
     }
 
-    void setStruct(@Nullable ParaStruct struct) {
+    public void setStruct(@Nullable ParaStruct struct) {
         this.struct = struct;
     }
 
-    abstract void layoutContent(Font font, float contentW);
+    public abstract void layoutContent(Font font, float contentW);
 
-    abstract void syncFromStruct();
+    public abstract void syncFromStruct();
 
     protected UILabel createLabel(Component text) {
         UILabel label = new UILabel(text);
@@ -46,7 +48,7 @@ public abstract class EditSection extends UINode {
         return box;
     }
 
-    protected static void markCacheDirty() {
+    public static void markCacheDirty() {
         ParaEditCache cache = ParaEditCache.getCache();
         if (cache != null) {
             cache.markDirty();
@@ -59,22 +61,22 @@ public abstract class EditSection extends UINode {
     }
 
     @FunctionalInterface
-    interface FloatSupplier {
+    public interface FloatSupplier {
         float get();
     }
 
     @FunctionalInterface
-    interface FloatConsumer {
+    public interface FloatConsumer {
         void accept(float value);
     }
 
     @FunctionalInterface
-    interface IntSupplier {
+    public interface IntSupplier {
         int get();
     }
 
     @FunctionalInterface
-    interface IntConsumer {
+    public interface IntConsumer {
         void accept(int value);
     }
 }

@@ -1,8 +1,9 @@
-package com.qwaecd.paramagic.ui_project.edit_table.cache;
+package com.qwaecd.paramagic.ui_project.edit_table.cache.label;
 
 import com.qwaecd.paramagic.ui.core.UINode;
 import com.qwaecd.paramagic.ui.widget.UILabel;
 import com.qwaecd.paramagic.ui.widget.node.TypingBox;
+import com.qwaecd.paramagic.ui_project.edit_table.cache.section.EditSection;
 import com.qwaecd.paramagic.ui_project.edit_table.util.EditInputRules;
 import net.minecraft.client.gui.Font;
 import net.minecraft.network.chat.Component;
@@ -33,11 +34,11 @@ public class LabeledIntRow extends UINode {
         this.addChild(this.box);
     }
 
-    void bind(EditSection.IntSupplier getter, EditSection.IntConsumer setter) {
+    public void bind(EditSection.IntSupplier getter, EditSection.IntConsumer setter) {
         this.bind(getter, setter, value -> value);
     }
 
-    void bind(EditSection.IntSupplier getter, EditSection.IntConsumer setter, IntUnaryOperator validator) {
+    public void bind(EditSection.IntSupplier getter, EditSection.IntConsumer setter, IntUnaryOperator validator) {
         this.box.setFocusChangeListener(focused -> {
             if (focused) return;
             int oldValue = getter.get();
@@ -55,7 +56,7 @@ public class LabeledIntRow extends UINode {
         });
     }
 
-    void layoutContent(Font font, float contentW) {
+    public void layoutContent(Font font, float contentW) {
         float y = 0;
         this.titleLabel.localRect.setXY(0, y);
         y += LABEL_HEIGHT + 1;
@@ -64,7 +65,7 @@ public class LabeledIntRow extends UINode {
         this.localRect.h = y;
     }
 
-    void sync(int value) {
+    public void sync(int value) {
         this.box.setText(String.valueOf(value));
     }
 }

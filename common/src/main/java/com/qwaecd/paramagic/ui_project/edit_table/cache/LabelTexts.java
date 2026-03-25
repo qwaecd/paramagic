@@ -3,6 +3,7 @@ package com.qwaecd.paramagic.ui_project.edit_table.cache;
 import net.minecraft.network.chat.Component;
 
 public final class LabelTexts {
+    private LabelTexts() {}
     public static final Component nameLabelText = Component.translatable("gui.paramagic.spell_edit_table.label_texts.name");
     public static final Component typeLabelText = Component.translatable("gui.paramagic.spell_edit_table.label_texts.type");
 

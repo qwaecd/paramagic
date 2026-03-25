@@ -13,6 +13,7 @@ import com.qwaecd.paramagic.ui.event.impl.MouseRelease;
 import com.qwaecd.paramagic.ui.util.NineSliceSprite;
 import com.qwaecd.paramagic.ui.widget.node.MouseCaptureNode;
 import com.qwaecd.paramagic.ui_project.edit_table.EditTableSprite;
+import com.qwaecd.paramagic.ui_project.edit_table.cache.section.*;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 

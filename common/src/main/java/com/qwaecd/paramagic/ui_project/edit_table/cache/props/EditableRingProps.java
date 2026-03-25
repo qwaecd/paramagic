@@ -1,4 +1,4 @@
-package com.qwaecd.paramagic.ui_project.edit_table.cache;
+package com.qwaecd.paramagic.ui_project.edit_table.cache.props;
 
 import com.qwaecd.paramagic.data.para.struct.ParaComponentData;
 import com.qwaecd.paramagic.data.para.struct.components.RingParaData;
@@ -12,7 +12,7 @@ import javax.annotation.Nonnull;
  */
 @Getter
 @Setter
-final class EditableRingProps implements EditableTypeProps {
+public final class EditableRingProps implements EditableTypeProps {
     private float innerRadius;
     private float outerRadius;
     private int segments;

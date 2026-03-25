@@ -1,5 +1,9 @@
-package com.qwaecd.paramagic.ui_project.edit_table.cache;
+package com.qwaecd.paramagic.ui_project.edit_table.cache.section;
 
+import com.qwaecd.paramagic.ui_project.edit_table.cache.LabelTexts;
+import com.qwaecd.paramagic.ui_project.edit_table.cache.label.LabeledFloatRow;
+import com.qwaecd.paramagic.ui_project.edit_table.cache.label.LabeledIntRow;
+import com.qwaecd.paramagic.ui_project.edit_table.cache.props.EditablePolygonProps;
 import com.qwaecd.paramagic.ui_project.edit_table.util.EditInputRules;
 import net.minecraft.client.gui.Font;
 
@@ -9,7 +13,7 @@ public class PolygonSection extends EditSection {
     private final LabeledFloatRow startAngleRow;
     private final LabeledFloatRow lineWidthRow;
 
-    PolygonSection() {
+    public PolygonSection() {
         this.radiusRow = new LabeledFloatRow(LabelTexts.radiusRowText, 16);
         this.addChild(this.radiusRow);
         this.radiusRow.bind(
@@ -41,7 +45,7 @@ public class PolygonSection extends EditSection {
     }
 
     @Override
-    void layoutContent(Font font, float contentW) {
+    public void layoutContent(Font font, float contentW) {
         float y = 0;
 
         this.radiusRow.localRect.set(0, y, contentW, 0);
@@ -64,7 +68,7 @@ public class PolygonSection extends EditSection {
     }
 
     @Override
-    void syncFromStruct() {
+    public void syncFromStruct() {
         if (this.struct == null) {
             return;
         }

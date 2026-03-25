@@ -1,5 +1,7 @@
-package com.qwaecd.paramagic.ui_project.edit_table.cache;
+package com.qwaecd.paramagic.ui_project.edit_table.cache.section;
 
+import com.qwaecd.paramagic.ui_project.edit_table.cache.LabelTexts;
+import com.qwaecd.paramagic.ui_project.edit_table.cache.label.LabeledVecRow;
 import net.minecraft.client.gui.Font;
 
 public class TransformSection extends EditSection {
@@ -49,7 +51,7 @@ public class TransformSection extends EditSection {
     }
 
     @Override
-    void layoutContent(Font font, float contentW) {
+    public void layoutContent(Font font, float contentW) {
         float y = 0;
 
         this.positionRow.localRect.set(0, y, contentW, 0);
@@ -68,7 +70,7 @@ public class TransformSection extends EditSection {
     }
 
     @Override
-    void syncFromStruct() {
+    public void syncFromStruct() {
         if (this.struct == null) return;
         this.positionRow.sync(
                 this.struct.getPosition().x,

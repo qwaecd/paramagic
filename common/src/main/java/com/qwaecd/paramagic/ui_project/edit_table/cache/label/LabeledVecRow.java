@@ -1,8 +1,9 @@
-package com.qwaecd.paramagic.ui_project.edit_table.cache;
+package com.qwaecd.paramagic.ui_project.edit_table.cache.label;
 
 import com.qwaecd.paramagic.ui.core.UINode;
 import com.qwaecd.paramagic.ui.widget.UILabel;
 import com.qwaecd.paramagic.ui.widget.node.TypingBox;
+import com.qwaecd.paramagic.ui_project.edit_table.cache.section.EditSection;
 import com.qwaecd.paramagic.ui_project.edit_table.util.EditInputRules;
 import net.minecraft.client.gui.Font;
 import net.minecraft.network.chat.Component;
@@ -45,7 +46,7 @@ public class LabeledVecRow extends UINode {
         }
     }
 
-    void bind(int index, EditSection.FloatSupplier getter, EditSection.FloatConsumer setter) {
+    public void bind(int index, EditSection.FloatSupplier getter, EditSection.FloatConsumer setter) {
         TypingBox box = this.boxes[index];
         box.setFocusChangeListener(focused -> {
             if (focused) return;
@@ -64,7 +65,7 @@ public class LabeledVecRow extends UINode {
         });
     }
 
-    void layoutContent(Font font, float contentW) {
+    public void layoutContent(Font font, float contentW) {
         int compLabelW = font.width("w:") + 1;
         float textVOffset = (INPUT_HEIGHT - font.lineHeight) / 2.0f;
         float y = 0;
@@ -85,7 +86,7 @@ public class LabeledVecRow extends UINode {
         this.localRect.h = y;
     }
 
-    void sync(float... values) {
+    public void sync(float... values) {
         for (int i = 0; i < values.length && i < this.boxes.length; i++) {
             this.boxes[i].setText(String.valueOf(values[i]));
         }
