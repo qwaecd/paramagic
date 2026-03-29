@@ -84,6 +84,19 @@ public class ParaStructEditNode extends UIScrollView {
         return this.currentSelectedNode;
     }
 
+    public boolean canClearCurrentCache() {
+        return ParaEditCache.hasCache();
+    }
+
+    public void clearCurrentCache() {
+        if (!ParaEditCache.hasCache()) {
+            return;
+        }
+        ParaEditCache.clearCache();
+        this.clearCurrentSelection();
+        this.refreshDisplay();
+    }
+
     /**
      * 获取当前真实数据根节点（非缓存）。
      */
@@ -155,6 +168,10 @@ public class ParaStructEditNode extends UIScrollView {
             this.flushPathNode(editCache.getRootNode());
         } else if (this.realRootPathNode != null) {
             this.flushPathNode(this.realRootPathNode);
+        } else if (this.cacheSeedRootPathNode != null) {
+            this.flushPathNode(this.cacheSeedRootPathNode);
+        } else {
+            this.removePathNode();
         }
         this.reLayoutPathNode();
     }
@@ -200,10 +217,39 @@ public class ParaStructEditNode extends UIScrollView {
         ParaEditSubmitController.submit(cache);
     }
 
+    @Nullable
+    public NodeIndexPath getDisplayedNodePath(@Nonnull ParaPathNode node) {
+        if (this.rootPathNode == null) {
+            return null;
+        }
+        return NodeIndexPath.fromRootToNode(this.rootPathNode, node);
+    }
+
+    @Nullable
+    public ParaPathNode resolveCacheNode(@Nonnull NodeIndexPath path) {
+        ParaEditCache cache = ParaEditCache.getCache();
+        if (cache == null) {
+            return null;
+        }
+        return path.resolve(cache.getRootNode());
+    }
+
+    public void selectPathNode(@Nonnull ParaPathNode pathNode) {
+        if (this.currentSelectedNode != null && this.currentSelectedNode != pathNode) {
+            this.currentSelectedNode.setSelected(false);
+        }
+        pathNode.setSelected(true);
+        this.currentSelectedNode = pathNode;
+        this.sideBar.changeEditStruct(pathNode);
+    }
+
     private void handleReleaseOnPathNode(UIEventContext<MouseRelease> context) {
         MouseRelease event = context.event;
         if (event.button != MouseButton.RIGHT.code) {
             return;
+        }
+        if (context.targetNode instanceof ParaPathNode pathNode) {
+            this.selectPathNode(pathNode);
         }
         this.createRightClickMenu(context.manager, (int) event.mouseX, (int) event.mouseY);
         context.consume();
@@ -227,12 +273,7 @@ public class ParaStructEditNode extends UIScrollView {
         if (!(context.targetNode instanceof ParaPathNode pathNode)) {
             return;
         }
-        if (this.currentSelectedNode != null) {
-            this.currentSelectedNode.setSelected(false);
-        }
-        pathNode.setSelected(true);
-        this.currentSelectedNode = pathNode;
-        this.sideBar.changeEditStruct(pathNode);
+        this.selectPathNode(pathNode);
     }
 
     private void flushPathNode(@Nonnull ParaPathNode pathNode) {
@@ -325,26 +366,25 @@ public class ParaStructEditNode extends UIScrollView {
     }
 
     void onContainerChanged(SpellEditTableUI mainUI, InventoryHolder container, UISlot slot) {
-        ParaEditCache.clearCache();
         this.clearCurrentSelection();
         ItemStack item = slot.getItem();
         if (!(item.getItem() instanceof ParaCrystalItem)) {
             this.realRootPathNode = null;
             this.cacheSeedRootPathNode = null;
-            this.removePathNode();
+            this.refreshDisplay();
             return;
         }
         if (!mainUI.getContainerNode().isItemStack(item)) {
             this.realRootPathNode = null;
             this.cacheSeedRootPathNode = null;
-            this.removePathNode();
+            this.refreshDisplay();
             return;
         }
         ParaCrystalData crystalData = CrystalComponentUtils.getComponentFromItemStack(item);
         if (crystalData == null) {
             this.realRootPathNode = null;
             this.cacheSeedRootPathNode = this.createDefaultCacheSeedRootNode();
-            this.removePathNode();
+            this.refreshDisplay();
             return;
         }
         ParaData paraData = crystalData.getParaData();

@@ -34,6 +34,11 @@ final class ParaStructHeaderContextMenu extends ContextMenu {
                 context -> structEditNode.rebuildCacheFromSeedRoot()
         ));
         this.addChild(new MenuItem(
+                Component.translatable("gui.paramagic.spell_edit_table.header_menu.clear_cache"),
+                structEditNode::canClearCurrentCache,
+                context -> structEditNode.clearCurrentCache()
+        ));
+        this.addChild(new MenuItem(
                 Component.translatable("gui.paramagic.spell_edit_table.header_menu.submit_struct"),
                 structEditNode::canSubmitCurrentCache,
                 context -> structEditNode.submitCurrentCache()

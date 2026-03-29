@@ -12,6 +12,7 @@ import com.qwaecd.paramagic.ui.util.UIColor;
 import com.qwaecd.paramagic.ui.widget.ContextMenu;
 import com.qwaecd.paramagic.ui_project.edit_table.cache.ParaEditCache;
 import com.qwaecd.paramagic.ui_project.edit_table.cache.ParaStruct;
+import com.qwaecd.paramagic.ui_project.edit_table.leftside.NodeIndexPath;
 import com.qwaecd.paramagic.ui_project.edit_table.cache.ParaStructEditWindow;
 import com.qwaecd.paramagic.ui_project.edit_table.leftside.ParaPathNode;
 import com.qwaecd.paramagic.ui_project.edit_table.leftside.ParaStructEditNode;
@@ -55,27 +56,8 @@ public class EditContextMenu extends ContextMenu {
         context.manager.cancelContextMenu();
         context.consumeAndStopPropagation();
 
-        ParaPathNode selectedNode = this.structEditNode.getCurrentSelectedNode();
-        if (selectedNode == null) {
-            Paramagic.LOG.debug("addPathAction: no node selected, operation ignored.");
-            return;
-        }
-
-        boolean hasCacheBefore = ParaEditCache.hasCache();
-        ParaEditCache editCache = this.structEditNode.ensureEditCacheFromSeedRoot();
-        if (editCache == null) {
-            Paramagic.LOG.debug("addPathAction: no cache seed root, operation ignored.");
-            return;
-        }
-
-        if (!hasCacheBefore) {
-            this.structEditNode.refreshDisplay();
-        }
-
-        // 在缓存中找到对应的选中节点并添加子节点
-        ParaPathNode cachedSelected = this.findNodeInCache(editCache.getRootNode(), selectedNode);
+        ParaPathNode cachedSelected = this.resolveSelectedCacheNode("addPathAction");
         if (cachedSelected == null) {
-            Paramagic.LOG.debug("addPathAction: selected node not found in cache.");
             return;
         }
 
@@ -85,7 +67,10 @@ public class EditContextMenu extends ContextMenu {
         newStruct.setComponentType(ParaComponentType.VOID.ID());
         cachedSelected.addChildNode(newChild);
 
-        editCache.markDirty();
+        ParaEditCache editCache = ParaEditCache.getCache();
+        if (editCache != null) {
+            editCache.markDirty();
+        }
         this.structEditNode.refreshDisplay();
     }
 
@@ -93,27 +78,8 @@ public class EditContextMenu extends ContextMenu {
         context.manager.cancelContextMenu();
         context.consumeAndStopPropagation();
 
-        ParaPathNode selectedNode = this.structEditNode.getCurrentSelectedNode();
-        if (selectedNode == null) {
-            Paramagic.LOG.debug("removePathAction: no node selected, operation ignored.");
-            return;
-        }
-
-        boolean hasCacheBefore = ParaEditCache.hasCache();
-        ParaEditCache editCache = this.structEditNode.ensureEditCacheFromSeedRoot();
-        if (editCache == null) {
-            Paramagic.LOG.debug("removePathAction: no cache seed root, operation ignored.");
-            return;
-        }
-
-        if (!hasCacheBefore) {
-            this.structEditNode.refreshDisplay();
-        }
-
-        // 在缓存中找到对应的选中节点
-        ParaPathNode cachedSelected = this.findNodeInCache(editCache.getRootNode(), selectedNode);
+        ParaPathNode cachedSelected = this.resolveSelectedCacheNode("removePathAction");
         if (cachedSelected == null) {
-            Paramagic.LOG.debug("removePathAction: selected node not found in cache.");
             return;
         }
 
@@ -126,7 +92,10 @@ public class EditContextMenu extends ContextMenu {
 
         parentPathNode.removeChildNode(cachedSelected);
         this.structEditNode.notifyRemovePathNode(cachedSelected);
-        editCache.markDirty();
+        ParaEditCache editCache = ParaEditCache.getCache();
+        if (editCache != null) {
+            editCache.markDirty();
+        }
         this.structEditNode.refreshDisplay();
     }
 
@@ -134,23 +103,7 @@ public class EditContextMenu extends ContextMenu {
         context.manager.cancelContextMenu();
         context.consumeAndStopPropagation();
 
-        ParaPathNode selectedNode = this.structEditNode.getCurrentSelectedNode();
-        if (selectedNode == null) {
-            Paramagic.LOG.debug("openWindowAction: no node selected, operation ignored.");
-            return;
-        }
-
-        boolean hasCacheBefore = ParaEditCache.hasCache();
-        ParaEditCache editCache = this.structEditNode.ensureEditCacheFromSeedRoot();
-        if (editCache == null) {
-            return;
-        }
-
-        if (!hasCacheBefore) {
-            this.structEditNode.refreshDisplay();
-        }
-
-        ParaPathNode cachedSelected = this.findNodeInCache(editCache.getRootNode(), selectedNode);
+        ParaPathNode cachedSelected = this.resolveSelectedCacheNode("openWindowAction");
         if (cachedSelected == null) {
             return;
         }
@@ -159,29 +112,38 @@ public class EditContextMenu extends ContextMenu {
         this.structEditNode.createParaEditWindow(window);
     }
 
-    /**
-     * 在缓存树中查找与原始选中节点对应的节点。
-     * 由于缓存是从真实数据深拷贝的，通过路径位置进行匹配。
-     */
     @Nullable
-    private ParaPathNode findNodeInCache(@Nonnull ParaPathNode cacheRoot, @Nonnull ParaPathNode targetNode) {
-        // 如果目标节点就是缓存中的节点（已经在缓存树中），直接返回
-        if (cacheRoot == targetNode) {
-            return cacheRoot;
+    private ParaPathNode resolveSelectedCacheNode(@Nonnull String actionName) {
+        ParaPathNode selectedNode = this.structEditNode.getCurrentSelectedNode();
+        if (selectedNode == null) {
+            Paramagic.LOG.debug("{}: no node selected, operation ignored.", actionName);
+            return null;
         }
-        // 递归搜索缓存树
-        for (UINode child : cacheRoot.getChildren()) {
-            if (child instanceof ParaPathNode childPathNode) {
-                if (childPathNode == targetNode) {
-                    return childPathNode;
-                }
-                ParaPathNode found = this.findNodeInCache(childPathNode, targetNode);
-                if (found != null) {
-                    return found;
-                }
-            }
+
+        NodeIndexPath path = this.structEditNode.getDisplayedNodePath(selectedNode);
+        if (path == null) {
+            Paramagic.LOG.debug("{}: selected node path could not be resolved.", actionName);
+            return null;
         }
-        return null;
+
+        boolean hasCacheBefore = ParaEditCache.hasCache();
+        ParaEditCache editCache = this.structEditNode.ensureEditCacheFromSeedRoot();
+        if (editCache == null) {
+            Paramagic.LOG.debug("{}: no cache seed root, operation ignored.", actionName);
+            return null;
+        }
+
+        ParaPathNode cachedSelected = path.resolve(editCache.getRootNode());
+        if (cachedSelected == null) {
+            Paramagic.LOG.debug("{}: selected node path not found in cache.", actionName);
+            return null;
+        }
+
+        if (!hasCacheBefore) {
+            this.structEditNode.refreshDisplay();
+        }
+        this.structEditNode.selectPathNode(cachedSelected);
+        return cachedSelected;
     }
 
     @Override
