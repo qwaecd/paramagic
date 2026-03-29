@@ -1,13 +1,17 @@
 package com.qwaecd.paramagic.ui_project.edit_table.cache.section;
 
 import com.qwaecd.paramagic.ui_project.edit_table.cache.LabelTexts;
+import com.qwaecd.paramagic.ui_project.edit_table.cache.label.EulerRotationRow;
 import com.qwaecd.paramagic.ui_project.edit_table.cache.label.LabeledVecRow;
+import com.qwaecd.paramagic.ui_project.edit_table.util.EditRotationAngleHelper;
 import net.minecraft.client.gui.Font;
+import org.joml.Quaternionf;
 
 public class TransformSection extends EditSection {
     private final LabeledVecRow positionRow;
-    private final LabeledVecRow rotationRow;
+    private final EulerRotationRow rotationRow;
     private final LabeledVecRow scaleRow;
+    private final Quaternionf tempRotation = new Quaternionf();
 
     public TransformSection() {
         this.positionRow = new LabeledVecRow(LabelTexts.positionRowText, "x:", "y:", "z:");
@@ -22,20 +26,16 @@ public class TransformSection extends EditSection {
                 () -> this.struct != null ? this.struct.getPosition().z : 0,
                 v -> { if (this.struct != null) this.struct.getPosition().z = v; });
 
-        this.rotationRow = new LabeledVecRow(LabelTexts.rotationRowText, "x:", "y:", "z:", "w:");
+        this.rotationRow = new EulerRotationRow(LabelTexts.rotationDegreesRowText);
         this.addChild(this.rotationRow);
-        this.rotationRow.bind(0,
-                () -> this.struct != null ? this.struct.getRotation().x : 0,
-                v -> { if (this.struct != null) this.struct.getRotation().x = v; });
-        this.rotationRow.bind(1,
-                () -> this.struct != null ? this.struct.getRotation().y : 0,
-                v -> { if (this.struct != null) this.struct.getRotation().y = v; });
-        this.rotationRow.bind(2,
-                () -> this.struct != null ? this.struct.getRotation().z : 0,
-                v -> { if (this.struct != null) this.struct.getRotation().z = v; });
-        this.rotationRow.bind(3,
-                () -> this.struct != null ? this.struct.getRotation().w : 0,
-                v -> { if (this.struct != null) this.struct.getRotation().w = v; });
+        this.rotationRow.bind(
+                () -> this.struct != null ? this.struct.getRotation() : this.tempRotation.identity(),
+                (xDeg, yDeg, zDeg) -> {
+                    if (this.struct != null) {
+                        EditRotationAngleHelper.eulerDegreesToQuaternion(xDeg, yDeg, zDeg, this.struct.getRotation());
+                    }
+                }
+        );
 
         this.scaleRow = new LabeledVecRow(LabelTexts.scaleRowText, "x:", "y:", "z:");
         this.addChild(this.scaleRow);
@@ -76,11 +76,7 @@ public class TransformSection extends EditSection {
                 this.struct.getPosition().x,
                 this.struct.getPosition().y,
                 this.struct.getPosition().z);
-        this.rotationRow.sync(
-                this.struct.getRotation().x,
-                this.struct.getRotation().y,
-                this.struct.getRotation().z,
-                this.struct.getRotation().w);
+        this.rotationRow.syncFromQuaternion(this.struct.getRotation());
         this.scaleRow.sync(
                 this.struct.getScale().x,
                 this.struct.getScale().y,

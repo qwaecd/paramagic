@@ -1,6 +1,7 @@
 package com.qwaecd.paramagic.ui_project.edit_table.cache.section;
 
 import com.qwaecd.paramagic.ui_project.edit_table.cache.LabelTexts;
+import com.qwaecd.paramagic.ui_project.edit_table.cache.label.LabeledAngleRow;
 import com.qwaecd.paramagic.ui_project.edit_table.cache.label.LabeledFloatRow;
 import com.qwaecd.paramagic.ui_project.edit_table.cache.label.LabeledIntRow;
 import com.qwaecd.paramagic.ui_project.edit_table.cache.props.EditableCurvyStarProps;
@@ -11,7 +12,7 @@ public class CurvyStarSection extends EditSection {
     private final LabeledFloatRow radiusRow;
     private final LabeledIntRow sidesRow;
     private final LabeledFloatRow curvatureRow;
-    private final LabeledFloatRow startAngleRow;
+    private final LabeledAngleRow startAngleRow;
     private final LabeledFloatRow lineWidthRow;
 
     public CurvyStarSection() {
@@ -34,7 +35,7 @@ public class CurvyStarSection extends EditSection {
                 () -> this.struct != null ? starProps().getCurvature() : 0,
                 v -> { if (this.struct != null) starProps().setCurvature(v); });
 
-        this.startAngleRow = new LabeledFloatRow(LabelTexts.startAngleRowText, 16);
+        this.startAngleRow = new LabeledAngleRow(LabelTexts.startAngleDegreesRowText, 16);
         this.addChild(this.startAngleRow);
         this.startAngleRow.bind(
                 () -> this.struct != null ? starProps().getStartAngle() : 0,
@@ -87,7 +88,7 @@ public class CurvyStarSection extends EditSection {
         this.radiusRow.sync(props.getRadius());
         this.sidesRow.sync(props.getSides());
         this.curvatureRow.sync(props.getCurvature());
-        this.startAngleRow.sync(props.getStartAngle());
+        this.startAngleRow.syncRadians(props.getStartAngle());
         this.lineWidthRow.sync(props.getLineWidth());
     }
 }

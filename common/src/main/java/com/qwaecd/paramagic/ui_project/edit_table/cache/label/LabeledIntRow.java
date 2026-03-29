@@ -2,9 +2,9 @@ package com.qwaecd.paramagic.ui_project.edit_table.cache.label;
 
 import com.qwaecd.paramagic.ui.core.UINode;
 import com.qwaecd.paramagic.ui.widget.UILabel;
-import com.qwaecd.paramagic.ui.widget.node.TypingBox;
 import com.qwaecd.paramagic.ui_project.edit_table.cache.section.EditSection;
 import com.qwaecd.paramagic.ui_project.edit_table.util.EditInputRules;
+import com.qwaecd.paramagic.ui_project.edit_table.util.EditNumericInputSupport;
 import net.minecraft.client.gui.Font;
 import net.minecraft.network.chat.Component;
 
@@ -19,7 +19,7 @@ public class LabeledIntRow extends UINode {
     private static final float LABEL_HEIGHT = EditSection.LABEL_HEIGHT;
 
     private final UILabel titleLabel;
-    private final TypingBox box;
+    private final NumericTypingBox box;
 
     public LabeledIntRow(Component title, int maxLength) {
         this.setHitTestable(false);
@@ -28,7 +28,7 @@ public class LabeledIntRow extends UINode {
         this.titleLabel.setHitTestable(false);
         this.addChild(this.titleLabel);
 
-        this.box = new TypingBox();
+        this.box = new NumericTypingBox();
         this.box.localRect.set(0, 0, 0, INPUT_HEIGHT);
         this.box.setMaxLength(maxLength);
         this.addChild(this.box);
@@ -53,6 +53,21 @@ public class LabeledIntRow extends UINode {
             } catch (NumberFormatException e) {
                 this.box.setText(String.valueOf(oldValue));
             }
+        });
+        this.box.setWheelHandler((box, scrollDelta) -> {
+            int direction = EditNumericInputSupport.getScrollDirection(scrollDelta);
+            if (direction == 0) {
+                return false;
+            }
+
+            int oldValue = getter.get();
+            setter.accept(validator.applyAsInt(oldValue + direction * EditNumericInputSupport.getIntStep()));
+            int currentValue = getter.get();
+            box.setText(String.valueOf(currentValue));
+            if (oldValue != currentValue) {
+                EditSection.markCacheDirty();
+            }
+            return true;
         });
     }
 

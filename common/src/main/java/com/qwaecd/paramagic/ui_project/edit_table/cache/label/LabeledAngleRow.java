@@ -8,18 +8,14 @@ import com.qwaecd.paramagic.ui_project.edit_table.util.EditNumericInputSupport;
 import net.minecraft.client.gui.Font;
 import net.minecraft.network.chat.Component;
 
-/**
- * A row control that displays a title label on one line
- * followed by a single full-width float input box on the next line.
- */
-public class LabeledFloatRow extends UINode {
+public class LabeledAngleRow extends UINode {
     private static final float INPUT_HEIGHT = EditSection.INPUT_HEIGHT;
     private static final float LABEL_HEIGHT = EditSection.LABEL_HEIGHT;
 
     private final UILabel titleLabel;
     private final NumericTypingBox box;
 
-    public LabeledFloatRow(Component title, int maxLength) {
+    public LabeledAngleRow(Component title, int maxLength) {
         this.setHitTestable(false);
 
         this.titleLabel = new UILabel(title);
@@ -32,20 +28,22 @@ public class LabeledFloatRow extends UINode {
         this.addChild(this.box);
     }
 
-    public void bind(EditSection.FloatSupplier getter, EditSection.FloatConsumer setter) {
+    public void bind(EditSection.FloatSupplier radiansGetter, EditSection.FloatConsumer radiansSetter) {
         this.box.setFocusChangeListener(focused -> {
-            if (focused) return;
-            float oldValue = getter.get();
+            if (focused) {
+                return;
+            }
+            float oldRadians = radiansGetter.get();
             try {
-                float value = EditInputRules.parseFiniteFloat(this.box.getText());
-                setter.accept(value);
-                float currentValue = getter.get();
-                this.box.setText(EditNumericInputSupport.formatFloat(currentValue));
-                if (Float.compare(oldValue, currentValue) != 0) {
+                float degrees = EditInputRules.parseFiniteFloat(this.box.getText());
+                radiansSetter.accept((float) Math.toRadians(degrees));
+                float currentRadians = radiansGetter.get();
+                this.box.setText(EditNumericInputSupport.formatFloat((float) Math.toDegrees(currentRadians)));
+                if (Float.compare(oldRadians, currentRadians) != 0) {
                     EditSection.markCacheDirty();
                 }
             } catch (NumberFormatException e) {
-                this.box.setText(EditNumericInputSupport.formatFloat(oldValue));
+                this.box.setText(EditNumericInputSupport.formatFloat((float) Math.toDegrees(oldRadians)));
             }
         });
         this.box.setWheelHandler((box, scrollDelta) -> {
@@ -54,11 +52,12 @@ public class LabeledFloatRow extends UINode {
                 return false;
             }
 
-            float oldValue = getter.get();
-            setter.accept(oldValue + direction * EditNumericInputSupport.getFloatStep());
-            float currentValue = getter.get();
-            box.setText(EditNumericInputSupport.formatFloat(currentValue));
-            if (Float.compare(oldValue, currentValue) != 0) {
+            float oldRadians = radiansGetter.get();
+            float oldDegrees = (float) Math.toDegrees(oldRadians);
+            radiansSetter.accept((float) Math.toRadians(oldDegrees + direction * EditNumericInputSupport.getFloatStep()));
+            float currentRadians = radiansGetter.get();
+            box.setText(EditNumericInputSupport.formatFloat((float) Math.toDegrees(currentRadians)));
+            if (Float.compare(oldRadians, currentRadians) != 0) {
                 EditSection.markCacheDirty();
             }
             return true;
@@ -74,7 +73,7 @@ public class LabeledFloatRow extends UINode {
         this.localRect.h = y;
     }
 
-    public void sync(float value) {
-        this.box.setText(EditNumericInputSupport.formatFloat(value));
+    public void syncRadians(float radians) {
+        this.box.setText(EditNumericInputSupport.formatFloat((float) Math.toDegrees(radians)));
     }
 }

@@ -1,6 +1,7 @@
 package com.qwaecd.paramagic.ui_project.edit_table.cache.section;
 
 import com.qwaecd.paramagic.ui_project.edit_table.cache.LabelTexts;
+import com.qwaecd.paramagic.ui_project.edit_table.cache.label.LabeledAngleRow;
 import com.qwaecd.paramagic.ui_project.edit_table.cache.label.LabeledFloatRow;
 import com.qwaecd.paramagic.ui_project.edit_table.cache.label.LabeledIntRow;
 import com.qwaecd.paramagic.ui_project.edit_table.cache.props.EditablePolygonProps;
@@ -10,7 +11,7 @@ import net.minecraft.client.gui.Font;
 public class PolygonSection extends EditSection {
     private final LabeledFloatRow radiusRow;
     private final LabeledIntRow sidesRow;
-    private final LabeledFloatRow startAngleRow;
+    private final LabeledAngleRow startAngleRow;
     private final LabeledFloatRow lineWidthRow;
 
     public PolygonSection() {
@@ -27,7 +28,7 @@ public class PolygonSection extends EditSection {
                 v -> { if (this.struct != null) polygonProps().setSides(v); },
                 v -> EditInputRules.clampMinInt(v, 3));
 
-        this.startAngleRow = new LabeledFloatRow(LabelTexts.startAngleRowText, 16);
+        this.startAngleRow = new LabeledAngleRow(LabelTexts.startAngleDegreesRowText, 16);
         this.addChild(this.startAngleRow);
         this.startAngleRow.bind(
                 () -> this.struct != null ? polygonProps().getStartAngle() : 0,
@@ -75,7 +76,7 @@ public class PolygonSection extends EditSection {
         EditablePolygonProps props = polygonProps();
         this.radiusRow.sync(props.getRadius());
         this.sidesRow.sync(props.getSides());
-        this.startAngleRow.sync(props.getStartAngle());
+        this.startAngleRow.syncRadians(props.getStartAngle());
         this.lineWidthRow.sync(props.getLineWidth());
     }
 }

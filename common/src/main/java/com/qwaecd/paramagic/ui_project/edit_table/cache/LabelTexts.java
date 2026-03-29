@@ -9,7 +9,7 @@ public final class LabelTexts {
 
     public static final Component radiusRowText = Component.translatable("gui.paramagic.spell_edit_table.label_texts.radius");
     public static final Component sidesRowText = Component.translatable("gui.paramagic.spell_edit_table.label_texts.sides");
-    public static final Component startAngleRowText = Component.translatable("gui.paramagic.spell_edit_table.label_texts.start_angle");
+    public static final Component startAngleDegreesRowText = Component.translatable("gui.paramagic.spell_edit_table.label_texts.start_angle_degrees");
     public static final Component lineWidthRowText = Component.translatable("gui.paramagic.spell_edit_table.label_texts.line_width");
 
     public static final Component innerRadiusRowText = Component.translatable("gui.paramagic.spell_edit_table.label_texts.inner_radius");
@@ -21,6 +21,6 @@ public final class LabelTexts {
     public static final Component intensityRowText = Component.translatable("gui.paramagic.spell_edit_table.label_texts.intensity");
 
     public static final Component positionRowText = Component.translatable("gui.paramagic.spell_edit_table.label_texts.position");
-    public static final Component rotationRowText = Component.translatable("gui.paramagic.spell_edit_table.label_texts.rotation");
+    public static final Component rotationDegreesRowText = Component.translatable("gui.paramagic.spell_edit_table.label_texts.rotation_degrees");
     public static final Component scaleRowText = Component.translatable("gui.paramagic.spell_edit_table.label_texts.scale");
 }

@@ -2,9 +2,9 @@ package com.qwaecd.paramagic.ui_project.edit_table.cache.label;
 
 import com.qwaecd.paramagic.ui.core.UINode;
 import com.qwaecd.paramagic.ui.widget.UILabel;
-import com.qwaecd.paramagic.ui.widget.node.TypingBox;
 import com.qwaecd.paramagic.ui_project.edit_table.cache.section.EditSection;
 import com.qwaecd.paramagic.ui_project.edit_table.util.EditInputRules;
+import com.qwaecd.paramagic.ui_project.edit_table.util.EditNumericInputSupport;
 import net.minecraft.client.gui.Font;
 import net.minecraft.network.chat.Component;
 
@@ -19,7 +19,7 @@ public class LabeledVecRow extends UINode {
 
     private final UILabel titleLabel;
     private final UILabel[] compLabels;
-    private final TypingBox[] boxes;
+    private final NumericTypingBox[] boxes;
 
     public LabeledVecRow(Component title, String... compLabelTexts) {
         this.setHitTestable(false);
@@ -30,7 +30,7 @@ public class LabeledVecRow extends UINode {
 
         int count = compLabelTexts.length;
         this.compLabels = new UILabel[count];
-        this.boxes = new TypingBox[count];
+        this.boxes = new NumericTypingBox[count];
 
         for (int i = 0; i < count; i++) {
             UILabel label = new UILabel(compLabelTexts[i]);
@@ -38,7 +38,7 @@ public class LabeledVecRow extends UINode {
             this.addChild(label);
             this.compLabels[i] = label;
 
-            TypingBox box = new TypingBox();
+            NumericTypingBox box = new NumericTypingBox();
             box.localRect.set(0, 0, 0, INPUT_HEIGHT);
             box.setMaxLength(16);
             this.addChild(box);
@@ -47,7 +47,7 @@ public class LabeledVecRow extends UINode {
     }
 
     public void bind(int index, EditSection.FloatSupplier getter, EditSection.FloatConsumer setter) {
-        TypingBox box = this.boxes[index];
+        NumericTypingBox box = this.boxes[index];
         box.setFocusChangeListener(focused -> {
             if (focused) return;
             float oldValue = getter.get();
@@ -55,13 +55,28 @@ public class LabeledVecRow extends UINode {
                 float value = EditInputRules.parseFiniteFloat(box.getText());
                 setter.accept(value);
                 float currentValue = getter.get();
-                box.setText(String.valueOf(currentValue));
+                box.setText(EditNumericInputSupport.formatFloat(currentValue));
                 if (Float.compare(oldValue, currentValue) != 0) {
                     EditSection.markCacheDirty();
                 }
             } catch (NumberFormatException e) {
-                box.setText(String.valueOf(oldValue));
+                box.setText(EditNumericInputSupport.formatFloat(oldValue));
             }
+        });
+        box.setWheelHandler((numericBox, scrollDelta) -> {
+            int direction = EditNumericInputSupport.getScrollDirection(scrollDelta);
+            if (direction == 0) {
+                return false;
+            }
+
+            float oldValue = getter.get();
+            setter.accept(oldValue + direction * EditNumericInputSupport.getFloatStep());
+            float currentValue = getter.get();
+            numericBox.setText(EditNumericInputSupport.formatFloat(currentValue));
+            if (Float.compare(oldValue, currentValue) != 0) {
+                EditSection.markCacheDirty();
+            }
+            return true;
         });
     }
 
@@ -88,7 +103,7 @@ public class LabeledVecRow extends UINode {
 
     public void sync(float... values) {
         for (int i = 0; i < values.length && i < this.boxes.length; i++) {
-            this.boxes[i].setText(String.valueOf(values[i]));
+            this.boxes[i].setText(EditNumericInputSupport.formatFloat(values[i]));
         }
     }
 }

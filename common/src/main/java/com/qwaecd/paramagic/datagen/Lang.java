@@ -79,7 +79,7 @@ public class Lang {
 
         of("gui.paramagic.spell_edit_table.label_texts.radius", "Radius:", "半径:");
         of("gui.paramagic.spell_edit_table.label_texts.sides", "Sides:", "边数:");
-        of("gui.paramagic.spell_edit_table.label_texts.start_angle", "Start Angle:", "起始角:");
+        of("gui.paramagic.spell_edit_table.label_texts.start_angle_degrees", "Start Angle (deg):", "起始角（度）:");
         of("gui.paramagic.spell_edit_table.label_texts.line_width", "Line Width:", "线宽:");
         of("gui.paramagic.spell_edit_table.label_texts.inner_radius", "Inner Radius:", "内半径:");
         of("gui.paramagic.spell_edit_table.label_texts.outer_radius", "Outer Radius:", "外半径:");
@@ -87,7 +87,7 @@ public class Lang {
         of("gui.paramagic.spell_edit_table.label_texts.curvature", "Curvature:", "曲率:");
         of("gui.paramagic.spell_edit_table.label_texts.intensity", "Intensity:", "发光强度:");
         of("gui.paramagic.spell_edit_table.label_texts.position", "Position:", "位置:");
-        of("gui.paramagic.spell_edit_table.label_texts.rotation", "Rotation:", "旋转:");
+        of("gui.paramagic.spell_edit_table.label_texts.rotation_degrees", "Rotation (deg):", "旋转（度）:");
         of("gui.paramagic.spell_edit_table.label_texts.scale", "Scale:", "缩放:");
     }
 }
