@@ -6,8 +6,10 @@ import com.qwaecd.paramagic.core.particle.emitter.Emitter;
 import lombok.Getter;
 import lombok.Setter;
 
+import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.function.Consumer;
 
 
@@ -29,6 +31,7 @@ public class GPUParticleEffect {
     private int effectFlag = EffectFlags.IS_ALIVE.get(); // 效果的状态标志位掩码（bitmask）
 
     private final List<EmissionRequest> emissionRequests;
+    private final ConcurrentLinkedQueue<EmissionRequest> externalEmissionRequests;
 
     public GPUParticleEffect(
             List<Emitter> emitters,
@@ -39,6 +42,7 @@ public class GPUParticleEffect {
         this.emitters = emitters;
         this.maxParticleCount = maxParticleCount;
         this.emissionRequests = new ArrayList<>(emitters.size());
+        this.externalEmissionRequests = new ConcurrentLinkedQueue<>();
         this.physicsParameter = new EffectPhysicsParameter();
     }
 
@@ -52,6 +56,7 @@ public class GPUParticleEffect {
         this.emitters = emitters;
         this.maxParticleCount = maxParticleCount;
         this.emissionRequests = new ArrayList<>(emitters.size());
+        this.externalEmissionRequests = new ConcurrentLinkedQueue<>();
         this.physicsParameter = physicsParameter;
     }
 
@@ -78,7 +83,18 @@ public class GPUParticleEffect {
                 this.emissionRequests.add(req);
             }
         }
+        EmissionRequest externalRequest;
+        while ((externalRequest = this.externalEmissionRequests.poll()) != null) {
+            externalRequest.setEffectId(this.effectId);
+            this.emissionRequests.add(externalRequest);
+        }
         return this.emissionRequests;
+    }
+
+    public void addExternalEmissionRequest(@Nonnull EmissionRequest request) {
+        if (request.getCount() > 0) {
+            this.externalEmissionRequests.add(request);
+        }
     }
 
     /**

@@ -10,6 +10,7 @@ import com.qwaecd.paramagic.init.ModBlockEntityRendererFabric;
 import com.qwaecd.paramagic.network.ClientNetworking;
 import com.qwaecd.paramagic.network.Networking;
 import com.qwaecd.paramagic.platform.Services;
+import com.qwaecd.paramagic.particle.client.shared.SharedGPUEffectRegistry;
 import com.qwaecd.paramagic.spell.session.SessionManagers;
 import com.qwaecd.paramagic.ui.screen.ModScreens;
 import net.fabricmc.api.ClientModInitializer;
@@ -86,6 +87,7 @@ public class FabricClient implements ClientModInitializer {
                                         ModRenderSystem.getInstance().clearAll();
                                         MagicCircleManager.getInstance().removeAllCircles();
                                         DebugTools.clearTestEffects();
+                                        SharedGPUEffectRegistry.reset();
                                         context.getSource().sendFeedback(Component.literal("cleared!"));
                                         return 1;
                                     })

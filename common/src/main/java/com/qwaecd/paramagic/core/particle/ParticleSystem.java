@@ -41,7 +41,7 @@ import static org.lwjgl.opengl.GL43.GL_SHADER_STORAGE_BUFFER;
 @PlatformScope(PlatformScopeType.CLIENT)
 public class ParticleSystem {
     public  final int MAX_PARTICLES = 1_000_000;
-    public  final int MAX_EFFECT_COUNT = 64;
+    public  final int MAX_EFFECT_COUNT = 128;
     private static ParticleSystem INSTANCE;
 
     private final ParticleMemoryManager memoryManager;

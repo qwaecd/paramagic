@@ -4,6 +4,8 @@ import com.qwaecd.paramagic.core.render.ModRenderSystem;
 import com.qwaecd.paramagic.core.render.shader.AllShaders;
 import com.qwaecd.paramagic.particle.api.EmitterFactoryRegistry;
 import com.qwaecd.paramagic.particle.client.ClientEffectRepository;
+import com.qwaecd.paramagic.particle.client.shared.BuiltinSharedGPUEffects;
+import com.qwaecd.paramagic.particle.client.shared.SharedGPUEffectRegistry;
 import com.qwaecd.paramagic.spell.builtin.client.BuiltinSpellVisualRegistry;
 import com.qwaecd.paramagic.spell.session.client.ClientSessionManager;
 
@@ -14,6 +16,8 @@ public class ParamagicClient {
         ModRenderSystem.init();
         ClientSessionManager.init();
         ClientEffectRepository.init();
+        SharedGPUEffectRegistry.init();
+        BuiltinSharedGPUEffects.init();
         BuiltinSpellVisualRegistry.init();
     }
 }
