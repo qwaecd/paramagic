@@ -53,11 +53,11 @@ public final class ModItems {
         VOID_OPERATOR = create(provider, "void_operator", VoidOperatorItem::new);
         ACCELERATE_OPERATOR = create(provider, "accelerate_operator", AccelerateOperatorItem::new);
         GRADUAL_ACCELERATION_OPERATOR = create(provider, "gradual_acceleration_operator", GradualAccelerationOperatorItem::new);
-        HEAVY_OPERATOR = create(provider, "heavy_operator", HeavyOperatorItem::new);
         LASER_OPERATOR = create(provider, "laser_operator", LaserOperatorItem::new);
         MAGIC_ARROW_OPERATOR = create(provider, "magic_arrow_operator", MagicArrowOperatorItem::new);
-        SHORT_TRACKING_OPERATOR = create(provider, "short_tracking_operator", ShortTrackingOperatorItem::new);
         TRACKING_OPERATOR = create(provider, "tracking_operator", TrackingOperatorItem::new);
+        SHORT_TRACKING_OPERATOR = create(provider, "short_tracking_operator", ShortTrackingOperatorItem::new);
+        HEAVY_OPERATOR = create(provider, "heavy_operator", HeavyOperatorItem::new);
         WEIGHTLESS_OPERATOR = create(provider, "weightless_operator", WeightlessOperatorItem::new);
     }
 
