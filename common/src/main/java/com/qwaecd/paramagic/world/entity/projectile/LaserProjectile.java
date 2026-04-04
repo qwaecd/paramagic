@@ -116,8 +116,8 @@ public class LaserProjectile extends ThrowableProjectile implements ProjectileEn
         return entityDistance <= blockDistance ? entityHitResult : blockHitResult;
     }
 
-    public void renderBeamEffect() {
-        Vec3 position = this.position();
+    public void renderBeamEffect(float partialTick) {
+        Vec3 position = this.getPosition(partialTick);
         Vec3 velocity = this.getDeltaMovement();
         if (velocity.lengthSqr() <= 1.0e-8) {
             return;
@@ -139,11 +139,11 @@ public class LaserProjectile extends ThrowableProjectile implements ProjectileEn
             return this.sharedBeamEmitter;
         }
 
-        LineEmitter emitter = new LineEmitter(new Vector3f(), 480.0f);
+        LineEmitter emitter = new LineEmitter(new Vector3f(), 80.0f);
         emitter.getProperty(COLOR).modify(v -> v.set(0.9f, 0.35f, 1.95f, 1.0f));
         emitter.getProperty(LIFE_TIME_RANGE).modify(v -> v.set(0.5f, 0.9f));
-        emitter.getProperty(SIZE_RANGE).modify(v -> v.set(2.4f, 3.8f));
-        emitter.getProperty(BLOOM_INTENSITY).set(2.2f);
+        emitter.getProperty(SIZE_RANGE).modify(v -> v.set(1.4f, 2.8f));
+        emitter.getProperty(BLOOM_INTENSITY).set(1.8f);
         this.sharedBeamEmitter = emitter;
         return emitter;
     }

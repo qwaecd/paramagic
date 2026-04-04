@@ -12,7 +12,7 @@ import com.qwaecd.paramagic.world.item.ModItems;
 public class HeavyOperator extends ProjectileOperator {
     public static final ParaOpId OP_ID = ParaOpId.of(
             ModRL.inModSpace("heavy_operator"),
-            new ParaOpId.Properties(OperatorType.MODIFIER, 0.2f, 0.5f)
+            new ParaOpId.Properties(OperatorType.MODIFIER, 0.04f, 0.05f)
     );
 
     private static final float GRAVITY_SCALE = 2.2f;

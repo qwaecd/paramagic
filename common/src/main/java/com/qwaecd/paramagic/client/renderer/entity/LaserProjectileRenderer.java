@@ -12,6 +12,6 @@ public class LaserProjectileRenderer extends EmptyEntityRenderer<LaserProjectile
 
     @Override
     public void render(LaserProjectile entity, float entityYaw, float partialTick, PoseStack poseStack, MultiBufferSource buffer, int packedLight) {
-        entity.renderBeamEffect();
+        entity.renderBeamEffect(partialTick);
     }
 }

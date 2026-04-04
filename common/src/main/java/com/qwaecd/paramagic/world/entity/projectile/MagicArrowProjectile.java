@@ -14,8 +14,6 @@ import net.minecraft.world.phys.Vec3;
 
 import javax.annotation.Nonnull;
 
-import java.util.Random;
-
 import static com.qwaecd.paramagic.core.particle.emitter.property.key.AllEmitterProperties.*;
 
 public class MagicArrowProjectile extends ArrowLikeProjectileEntity implements ProjectileEntity {
@@ -44,12 +42,12 @@ public class MagicArrowProjectile extends ArrowLikeProjectileEntity implements P
         if (this.inGroundTime >= 20) {
             this.discard();
         }
-        if (!this.level().isClientSide || !this.isAlive()) {
-            return;
-        }
+    }
+
+    public void renderEffect(float partialTicks) {
         Vec3 velocity = this.getDeltaMovement();
         PointEmitter emitter = this.getOrCreateSharedTrailEmitter();
-        Vec3 position = this.position();
+        Vec3 position = this.getPosition(partialTicks);
 
         emitter.moveTo(new Vector3f((float) position.x, (float) position.y, (float) position.z));
         emitter.getProperty(BASE_VELOCITY).modify(v -> v.set(
@@ -70,8 +68,8 @@ public class MagicArrowProjectile extends ArrowLikeProjectileEntity implements P
         emitter.getProperty(VELOCITY_SPREAD).set(60.0f);
         emitter.getProperty(COLOR).modify(v -> v.set(0.6f, 0.4f, 0.8f, 1.0f));
         emitter.getProperty(LIFE_TIME_RANGE).modify(v -> v.set(0.2f, 0.45f));
-        emitter.getProperty(SIZE_RANGE).modify(v -> v.set(2.8f, 4.2f));
-        emitter.getProperty(BLOOM_INTENSITY).set(1.7f);
+        emitter.getProperty(SIZE_RANGE).modify(v -> v.set(2.8f, 3.2f));
+        emitter.getProperty(BLOOM_INTENSITY).set(0.7f);
 
         this.sharedTrailEmitter = emitter;
         return emitter;

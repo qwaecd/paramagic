@@ -85,13 +85,13 @@ public abstract class ParaOperatorItem extends Item {
 
     public static ChatFormatting getTimeFormatting(float time) {
         ChatFormatting formatting;
-        if (time < 0.05f) {
+        if (time <= 0.02f) {
             formatting = ChatFormatting.GREEN;
-        } else if (time < 0.5f) {
+        } else if (time <= 0.2f) {
             formatting = ChatFormatting.WHITE;
-        } else if (time < 1.0f) {
+        } else if (time <= 0.8f) {
             formatting = ChatFormatting.YELLOW;
-        } else if (time < 3.0f) {
+        } else if (time <= 1.0f) {
             formatting = ChatFormatting.RED;
         } else {
             formatting = ChatFormatting.DARK_RED;

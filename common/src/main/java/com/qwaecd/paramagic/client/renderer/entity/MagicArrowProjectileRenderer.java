@@ -19,6 +19,7 @@ public class MagicArrowProjectileRenderer extends ArrowRenderer<MagicArrowProjec
     @Override
     public void render(MagicArrowProjectile entity, float entityYaw, float partialTicks, PoseStack poseStack, MultiBufferSource buffer, int packedLight) {
         super.render(entity, entityYaw, partialTicks, poseStack, buffer, packedLight);
+        entity.renderEffect(partialTicks);
     }
 
     @Override

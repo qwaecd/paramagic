@@ -12,7 +12,7 @@ import com.qwaecd.paramagic.world.item.ModItems;
 public class TrackingOperator extends ProjectileOperator {
     public static final ParaOpId OP_ID = ParaOpId.of(
             ModRL.inModSpace("tracking_operator"),
-            new ParaOpId.Properties(OperatorType.MODIFIER, 0.25f, 0.7f)
+            new ParaOpId.Properties(OperatorType.MODIFIER, 0.025f, 0.06f)
     );
 
     private static final float TRACKING_RANGE = 18.0f;

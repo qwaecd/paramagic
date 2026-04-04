@@ -13,7 +13,7 @@ import org.joml.Vector3f;
 public class AccelerateOperator extends ProjectileOperator {
     public static final ParaOpId OP_ID = ParaOpId.of(
             ModRL.inModSpace("accelerate_operator"),
-            new ParaOpId.Properties(OperatorType.MODIFIER, 0.2f, 0.4f)
+            new ParaOpId.Properties(OperatorType.MODIFIER, 0.04f, 0.03f)
     );
 
     private static final float IMPULSE = 0.8f;
