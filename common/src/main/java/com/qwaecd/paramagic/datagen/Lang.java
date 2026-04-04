@@ -38,13 +38,25 @@ public class Lang {
         of("item.paramagic.explosion_wand", "EXPLOSION WAND", "慧慧的法杖");
         of("block.paramagic.spell_edit_table", "Spell Edit Table", "法术编辑台");
         of("item.paramagic.void_operator", "Void Operator", "空参量");
+        of("item.paramagic.accelerate_operator", "Accelerate", "加速");
+        of("item.paramagic.gradual_acceleration_operator", "Gradual Acceleration", "逐渐加速");
+        of("item.paramagic.heavy_operator", "Heavy", "沉重");
         of("item.paramagic.magic_arrow_operator", "Magic Arrow", "魔法箭");
         of("item.paramagic.para_crystal", "Para Crystal", "魔力水晶");
+        of("item.paramagic.short_tracking_operator", "Short Tracking", "短距离追踪");
+        of("item.paramagic.tracking_operator", "Tracking", "追踪");
+        of("item.paramagic.weightless_operator", "Weightless", "失重");
         of("tooltip.paramagic.para_operator_item.operator_type", "§lOperator Type: §r", "§l法术类型: §r");
         of("tooltip.paramagic.para_operator_item.transmission_delay", "§lTransmission Delay: §r", "§l传导延迟: §r");
         of("tooltip.paramagic.para_operator_item.cycle_cooldown", "§lCycle Cooldown: §r", "§l回转冷却: §r");
         of("tooltip.paramagic.magic_arrow_operator.describe", "Shoots a magic arrow forward", "向前射出一支魔法箭");
         of("tooltip.paramagic.void_operator.describe", "Do noting", "什么也不做");
+        of("tooltip.paramagic.accelerate_operator.describe", "Adds an immediate forward impulse to projectiles", "为投射物施加一次即时向前冲量");
+        of("tooltip.paramagic.gradual_acceleration_operator.describe", "Continuously accelerates projectiles toward a higher speed", "让投射物持续向更高速度加速");
+        of("tooltip.paramagic.heavy_operator.describe", "Makes projectiles fall faster and feel heavier", "让投射物更快下坠并显得更加沉重");
+        of("tooltip.paramagic.short_tracking_operator.describe", "Strongly bends projectiles toward nearby targets", "强力扭转投射物以追向近距离目标");
+        of("tooltip.paramagic.tracking_operator.describe", "Gently bends projectiles toward farther targets", "缓慢扭转投射物以追向较远目标");
+        of("tooltip.paramagic.weightless_operator.describe", "Greatly reduces gravity on projectiles", "显著降低投射物受到的重力");
         gui();
         paraType();
     }

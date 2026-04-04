@@ -1,7 +1,13 @@
 package com.qwaecd.paramagic.thaumaturgy.operator;
 
+import com.qwaecd.paramagic.thaumaturgy.operator.content.AccelerateOperator;
+import com.qwaecd.paramagic.thaumaturgy.operator.content.GradualAccelerationOperator;
+import com.qwaecd.paramagic.thaumaturgy.operator.content.HeavyOperator;
 import com.qwaecd.paramagic.thaumaturgy.operator.content.MagicArrowOperator;
+import com.qwaecd.paramagic.thaumaturgy.operator.content.ShortTrackingOperator;
+import com.qwaecd.paramagic.thaumaturgy.operator.content.TrackingOperator;
 import com.qwaecd.paramagic.thaumaturgy.operator.content.VoidOperator;
+import com.qwaecd.paramagic.thaumaturgy.operator.content.WeightlessOperator;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -29,7 +35,13 @@ public final class AllParaOperators {
 
     public static void registerAll() {
         registerOperator(VoidOperator.OP_ID, VoidOperator::new);
+        registerOperator(AccelerateOperator.OP_ID, AccelerateOperator::new);
+        registerOperator(GradualAccelerationOperator.OP_ID, GradualAccelerationOperator::new);
+        registerOperator(HeavyOperator.OP_ID, HeavyOperator::new);
         registerOperator(MagicArrowOperator.OP_ID, MagicArrowOperator::new);
+        registerOperator(ShortTrackingOperator.OP_ID, ShortTrackingOperator::new);
+        registerOperator(TrackingOperator.OP_ID, TrackingOperator::new);
+        registerOperator(WeightlessOperator.OP_ID, WeightlessOperator::new);
     }
 
     @Nullable

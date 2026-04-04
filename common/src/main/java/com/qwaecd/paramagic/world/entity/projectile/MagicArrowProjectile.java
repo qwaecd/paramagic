@@ -19,7 +19,6 @@ import java.util.Random;
 import static com.qwaecd.paramagic.core.particle.emitter.property.key.AllEmitterProperties.*;
 
 public class MagicArrowProjectile extends ArrowLikeProjectileEntity implements ProjectileEntity {
-    private final Random rand = new Random();
     private static final float CLIENT_EMITTER_DELTA_TIME = 1.0f / 20.0f;
     private static final SharedGPUEffectRef TRAIL_EFFECT = SharedGPUEffectRegistry.ref(BuiltinSharedGPUEffects.MAGIC_ARROW_TRAIL);
 

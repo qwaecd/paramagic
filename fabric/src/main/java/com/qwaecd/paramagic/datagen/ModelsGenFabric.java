@@ -21,7 +21,13 @@ public class ModelsGenFabric extends FabricModelProvider {
     @Override
     public void generateItemModels(ItemModelGenerators gen) {
         gen.generateFlatItem(ModItems.VOID_OPERATOR, ModelTemplates.FLAT_ITEM);
+        gen.generateFlatItem(ModItems.ACCELERATE_OPERATOR, ModelTemplates.FLAT_ITEM);
+        gen.generateFlatItem(ModItems.GRADUAL_ACCELERATION_OPERATOR, ModelTemplates.FLAT_ITEM);
+        gen.generateFlatItem(ModItems.HEAVY_OPERATOR, ModelTemplates.FLAT_ITEM);
         gen.generateFlatItem(ModItems.MAGIC_ARROW_OPERATOR, ModelTemplates.FLAT_ITEM);
         gen.generateFlatItem(ModItems.PARA_CRYSTAL, ModelTemplates.FLAT_ITEM);
+        gen.generateFlatItem(ModItems.SHORT_TRACKING_OPERATOR, ModelTemplates.FLAT_ITEM);
+        gen.generateFlatItem(ModItems.TRACKING_OPERATOR, ModelTemplates.FLAT_ITEM);
+        gen.generateFlatItem(ModItems.WEIGHTLESS_OPERATOR, ModelTemplates.FLAT_ITEM);
     }
 }

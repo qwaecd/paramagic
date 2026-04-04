@@ -3,8 +3,14 @@ package com.qwaecd.paramagic.world.item;
 import com.qwaecd.paramagic.world.item.content.ParaCrystalItem;
 import com.qwaecd.paramagic.world.item.debug.DebugWand;
 import com.qwaecd.paramagic.world.item.feat.ExplosionWand;
+import com.qwaecd.paramagic.world.item.operator.AccelerateOperatorItem;
+import com.qwaecd.paramagic.world.item.operator.GradualAccelerationOperatorItem;
+import com.qwaecd.paramagic.world.item.operator.HeavyOperatorItem;
 import com.qwaecd.paramagic.world.item.operator.MagicArrowOperatorItem;
+import com.qwaecd.paramagic.world.item.operator.ShortTrackingOperatorItem;
+import com.qwaecd.paramagic.world.item.operator.TrackingOperatorItem;
 import com.qwaecd.paramagic.world.item.operator.VoidOperatorItem;
+import com.qwaecd.paramagic.world.item.operator.WeightlessOperatorItem;
 import net.minecraft.world.item.Item;
 
 import java.util.LinkedHashMap;
@@ -19,7 +25,13 @@ public final class ModItems {
     public static ExplosionWand EXPLOSION_WAND;
 
     public static VoidOperatorItem VOID_OPERATOR;
+    public static AccelerateOperatorItem ACCELERATE_OPERATOR;
+    public static GradualAccelerationOperatorItem GRADUAL_ACCELERATION_OPERATOR;
+    public static HeavyOperatorItem HEAVY_OPERATOR;
     public static MagicArrowOperatorItem MAGIC_ARROW_OPERATOR;
+    public static ShortTrackingOperatorItem SHORT_TRACKING_OPERATOR;
+    public static TrackingOperatorItem TRACKING_OPERATOR;
+    public static WeightlessOperatorItem WEIGHTLESS_OPERATOR;
 
     public static ParaCrystalItem PARA_CRYSTAL;
 
@@ -37,7 +49,13 @@ public final class ModItems {
 
     private static void operators(ItemProvider provider) {
         VOID_OPERATOR = create(provider, "void_operator", VoidOperatorItem::new);
+        ACCELERATE_OPERATOR = create(provider, "accelerate_operator", AccelerateOperatorItem::new);
+        GRADUAL_ACCELERATION_OPERATOR = create(provider, "gradual_acceleration_operator", GradualAccelerationOperatorItem::new);
+        HEAVY_OPERATOR = create(provider, "heavy_operator", HeavyOperatorItem::new);
         MAGIC_ARROW_OPERATOR = create(provider, "magic_arrow_operator", MagicArrowOperatorItem::new);
+        SHORT_TRACKING_OPERATOR = create(provider, "short_tracking_operator", ShortTrackingOperatorItem::new);
+        TRACKING_OPERATOR = create(provider, "tracking_operator", TrackingOperatorItem::new);
+        WEIGHTLESS_OPERATOR = create(provider, "weightless_operator", WeightlessOperatorItem::new);
     }
 
     public interface ItemProvider {
