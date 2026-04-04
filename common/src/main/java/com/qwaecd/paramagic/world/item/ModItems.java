@@ -6,6 +6,7 @@ import com.qwaecd.paramagic.world.item.feat.ExplosionWand;
 import com.qwaecd.paramagic.world.item.operator.AccelerateOperatorItem;
 import com.qwaecd.paramagic.world.item.operator.GradualAccelerationOperatorItem;
 import com.qwaecd.paramagic.world.item.operator.HeavyOperatorItem;
+import com.qwaecd.paramagic.world.item.operator.LaserOperatorItem;
 import com.qwaecd.paramagic.world.item.operator.MagicArrowOperatorItem;
 import com.qwaecd.paramagic.world.item.operator.ShortTrackingOperatorItem;
 import com.qwaecd.paramagic.world.item.operator.TrackingOperatorItem;
@@ -28,6 +29,7 @@ public final class ModItems {
     public static AccelerateOperatorItem ACCELERATE_OPERATOR;
     public static GradualAccelerationOperatorItem GRADUAL_ACCELERATION_OPERATOR;
     public static HeavyOperatorItem HEAVY_OPERATOR;
+    public static LaserOperatorItem LASER_OPERATOR;
     public static MagicArrowOperatorItem MAGIC_ARROW_OPERATOR;
     public static ShortTrackingOperatorItem SHORT_TRACKING_OPERATOR;
     public static TrackingOperatorItem TRACKING_OPERATOR;
@@ -52,6 +54,7 @@ public final class ModItems {
         ACCELERATE_OPERATOR = create(provider, "accelerate_operator", AccelerateOperatorItem::new);
         GRADUAL_ACCELERATION_OPERATOR = create(provider, "gradual_acceleration_operator", GradualAccelerationOperatorItem::new);
         HEAVY_OPERATOR = create(provider, "heavy_operator", HeavyOperatorItem::new);
+        LASER_OPERATOR = create(provider, "laser_operator", LaserOperatorItem::new);
         MAGIC_ARROW_OPERATOR = create(provider, "magic_arrow_operator", MagicArrowOperatorItem::new);
         SHORT_TRACKING_OPERATOR = create(provider, "short_tracking_operator", ShortTrackingOperatorItem::new);
         TRACKING_OPERATOR = create(provider, "tracking_operator", TrackingOperatorItem::new);

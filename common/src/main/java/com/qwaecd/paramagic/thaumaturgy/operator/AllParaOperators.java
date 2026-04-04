@@ -3,6 +3,7 @@ package com.qwaecd.paramagic.thaumaturgy.operator;
 import com.qwaecd.paramagic.thaumaturgy.operator.content.AccelerateOperator;
 import com.qwaecd.paramagic.thaumaturgy.operator.content.GradualAccelerationOperator;
 import com.qwaecd.paramagic.thaumaturgy.operator.content.HeavyOperator;
+import com.qwaecd.paramagic.thaumaturgy.operator.content.LaserOperator;
 import com.qwaecd.paramagic.thaumaturgy.operator.content.MagicArrowOperator;
 import com.qwaecd.paramagic.thaumaturgy.operator.content.ShortTrackingOperator;
 import com.qwaecd.paramagic.thaumaturgy.operator.content.TrackingOperator;
@@ -38,6 +39,7 @@ public final class AllParaOperators {
         registerOperator(AccelerateOperator.OP_ID, AccelerateOperator::new);
         registerOperator(GradualAccelerationOperator.OP_ID, GradualAccelerationOperator::new);
         registerOperator(HeavyOperator.OP_ID, HeavyOperator::new);
+        registerOperator(LaserOperator.OP_ID, LaserOperator::new);
         registerOperator(MagicArrowOperator.OP_ID, MagicArrowOperator::new);
         registerOperator(ShortTrackingOperator.OP_ID, ShortTrackingOperator::new);
         registerOperator(TrackingOperator.OP_ID, TrackingOperator::new);

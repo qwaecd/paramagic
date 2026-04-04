@@ -10,6 +10,7 @@ public final class ModEntityRenderers {
 
     public static void init(RendererProvider provider) {
         create(provider, ModEntityTypes.SPELL_ANCHOR_ENTITY, SpellAnchorEntityRenderer::new);
+        create(provider, ModEntityTypes.LASER_PROJECTILE, LaserProjectileRenderer::new);
         create(provider, ModEntityTypes.MAGIC_ARROW_PROJECTILE, MagicArrowProjectileRenderer::new);
     }
 

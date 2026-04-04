@@ -24,6 +24,7 @@ public class ModelsGenFabric extends FabricModelProvider {
         gen.generateFlatItem(ModItems.ACCELERATE_OPERATOR, ModelTemplates.FLAT_ITEM);
         gen.generateFlatItem(ModItems.GRADUAL_ACCELERATION_OPERATOR, ModelTemplates.FLAT_ITEM);
         gen.generateFlatItem(ModItems.HEAVY_OPERATOR, ModelTemplates.FLAT_ITEM);
+        gen.generateFlatItem(ModItems.LASER_OPERATOR, ModelTemplates.FLAT_ITEM);
         gen.generateFlatItem(ModItems.MAGIC_ARROW_OPERATOR, ModelTemplates.FLAT_ITEM);
         gen.generateFlatItem(ModItems.PARA_CRYSTAL, ModelTemplates.FLAT_ITEM);
         gen.generateFlatItem(ModItems.SHORT_TRACKING_OPERATOR, ModelTemplates.FLAT_ITEM);

@@ -41,6 +41,7 @@ public class Lang {
         of("item.paramagic.accelerate_operator", "Accelerate", "加速");
         of("item.paramagic.gradual_acceleration_operator", "Gradual Acceleration", "逐渐加速");
         of("item.paramagic.heavy_operator", "Heavy", "沉重");
+        of("item.paramagic.laser_operator", "Laser", "激光");
         of("item.paramagic.magic_arrow_operator", "Magic Arrow", "魔法箭");
         of("item.paramagic.para_crystal", "Para Crystal", "魔力水晶");
         of("item.paramagic.short_tracking_operator", "Short Tracking", "短距离追踪");
@@ -54,6 +55,7 @@ public class Lang {
         of("tooltip.paramagic.accelerate_operator.describe", "Adds an immediate forward impulse to projectiles", "为投射物施加一次即时向前冲量");
         of("tooltip.paramagic.gradual_acceleration_operator.describe", "Continuously accelerates projectiles toward a higher speed", "让投射物持续向更高速度加速");
         of("tooltip.paramagic.heavy_operator.describe", "Makes projectiles fall faster and feel heavier", "让投射物更快下坠并显得更加沉重");
+        of("tooltip.paramagic.laser_operator.describe", "Launches a fast laser-like projectile with a glowing beam trail", "发射一束高速前进并带有发光束线装饰的激光投射物");
         of("tooltip.paramagic.short_tracking_operator.describe", "Strongly bends projectiles toward nearby targets", "强力扭转投射物以追向近距离目标");
         of("tooltip.paramagic.tracking_operator.describe", "Gently bends projectiles toward farther targets", "缓慢扭转投射物以追向较远目标");
         of("tooltip.paramagic.weightless_operator.describe", "Greatly reduces gravity on projectiles", "显著降低投射物受到的重力");
