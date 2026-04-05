@@ -33,6 +33,7 @@ import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Vector3f;
 
+import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -44,7 +45,6 @@ import static com.qwaecd.paramagic.core.particle.emitter.property.key.AllEmitter
 import static com.qwaecd.paramagic.core.particle.emitter.property.key.AllEmitterProperties.SIZE_RANGE;
 
 public class LaserProjectile extends ThrowableProjectile implements ProjectileEntity, ProjectileVelocityMutable, ProjectileInaccuracyMutable, ProjectilePersistentAccelerationMutable, ProjectileLinearDampingMutable, ProjectileSpeedLimitMutable, ProjectileGravityMutable, ProjectileRuntimeModifierHost {
-    private static final float CLIENT_EMITTER_DELTA_TIME = 1.0f / 20.0f;
     private static final SharedGPUEffectRef LASER_EFFECT = SharedGPUEffectRegistry.ref(BuiltinSharedGPUEffects.LASER_BEAM);
     private static final float BEAM_LENGTH = 6.5f;
     private static final int MAX_LIFE_TICKS = 20 * 5;
@@ -78,7 +78,7 @@ public class LaserProjectile extends ThrowableProjectile implements ProjectileEn
         Vec3 start = this.position();
         Vec3 end = start.add(this.getDeltaMovement());
         HitResult hitResult = this.findHitResult(start, end);
-        if (hitResult != null && hitResult.getType() != HitResult.Type.MISS) {
+        if (hitResult.getType() != HitResult.Type.MISS) {
             this.setPos(hitResult.getLocation());
             this.onHit(hitResult);
         } else {
@@ -91,7 +91,7 @@ public class LaserProjectile extends ThrowableProjectile implements ProjectileEn
     }
 
     @Override
-    protected void onHit(HitResult hitResult) {
+    protected void onHit(@Nonnull HitResult hitResult) {
         super.onHit(hitResult);
         if (hitResult instanceof EntityHitResult entityHitResult) {
             Entity target = entityHitResult.getEntity();
@@ -116,7 +116,7 @@ public class LaserProjectile extends ThrowableProjectile implements ProjectileEn
         return entityDistance <= blockDistance ? entityHitResult : blockHitResult;
     }
 
-    public void renderBeamEffect(float partialTick) {
+    public void renderBeamEffect(float partialTick, float deltaTime) {
         Vec3 position = this.getPosition(partialTick);
         Vec3 velocity = this.getDeltaMovement();
         if (velocity.lengthSqr() <= 1.0e-8) {
@@ -131,7 +131,7 @@ public class LaserProjectile extends ThrowableProjectile implements ProjectileEn
         emitter.moveTo(start);
         emitter.getProperty(END_POSITION).modify(v -> v.set(end));
         emitter.getProperty(BASE_VELOCITY).modify(v -> v.set(0.0f, 0.0f, 0.0f));
-        LASER_EFFECT.submitFromEmitter(emitter, CLIENT_EMITTER_DELTA_TIME);
+        LASER_EFFECT.submitFromEmitter(emitter, deltaTime);
     }
 
     private LineEmitter getOrCreateSharedBeamEmitter() {
@@ -139,7 +139,7 @@ public class LaserProjectile extends ThrowableProjectile implements ProjectileEn
             return this.sharedBeamEmitter;
         }
 
-        LineEmitter emitter = new LineEmitter(new Vector3f(), 80.0f);
+        LineEmitter emitter = new LineEmitter(new Vector3f(), 320.0f);
         emitter.getProperty(COLOR).modify(v -> v.set(0.9f, 0.35f, 1.95f, 1.0f));
         emitter.getProperty(LIFE_TIME_RANGE).modify(v -> v.set(0.5f, 0.9f));
         emitter.getProperty(SIZE_RANGE).modify(v -> v.set(1.4f, 2.8f));

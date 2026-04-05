@@ -1,6 +1,8 @@
 package com.qwaecd.paramagic.world.entity.projectile;
 
+import com.qwaecd.paramagic.core.particle.emitter.impl.CircleEmitter;
 import com.qwaecd.paramagic.core.particle.emitter.impl.PointEmitter;
+import com.qwaecd.paramagic.core.particle.emitter.property.type.VelocityModeStates;
 import com.qwaecd.paramagic.particle.client.shared.BuiltinSharedGPUEffects;
 import com.qwaecd.paramagic.particle.client.shared.SharedGPUEffectRef;
 import com.qwaecd.paramagic.particle.client.shared.SharedGPUEffectRegistry;
@@ -17,10 +19,10 @@ import javax.annotation.Nonnull;
 import static com.qwaecd.paramagic.core.particle.emitter.property.key.AllEmitterProperties.*;
 
 public class MagicArrowProjectile extends ArrowLikeProjectileEntity implements ProjectileEntity {
-    private static final float CLIENT_EMITTER_DELTA_TIME = 1.0f / 20.0f;
     private static final SharedGPUEffectRef TRAIL_EFFECT = SharedGPUEffectRegistry.ref(BuiltinSharedGPUEffects.MAGIC_ARROW_TRAIL);
 
     private PointEmitter sharedTrailEmitter;
+    private CircleEmitter circleEmitter;
 
     public MagicArrowProjectile(EntityType<? extends ArrowLikeProjectileEntity> type, Level level) {
         super(type, level);
@@ -44,19 +46,49 @@ public class MagicArrowProjectile extends ArrowLikeProjectileEntity implements P
         }
     }
 
-    public void renderEffect(float partialTicks) {
+    public void renderEffect(float partialTicks, float deltaTime) {
         Vec3 velocity = this.getDeltaMovement();
         PointEmitter emitter = this.getOrCreateSharedTrailEmitter();
-        Vec3 position = this.getPosition(partialTicks);
-
-        emitter.moveTo(new Vector3f((float) position.x, (float) position.y, (float) position.z));
+        Vector3f newPos = this.getPosition(partialTicks).toVector3f();
+        emitter.moveTo(newPos);
         emitter.getProperty(BASE_VELOCITY).modify(v -> v.set(
-                (float) (-velocity.x * 2.6f),
-                (float) (-velocity.y * 2.6f),
-                (float) (-velocity.z * 2.6f)
+                (-velocity.x * 2.6f),
+                (-velocity.y * 2.6f),
+                (-velocity.z * 2.6f)
         ));
 
-        TRAIL_EFFECT.submitFromEmitter(emitter, CLIENT_EMITTER_DELTA_TIME);
+        TRAIL_EFFECT.submitFromEmitter(emitter, deltaTime);
+
+        if (velocity.lengthSqr() < 1.2f) {
+            return;
+        }
+
+        CircleEmitter circleEmitter = this.getOrCreateCircleEmitter();
+        circleEmitter.moveTo(newPos);
+        circleEmitter.getProperty(NORMAL).modify(v -> v.set(
+                (-velocity.x),
+                (-velocity.y),
+                (-velocity.z)
+        ));
+        TRAIL_EFFECT.submitFromEmitter(circleEmitter, deltaTime);
+    }
+
+    private CircleEmitter getOrCreateCircleEmitter() {
+        if (this.circleEmitter != null) {
+            return this.circleEmitter;
+        }
+
+        CircleEmitter emitter = new CircleEmitter(new Vector3f(), 320.0f);
+        emitter.getProperty(COLOR).modify(v -> v.set(1.6f, 0.4f, 0.8f, 1.0f));
+        emitter.getProperty(LIFE_TIME_RANGE).modify(v -> v.set(0.2f, 0.4f));
+        emitter.getProperty(SIZE_RANGE).modify(v -> v.set(1.4f, 2.2f));
+        emitter.getProperty(BLOOM_INTENSITY).set(0.3f);
+        emitter.getProperty(INNER_OUTER_RADIUS).modify(v -> v.set(1.0f, 1.2f));
+        emitter.getProperty(VELOCITY_MODE).set(VelocityModeStates.RADIAL_FROM_CENTER);
+        emitter.getProperty(BASE_VELOCITY).modify(v -> v.set(1.0f));
+
+        this.circleEmitter = emitter;
+        return emitter;
     }
 
     private PointEmitter getOrCreateSharedTrailEmitter() {
@@ -64,12 +96,12 @@ public class MagicArrowProjectile extends ArrowLikeProjectileEntity implements P
             return this.sharedTrailEmitter;
         }
 
-        PointEmitter emitter = new PointEmitter(new Vector3f(), 100.0f);
+        PointEmitter emitter = new PointEmitter(new Vector3f(), 320.0f);
         emitter.getProperty(VELOCITY_SPREAD).set(60.0f);
         emitter.getProperty(COLOR).modify(v -> v.set(0.6f, 0.4f, 0.8f, 1.0f));
         emitter.getProperty(LIFE_TIME_RANGE).modify(v -> v.set(0.2f, 0.45f));
         emitter.getProperty(SIZE_RANGE).modify(v -> v.set(2.8f, 3.2f));
-        emitter.getProperty(BLOOM_INTENSITY).set(0.7f);
+        emitter.getProperty(BLOOM_INTENSITY).set(0.4f);
 
         this.sharedTrailEmitter = emitter;
         return emitter;

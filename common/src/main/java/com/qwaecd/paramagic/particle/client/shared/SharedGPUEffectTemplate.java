@@ -52,7 +52,7 @@ public final class SharedGPUEffectTemplate {
 
     public static final class Builder {
         private final String key;
-        private int maxParticleCount = 32768;
+        private int maxParticleCount = 10_000;
         private float maxLifeTime = 0.0f;
         private Supplier<List<Emitter>> emitterSupplier = List::of;
         private Supplier<EffectPhysicsParameter> physicsParameterSupplier = EffectPhysicsParameter::new;

@@ -118,7 +118,7 @@ public final class SharedGPUEffectRegistry {
         Objects.requireNonNull(emitter, "emitter");
         emitter.update(deltaTime);
         EmissionRequest request = emitter.getEmissionRequest();
-        return request != null && submit(key, request);
+        return submit(key, request);
     }
 
     public static synchronized int getRegisteredTemplateCount() {

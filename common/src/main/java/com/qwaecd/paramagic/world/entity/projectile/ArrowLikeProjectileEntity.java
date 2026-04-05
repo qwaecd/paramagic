@@ -15,7 +15,6 @@ import com.qwaecd.paramagic.thaumaturgy.kinetics.runtime.ProjectileRuntimeModifi
 import com.qwaecd.paramagic.thaumaturgy.kinetics.runtime.ProjectileRuntimeModifierHost;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.projectile.AbstractArrow;
 import net.minecraft.world.level.Level;
@@ -148,9 +147,13 @@ public abstract class ArrowLikeProjectileEntity extends AbstractArrow implements
 
     @Override
     public void tick() {
-        this.applyKineticsStep();
+        if (!this.level().isClientSide) {
+            this.applyKineticsStep();
+        }
         super.tick();
-        this.syncKineticsFromEntityVelocity();
+        if (!this.level().isClientSide) {
+            this.syncKineticsFromEntityVelocity();
+        }
     }
 
     @Override
