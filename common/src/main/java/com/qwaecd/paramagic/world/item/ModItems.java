@@ -3,15 +3,7 @@ package com.qwaecd.paramagic.world.item;
 import com.qwaecd.paramagic.world.item.content.ParaCrystalItem;
 import com.qwaecd.paramagic.world.item.debug.DebugWand;
 import com.qwaecd.paramagic.world.item.feat.ExplosionWand;
-import com.qwaecd.paramagic.world.item.operator.AccelerateOperatorItem;
-import com.qwaecd.paramagic.world.item.operator.GradualAccelerationOperatorItem;
-import com.qwaecd.paramagic.world.item.operator.HeavyOperatorItem;
-import com.qwaecd.paramagic.world.item.operator.LaserOperatorItem;
-import com.qwaecd.paramagic.world.item.operator.MagicArrowOperatorItem;
-import com.qwaecd.paramagic.world.item.operator.ShortTrackingOperatorItem;
-import com.qwaecd.paramagic.world.item.operator.TrackingOperatorItem;
-import com.qwaecd.paramagic.world.item.operator.VoidOperatorItem;
-import com.qwaecd.paramagic.world.item.operator.WeightlessOperatorItem;
+import com.qwaecd.paramagic.world.item.operator.*;
 import net.minecraft.world.item.Item;
 
 import java.util.LinkedHashMap;

@@ -5,14 +5,7 @@ import com.qwaecd.paramagic.particle.client.shared.BuiltinSharedGPUEffects;
 import com.qwaecd.paramagic.particle.client.shared.SharedGPUEffectRef;
 import com.qwaecd.paramagic.particle.client.shared.SharedGPUEffectRegistry;
 import com.qwaecd.paramagic.thaumaturgy.ProjectileEntity;
-import com.qwaecd.paramagic.thaumaturgy.kinetics.ProjectileGravityMutable;
-import com.qwaecd.paramagic.thaumaturgy.kinetics.ProjectileInaccuracyMutable;
-import com.qwaecd.paramagic.thaumaturgy.kinetics.ProjectileKineticsState;
-import com.qwaecd.paramagic.thaumaturgy.kinetics.ProjectileKineticsUpdater;
-import com.qwaecd.paramagic.thaumaturgy.kinetics.ProjectileLinearDampingMutable;
-import com.qwaecd.paramagic.thaumaturgy.kinetics.ProjectilePersistentAccelerationMutable;
-import com.qwaecd.paramagic.thaumaturgy.kinetics.ProjectileSpeedLimitMutable;
-import com.qwaecd.paramagic.thaumaturgy.kinetics.ProjectileVelocityMutable;
+import com.qwaecd.paramagic.thaumaturgy.kinetics.*;
 import com.qwaecd.paramagic.thaumaturgy.kinetics.runtime.ProjectileKineticsAccumulator;
 import com.qwaecd.paramagic.thaumaturgy.kinetics.runtime.ProjectileRuntimeModifier;
 import com.qwaecd.paramagic.thaumaturgy.kinetics.runtime.ProjectileRuntimeModifierContext;
@@ -26,23 +19,14 @@ import net.minecraft.world.entity.projectile.ProjectileUtil;
 import net.minecraft.world.entity.projectile.ThrowableProjectile;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.phys.AABB;
-import net.minecraft.world.phys.BlockHitResult;
-import net.minecraft.world.phys.EntityHitResult;
-import net.minecraft.world.phys.HitResult;
-import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.phys.*;
 import org.joml.Vector3f;
 
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.qwaecd.paramagic.core.particle.emitter.property.key.AllEmitterProperties.BASE_VELOCITY;
-import static com.qwaecd.paramagic.core.particle.emitter.property.key.AllEmitterProperties.BLOOM_INTENSITY;
-import static com.qwaecd.paramagic.core.particle.emitter.property.key.AllEmitterProperties.COLOR;
-import static com.qwaecd.paramagic.core.particle.emitter.property.key.AllEmitterProperties.END_POSITION;
-import static com.qwaecd.paramagic.core.particle.emitter.property.key.AllEmitterProperties.LIFE_TIME_RANGE;
-import static com.qwaecd.paramagic.core.particle.emitter.property.key.AllEmitterProperties.SIZE_RANGE;
+import static com.qwaecd.paramagic.core.particle.emitter.property.key.AllEmitterProperties.*;
 
 public class LaserProjectile extends ThrowableProjectile implements ProjectileEntity, ProjectileVelocityMutable, ProjectileInaccuracyMutable, ProjectilePersistentAccelerationMutable, ProjectileLinearDampingMutable, ProjectileSpeedLimitMutable, ProjectileGravityMutable, ProjectileRuntimeModifierHost {
     private static final SharedGPUEffectRef LASER_EFFECT = SharedGPUEffectRegistry.ref(BuiltinSharedGPUEffects.LASER_BEAM);

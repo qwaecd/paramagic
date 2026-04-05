@@ -1,14 +1,7 @@
 package com.qwaecd.paramagic.world.entity.projectile;
 
-import com.qwaecd.paramagic.thaumaturgy.kinetics.ProjectileInaccuracyMutable;
 import com.qwaecd.paramagic.thaumaturgy.ProjectileEntity;
-import com.qwaecd.paramagic.thaumaturgy.kinetics.ProjectileGravityMutable;
-import com.qwaecd.paramagic.thaumaturgy.kinetics.ProjectileKineticsState;
-import com.qwaecd.paramagic.thaumaturgy.kinetics.ProjectileKineticsUpdater;
-import com.qwaecd.paramagic.thaumaturgy.kinetics.ProjectileLinearDampingMutable;
-import com.qwaecd.paramagic.thaumaturgy.kinetics.ProjectilePersistentAccelerationMutable;
-import com.qwaecd.paramagic.thaumaturgy.kinetics.ProjectileSpeedLimitMutable;
-import com.qwaecd.paramagic.thaumaturgy.kinetics.ProjectileVelocityMutable;
+import com.qwaecd.paramagic.thaumaturgy.kinetics.*;
 import com.qwaecd.paramagic.thaumaturgy.kinetics.runtime.ProjectileKineticsAccumulator;
 import com.qwaecd.paramagic.thaumaturgy.kinetics.runtime.ProjectileRuntimeModifier;
 import com.qwaecd.paramagic.thaumaturgy.kinetics.runtime.ProjectileRuntimeModifierContext;

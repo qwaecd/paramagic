@@ -1,7 +1,7 @@
 package com.qwaecd.paramagic.world.entity;
 
-import com.qwaecd.paramagic.world.entity.projectile.MagicArrowProjectile;
 import com.qwaecd.paramagic.world.entity.projectile.LaserProjectile;
+import com.qwaecd.paramagic.world.entity.projectile.MagicArrowProjectile;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
