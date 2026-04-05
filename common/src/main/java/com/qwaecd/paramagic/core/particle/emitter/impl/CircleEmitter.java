@@ -90,7 +90,7 @@ public class CircleEmitter extends EmitterBase implements Emitter {
                     req.getParam4().z = v.x;
                     req.getParam4().w = v.y;
                 }));
-        registerProperty(NORMAL, new EmitterProperty<>(NORMAL.getDefaultValue(),
+        registerProperty(NORMAL, new EmitterProperty<>(new Vector3f(0.0f, 1.0f, 0.0f),
                 (req, v) -> {
                     req.getParam5().x = v.x;
                     req.getParam5().y = v.y;
@@ -105,7 +105,7 @@ public class CircleEmitter extends EmitterBase implements Emitter {
         registerProperty(BLOOM_INTENSITY, new EmitterProperty<>(0.0f,
                 (req, v) -> req.getParam5().w = v
         ));
-        registerProperty(INNER_OUTER_RADIUS, new EmitterProperty<>(INNER_OUTER_RADIUS.getDefaultValue(),
+        registerProperty(INNER_OUTER_RADIUS, new EmitterProperty<>(new Vector2f(0.1f, 0.5f),
                 (req, v) -> {
                     Vector4f param6 = req.getParam6();
                     param6.x = v.x;

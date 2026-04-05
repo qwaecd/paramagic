@@ -274,6 +274,7 @@ public class ExplosionExecutor extends SpellExecutor {
                     .addProperty(AllEmitterProperties.SIZE_RANGE, new Vector2f(0.1f, 2.0f))
                     .addProperty(AllEmitterProperties.VELOCITY_MODE, VelocityModeStates.RADIAL_FROM_CENTER)
                     .addProperty(AllEmitterProperties.BASE_VELOCITY, new Vector3f(0, 10.0f, 0))
+//                    .addProperty(AllEmitterProperties.NORMAL, new Vector3f(0.0f, 1.0f, 0.0f))
                     .build();
 
             EmitterConfig config = new EmitterConfig(

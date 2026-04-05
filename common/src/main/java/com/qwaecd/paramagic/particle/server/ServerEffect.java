@@ -3,7 +3,7 @@ package com.qwaecd.paramagic.particle.server;
 import com.qwaecd.paramagic.network.particle.EffectSpawnData;
 import lombok.Getter;
 
-public class ServerEffect {
+public final class ServerEffect {
     @Getter
     public final int netId;
     @Getter

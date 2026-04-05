@@ -99,8 +99,8 @@ public class BloomEffect implements IPostProcessingEffect {
         if (iterations <= 0) {
             // 如果不模糊，直接将输入拷贝到输出并返回
             destinationFbo.bind();
-            glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-            glClear(GL_COLOR_BUFFER_BIT);
+//            glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+//            glClear(GL_COLOR_BUFFER_BIT);
             bloomCompositeShader.bind();
             bloomCompositeShader.setUniformValue1i("u_texture", 0);
             glActiveTexture(GL_TEXTURE0);
@@ -125,7 +125,7 @@ public class BloomEffect implements IPostProcessingEffect {
             SingleTargetFramebuffer writeFbo = (i % 2 == 0) ? internalPingPongFbo : destinationFbo;
 
             writeFbo.bind();
-            glClear(GL_COLOR_BUFFER_BIT);
+//            glClear(GL_COLOR_BUFFER_BIT);
             if (firstPass) {
                 glBindTexture(GL_TEXTURE_2D, inputTextureId);
                 firstPass = false;

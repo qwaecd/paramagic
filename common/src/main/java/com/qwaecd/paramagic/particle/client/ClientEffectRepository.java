@@ -15,7 +15,7 @@ import javax.annotation.Nullable;
 import java.util.*;
 
 @PlatformScope(PlatformScopeType.CLIENT)
-public class ClientEffectRepository {
+public final class ClientEffectRepository {
     private static ClientEffectRepository INSTANCE;
     private final Map<Integer, ClientEffect> activeEffects = new HashMap<>();
 

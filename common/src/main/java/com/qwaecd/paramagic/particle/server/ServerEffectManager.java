@@ -7,7 +7,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class ServerEffectManager {
+public final class ServerEffectManager {
     private static ServerEffectManager INSTANCE;
     private final AtomicInteger atomicCounter;
     private final Map<Integer, ServerEffect> activeEffects = new HashMap<>();
