@@ -70,17 +70,6 @@ public class PointEmitter extends EmitterBase implements Emitter {
         this.minLifetime = 1.0f;
         this.maxLifetime = 5.0f;
 
-//        this.request = new EmissionRequest(
-//                0,
-//                EmitterType.POINT.ID,
-//                -1,
-//                new Vector4f(), // param1: 发射源位置 (xyz)
-//                new Vector4f(), // param2: 基础速度 (xyz)
-//                new Vector4f(), // param3: 颜色 (rgba)
-//                new Vector4f(), // param4: 粒子生命周期(min, max), 尺寸(min, max)
-//                new Vector4f()  // param5: (for POINT) 发射角度(x), bloom_intensity (y)
-//        );
-
         registerProperty(POSITION, new EmitterProperty<>(this.emitterPosition,
                 (req, v) -> req.getParam1().set(v.x, v.y, v.z)));
         registerProperty(BASE_VELOCITY, new EmitterProperty<>(this.baseVelocity,

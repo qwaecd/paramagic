@@ -71,19 +71,6 @@ public class LineEmitter extends EmitterBase implements Emitter {
 
         this.minLifetime = 1.0f;
         this.maxLifetime = 3.0f;
-
-//        this.request = new EmissionRequest(
-//                0,
-//                EmitterType.LINE.ID,
-//                -1,
-//                new Vector4f(), // param1: 线起点位置 (xyz)
-//                new Vector4f(), // param2: 线终点位置 (xyz)
-//                new Vector4f(), // param3: 颜色 (rgba)
-//                new Vector4f(), // param4: 粒子生命周期(min, max), 尺寸(min, max)
-//                new Vector4f()  // param5: 基础速度(xyz), bloom_intensity (w)
-//        );
-
-
         // start position
         registerProperty(POSITION, new EmitterProperty<>(this.emitterPosition,
                 (req, v) -> req.getParam1().set(v.x, v.y, v.z)
@@ -125,13 +112,13 @@ public class LineEmitter extends EmitterBase implements Emitter {
     public void moveTo(Vector3f newPos) {
         EmitterProperty<Vector3f> startPositionProp = this.getProperty(POSITION);
         EmitterProperty<Vector3f> endPositionProp = this.getProperty(END_POSITION);
+        Vector3f oldStart = new Vector3f(startPositionProp.get());
+        float deltaX = newPos.x - oldStart.x;
+        float deltaY = newPos.y - oldStart.y;
+        float deltaZ = newPos.z - oldStart.z;
+
         startPositionProp.modify(v -> v.set(newPos));
-        endPositionProp.modify(v -> {
-            float newX = (v.x - startPositionProp.get().x) + newPos.x;
-            float newY = (v.y - startPositionProp.get().y) + newPos.y;
-            float newZ = (v.z - startPositionProp.get().z) + newPos.z;
-            v.set(newX, newY, newZ);
-        });
+        endPositionProp.modify(v -> v.set(v.x + deltaX, v.y + deltaY, v.z + deltaZ));
     }
 
     @Override
