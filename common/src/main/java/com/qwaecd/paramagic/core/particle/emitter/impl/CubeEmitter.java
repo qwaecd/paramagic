@@ -72,18 +72,6 @@ public class CubeEmitter extends EmitterBase implements Emitter {
 
         this.minLifetime = 1.0f;
         this.maxLifetime = 5.0f;
-
-//        this.request = new EmissionRequest(
-//                0,
-//                EmitterType.CUBE.ID,
-//                -1,
-//                new Vector4f(), // param1: minAABB (xyz), 发射标识(w)
-//                new Vector4f(), // param2: maxAABB (xyz)
-//                new Vector4f(), // param3: 颜色 (rgba)
-//                new Vector4f(), // param4: 粒子生命周期(min, max), 尺寸(min, max)
-//                new Vector4f()  // param5: 基础速度(xyz), bloom_intensity (w)
-//        );
-
         registerProperty(CUBE_AABB, new EmitterProperty<>(new CubeAABB(),
                 (req, v) -> {
                     req.getParam1().set(v.getMinPos(), req.getParam1().w);
