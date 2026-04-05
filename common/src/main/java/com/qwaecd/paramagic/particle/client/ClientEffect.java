@@ -4,7 +4,7 @@ import com.qwaecd.paramagic.core.particle.ParticleSystem;
 import com.qwaecd.paramagic.core.particle.effect.GPUParticleEffect;
 import lombok.Getter;
 
-public class ClientEffect implements AutoCloseable {
+public final class ClientEffect implements AutoCloseable {
     @Getter
     public final int netId;
     private final GPUParticleEffect particleEffect;
