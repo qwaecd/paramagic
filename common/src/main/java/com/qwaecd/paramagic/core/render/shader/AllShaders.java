@@ -19,6 +19,9 @@ public class AllShaders {
 
         ShaderManager.registerShaderInfo("blur", new ShaderInfo("post/", "blur"));
         ShaderManager.registerShaderInfo("final_blit", new ShaderInfo("post/", "final_blit"));
+        ShaderManager.registerShaderInfo("final_compose", new ShaderInfo("post/", "final_compose"));
+        ShaderManager.registerShaderInfo("screen_warp", new ShaderInfo("post/", "screen_warp"));
+        ShaderManager.registerShaderInfo("distortion_field", new ShaderInfo("post/", "distortion_field"));
         ShaderManager.registerShaderInfo("bloom_composite", new ShaderInfo("post/", "bloom_composite"));
     }
     private static void debugShaders() {

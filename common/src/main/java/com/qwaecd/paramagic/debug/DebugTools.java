@@ -4,6 +4,7 @@ import com.qwaecd.paramagic.Paramagic;
 import com.qwaecd.paramagic.assembler.AssemblyException;
 import com.qwaecd.paramagic.assembler.ParaComposer;
 import com.qwaecd.paramagic.client.obj.sun.Sun;
+import com.qwaecd.paramagic.client.renderbase.Sphere;
 import com.qwaecd.paramagic.client.renderbase.factory.SphereFactory;
 import com.qwaecd.paramagic.core.particle.ParticleSystem;
 import com.qwaecd.paramagic.core.particle.builder.PhysicsParamBuilder;
@@ -15,6 +16,7 @@ import com.qwaecd.paramagic.core.render.ModRenderSystem;
 import com.qwaecd.paramagic.core.render.api.IRenderable;
 import com.qwaecd.paramagic.core.render.shader.ShaderManager;
 import com.qwaecd.paramagic.core.render.texture.Material;
+import com.qwaecd.paramagic.core.render.texture.ScreenSpaceDistortionMaterial;
 import com.qwaecd.paramagic.data.animation.property.AllAnimatableProperties;
 import com.qwaecd.paramagic.data.animation.struct.AnimationBinding;
 import com.qwaecd.paramagic.data.animation.struct.AnimationBindingConfig;
@@ -53,8 +55,24 @@ public class DebugTools {
         IRenderable sun = new Sun(ShaderManager.getInstance().getShader("sun"));
         sun.getTransform().setPosition(0, 80, 10).setScale(5.0f, 5.0f, 5.0f);
         ModRenderSystem.getInstance().addRenderable(sun);
+
+        spawnDebugBlackHole();
         paraTest();
         effectTest();
+    }
+
+    private static void spawnDebugBlackHole() {
+        ScreenSpaceDistortionMaterial distortionMaterial = new ScreenSpaceDistortionMaterial()
+                .setDistortionStrength(0.14f)
+                .setInnerRadius(0.018f)
+                .setOuterRadius(0.5f)
+                .setMaxOffset(0.05f);
+
+        IRenderable blackHole = new Sphere(distortionMaterial);
+        blackHole.getTransform()
+                .setPosition(0.0f, -30.0f, 0.0f)
+                .setScale(3.0f, 3.0f, 3.0f);
+        ModRenderSystem.getInstance().addRenderable(blackHole);
     }
 
     private static void effectTest() {
