@@ -8,7 +8,9 @@ import com.qwaecd.paramagic.core.particle.ParticleSystem;
 import com.qwaecd.paramagic.core.render.api.IRenderable;
 import com.qwaecd.paramagic.core.render.context.RenderContext;
 import com.qwaecd.paramagic.core.render.geometricmask.GeometricEffectCaster;
+import com.qwaecd.paramagic.core.render.geometricmask.GeometricMaskSceneTextures;
 import com.qwaecd.paramagic.core.render.post.FinalComposePass;
+import com.qwaecd.paramagic.core.render.post.PostProcessSceneTextures;
 import com.qwaecd.paramagic.core.render.post.PostProcessingManager;
 import com.qwaecd.paramagic.core.render.post.ScreenSpaceEffectManager;
 import com.qwaecd.paramagic.core.render.post.buffer.ColorDepthFramebuffer;
@@ -179,13 +181,23 @@ public class ModRenderSystem extends AbstractRenderSystem{
 
             renderObjectsToMainFBO(context);
 
-            int hdrSceneTexture = postProcessScene();
+            PostProcessSceneTextures postTextures = postProcessingManager.processSceneTextures(
+                    mainFbo.getSceneTextureId(),
+                    mainFbo.getBloomTextureId()
+            );
+            int hdrSceneTexture = postTextures.hdrModCompositeTextureId();
             int combinedSceneTexture = composeFinalScene(hdrSceneTexture);
+            GeometricMaskSceneTextures geometricInputs = new GeometricMaskSceneTextures(
+                    combinedSceneTexture,
+                    postTextures.hdrModCompositeTextureId(),
+                    postTextures.blurredBloomTextureId(),
+                    sceneCopyFBO.getGameSceneTextureId()
+            );
             float timeSeconds = (System.currentTimeMillis() & 0x3fffffff) / 1000.0f;
             int finalSceneTexture = screenSpaceEffectManager.applyGeometricMaskEffects(
                     context,
                     timeSeconds,
-                    combinedSceneTexture,
+                    geometricInputs,
                     Minecraft.getInstance().getMainRenderTarget(),
                     geometricEffectCasters
             );
@@ -222,13 +234,6 @@ public class ModRenderSystem extends AbstractRenderSystem{
         presentShader.unbind();
 
         glDepthMask(true);
-    }
-
-    private int postProcessScene() {
-        return postProcessingManager.process(
-                mainFbo.getSceneTextureId(),
-                mainFbo.getBloomTextureId()
-        );
     }
 
     private void renderObjectsToMainFBO(RenderContext context) {

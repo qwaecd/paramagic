@@ -5,6 +5,7 @@ import com.qwaecd.paramagic.client.renderbase.factory.FullScreenQuadFactory;
 import com.qwaecd.paramagic.core.render.context.RenderContext;
 import com.qwaecd.paramagic.core.render.geometricmask.DistortionGeometricMaskEffect;
 import com.qwaecd.paramagic.core.render.geometricmask.GeometricEffectCaster;
+import com.qwaecd.paramagic.core.render.geometricmask.GeometricMaskSceneTextures;
 import com.qwaecd.paramagic.core.render.geometricmask.GeometricMaskUniformContext;
 import com.qwaecd.paramagic.core.render.geometricmask.IGeometricMaskEffect;
 import com.qwaecd.paramagic.core.render.post.buffer.ColorDepthFramebuffer;
@@ -57,18 +58,18 @@ public class ScreenSpaceEffectManager implements AutoCloseable {
     }
 
     /**
-     * @param combinedSceneTextureId 已与原版合成后的场景颜色纹理
-     * @return 最后一道效果输出纹理；若无 caster 则返回输入纹理
+     * @param sceneTextures 本帧各 {@link com.qwaecd.paramagic.core.render.geometricmask.GeometricMaskInputPolicy} 对应的纹理 id
+     * @return 最后一道效果输出纹理；若无 caster 则返回 {@link GeometricMaskSceneTextures#postBloomCombinedTextureId()}
      */
     public int applyGeometricMaskEffects(
             RenderContext context,
             float timeSeconds,
-            int combinedSceneTextureId,
+            GeometricMaskSceneTextures sceneTextures,
             RenderTarget mainRenderTarget,
             List<GeometricEffectCaster> casters
     ) {
         if (casters == null || casters.isEmpty()) {
-            return combinedSceneTextureId;
+            return sceneTextures.postBloomCombinedTextureId();
         }
 
         List<GeometricEffectCaster> sorted = new ArrayList<>(casters);
@@ -77,14 +78,18 @@ public class ScreenSpaceEffectManager implements AutoCloseable {
 
         FramebufferUtils.copyDepth(mainRenderTarget, maskFbo);
 
-        int readTextureId = combinedSceneTextureId;
+        int readTextureId = 0;
         for (int i = 0; i < sorted.size(); i++) {
             GeometricEffectCaster caster = sorted.get(i);
             boolean usePing = (i % 2) == 0;
             SingleTargetFramebuffer writeFbo = usePing ? pingFbo : pongFbo;
 
+            int sceneTex = (i == 0)
+                    ? sceneTextures.resolve(caster.getEffect().getInputPolicy())
+                    : readTextureId;
+
             renderMaskForCaster(context, timeSeconds, caster);
-            runEffectPass(caster.getEffect(), readTextureId, writeFbo);
+            runEffectPass(caster.getEffect(), sceneTex, writeFbo);
             readTextureId = writeFbo.getColorTextureId();
         }
         return readTextureId;
