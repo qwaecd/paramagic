@@ -12,7 +12,6 @@ public class RenderQueue {
     public final List<RenderItem> opaque = new ArrayList<>();     // 包含 CUTOUT
     public final List<RenderItem> transparent = new ArrayList<>();
     public final List<RenderItem> additive = new ArrayList<>();
-    public final List<RenderItem> distortion = new ArrayList<>();
 
     private final List<RenderItem> itemPool = new ArrayList<>();
     private int poolIndex = 0;
@@ -22,7 +21,6 @@ public class RenderQueue {
         opaque.clear();
         transparent.clear();
         additive.clear();
-        distortion.clear();
     }
 
     public void gather(List<IRenderable> scene, Vector3d cameraPos) {
@@ -30,14 +28,13 @@ public class RenderQueue {
         for (IRenderable r : scene) {
             RenderType t = getType(r);
             RenderItem item = getReuseableItem(r, t, cameraPos);
-            if (t != RenderType.DISTORTION && shouldBeCutout(item.distanceSq)) {
+            if (shouldBeCutout(item.distanceSq)) {
                 continue;
             }
             switch (t) {
                 case OPAQUE, CUTOUT -> opaque.add(item);
                 case TRANSPARENT -> transparent.add(item);
                 case ADDITIVE -> additive.add(item);
-                case DISTORTION -> distortion.add(item);
             }
         }
     }
@@ -72,6 +69,5 @@ public class RenderQueue {
         // 半透明/加色：远到近
         transparent.sort(Comparator.comparingDouble((RenderItem it) -> it.distanceSq).reversed());
         additive.sort(Comparator.comparingDouble((RenderItem it) -> it.distanceSq).reversed());
-        distortion.sort(Comparator.comparingDouble((RenderItem it) -> it.distanceSq).reversed());
     }
 }

@@ -8,11 +8,11 @@ package com.qwaecd.paramagic.core.render.queue;
  * CUTOUT: 遮罩/镂空渲染，使用 alpha 测试来决定哪些像素被渲染。<p>
  * TRANSPARENT: 半透明渲染，使用 Alpha 混合来处理透明度。<p>
  * ADDITIVE: 加色发光渲染，通常用于发光效果。
+ * <p>
  */
 public enum RenderType {
     OPAQUE,   // 不透明
     CUTOUT,   // 遮罩/镂空（alpha test）
     TRANSPARENT, // 半透明（Alpha 混合）
-    ADDITIVE,  // 加色发光
-    DISTORTION // 仅写入屏幕空间扭曲场
+    ADDITIVE  // 加色发光
 }

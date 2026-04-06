@@ -1,131 +1,62 @@
-# Black Hole Distortion Tech
+# Geometric Mask & Black Hole Distortion
 
-## Goal
+## 几何遮罩（主线）
 
-当前实现把黑洞扭曲拆成两部分：
+**几何遮罩**指：用 mesh 片元 + 深度（可选 alpha）在屏幕空间界定效果作用域，将数据写入 **mask FBO**（主路径）；模板缓冲仅作可选辅助（硬边裁剪），不作为主要 mask 载体。实现位于包 `com.qwaecd.paramagic.core.render.geometricmask`。
 
-- 用 mesh 在单独的 `distortionFieldFBO` 里生成屏幕空间扭曲向量场。
-- 用一次全屏 `screen_warp` pass 对最终可见画面做统一重采样。
+- **`GeometricEffectCaster`**：mesh + `Transform` + `IGeometricMaskEffect`，通过 `ModRenderSystem.addGeometricEffectCaster` 注册，**不**进入 `RenderQueue` / `RenderType`。
+- **`ScreenSpaceEffectManager`**：在 `combinedSceneFbo` 合成之后，对每个 caster 依次执行 mask pass → 全屏 effect pass（内部 ping-pong）。
+- **`IGeometricMaskEffect`**：声明 `getMaskShader()` / `getEffectShader()`、`GeometricMaskInputPolicy`、`GeometricMaskBlendPolicy`、`GeometricMaskRegionStrategy`，以及 mask/effect 的 uniform 绑定。
 
-这样黑洞数量增加时，成本主要是多画几次 mesh mask，而不是对整张场景做多次 ping-pong 重采样。
+扭曲示例实现：**`DistortionGeometricMaskEffect`**（`distortion_field` + `screen_warp`）。Mask 通道约定见 `GeometricMaskChannelLayout.DOC_DISTORTION_FIELD`（RG = UV offset，等）。
 
 ## Runtime Flow
 
-1. `ModRenderSystem.renderObjectsToMainFBO()` 正常绘制 `opaque -> transparent -> additive -> particles` 到 `mainFbo`。
-2. 粒子之后调用 `renderDistortionField()`：
-   - 从 Minecraft 主目标复制深度到 `distortionFieldFbo`。
-   - 清空 distortion color attachment。
-   - 绘制 `RenderType.DISTORTION` 的物体到 `distortionFieldFbo`。
-3. `postProcessScene()` 继续对 `mainFbo.scene + mainFbo.bloom` 做 bloom 和 HDR 合成。
-4. `composeFinalScene()` 把 `sceneCopyFBO` 的原版世界颜色与 Paramagic 的 HDR 结果合成为一张完整可见画面。
-5. `applyScreenSpaceWarp()` 读取 `combinedSceneFbo + distortionFieldFbo`，输出扭曲后的最终图像。
-6. `presentFinalResultToMinecraft()` 用全屏 copy 覆盖回 Minecraft 主目标。
+1. `ModRenderSystem.renderObjectsToMainFBO()`：仅绘制普通 `opaque → transparent → additive → particles` 到 `mainFbo`（无 `RenderType.DISTORTION`）。
+2. `postProcessScene()`：`mainFbo` 的 scene + bloom 经 `PostProcessingManager`。
+3. `composeFinalScene()`：`sceneCopyFBO` 与 Paramagic HDR 合成到 **`combinedSceneFbo`**（最终可见颜色，几何遮罩效果的默认输入）。
+4. `ScreenSpaceEffectManager.applyGeometricMaskEffects(...)`：
+   - 从主目标复制深度到 **`geometricMaskFbo`**（`ColorDepthFramebuffer`）；
+   - 对每个 `GeometricEffectCaster`（远到近）：清空 mask 颜色 → 绘制 mask mesh → 全屏 effect，结果在内部 ping-pong FBO 间传递。
+5. `presentFinalResultToMinecraft()`：将最后一道纹理覆盖到 Minecraft 主目标。
 
-## New Render Resources
+## 辉光 / Bloom（约定）
 
-- `SceneMRTFramebuffer`
-  - 仍然负责 Paramagic 自己的 `scene + bloom source`。
-- `SceneCopyFBO`
-  - 仍然保存原版世界颜色。
-- `ColorDepthFramebuffer distortionFieldFbo`
-  - 颜色附件存屏幕空间 UV 偏移。
-  - 深度附件只用于 mesh mask 的遮挡测试。
-- `SingleTargetFramebuffer combinedSceneFbo`
-  - 保存原版世界和 Paramagic HDR 的完整合成结果。
-- `SingleTargetFramebuffer warpedSceneFbo`
-  - 保存最终扭曲后的结果。
+需要走**现有** bloom 管线的发光几何，必须在 **bloom 之前**写入 `mainFbo` 的 scene 与 bloom 源（MRT），以便 `PostProcessingManager` 能采样到高光。
 
-## Render Queue Contract
+几何遮罩阶段默认只在 **`POST_BLOOM_COMBINED`** 输入上工作，**不**负责新增需 bloom 的能量。若将来必须在遮罩之后才引入新辉光，需单独设计「Late 层 + 二次 bloom」（远期扩展）。
 
-- 新增 `RenderType.DISTORTION`。
-- `RenderQueue` 为它维护单独的 `distortion` 列表，并按远到近排序。
-- `DISTORTION` 不再走普通距离裁剪，否则远处黑洞会被直接整物体丢弃。
-
-## Distortion Material Contract
-
-当前第一版通过 `ScreenSpaceDistortionMaterial` 接入黑洞扭曲。
-
-- Shader: `distortion_field`
-- Render type: `RenderType.DISTORTION`
-- 输出目标: `distortionFieldFbo`
-- 关键 uniform:
-  - `u_centerUv`: 黑洞中心的屏幕 UV，由 `ModRenderSystem` 每帧根据物体变换投影得到。
-  - `u_viewportSize`: 当前 distortion target 的尺寸。
-  - `u_distortionStrength`: 扭曲强度。
-  - `u_innerRadius`: `1/r` 的最小半径钳制，避免中心奇异值。
-  - `u_outerRadius`: 外圈作用半径。
-  - `u_maxOffset`: 单黑洞的最大 UV 偏移上限。
-
-fragment shader 当前写入：
-
-- `RG`: UV offset
-- `B`: 本像素偏移强度，便于后续调试/扩展
-- `A`: 当前未使用
-
-## Shader Behavior
-
-### `distortion_field.fsh`
-
-- 用 `gl_FragCoord / viewportSize` 还原当前像素的屏幕 UV。
-- 以 `u_centerUv` 为中心做 `1 / max(r, innerRadius)` 近似扭曲。
-- 在 `outerRadius` 附近使用 `smoothstep` 做边界过渡。
-- 最终偏移再经过 `u_maxOffset` clamp。
-- 多个黑洞通过 additive blend 叠加成一张向量场。
-
-### `final_compose.fsh`
-
-- 输入：
-  - Paramagic HDR scene
-  - 原版世界颜色
-- 逻辑：
-  - 先做 ACES tone map
-  - 再按旧的 `final_blit` 逻辑合成为完整最终颜色
-
-### `screen_warp.fsh`
-
-- 输入：
-  - `combinedSceneFbo`
-  - `distortionFieldFbo`
-- 逻辑：
-  - 读取 distortion field 的 `xy`
-  - 对最终合成画面做一次 `uv + offset` 重采样
-
-## Usage
-
-任意 `IRenderable` 只要使用 `ScreenSpaceDistortionMaterial`，就会被放进 distortion queue。
-
-现有的 `Sphere` 已经支持传入自定义材质，因此可以直接作为黑洞 mask：
+## 使用示例（调试黑洞）
 
 ```java
-ScreenSpaceDistortionMaterial material = new ScreenSpaceDistortionMaterial()
-        .setDistortionStrength(0.012f)
+DistortionGeometricMaskEffect effect = new DistortionGeometricMaskEffect()
+        .setDistortionStrength(0.14f)
         .setInnerRadius(0.018f)
-        .setOuterRadius(0.22f)
+        .setOuterRadius(2.0f)
         .setMaxOffset(0.05f);
-
-Sphere blackHoleMask = new Sphere(material);
-blackHoleMask.getTransform()
-        .setPosition(x, y, z)
-        .setScale(radius);
+Transform transform = new Transform();
+transform.setPosition(x, y, z).setScale(r, r, r);
+GeometricEffectCaster caster = new GeometricEffectCaster(
+        SpherePrototype.getINSTANCE().getMesh(),
+        transform,
+        effect);
+ModRenderSystem.getInstance().addGeometricEffectCaster(caster);
 ```
 
-如果后续要做热扰动、折射、冲击波，可以继续沿用：
+## Shader 行为摘要
 
-- `RenderType.DISTORTION`
-- `distortionFieldFbo`
-- `screen_warp` 末端统一重采样
-
-只需要新增不同的 distortion material / shader 参数模型。
+- **`distortion_field`**：在 mask FBO 中写入扭曲向量场（见上文物理通道约定）。
+- **`final_compose`**：HDR + 原版场景合成到 `combinedSceneFbo`。
+- **`screen_warp`**：采样 `combinedScene` 与 mask，做 `uv + offset` 重采样。
 
 ## Current Limits
 
-- 当前 warp 发生在 `scene + bloom` 已经合成之后，而不是分别扭曲两个输入。
-- distortion field 只基于单次 mesh 投影，不做物理正确的光线积分。
-- 黑洞中心 UV 使用物体原点投影，适合以中心为扭曲核的球形/近球形 mesh。
-- 目前没有额外实现事件视界遮挡、吸积盘发光、色散和背景多重折返。
+- 多 caster 时为**顺序** mask + effect（每实例一次全屏 pass），非「先累积全场再单次 resolve」的 Field 型优化。
+- `GeometricMaskInputPolicy` 除 `POST_BLOOM_COMBINED` 外尚未接管线。
+- 事件视界、色散、吸积盘等仍为效果层扩展项。
 
 ## Future Extensions
 
-- 将 `ScreenSpaceDistortionMaterial` 抽成更通用的 `DistortionFieldMaterial` 层级。
-- 在 distortion field 中增加 mask/priority/channel，支持不同局部屏幕空间特效共存。
-- 如果需要更强的视觉分层，可以把 warp 从“最终图像”前移到 “scene/bloom/game scene” 的多输入合成阶段。
+- 新增实现 `IGeometricMaskEffect`（热扰动、折射等），共用 `geometricMaskFbo` 与 `ScreenSpaceEffectManager`。
+- Field 型：多实例先写入同一 field FBO（additive），再一次 resolve。
+- 按需接入 `STENCIL_OPTIONAL` 减少 overdraw。
