@@ -7,10 +7,17 @@ import com.qwaecd.paramagic.client.renderbase.factory.FullScreenQuadFactory;
 import com.qwaecd.paramagic.core.particle.ParticleSystem;
 import com.qwaecd.paramagic.core.render.api.IRenderable;
 import com.qwaecd.paramagic.core.render.context.RenderContext;
+import com.qwaecd.paramagic.core.render.geometricmask.GeometricEffectCaster;
+import com.qwaecd.paramagic.core.render.geometricmask.GeometricMaskSceneTextures;
+import com.qwaecd.paramagic.core.render.post.FinalComposePass;
+import com.qwaecd.paramagic.core.render.post.PostProcessSceneTextures;
 import com.qwaecd.paramagic.core.render.post.PostProcessingManager;
+import com.qwaecd.paramagic.core.render.post.ScreenSpaceEffectManager;
+import com.qwaecd.paramagic.core.render.post.buffer.ColorDepthFramebuffer;
 import com.qwaecd.paramagic.core.render.post.buffer.FramebufferUtils;
 import com.qwaecd.paramagic.core.render.post.buffer.SceneCopyFBO;
 import com.qwaecd.paramagic.core.render.post.buffer.SceneMRTFramebuffer;
+import com.qwaecd.paramagic.core.render.post.buffer.SingleTargetFramebuffer;
 import com.qwaecd.paramagic.core.render.queue.RenderItem;
 import com.qwaecd.paramagic.core.render.queue.RenderQueue;
 import com.qwaecd.paramagic.core.render.shader.Shader;
@@ -46,10 +53,23 @@ public class ModRenderSystem extends AbstractRenderSystem{
     private final ConcurrentLinkedQueue<IRenderable> pendingRemove = new ConcurrentLinkedQueue<>();
     private final ConcurrentLinkedQueue<Collection<IRenderable>> pendingBatchRemove = new ConcurrentLinkedQueue<>();
 
+    private final List<GeometricEffectCaster> geometricEffectCasters = new ArrayList<>();
+    private final Set<GeometricEffectCaster> geometricCasterSet = new HashSet<>();
+    private final ConcurrentLinkedQueue<GeometricEffectCaster> pendingGeometricAdd = new ConcurrentLinkedQueue<>();
+    private final ConcurrentLinkedQueue<GeometricEffectCaster> pendingGeometricRemove = new ConcurrentLinkedQueue<>();
+
     private SceneMRTFramebuffer mainFbo;
     private SceneCopyFBO sceneCopyFBO;
+    /**
+     * 几何遮罩主路径：mesh 写入 mask 纹理（见 {@link com.qwaecd.paramagic.core.render.geometricmask}）
+     */
+    private ColorDepthFramebuffer geometricMaskFbo;
+    private SingleTargetFramebuffer combinedSceneFbo;
     private PostProcessingManager postProcessingManager;
+    private FinalComposePass finalComposePass;
+    private ScreenSpaceEffectManager screenSpaceEffectManager;
     private Mesh fullscreenQuad;
+    private Shader presentShader;
 
     @Getter
     private RendererManager rendererManager;
@@ -120,7 +140,6 @@ public class ModRenderSystem extends AbstractRenderSystem{
             } catch (Exception ignored) {
             }
         }
-        // 使用真实硬件能力校验（覆盖版本启发式），避免驱动虚报或版本不代表扩展支持
         ShaderCapabilityChecker.CapabilityReport report = ShaderCapabilityChecker.detect();
         boolean oldGeom = this.canUseGeometryShader;
         boolean oldComp = this.canUseComputeShader;
@@ -144,19 +163,46 @@ public class ModRenderSystem extends AbstractRenderSystem{
 
         this.mainFbo = new SceneMRTFramebuffer(width, height);
         this.sceneCopyFBO = new SceneCopyFBO(width, height);
+        this.geometricMaskFbo = new ColorDepthFramebuffer(width, height);
+        this.combinedSceneFbo = new SingleTargetFramebuffer(width, height);
         this.postProcessingManager = new PostProcessingManager();
         this.postProcessingManager.initialize(width, height);
+        this.finalComposePass = new FinalComposePass();
+        this.finalComposePass.initialize();
+        this.screenSpaceEffectManager = new ScreenSpaceEffectManager(geometricMaskFbo);
+        this.screenSpaceEffectManager.initialize(width, height);
+        this.presentShader = ShaderManager.getInstance().getShaderThrowIfNotFound("bloom_composite");
     }
 
     public void renderScene(RenderContext context) {
         try (GLStateGuard ignored = GLStateGuard.capture()) {
             updateScene();
+            updateGeometricCasters();
 
             renderObjectsToMainFBO(context);
 
-            int finalSceneTexture = postProcessScene();
+            PostProcessSceneTextures postTextures = postProcessingManager.processSceneTextures(
+                    mainFbo.getSceneTextureId(),
+                    mainFbo.getBloomTextureId()
+            );
+            int hdrSceneTexture = postTextures.hdrModCompositeTextureId();
+            int combinedSceneTexture = composeFinalScene(hdrSceneTexture);
+            GeometricMaskSceneTextures geometricInputs = new GeometricMaskSceneTextures(
+                    combinedSceneTexture,
+                    postTextures.hdrModCompositeTextureId(),
+                    postTextures.blurredBloomTextureId(),
+                    sceneCopyFBO.getGameSceneTextureId()
+            );
+            float timeSeconds = (System.currentTimeMillis() & 0x3fffffff) / 1000.0f;
+            int finalSceneTexture = screenSpaceEffectManager.applyGeometricMaskEffects(
+                    context,
+                    timeSeconds,
+                    geometricInputs,
+                    Minecraft.getInstance().getMainRenderTarget(),
+                    geometricEffectCasters
+            );
 
-            blendFinalResultToMinecraft(finalSceneTexture);
+            presentFinalResultToMinecraft(finalSceneTexture);
 
             stateCache.reset();
         } finally {
@@ -164,36 +210,30 @@ public class ModRenderSystem extends AbstractRenderSystem{
         }
     }
 
-    private void blendFinalResultToMinecraft(int finalSceneTexture) {
+    private int composeFinalScene(int hdrSceneTexture) {
+        combinedSceneFbo.bind();
+        glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+        glClear(GL_COLOR_BUFFER_BIT);
+        finalComposePass.combine(hdrSceneTexture, this.sceneCopyFBO.getGameSceneTextureId(), 1.0f, false);
+        combinedSceneFbo.unbind();
+        return combinedSceneFbo.getColorTextureId();
+    }
+
+    private void presentFinalResultToMinecraft(int finalSceneTexture) {
         super.bindWriteMainTarget(true);
 
-        glEnable(GL_BLEND);
-        glBlendFunc(GL_ONE, GL_ONE);
+        glDisable(GL_BLEND);
         glDisable(GL_DEPTH_TEST);
         glDepthMask(false);
 
-        Shader finalBlitShader = ShaderManager.getInstance().getShader("final_blit");
-        finalBlitShader.bind();
+        presentShader.bind();
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, finalSceneTexture);
-        glActiveTexture(GL_TEXTURE2);
-        glBindTexture(GL_TEXTURE_2D, this.sceneCopyFBO.getGameSceneTextureId());
-        finalBlitShader.setUniformValue1i("u_hdrSceneTexture", 0);
-        finalBlitShader.setUniformValue1i("u_gameSceneTexture", 2);
-        finalBlitShader.setUniformValue1f("u_exposure", 1.0f);
-        finalBlitShader.setUniformValue1i("u_enableGammaCorrection", 0);
+        presentShader.setUniformValue1i("u_texture", 0);
         fullscreenQuad.draw();
-        finalBlitShader.unbind();
+        presentShader.unbind();
 
         glDepthMask(true);
-        glDisable(GL_BLEND);
-    }
-
-    private int postProcessScene() {
-        return postProcessingManager.process(
-                mainFbo.getSceneTextureId(),
-                mainFbo.getBloomTextureId()
-        );
     }
 
     private void renderObjectsToMainFBO(RenderContext context) {
@@ -204,23 +244,19 @@ public class ModRenderSystem extends AbstractRenderSystem{
         glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
-        // TODO: 将时间变量重构至动画系统内
         float timeSeconds = (System.currentTimeMillis() & 0x3fffffff) / 1000.0f;
         renderQueue.gather(scene, context.getCamera().position());
         renderQueue.sortForDraw();
-        // 不透明（含 CUTOUT）
         stateCache.apply(RenderState.OPAQUE);
         for (RenderItem it : renderQueue.opaque) {
             drawOne(it.renderable, context, timeSeconds);
         }
 
-        // 半透明
         stateCache.apply(RenderState.ALPHA);
         for (RenderItem it : renderQueue.transparent) {
             drawOne(it.renderable, context, timeSeconds);
         }
 
-        // 加色发光
         stateCache.apply(RenderState.ADDITIVE);
         for (RenderItem it : renderQueue.additive) {
             drawOne(it.renderable, context, timeSeconds);
@@ -252,7 +288,6 @@ public class ModRenderSystem extends AbstractRenderSystem{
         Matrix4f view = matrixProvider.getViewMatrix();
 
         AbstractMaterial material = renderable.getMaterial();
-        // TODO: 使用 UBO 优化同一帧多次设置相同的投影矩阵和视图矩阵。暂不紧急。
         material.applyBaseUniforms(projectionMatrix, view, relativeModelMatrix, timeSeconds);
         material.applyUniforms();
         renderable.getMesh().draw();
@@ -264,11 +299,20 @@ public class ModRenderSystem extends AbstractRenderSystem{
         if (this.mainFbo != null) {
             this.mainFbo.resize(newWidth, newHeight);
         }
+        if (this.geometricMaskFbo != null) {
+            this.geometricMaskFbo.resize(newWidth, newHeight);
+        }
         if (this.postProcessingManager != null) {
             this.postProcessingManager.onResize(newWidth, newHeight);
         }
         if (this.sceneCopyFBO != null) {
             this.sceneCopyFBO.resize(newWidth, newHeight);
+        }
+        if (this.combinedSceneFbo != null) {
+            this.combinedSceneFbo.resize(newWidth, newHeight);
+        }
+        if (this.screenSpaceEffectManager != null) {
+            this.screenSpaceEffectManager.onResize(newWidth, newHeight);
         }
     }
 
@@ -277,11 +321,16 @@ public class ModRenderSystem extends AbstractRenderSystem{
     }
 
     /**
-     * this method is expensive, use with caution.<p>
-     * 该方法开销很大，谨慎使用。
-     * @param renderable the renderable object to remove.
-     * @see #removeRenderables(Collection)
-     * */
+     * 注册几何遮罩发射体（不参与 {@link com.qwaecd.paramagic.core.render.queue.RenderQueue}）。
+     */
+    public void addGeometricEffectCaster(GeometricEffectCaster caster) {
+        this.pendingGeometricAdd.add(caster);
+    }
+
+    public void removeGeometricEffectCaster(GeometricEffectCaster caster) {
+        this.pendingGeometricRemove.add(caster);
+    }
+
     @Deprecated(forRemoval = false)
     public void removeRenderable(IRenderable renderable) {
         this.pendingRemove.add(renderable);
@@ -300,6 +349,10 @@ public class ModRenderSystem extends AbstractRenderSystem{
         this.pendingRemove.clear();
         this.pendingBatchRemove.clear();
         this.renderQueue.clear();
+        this.geometricEffectCasters.clear();
+        this.geometricCasterSet.clear();
+        this.pendingGeometricAdd.clear();
+        this.pendingGeometricRemove.clear();
     }
 
     private void updateScene() {
@@ -317,6 +370,19 @@ public class ModRenderSystem extends AbstractRenderSystem{
 
         while ((obj = pendingRemove.poll()) != null) {
             scene.remove(obj);
+        }
+    }
+
+    private void updateGeometricCasters() {
+        GeometricEffectCaster c;
+        while ((c = pendingGeometricAdd.poll()) != null) {
+            if (geometricCasterSet.add(c)) {
+                geometricEffectCasters.add(c);
+            }
+        }
+        while ((c = pendingGeometricRemove.poll()) != null) {
+            geometricCasterSet.remove(c);
+            geometricEffectCasters.remove(c);
         }
     }
 

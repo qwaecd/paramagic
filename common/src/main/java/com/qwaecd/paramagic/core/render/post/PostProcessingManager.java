@@ -35,7 +35,17 @@ public class PostProcessingManager implements AutoCloseable {
         effects.add(bloomEffect);
     }
 
+    /**
+     * @return Paramagic HDR 合成纹理 id（与 {@link #processSceneTextures} 的 hdr 分量相同）
+     */
     public int process(int sceneTextureId, int bloomSourceTextureId) {
+        return processSceneTextures(sceneTextureId, bloomSourceTextureId).hdrModCompositeTextureId();
+    }
+
+    /**
+     * 执行 bloom + composite + 非 Bloom 后处理链，并同时返回模糊 bloom 纹理 id（供 {@link com.qwaecd.paramagic.core.render.geometricmask.GeometricMaskInputPolicy#BLOOM_ONLY} 等使用）。
+     */
+    public PostProcessSceneTextures processSceneTextures(int sceneTextureId, int bloomSourceTextureId) {
         int finalBloomTexture = -1;
         for (IPostProcessingEffect effect : effects) {
             if (effect instanceof BloomEffect && effect.isEnabled()) {
@@ -69,7 +79,8 @@ public class PostProcessingManager implements AutoCloseable {
 
             readFboIndex = writeFboIndex;
         }
-        return pingPongFbos[readFboIndex].getColorTextureId();
+        int hdrOut = pingPongFbos[readFboIndex].getColorTextureId();
+        return new PostProcessSceneTextures(hdrOut, finalBloomTexture);
     }
 
     public void onResize(int newWidth, int newHeight) {

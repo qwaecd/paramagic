@@ -4,6 +4,7 @@ import com.qwaecd.paramagic.Paramagic;
 import com.qwaecd.paramagic.assembler.AssemblyException;
 import com.qwaecd.paramagic.assembler.ParaComposer;
 import com.qwaecd.paramagic.client.obj.sun.Sun;
+import com.qwaecd.paramagic.client.renderbase.Sphere;
 import com.qwaecd.paramagic.client.renderbase.factory.SphereFactory;
 import com.qwaecd.paramagic.core.particle.ParticleSystem;
 import com.qwaecd.paramagic.core.particle.builder.PhysicsParamBuilder;
@@ -11,8 +12,12 @@ import com.qwaecd.paramagic.core.particle.effect.GPUParticleEffect;
 import com.qwaecd.paramagic.core.particle.emitter.ParticleBurst;
 import com.qwaecd.paramagic.core.particle.emitter.impl.*;
 import com.qwaecd.paramagic.core.particle.emitter.property.type.VelocityModeStates;
+import com.qwaecd.paramagic.client.renderbase.prototype.SpherePrototype;
 import com.qwaecd.paramagic.core.render.ModRenderSystem;
+import com.qwaecd.paramagic.core.render.Transform;
 import com.qwaecd.paramagic.core.render.api.IRenderable;
+import com.qwaecd.paramagic.core.render.geometricmask.DistortionGeometricMaskEffect;
+import com.qwaecd.paramagic.core.render.geometricmask.GeometricEffectCaster;
 import com.qwaecd.paramagic.core.render.shader.ShaderManager;
 import com.qwaecd.paramagic.core.render.texture.Material;
 import com.qwaecd.paramagic.data.animation.property.AllAnimatableProperties;
@@ -52,9 +57,46 @@ public class DebugTools {
 
         IRenderable sun = new Sun(ShaderManager.getInstance().getShader("sun"));
         sun.getTransform().setPosition(0, 80, 10).setScale(5.0f, 5.0f, 5.0f);
-        ModRenderSystem.getInstance().addRenderable(sun);
-        paraTest();
-        effectTest();
+//        ModRenderSystem.getInstance().addRenderable(sun);
+
+        spawnDebugBlackHole();
+//        paraTest();
+//        effectTest();
+    }
+
+    private static void spawnDebugBlackHole() {
+        {
+            DistortionGeometricMaskEffect effect = new DistortionGeometricMaskEffect()
+                    .setDistortionStrength(0.014f)
+                    .setInnerRadius(0.018f)
+                    .setOuterRadius(2.0f)
+                    .setMaxOffset(0.1f);
+            Transform transform = new Transform();
+            float r = 8.0f;
+            transform.setPosition(15.0f, -30.0f, 0.0f).setScale(r, r, r);
+            GeometricEffectCaster caster = new GeometricEffectCaster(
+                    SpherePrototype.getINSTANCE().getMesh(),
+                    transform,
+                    effect
+            );
+            ModRenderSystem.getInstance().addGeometricEffectCaster(caster);
+        }
+        {
+            DistortionGeometricMaskEffect effect = new DistortionGeometricMaskEffect()
+                    .setDistortionStrength(0.014f)
+                    .setInnerRadius(0.018f)
+                    .setOuterRadius(2.0f)
+                    .setMaxOffset(0.1f);
+            Transform transform = new Transform();
+            float r = 4.0f;
+            transform.setPosition(0.0f, -30.0f, 0.0f).setScale(r, r, r);
+            GeometricEffectCaster caster = new GeometricEffectCaster(
+                    SpherePrototype.getINSTANCE().getMesh(),
+                    transform,
+                    effect
+            );
+            ModRenderSystem.getInstance().addGeometricEffectCaster(caster);
+        }
     }
 
     private static void effectTest() {
