@@ -67,12 +67,12 @@ public class DebugTools {
     private static void spawnDebugBlackHole() {
         {
             DistortionGeometricMaskEffect effect = new DistortionGeometricMaskEffect()
-                    .setDistortionStrength(0.014f)
+                    .setDistortionStrength(0.05f)
                     .setInnerRadius(0.018f)
                     .setOuterRadius(2.0f)
-                    .setMaxOffset(0.1f);
+                    .setMaxOffset(0.4f);
             Transform transform = new Transform();
-            float r = 8.0f;
+            float r = 16.0f;
             transform.setPosition(15.0f, -30.0f, 0.0f).setScale(r, r, r);
             GeometricEffectCaster caster = new GeometricEffectCaster(
                     SpherePrototype.getINSTANCE().getMesh(),

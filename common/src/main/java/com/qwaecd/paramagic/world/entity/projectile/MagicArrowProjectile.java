@@ -7,6 +7,7 @@ import com.qwaecd.paramagic.particle.client.shared.BuiltinSharedGPUEffects;
 import com.qwaecd.paramagic.particle.client.shared.SharedGPUEffectRef;
 import com.qwaecd.paramagic.particle.client.shared.SharedGPUEffectRegistry;
 import com.qwaecd.paramagic.thaumaturgy.ProjectileEntity;
+import com.qwaecd.paramagic.thaumaturgy.operator.ParaOperator;
 import com.qwaecd.paramagic.world.entity.ModEntityTypes;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.ItemStack;

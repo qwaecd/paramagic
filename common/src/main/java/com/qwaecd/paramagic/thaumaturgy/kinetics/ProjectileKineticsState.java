@@ -1,8 +1,10 @@
 package com.qwaecd.paramagic.thaumaturgy.kinetics;
 
+import com.qwaecd.paramagic.network.DataCodec;
+import com.qwaecd.paramagic.network.IDataSerializable;
 import org.joml.Vector3f;
 
-public final class ProjectileKineticsState {
+public final class ProjectileKineticsState implements IDataSerializable {
     private final Vector3f velocity = new Vector3f();
     private final Vector3f persistentAcceleration = new Vector3f();
     private float inaccuracy = 0.0f;
@@ -76,5 +78,35 @@ public final class ProjectileKineticsState {
 
     public void setMaxSpeed(float maxSpeed) {
         this.maxSpeed = maxSpeed;
+    }
+
+    public void set(ProjectileKineticsState other) {
+        this.velocity.set(other.velocity);
+        this.persistentAcceleration.set(other.persistentAcceleration);
+        this.inaccuracy = other.inaccuracy;
+        this.linearDamping = other.linearDamping;
+        this.gravityScale = other.gravityScale;
+        this.maxSpeed = other.maxSpeed;
+    }
+
+    @Override
+    public void write(DataCodec codec) {
+        codec.writeVector3f("velocity", this.velocity);
+        codec.writeVector3f("persistentAcceleration", this.persistentAcceleration);
+        codec.writeFloat("inaccuracy", this.inaccuracy);
+        codec.writeFloat("linearDamping", this.linearDamping);
+        codec.writeFloat("gravityScale", this.gravityScale);
+        codec.writeFloat("maxSpeed", this.maxSpeed);
+    }
+
+    public static ProjectileKineticsState fromCodec(DataCodec codec) {
+        ProjectileKineticsState state = new ProjectileKineticsState();
+        state.velocity.set(codec.readVector3f("velocity"));
+        state.persistentAcceleration.set(codec.readVector3f("persistentAcceleration"));
+        state.inaccuracy = codec.readFloat("inaccuracy");
+        state.linearDamping = codec.readFloat("linearDamping");
+        state.gravityScale = codec.readFloat("gravityScale");
+        state.maxSpeed = codec.readFloat("maxSpeed");
+        return state;
     }
 }

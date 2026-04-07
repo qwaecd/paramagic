@@ -10,7 +10,7 @@ import com.qwaecd.paramagic.world.item.ModItems;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.phys.Vec3;
 
-public class ShortTrackingOperator extends ProjectileOperator {
+public class ShortTrackingOperator extends ModifierOperator {
     public static final ParaOpId OP_ID = ParaOpId.of(
             ModRL.inModSpace("short_tracking_operator"),
             new ParaOpId.Properties(OperatorType.MODIFIER, 0.1f, 0.08f)
@@ -27,6 +27,11 @@ public class ShortTrackingOperator extends ProjectileOperator {
     public boolean apply(ParaContext context) {
         context.forEachProjectiles((projectile, index) -> this.tryApplyShortTracking(projectile));
         return true;
+    }
+
+    @Override
+    public void rebuild(ProjectileEntity entity) {
+        this.tryApplyShortTracking(entity);
     }
 
     private void tryApplyShortTracking(ProjectileEntity projectile) {

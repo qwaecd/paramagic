@@ -10,7 +10,7 @@ import com.qwaecd.paramagic.tools.ModRL;
 import com.qwaecd.paramagic.world.item.ModItems;
 import org.joml.Vector3f;
 
-public class AccelerateOperator extends ProjectileOperator {
+public class AccelerateOperator extends ModifierOperator {
     public static final ParaOpId OP_ID = ParaOpId.of(
             ModRL.inModSpace("accelerate_operator"),
             new ParaOpId.Properties(OperatorType.MODIFIER, 0.04f, 0.03f)
@@ -26,6 +26,11 @@ public class AccelerateOperator extends ProjectileOperator {
     public boolean apply(ParaContext context) {
         context.forEachProjectiles((projectile, index) -> this.tryAccelerate(projectile));
         return true;
+    }
+
+    @Override
+    public void rebuild(ProjectileEntity entity) {
+        this.tryAccelerate(entity);
     }
 
     private void tryAccelerate(ProjectileEntity projectile) {

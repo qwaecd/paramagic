@@ -11,6 +11,7 @@ import com.qwaecd.paramagic.tools.ModRL;
 import com.qwaecd.paramagic.world.entity.projectile.MagicArrowProjectile;
 import com.qwaecd.paramagic.world.item.ModItems;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.phys.Vec3;
 
 public class MagicArrowOperator extends ProjectileOperator {
@@ -24,7 +25,7 @@ public class MagicArrowOperator extends ProjectileOperator {
 
     @Override
     public boolean apply(ParaContext context) {
-        ProjectileEntity projectile = new MagicArrowProjectile(context.level);
+        MagicArrowProjectile projectile = new MagicArrowProjectile(context.level);
         SpellCaster caster = context.caster;
         Entity casterEntity = context.level.getEntity(caster.getEntityNetworkId());
 
@@ -32,15 +33,11 @@ public class MagicArrowOperator extends ProjectileOperator {
         Vec3 position = caster.eyePosition();
         Vec3 forwarded = caster.forwardVector();
         projectile.setPosition((float) position.x, (float) position.y - 0.1f, (float) position.z);
-        if (casterEntity != null && projectile instanceof net.minecraft.world.entity.projectile.Projectile mcProjectile) {
-            mcProjectile.setOwner(casterEntity);
+        if (casterEntity != null) {
+            projectile.setOwner(casterEntity);
         }
-        if (projectile instanceof ProjectileVelocityMutable velocityMutable) {
-            velocityMutable.setVelocity((float) forwarded.x * strength, (float) forwarded.y * strength, (float) forwarded.z * strength);
-        }
-        if (projectile instanceof ProjectileInaccuracyMutable inaccuracyMutable) {
-            inaccuracyMutable.setInaccuracy(1.0f);
-        }
+        projectile.setVelocity((float) forwarded.x * strength, (float) forwarded.y * strength, (float) forwarded.z * strength);
+        projectile.setInaccuracy(2.0f);
         context.addProjectile(projectile);
         return true;
     }

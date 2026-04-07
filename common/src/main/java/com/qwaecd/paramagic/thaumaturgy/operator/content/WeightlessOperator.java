@@ -9,7 +9,7 @@ import com.qwaecd.paramagic.thaumaturgy.runtime.ParaContext;
 import com.qwaecd.paramagic.tools.ModRL;
 import com.qwaecd.paramagic.world.item.ModItems;
 
-public class WeightlessOperator extends ProjectileOperator {
+public class WeightlessOperator extends ModifierOperator {
     public static final ParaOpId OP_ID = ParaOpId.of(
             ModRL.inModSpace("weightless_operator"),
             new ParaOpId.Properties(OperatorType.MODIFIER, 0.02f, 0.05f)
@@ -26,6 +26,11 @@ public class WeightlessOperator extends ProjectileOperator {
     public boolean apply(ParaContext context) {
         context.forEachProjectiles((projectile, index) -> this.tryApplyWeightless(projectile));
         return true;
+    }
+
+    @Override
+    public void rebuild(ProjectileEntity entity) {
+        this.tryApplyWeightless(entity);
     }
 
     private void tryApplyWeightless(ProjectileEntity projectile) {

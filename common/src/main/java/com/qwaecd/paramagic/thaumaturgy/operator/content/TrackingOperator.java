@@ -10,7 +10,7 @@ import com.qwaecd.paramagic.world.item.ModItems;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.phys.Vec3;
 
-public class TrackingOperator extends ProjectileOperator {
+public class TrackingOperator extends ModifierOperator {
     public static final ParaOpId OP_ID = ParaOpId.of(
             ModRL.inModSpace("tracking_operator"),
             new ParaOpId.Properties(OperatorType.MODIFIER, 0.025f, 0.06f)
@@ -27,6 +27,11 @@ public class TrackingOperator extends ProjectileOperator {
     public boolean apply(ParaContext context) {
         context.forEachProjectiles((projectile, index) -> this.tryApplyTracking(projectile));
         return true;
+    }
+
+    @Override
+    public void rebuild(ProjectileEntity entity) {
+        this.tryApplyTracking(entity);
     }
 
     private void tryApplyTracking(ProjectileEntity projectile) {
