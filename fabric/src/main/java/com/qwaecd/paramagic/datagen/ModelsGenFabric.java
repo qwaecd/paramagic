@@ -30,5 +30,6 @@ public class ModelsGenFabric extends FabricModelProvider {
         gen.generateFlatItem(ModItems.SHORT_TRACKING_OPERATOR, ModelTemplates.FLAT_ITEM);
         gen.generateFlatItem(ModItems.TRACKING_OPERATOR, ModelTemplates.FLAT_ITEM);
         gen.generateFlatItem(ModItems.WEIGHTLESS_OPERATOR, ModelTemplates.FLAT_ITEM);
+        gen.generateFlatItem(ModItems.GRAVITY_COLLAPSE_OPERATOR, ModelTemplates.FLAT_ITEM);
     }
 }

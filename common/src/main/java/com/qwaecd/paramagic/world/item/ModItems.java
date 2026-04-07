@@ -26,6 +26,7 @@ public final class ModItems {
     public static ShortTrackingOperatorItem SHORT_TRACKING_OPERATOR;
     public static TrackingOperatorItem TRACKING_OPERATOR;
     public static WeightlessOperatorItem WEIGHTLESS_OPERATOR;
+    public static GravityCollapseOperatorItem GRAVITY_COLLAPSE_OPERATOR;
 
     public static ParaCrystalItem PARA_CRYSTAL;
 
@@ -51,6 +52,7 @@ public final class ModItems {
         SHORT_TRACKING_OPERATOR = create(provider, "short_tracking_operator", ShortTrackingOperatorItem::new);
         HEAVY_OPERATOR = create(provider, "heavy_operator", HeavyOperatorItem::new);
         WEIGHTLESS_OPERATOR = create(provider, "weightless_operator", WeightlessOperatorItem::new);
+        GRAVITY_COLLAPSE_OPERATOR = create(provider, "gravity_collapse_operator", GravityCollapseOperatorItem::new);
     }
 
     public interface ItemProvider {

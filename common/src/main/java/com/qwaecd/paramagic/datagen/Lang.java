@@ -47,6 +47,7 @@ public class Lang {
         of("item.paramagic.short_tracking_operator", "Short Tracking", "短距离追踪");
         of("item.paramagic.tracking_operator", "Tracking", "追踪");
         of("item.paramagic.weightless_operator", "Weightless", "失重");
+        of("item.paramagic.gravity_collapse_operator", "Gravitational Collapse", "引力坍缩");
         of("tooltip.paramagic.para_operator_item.operator_type", "§lOperator Type: §r", "§l法术类型: §r");
         of("tooltip.paramagic.para_operator_item.transmission_delay", "§lTransmission Delay: §r", "§l传导延迟: §r");
         of("tooltip.paramagic.para_operator_item.cycle_cooldown", "§lCycle Cooldown: §r", "§l回转冷却: §r");
@@ -59,6 +60,7 @@ public class Lang {
         of("tooltip.paramagic.short_tracking_operator.describe", "Strongly bends projectiles toward nearby targets", "强力扭转投射物以追向近距离目标");
         of("tooltip.paramagic.tracking_operator.describe", "Gently bends projectiles toward farther targets", "缓慢扭转投射物以追向较远目标");
         of("tooltip.paramagic.weightless_operator.describe", "Greatly reduces gravity on projectiles", "显著降低投射物受到的重力");
+        of("tooltip.paramagic.gravity_collapse_operator.describe", "Push the distortion of the world's aetheric field beyond its breaking point, and reality itself will collapse inward.\nNot a void of darkness, but a singularity of warped space that pulls everything nearby into its unseen gravitational vortex.", "当你将世界的魔力场扭曲至极限时，空间本身便会向内坍塌。\n它并非虚无的黑洞，而是一个扭曲现实的奇点，以无形的引力漩涡吞噬靠近的万物。");
         gui();
         paraType();
     }
