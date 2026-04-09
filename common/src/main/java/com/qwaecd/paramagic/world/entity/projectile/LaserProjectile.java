@@ -5,22 +5,23 @@ import com.qwaecd.paramagic.particle.client.shared.BuiltinSharedGPUEffects;
 import com.qwaecd.paramagic.particle.client.shared.SharedGPUEffectRef;
 import com.qwaecd.paramagic.particle.client.shared.SharedGPUEffectRegistry;
 import com.qwaecd.paramagic.thaumaturgy.ProjectileEntity;
-import com.qwaecd.paramagic.thaumaturgy.kinetics.*;
-import com.qwaecd.paramagic.thaumaturgy.kinetics.runtime.ProjectileRuntimeModifierHost;
 import com.qwaecd.paramagic.world.entity.ModEntityTypes;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.phys.*;
+import net.minecraft.world.phys.EntityHitResult;
+import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.phys.Vec3;
+import org.joml.Vector3d;
 import org.joml.Vector3f;
 
 import javax.annotation.Nonnull;
 
 import static com.qwaecd.paramagic.core.particle.emitter.property.key.AllEmitterProperties.*;
 
-public class LaserProjectile extends BaseProjectile implements ProjectileEntity, ProjectileVelocityMutable, ProjectileInaccuracyMutable, ProjectilePersistentAccelerationMutable, ProjectileLinearDampingMutable, ProjectileSpeedLimitMutable, ProjectileGravityMutable, ProjectileRuntimeModifierHost {
+public class LaserProjectile extends BaseProjectile implements ProjectileEntity {
     private static final SharedGPUEffectRef LASER_EFFECT = SharedGPUEffectRegistry.ref(BuiltinSharedGPUEffects.LASER_BEAM);
     private static final float BEAM_LENGTH = 6.5f;
     private static final int MAX_LIFE_TICKS = 20 * 5;
@@ -29,7 +30,7 @@ public class LaserProjectile extends BaseProjectile implements ProjectileEntity,
     private LineEmitter sharedBeamEmitter;
 
     public LaserProjectile(EntityType<? extends LaserProjectile> entityType, Level level) {
-        super(entityType, level);
+        super(entityType, level, 0.2f);
         this.setNoGravity(true);
         this.kineticsState.setGravityScale(0.0f);
         this.kineticsState.setMaxSpeed(64.0f);
@@ -95,10 +96,10 @@ public class LaserProjectile extends BaseProjectile implements ProjectileEntity,
     @Override
     public void shoot() {
         Vec3 position = this.position();
-        Vector3f velocity = this.kineticsState.getVelocity();
-        float speed = velocity.length();
+        Vector3d velocity = this.kineticsState.getVelocity();
+        double speed = velocity.length();
         if (speed > 1.0e-6f) {
-            this.shoot(velocity.x, velocity.y, velocity.z, speed, this.kineticsState.getInaccuracy());
+            BaseProjectile.shoot(this, this.random, velocity.x, velocity.y, velocity.z, (float) speed, this.getInaccuracy());
             Vec3 deltaMovement = this.getDeltaMovement();
             this.kineticsState.setVelocity((float) deltaMovement.x, (float) deltaMovement.y, (float) deltaMovement.z);
         } else {

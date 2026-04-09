@@ -19,7 +19,7 @@ public final class EntityEffectHelper {
             ModRenderSystem.getInstance().removeGeometricEffectCaster(old);
         }
         DistortionGeometricMaskEffect effect = new DistortionGeometricMaskEffect()
-                .setDistortionStrength(0.02f)
+                .setDistortionStrength(0.002f)
                 .setInnerRadius(0.0018f)
                 .setOuterRadius(1.0f)
                 .setMaxOffset(0.4f);

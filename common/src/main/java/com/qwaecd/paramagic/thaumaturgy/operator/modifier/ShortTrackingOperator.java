@@ -1,9 +1,13 @@
-package com.qwaecd.paramagic.thaumaturgy.operator.content;
+package com.qwaecd.paramagic.thaumaturgy.operator.modifier;
 
 import com.qwaecd.paramagic.thaumaturgy.ProjectileEntity;
-import com.qwaecd.paramagic.thaumaturgy.kinetics.runtime.*;
 import com.qwaecd.paramagic.thaumaturgy.operator.OperatorType;
 import com.qwaecd.paramagic.thaumaturgy.operator.ParaOpId;
+import com.qwaecd.paramagic.thaumaturgy.projectile.kinetics.ProjectileTargetingAlgorithms;
+import com.qwaecd.paramagic.thaumaturgy.projectile.kinetics.engine.KineticsAccumulator;
+import com.qwaecd.paramagic.thaumaturgy.projectile.kinetics.runtime.ProjectileRuntimeModifier;
+import com.qwaecd.paramagic.thaumaturgy.projectile.kinetics.runtime.ProjectileRuntimeModifierContext;
+import com.qwaecd.paramagic.thaumaturgy.projectile.kinetics.runtime.ProjectileRuntimeModifierHost;
 import com.qwaecd.paramagic.thaumaturgy.runtime.ParaContext;
 import com.qwaecd.paramagic.tools.ModRL;
 import com.qwaecd.paramagic.world.item.ModItems;
@@ -17,7 +21,7 @@ public class ShortTrackingOperator extends ModifierOperator {
     );
 
     private static final float TRACKING_RANGE = 8.0f;
-    private static final float TRACKING_STRENGTH = 0.2f;
+    private static final float TRACKING_STRENGTH = 8.0f;
 
     public ShortTrackingOperator() {
         super(OP_ID, ModItems.SHORT_TRACKING_OPERATOR);
@@ -50,7 +54,7 @@ public class ShortTrackingOperator extends ModifierOperator {
             this.maxStrength = maxStrength;
         }
         @Override
-        public void applyTick(ProjectileRuntimeModifierContext context, ProjectileKineticsAccumulator accumulator) {
+        public void applyTick(ProjectileRuntimeModifierContext context, KineticsAccumulator accumulator) {
             LivingEntity target = ProjectileTargetingAlgorithms.findNearestLivingTarget(context, this.range);
             if (target == null) {
                 return;
@@ -67,7 +71,7 @@ public class ShortTrackingOperator extends ModifierOperator {
             if (dir >= rangeSqr) {
                 s = this.maxStrength;
             } else {
-                s = (float) Math.min(rangeSqr / dir * this.maxStrength, 4.0f);
+                s = (float) Math.min(rangeSqr / dir * this.maxStrength, this.maxStrength * 1.5f);
             }
             Vec3 normalizedDirection = directionToTarget.normalize().scale(s);
             accumulator.addTransientAcceleration(

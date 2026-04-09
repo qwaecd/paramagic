@@ -1,10 +1,9 @@
-package com.qwaecd.paramagic.thaumaturgy.operator.content;
+package com.qwaecd.paramagic.thaumaturgy.operator.modifier;
 
 import com.qwaecd.paramagic.thaumaturgy.ProjectileEntity;
-import com.qwaecd.paramagic.thaumaturgy.kinetics.ProjectileGravityMutable;
-import com.qwaecd.paramagic.thaumaturgy.kinetics.ProjectileLinearDampingMutable;
 import com.qwaecd.paramagic.thaumaturgy.operator.OperatorType;
 import com.qwaecd.paramagic.thaumaturgy.operator.ParaOpId;
+import com.qwaecd.paramagic.thaumaturgy.projectile.kinetics.PhysicsProvider;
 import com.qwaecd.paramagic.thaumaturgy.runtime.ParaContext;
 import com.qwaecd.paramagic.tools.ModRL;
 import com.qwaecd.paramagic.world.item.ModItems;
@@ -15,7 +14,7 @@ public class HeavyOperator extends ModifierOperator {
             new ParaOpId.Properties(OperatorType.MODIFIER, 0.04f, 0.05f)
     );
 
-    private static final float GRAVITY_SCALE = 2.2f;
+    private static final float GRAVITY_SCALE = 1.2f;
     private static final float LINEAR_DAMPING = 0.01f;
 
     public HeavyOperator() {
@@ -34,11 +33,8 @@ public class HeavyOperator extends ModifierOperator {
     }
 
     private void tryApplyHeavy(ProjectileEntity projectile) {
-        if (projectile instanceof ProjectileGravityMutable gravityMutable) {
-            gravityMutable.setGravityScale(Math.max(gravityMutable.getGravityScale(), GRAVITY_SCALE));
-        }
-        if (projectile instanceof ProjectileLinearDampingMutable dampingMutable) {
-            dampingMutable.setLinearDamping(Math.max(dampingMutable.getLinearDamping(), LINEAR_DAMPING));
-        }
+        PhysicsProvider physics = projectile.physics();
+        physics.setGravityScale(physics.getGravityScale() * GRAVITY_SCALE);
+        physics.setDragCoefficient(physics.getDragCoefficient() + LINEAR_DAMPING);
     }
 }

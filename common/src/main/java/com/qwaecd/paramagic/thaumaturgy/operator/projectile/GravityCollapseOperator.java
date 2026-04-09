@@ -1,43 +1,42 @@
-package com.qwaecd.paramagic.thaumaturgy.operator.content;
+package com.qwaecd.paramagic.thaumaturgy.operator.projectile;
 
 import com.qwaecd.paramagic.spell.caster.SpellCaster;
-import com.qwaecd.paramagic.thaumaturgy.ProjectileEntity;
-import com.qwaecd.paramagic.thaumaturgy.kinetics.ProjectileInaccuracyMutable;
-import com.qwaecd.paramagic.thaumaturgy.kinetics.ProjectileVelocityMutable;
 import com.qwaecd.paramagic.thaumaturgy.operator.OperatorType;
 import com.qwaecd.paramagic.thaumaturgy.operator.ParaOpId;
 import com.qwaecd.paramagic.thaumaturgy.runtime.ParaContext;
 import com.qwaecd.paramagic.tools.ModRL;
-import com.qwaecd.paramagic.world.entity.projectile.MagicArrowProjectile;
+import com.qwaecd.paramagic.world.entity.projectile.GravityCollapseEntity;
 import com.qwaecd.paramagic.world.item.ModItems;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.phys.Vec3;
+import org.joml.Vector3f;
 
-public class MagicArrowOperator extends ProjectileOperator {
+
+public class GravityCollapseOperator extends ProjectileOperator {
     public static final ParaOpId OP_ID = ParaOpId.of(
-            ModRL.inModSpace("magic_arrow_operator"),
-            new ParaOpId.Properties(OperatorType.PROJECTILE, 0.02f, 0.02f)
+            ModRL.inModSpace("gravity_collapse_operator"),
+            new ParaOpId.Properties(OperatorType.PROJECTILE, 2.71828f, 3.14159f)
     );
-    public MagicArrowOperator() {
-        super(OP_ID, ModItems.MAGIC_ARROW_OPERATOR);
+    public GravityCollapseOperator() {
+        super(OP_ID, ModItems.GRAVITY_COLLAPSE_OPERATOR);
     }
 
     @Override
     public boolean apply(ParaContext context) {
-        MagicArrowProjectile projectile = new MagicArrowProjectile(context.level);
+        GravityCollapseEntity projectile = new GravityCollapseEntity(context.level);
         SpellCaster caster = context.caster;
         Entity casterEntity = context.level.getEntity(caster.getEntityNetworkId());
 
-        final float strength = 0.5f;
-        Vec3 position = caster.eyePosition();
+        final float strength = 0.1f;
+        Vec3 eyePosition = caster.eyePosition();
         Vec3 forwarded = caster.forwardVector();
-        projectile.setPosition((float) position.x, (float) position.y - 0.1f, (float) position.z);
+        Vector3f pos = new Vector3f((float) eyePosition.x, (float) eyePosition.y, (float) eyePosition.z);
+        pos.add(forwarded.toVector3f().normalize(0.5f));
+        projectile.setPosition(pos);
         if (casterEntity != null) {
             projectile.setOwner(casterEntity);
         }
         projectile.setVelocity((float) forwarded.x * strength, (float) forwarded.y * strength, (float) forwarded.z * strength);
-        projectile.setInaccuracy(2.0f);
         context.addProjectile(projectile);
         return true;
     }

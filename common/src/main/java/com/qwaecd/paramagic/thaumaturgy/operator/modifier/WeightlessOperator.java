@@ -1,10 +1,9 @@
-package com.qwaecd.paramagic.thaumaturgy.operator.content;
+package com.qwaecd.paramagic.thaumaturgy.operator.modifier;
 
 import com.qwaecd.paramagic.thaumaturgy.ProjectileEntity;
-import com.qwaecd.paramagic.thaumaturgy.kinetics.ProjectileGravityMutable;
-import com.qwaecd.paramagic.thaumaturgy.kinetics.ProjectileLinearDampingMutable;
 import com.qwaecd.paramagic.thaumaturgy.operator.OperatorType;
 import com.qwaecd.paramagic.thaumaturgy.operator.ParaOpId;
+import com.qwaecd.paramagic.thaumaturgy.projectile.kinetics.PhysicsProvider;
 import com.qwaecd.paramagic.thaumaturgy.runtime.ParaContext;
 import com.qwaecd.paramagic.tools.ModRL;
 import com.qwaecd.paramagic.world.item.ModItems;
@@ -34,11 +33,8 @@ public class WeightlessOperator extends ModifierOperator {
     }
 
     private void tryApplyWeightless(ProjectileEntity projectile) {
-        if (projectile instanceof ProjectileGravityMutable gravityMutable) {
-            gravityMutable.setGravityScale(Math.min(gravityMutable.getGravityScale(), GRAVITY_SCALE));
-        }
-        if (projectile instanceof ProjectileLinearDampingMutable dampingMutable) {
-            dampingMutable.setLinearDamping(Math.min(dampingMutable.getLinearDamping(), LINEAR_DAMPING));
-        }
+        PhysicsProvider physics = projectile.physics();
+        physics.setGravityScale(physics.getGravityScale() * GRAVITY_SCALE);
+        physics.setDragCoefficient(LINEAR_DAMPING);
     }
 }

@@ -1,9 +1,13 @@
-package com.qwaecd.paramagic.thaumaturgy.operator.content;
+package com.qwaecd.paramagic.thaumaturgy.operator.modifier;
 
 import com.qwaecd.paramagic.thaumaturgy.ProjectileEntity;
-import com.qwaecd.paramagic.thaumaturgy.kinetics.runtime.*;
 import com.qwaecd.paramagic.thaumaturgy.operator.OperatorType;
 import com.qwaecd.paramagic.thaumaturgy.operator.ParaOpId;
+import com.qwaecd.paramagic.thaumaturgy.projectile.kinetics.ProjectileTargetingAlgorithms;
+import com.qwaecd.paramagic.thaumaturgy.projectile.kinetics.engine.KineticsAccumulator;
+import com.qwaecd.paramagic.thaumaturgy.projectile.kinetics.runtime.ProjectileRuntimeModifier;
+import com.qwaecd.paramagic.thaumaturgy.projectile.kinetics.runtime.ProjectileRuntimeModifierContext;
+import com.qwaecd.paramagic.thaumaturgy.projectile.kinetics.runtime.ProjectileRuntimeModifierHost;
 import com.qwaecd.paramagic.thaumaturgy.runtime.ParaContext;
 import com.qwaecd.paramagic.tools.ModRL;
 import com.qwaecd.paramagic.world.item.ModItems;
@@ -16,8 +20,8 @@ public class TrackingOperator extends ModifierOperator {
             new ParaOpId.Properties(OperatorType.MODIFIER, 0.025f, 0.06f)
     );
 
-    private static final float TRACKING_RANGE = 18.0f;
-    private static final float TRACKING_STRENGTH = 0.1f;
+    private static final float TRACKING_RANGE = 12.0f;
+    private static final float TRACKING_STRENGTH = 4.0f;
 
     public TrackingOperator() {
         super(OP_ID, ModItems.TRACKING_OPERATOR);
@@ -51,7 +55,7 @@ public class TrackingOperator extends ModifierOperator {
         }
 
         @Override
-        public void applyTick(ProjectileRuntimeModifierContext context, ProjectileKineticsAccumulator accumulator) {
+        public void applyTick(ProjectileRuntimeModifierContext context, KineticsAccumulator accumulator) {
             LivingEntity target = ProjectileTargetingAlgorithms.findNearestLivingTarget(context, this.range);
             if (target == null) {
                 return;

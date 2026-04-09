@@ -60,7 +60,8 @@ public class Lang {
         of("tooltip.paramagic.short_tracking_operator.describe", "Strongly bends projectiles toward nearby targets", "强力扭转投射物以追向近距离目标");
         of("tooltip.paramagic.tracking_operator.describe", "Gently bends projectiles toward farther targets", "缓慢扭转投射物以追向较远目标");
         of("tooltip.paramagic.weightless_operator.describe", "Greatly reduces gravity on projectiles", "显著降低投射物受到的重力");
-        of("tooltip.paramagic.gravity_collapse_operator.describe", "Push the distortion of the world's aetheric field beyond its breaking point, and reality itself will collapse inward.\nNot a void of darkness, but a singularity of warped space that pulls everything nearby into its unseen gravitational vortex.", "当你将世界的魔力场扭曲至极限时，空间本身便会向内坍塌。\n它并非虚无的黑洞，而是一个扭曲现实的奇点，以无形的引力漩涡吞噬靠近的万物。");
+        of("tooltip.paramagic.gravity_collapse_operator.describe1", "Push the distortion of the world's aetheric field beyond its breaking point, and reality itself will collapse inward.", "当你将世界的魔力场扭曲至极限时，空间本身便会向内坍塌。");
+        of("tooltip.paramagic.gravity_collapse_operator.describe2", "Not a void of darkness, but a singularity of warped space that pulls everything nearby into its unseen gravitational vortex.", "它并非虚无的黑洞，而是一个扭曲现实的奇点，以无形的引力漩涡吞噬靠近的万物。");
         gui();
         paraType();
     }

@@ -1,5 +1,6 @@
-package com.qwaecd.paramagic.thaumaturgy.kinetics.runtime;
+package com.qwaecd.paramagic.thaumaturgy.projectile.kinetics;
 
+import com.qwaecd.paramagic.thaumaturgy.projectile.kinetics.runtime.ProjectileRuntimeModifierContext;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 

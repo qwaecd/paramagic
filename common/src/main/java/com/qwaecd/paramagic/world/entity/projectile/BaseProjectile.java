@@ -4,23 +4,28 @@ import com.qwaecd.paramagic.Paramagic;
 import com.qwaecd.paramagic.network.IDataSerializable;
 import com.qwaecd.paramagic.network.codec.NBTCodec;
 import com.qwaecd.paramagic.thaumaturgy.ProjectileEntity;
-import com.qwaecd.paramagic.thaumaturgy.kinetics.*;
-import com.qwaecd.paramagic.thaumaturgy.kinetics.runtime.ProjectileKineticsAccumulator;
-import com.qwaecd.paramagic.thaumaturgy.kinetics.runtime.ProjectileRuntimeModifier;
-import com.qwaecd.paramagic.thaumaturgy.kinetics.runtime.ProjectileRuntimeModifierContext;
-import com.qwaecd.paramagic.thaumaturgy.kinetics.runtime.ProjectileRuntimeModifierHost;
 import com.qwaecd.paramagic.thaumaturgy.operator.AllParaOperators;
 import com.qwaecd.paramagic.thaumaturgy.operator.ParaOpId;
 import com.qwaecd.paramagic.thaumaturgy.operator.ParaOperator;
-import com.qwaecd.paramagic.thaumaturgy.operator.content.ModifierOperator;
+import com.qwaecd.paramagic.thaumaturgy.operator.modifier.ModifierOperator;
+import com.qwaecd.paramagic.thaumaturgy.projectile.kinetics.PhysicsProvider;
+import com.qwaecd.paramagic.thaumaturgy.projectile.kinetics.engine.KineticsAccumulator;
+import com.qwaecd.paramagic.thaumaturgy.projectile.kinetics.engine.PhysicsEngine;
+import com.qwaecd.paramagic.thaumaturgy.projectile.kinetics.engine.PhysicsState;
+import com.qwaecd.paramagic.thaumaturgy.projectile.kinetics.runtime.ProjectileRuntimeModifier;
+import com.qwaecd.paramagic.thaumaturgy.projectile.kinetics.runtime.ProjectileRuntimeModifierContext;
+import com.qwaecd.paramagic.thaumaturgy.projectile.kinetics.runtime.ProjectileRuntimeModifierHost;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.util.Mth;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.projectile.ProjectileUtil;
 import net.minecraft.world.entity.projectile.ThrowableProjectile;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.*;
-import org.joml.Vector3f;
+import org.joml.Vector3d;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,16 +33,25 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-public abstract class BaseProjectile extends ThrowableProjectile implements ProjectileEntity, ProjectileVelocityMutable, ProjectileInaccuracyMutable, ProjectilePersistentAccelerationMutable, ProjectileLinearDampingMutable, ProjectileSpeedLimitMutable, ProjectileGravityMutable, ProjectileRuntimeModifierHost {
+public abstract class BaseProjectile extends ThrowableProjectile implements ProjectileEntity, PhysicsProvider, ProjectileRuntimeModifierHost {
     private static final Logger LOGGER = LoggerFactory.getLogger(BaseProjectile.class);
 
-    protected final ProjectileKineticsState kineticsState = new ProjectileKineticsState();
-    protected final ProjectileKineticsAccumulator kineticsAccumulator = new ProjectileKineticsAccumulator();
+    protected final PhysicsState kineticsState;
+    protected final KineticsAccumulator kineticsAccumulator = new KineticsAccumulator();
     protected final List<ProjectileRuntimeModifier> runtimeModifiers = new ArrayList<>();
 
     protected final List<ParaOperator> recordedOperators = new ArrayList<>();
+
+    protected float inaccuracy = 0.0f;
+
     protected BaseProjectile(EntityType<? extends ThrowableProjectile> entityType, Level level) {
         super(entityType, level);
+        this.kineticsState = new PhysicsState();
+    }
+
+    protected BaseProjectile(EntityType<? extends ThrowableProjectile> entityType, Level level, double mass) {
+        super(entityType, level);
+        this.kineticsState = new PhysicsState(mass);
     }
 
     @Override
@@ -48,7 +62,7 @@ public abstract class BaseProjectile extends ThrowableProjectile implements Proj
     @Override
     public void tick() {
         super.tick();
-        if (this.level().isClientSide && this.isAlive()) {
+        if (this.level().isClientSide) {
             return;
         }
         this.applyKineticsStep();
@@ -62,6 +76,54 @@ public abstract class BaseProjectile extends ThrowableProjectile implements Proj
         } else {
             this.setPos(end);
         }
+    }
+
+    @Override
+    public void shoot() {
+        this.syncEntityVelocityFromKinetics();
+        Vec3 velocity = this.getDeltaMovement();
+        BaseProjectile.shoot(this, this.random, velocity.x, velocity.y, velocity.z, (float) velocity.length(), this.getInaccuracy());
+        this.level().addFreshEntity(this);
+    }
+
+    public static void shoot(
+            Entity e,
+            RandomSource random,
+            double x, double y, double z,
+            float velocity,
+            float inaccuracy
+    ) {
+        Vec3 axis = new Vec3(x, y, z);
+        if (axis.lengthSqr() < 1.0E-12D) {
+            axis = new Vec3(0.0D, 0.0D, 1.0D);
+        } else {
+            axis = axis.normalize();
+        }
+
+        // inaccuracy is treated as the cone apex angle in degrees:
+        // 180 -> hemisphere, 360 -> full sphere.
+        double halfAngleRadians = Math.toRadians(Mth.clamp(inaccuracy, 0.0F, 360.0F) * 0.5D);
+        double cosThetaMin = Math.cos(halfAngleRadians);
+        double cosTheta = Mth.lerp(random.nextDouble(), cosThetaMin, 1.0D);
+        double sinTheta = Math.sqrt(Math.max(0.0D, 1.0D - cosTheta * cosTheta));
+        double phi = random.nextDouble() * Math.PI * 2.0D;
+
+        Vec3 helper = Math.abs(axis.y) < 0.999D ? new Vec3(0.0D, 1.0D, 0.0D) : new Vec3(1.0D, 0.0D, 0.0D);
+        Vec3 tangent1 = helper.cross(axis).normalize();
+        Vec3 tangent2 = axis.cross(tangent1);
+        Vec3 direction = tangent1.scale(sinTheta * Math.cos(phi))
+                .add(tangent2.scale(sinTheta * Math.sin(phi)))
+                .add(axis.scale(cosTheta))
+                .normalize();
+
+        Vec3 vec3 = direction.scale(velocity);
+        e.setDeltaMovement(vec3);
+        double d0 = vec3.horizontalDistance();
+        //noinspection SuspiciousNameCombination
+        e.setYRot((float)(Mth.atan2(vec3.x, vec3.z) * (double)(180F / (float)Math.PI)));
+        e.setXRot((float)(Mth.atan2(vec3.y, d0) * (double)(180F / (float)Math.PI)));
+        e.yRotO = e.getYRot();
+        e.xRotO = e.getXRot();
     }
 
     private HitResult findHitResult(Vec3 start, Vec3 end) {
@@ -90,16 +152,16 @@ public abstract class BaseProjectile extends ThrowableProjectile implements Proj
                 this.getOwner(),
                 this.tickCount
         );
-        this.kineticsAccumulator.clear();
+        this.kineticsAccumulator.reset();
         for (ProjectileRuntimeModifier modifier : this.runtimeModifiers) {
             modifier.applyTick(context, this.kineticsAccumulator);
         }
-        ProjectileKineticsUpdater.step(this.kineticsState, this.kineticsAccumulator);
+        PhysicsEngine.update(this.kineticsState, this.kineticsAccumulator, 1.0d / 20.0d);
         this.syncEntityVelocityFromKinetics();
     }
 
     protected void syncEntityVelocityFromKinetics() {
-        Vector3f velocity = this.kineticsState.getVelocity();
+        Vector3d velocity = this.kineticsState.getVelocity();
         this.setDeltaMovement(velocity.x, velocity.y, velocity.z);
     }
 
@@ -114,80 +176,74 @@ public abstract class BaseProjectile extends ThrowableProjectile implements Proj
     }
 
     @Override
-    public void setVelocity(float x, float y, float z) {
+    public double getMass() {
+        return this.kineticsState.getMass();
+    }
+
+    @Override
+    public double getInvMass() {
+        return this.kineticsState.getInvMass();
+    }
+
+    @Override
+    public void setVelocity(double x, double y, double z) {
         this.kineticsState.setVelocity(x, y, z);
         this.syncEntityVelocityFromKinetics();
     }
 
     @Override
-    public Vector3f getVelocity() {
-        return this.kineticsState.getVelocity();
+    public Vector3d getVelocity(Vector3d dest) {
+        return this.kineticsState.getVelocity(dest);
     }
 
     @Override
-    public void addVelocity(float x, float y, float z) {
+    public void addVelocity(double x, double y, double z) {
         this.kineticsState.addVelocity(x, y, z);
         this.syncEntityVelocityFromKinetics();
     }
 
     @Override
     public void setInaccuracy(float inaccuracy) {
-        this.kineticsState.setInaccuracy(inaccuracy);
+        this.inaccuracy = inaccuracy;
     }
 
     @Override
     public float getInaccuracy() {
-        return this.kineticsState.getInaccuracy();
+        return this.inaccuracy;
     }
 
     @Override
-    public Vector3f getPersistentAcceleration() {
-        return this.kineticsState.getPersistentAcceleration();
+    public void setDragCoefficient(double coefficient) {
+        this.kineticsState.setDragCoefficient(coefficient);
+    }
+
+    public double getDragCoefficient() {
+        return this.kineticsState.getDragCoefficient();
     }
 
     @Override
-    public void setPersistentAcceleration(float x, float y, float z) {
-        this.kineticsState.setPersistentAcceleration(x, y, z);
-    }
-
-    @Override
-    public void addPersistentAcceleration(float x, float y, float z) {
-        this.kineticsState.addPersistentAcceleration(x, y, z);
-    }
-
-    @Override
-    public void clearPersistentAcceleration() {
-        this.kineticsState.clearPersistentAcceleration();
-    }
-
-    @Override
-    public float getLinearDamping() {
-        return this.kineticsState.getLinearDamping();
-    }
-
-    @Override
-    public void setLinearDamping(float linearDamping) {
-        this.kineticsState.setLinearDamping(linearDamping);
-    }
-
-    @Override
-    public float getMaxSpeed() {
+    public double getMaxSpeed() {
         return this.kineticsState.getMaxSpeed();
     }
 
     @Override
-    public void setMaxSpeed(float maxSpeed) {
+    public void setMaxSpeed(double maxSpeed) {
         this.kineticsState.setMaxSpeed(maxSpeed);
     }
 
     @Override
-    public float getGravityScale() {
+    public double getGravityScale() {
         return this.kineticsState.getGravityScale();
     }
 
     @Override
-    public void setGravityScale(float gravityScale) {
+    public void setGravityScale(double gravityScale) {
         this.kineticsState.setGravityScale(gravityScale);
+    }
+
+    @Override
+    public PhysicsProvider physics() {
+        return this;
     }
 
     @Override
@@ -225,7 +281,7 @@ public abstract class BaseProjectile extends ThrowableProjectile implements Proj
                     this.recordedOperators.add(operator);
                 }
             }
-            ProjectileKineticsState state = codec.readObject("kineticsState", ProjectileKineticsState::fromCodec);
+            PhysicsState state = codec.readObject("kineticsState", PhysicsState::fromCodec);
             this.kineticsState.set(state);
         } catch (ArrayIndexOutOfBoundsException e) {
             LOGGER.warn("Failed to read recorded operators for projectile {}. The data might be corrupted or from an older version.", this.getId(), e);

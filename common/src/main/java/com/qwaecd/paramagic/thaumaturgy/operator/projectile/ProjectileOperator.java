@@ -1,4 +1,4 @@
-package com.qwaecd.paramagic.thaumaturgy.operator.content;
+package com.qwaecd.paramagic.thaumaturgy.operator.projectile;
 
 import com.qwaecd.paramagic.thaumaturgy.operator.OperatorItemProvider;
 import com.qwaecd.paramagic.thaumaturgy.operator.ParaOpId;

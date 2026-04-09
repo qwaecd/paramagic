@@ -1,6 +1,10 @@
 package com.qwaecd.paramagic.thaumaturgy.operator;
 
-import com.qwaecd.paramagic.thaumaturgy.operator.content.*;
+import com.qwaecd.paramagic.thaumaturgy.operator.flow.VoidOperator;
+import com.qwaecd.paramagic.thaumaturgy.operator.modifier.*;
+import com.qwaecd.paramagic.thaumaturgy.operator.projectile.GravityCollapseOperator;
+import com.qwaecd.paramagic.thaumaturgy.operator.projectile.LaserOperator;
+import com.qwaecd.paramagic.thaumaturgy.operator.projectile.MagicArrowOperator;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;

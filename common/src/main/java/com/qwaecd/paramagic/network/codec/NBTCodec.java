@@ -43,6 +43,11 @@ public class NBTCodec extends DataCodec {
     }
 
     @Override
+    public void writeDouble(String key, double value) {
+        this.tag.putDouble(key, value);
+    }
+
+    @Override
     public void writeBoolean(String key, boolean value) {
         this.tag.putBoolean(key, value);
     }
@@ -52,12 +57,25 @@ public class NBTCodec extends DataCodec {
         this.tag.putIntArray(key, toIntArray(values));
     }
 
+    @Override
+    public void writeDoubleArray(String key, double[] values) {
+        this.tag.putLongArray(key, toLongArray(values));
+    }
+
     private static int[] toIntArray(float[] floatArray) {
         int[] intArray = new int[floatArray.length];
         for (int i = 0; i < floatArray.length; i++) {
             intArray[i] = Float.floatToIntBits(floatArray[i]);
         }
         return intArray;
+    }
+
+    private static long[] toLongArray(double[] doubleArray) {
+        long[] longArray = new long[doubleArray.length];
+        for (int i = 0; i < doubleArray.length; i++) {
+            longArray[i] = Double.doubleToLongBits(doubleArray[i]);
+        }
+        return longArray;
     }
 
     @Override
@@ -131,6 +149,11 @@ public class NBTCodec extends DataCodec {
     }
 
     @Override
+    public double readDouble(String key) {
+        return this.tag.getDouble(key);
+    }
+
+    @Override
     public float[] readFloatArray(String key) {
         int[] intArray = this.tag.getIntArray(key);
         return toFloatArray(intArray);
@@ -142,6 +165,20 @@ public class NBTCodec extends DataCodec {
             floatArray[i] = Float.intBitsToFloat(intArray[i]);
         }
         return floatArray;
+    }
+
+    @Override
+    public double[] readDoubleArray(String key) {
+        long[] longArray = this.tag.getLongArray(key);
+        return toDoubleArray(longArray);
+    }
+
+    private static double[] toDoubleArray(long[] longArray) {
+        double[] doubleArray = new double[longArray.length];
+        for (int i = 0; i < longArray.length; i++) {
+            doubleArray[i] = Double.longBitsToDouble(longArray[i]);
+        }
+        return doubleArray;
     }
 
     @Override

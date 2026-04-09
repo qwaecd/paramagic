@@ -41,6 +41,11 @@ public class PacketByteBufCodec extends DataCodec {
     }
 
     @Override
+    public void writeDouble(String key, double value) {
+        this.buf.writeDouble(value);
+    }
+
+    @Override
     public void writeBoolean(String key, boolean value) {
         this.buf.writeBoolean(value);
     }
@@ -50,6 +55,14 @@ public class PacketByteBufCodec extends DataCodec {
         this.buf.writeInt(values.length);
         for (float v : values) {
             this.buf.writeFloat(v);
+        }
+    }
+
+    @Override
+    public void writeDoubleArray(String key, double[] values) {
+        this.buf.writeInt(values.length);
+        for (double v : values) {
+            this.buf.writeDouble(v);
         }
     }
 
@@ -120,6 +133,11 @@ public class PacketByteBufCodec extends DataCodec {
     }
 
     @Override
+    public double readDouble(String key) {
+        return this.buf.readDouble();
+    }
+
+    @Override
     public boolean readBoolean(String key) {
         return this.buf.readBoolean();
     }
@@ -132,6 +150,16 @@ public class PacketByteBufCodec extends DataCodec {
             floats[j] = this.buf.readFloat();
         }
         return floats;
+    }
+
+    @Override
+    public double[] readDoubleArray(String key) {
+        final int length = this.buf.readInt();
+        double[] doubles = new double[length];
+        for (int j = 0; j < length; j++) {
+            doubles[j] = this.buf.readDouble();
+        }
+        return doubles;
     }
 
     @Override

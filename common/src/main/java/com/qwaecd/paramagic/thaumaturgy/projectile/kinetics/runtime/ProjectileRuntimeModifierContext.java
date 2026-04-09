@@ -1,10 +1,10 @@
-package com.qwaecd.paramagic.thaumaturgy.kinetics.runtime;
+package com.qwaecd.paramagic.thaumaturgy.projectile.kinetics.runtime;
 
 import com.qwaecd.paramagic.thaumaturgy.ProjectileEntity;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
-import org.joml.Vector3f;
+import org.joml.Vector3d;
 
 import javax.annotation.Nullable;
 
@@ -13,7 +13,7 @@ public final class ProjectileRuntimeModifierContext {
     private final Entity entity;
     private final Level level;
     private final Vec3 position;
-    private final Vector3f velocity;
+    private final Vector3d velocity;
     @Nullable
     private final Entity owner;
     private final int age;
@@ -23,7 +23,7 @@ public final class ProjectileRuntimeModifierContext {
             Entity entity,
             Level level,
             Vec3 position,
-            Vector3f velocity,
+            Vector3d velocity,
             Entity owner,
             int age
     ) {
@@ -52,8 +52,12 @@ public final class ProjectileRuntimeModifierContext {
         return this.position;
     }
 
-    public Vector3f getVelocity() {
-        return new Vector3f(this.velocity);
+    public Vector3d getVelocity() {
+        return new Vector3d(this.velocity);
+    }
+
+    public Vector3d getVelocity(Vector3d dest) {
+        return dest.set(this.velocity);
     }
 
     @Nullable

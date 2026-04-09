@@ -5,7 +5,7 @@ import com.qwaecd.paramagic.spell.session.server.ServerSession;
 import com.qwaecd.paramagic.thaumaturgy.ProjectileEntity;
 import com.qwaecd.paramagic.thaumaturgy.operator.OperatorType;
 import com.qwaecd.paramagic.thaumaturgy.operator.ParaOperator;
-import com.qwaecd.paramagic.thaumaturgy.operator.content.ModifierOperator;
+import com.qwaecd.paramagic.thaumaturgy.operator.modifier.ModifierOperator;
 import lombok.Getter;
 import net.minecraft.server.level.ServerLevel;
 
