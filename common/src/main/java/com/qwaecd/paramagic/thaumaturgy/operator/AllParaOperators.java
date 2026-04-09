@@ -33,6 +33,8 @@ public final class AllParaOperators {
     public static void registerAll() {
         registerOperator(VoidOperator.OP_ID, VoidOperator::new);
         registerOperator(AccelerateOperator.OP_ID, AccelerateOperator::new);
+        registerOperator(ShortenLifetimeOperator.OP_ID, ShortenLifetimeOperator::new);
+        registerOperator(ExtendLifetimeOperator.OP_ID, ExtendLifetimeOperator::new);
         registerOperator(GradualAccelerationOperator.OP_ID, GradualAccelerationOperator::new);
         registerOperator(HeavyOperator.OP_ID, HeavyOperator::new);
         registerOperator(LaserOperator.OP_ID, LaserOperator::new);

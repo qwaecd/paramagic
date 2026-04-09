@@ -39,11 +39,13 @@ public class Lang {
         of("block.paramagic.spell_edit_table", "Spell Edit Table", "法术编辑台");
         of("item.paramagic.void_operator", "Void Operator", "空参量");
         of("item.paramagic.accelerate_operator", "Accelerate", "加速");
+        of("item.paramagic.extend_lifetime_operator", "Extend Lifetime", "延长存在时间");
         of("item.paramagic.gradual_acceleration_operator", "Gradual Acceleration", "逐渐加速");
         of("item.paramagic.heavy_operator", "Heavy", "沉重");
         of("item.paramagic.laser_operator", "Laser", "激光");
         of("item.paramagic.magic_arrow_operator", "Magic Arrow", "魔法箭");
         of("item.paramagic.para_crystal", "Para Crystal", "魔力水晶");
+        of("item.paramagic.shorten_lifetime_operator", "Shorten Lifetime", "缩短存在时间");
         of("item.paramagic.short_tracking_operator", "Short Tracking", "短距离追踪");
         of("item.paramagic.tracking_operator", "Tracking", "追踪");
         of("item.paramagic.weightless_operator", "Weightless", "失重");
@@ -64,9 +66,11 @@ public class Lang {
         of("tooltip.paramagic.magic_arrow_operator.describe", "Ordinary arrow", "普通的箭矢");
         of("tooltip.paramagic.void_operator.describe", "Does nothing", "什么也不做");
         of("tooltip.paramagic.accelerate_operator.describe", "Accelerates the launch of projectiles", "使投射物加速射出");
+        of("tooltip.paramagic.extend_lifetime_operator.describe", "Extends projectile lifetime", "延长投射物存在时间");
         of("tooltip.paramagic.gradual_acceleration_operator.describe", "Continuously accelerates projectiles to a higher speed", "让投射物持续向更高速度加速");
         of("tooltip.paramagic.heavy_operator.describe", "Makes projectiles fall faster and appear heavier", "让投射物更快下坠并显得更加沉重");
         of("tooltip.paramagic.laser_operator.describe", "Fires a high-speed laser with a glowing beam trail", "发射一束高速前进并带有发光束线的激光");
+        of("tooltip.paramagic.shorten_lifetime_operator.describe", "Shortens projectile lifetime", "缩短投射物存在时间");
         of("tooltip.paramagic.short_tracking_operator.describe", "Strongly bends projectiles to track close-range targets", "强力扭转投射物以追向近距离目标");
         of("tooltip.paramagic.tracking_operator.describe", "Bends projectiles to track distant targets", "扭转投射物以追向较远目标");
         of("tooltip.paramagic.weightless_operator.describe", "Significantly reduces the gravity applied to projectiles", "显著降低投射物受到的重力");

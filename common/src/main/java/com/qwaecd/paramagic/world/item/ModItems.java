@@ -19,10 +19,12 @@ public final class ModItems {
 
     public static VoidOperatorItem VOID_OPERATOR;
     public static AccelerateOperatorItem ACCELERATE_OPERATOR;
+    public static ExtendLifetimeOperatorItem EXTEND_LIFETIME_OPERATOR;
     public static GradualAccelerationOperatorItem GRADUAL_ACCELERATION_OPERATOR;
     public static HeavyOperatorItem HEAVY_OPERATOR;
     public static LaserOperatorItem LASER_OPERATOR;
     public static MagicArrowOperatorItem MAGIC_ARROW_OPERATOR;
+    public static ShortenLifetimeOperatorItem SHORTEN_LIFETIME_OPERATOR;
     public static ShortTrackingOperatorItem SHORT_TRACKING_OPERATOR;
     public static TrackingOperatorItem TRACKING_OPERATOR;
     public static WeightlessOperatorItem WEIGHTLESS_OPERATOR;
@@ -45,6 +47,8 @@ public final class ModItems {
     private static void operators(ItemProvider provider) {
         VOID_OPERATOR = create(provider, "void_operator", VoidOperatorItem::new);
         ACCELERATE_OPERATOR = create(provider, "accelerate_operator", AccelerateOperatorItem::new);
+        SHORTEN_LIFETIME_OPERATOR = create(provider, "shorten_lifetime_operator", ShortenLifetimeOperatorItem::new);
+        EXTEND_LIFETIME_OPERATOR = create(provider, "extend_lifetime_operator", ExtendLifetimeOperatorItem::new);
         GRADUAL_ACCELERATION_OPERATOR = create(provider, "gradual_acceleration_operator", GradualAccelerationOperatorItem::new);
         LASER_OPERATOR = create(provider, "laser_operator", LaserOperatorItem::new);
         MAGIC_ARROW_OPERATOR = create(provider, "magic_arrow_operator", MagicArrowOperatorItem::new);

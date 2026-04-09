@@ -27,7 +27,7 @@ public class MagicArrowProjectile extends ArrowLikeProjectileEntity implements P
     private float lifeTime = 1.0f;
 
     public MagicArrowProjectile(EntityType<? extends ArrowLikeProjectileEntity> type, Level level) {
-        super(type, level);
+        super(type, level, 0.8f);
     }
 
     public MagicArrowProjectile(Level level) {

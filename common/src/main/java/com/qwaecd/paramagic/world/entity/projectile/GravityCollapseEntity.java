@@ -34,11 +34,11 @@ import org.joml.Vector3f;
 import org.joml.Vector4f;
 
 import javax.annotation.Nullable;
+import java.util.List;
 
 public class GravityCollapseEntity extends BaseProjectile implements ProjectileEntity, LifetimeCarrier {
     private float lifeTime = 6.0f;
 
-    @PlatformScope(PlatformScopeType.CLIENT)
     private final DistortionHolder distortionHolder = new DistortionHolder();
 
     public GravityCollapseEntity(EntityType<? extends ThrowableProjectile> entityType, Level level) {
@@ -65,42 +65,39 @@ public class GravityCollapseEntity extends BaseProjectile implements ProjectileE
     }
 
     private void tickOnServer() {
+        if (this.age > this.lifeTime) {
+            this.onLifeEnd();
+            return;
+        }
+
         final double attractionRadius = 12.0d;
         final double attractionRadiusSquared = attractionRadius * attractionRadius;
-        final double attractionStrength = 0.2d;
+        final double attractionStrength = 0.1d;
 
         Entity owner = this.getOwner();
         Vec3 center = this.position();
         AABB area = this.getBoundingBox().inflate(attractionRadius);
-        for (Entity entity : this.level().getEntities(this, area, entity -> {
-                boolean b1 = entity != owner && entity.distanceToSqr(center) <= attractionRadiusSquared;
-                boolean b2 = !(entity instanceof SpellAnchorEntity);
-                return b1 && b2;
-            }
-        )) {
+        List<Entity> entityList = this.level().getEntities(this, area, entity -> {
+                    boolean b1 = entity != owner && entity.distanceToSqr(center) <= attractionRadiusSquared;
+                    boolean b2 = !(entity instanceof SpellAnchorEntity);
+                    return b1 && b2;
+                }
+        );
+        for (Entity entity : entityList) {
             Vec3 toCenter = center.subtract(entity.position());
             double distanceSquared = toCenter.lengthSqr();
             if (distanceSquared <= 1.0e-6d) {
                 continue;
             }
 
-            double distance = Math.sqrt(distanceSquared);
-            double pullScale = attractionStrength * (1.0d - (distance / attractionRadius));
-            if (pullScale <= 0.0d) {
-                continue;
-            }
-            Vec3 pull = toCenter.normalize().scale(pullScale);
+            Vec3 pull = toCenter.normalize().scale(attractionStrength);
             if (entity instanceof ProjectileEntity projectile) {
-                final double a = 256.0d;
-                pull.multiply(a, a, a);
+                double a = 512.0d;
+                pull.scale(a);
                 projectile.physics().pushWithMomentum(pull.x, pull.y, pull.z);
             } else {
                 entity.push(pull.x, pull.y, pull.z);
             }
-        }
-
-        if (this.age > this.lifeTime) {
-            this.onLifeEnd();
         }
     }
 
@@ -191,9 +188,10 @@ public class GravityCollapseEntity extends BaseProjectile implements ProjectileE
         this.lifeTime = lifetime;
     }
 
-    @PlatformScope(PlatformScopeType.CLIENT)
+    @PlatformScope(PlatformScopeType.COMMON)
     static final class DistortionHolder {
         @Nullable
+        @PlatformScope(PlatformScopeType.CLIENT)
         GeometricEffectCaster distortionCaster = null;
         private float radius = 3.0f;
 
