@@ -15,7 +15,7 @@ public class EmptyEntityRenderer<T extends Entity> extends EntityRenderer<T> {
 
     @Override
     @SuppressWarnings("all")
-    public ResourceLocation getTextureLocation(Entity entity) {
+    public ResourceLocation getTextureLocation(T entity) {
         return null;
     }
 

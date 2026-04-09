@@ -12,6 +12,7 @@ public final class ModEntityRenderers {
         create(provider, ModEntityTypes.SPELL_ANCHOR_ENTITY, SpellAnchorEntityRenderer::new);
         create(provider, ModEntityTypes.LASER_PROJECTILE, LaserProjectileRenderer::new);
         create(provider, ModEntityTypes.MAGIC_ARROW_PROJECTILE, MagicArrowProjectileRenderer::new);
+        create(provider, ModEntityTypes.GRAVITY_COLLAPSE_ENTITY, GravityCollapseEntityRenderer::new);
     }
 
     public interface RendererProvider {

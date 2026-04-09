@@ -1,0 +1,226 @@
+package com.qwaecd.paramagic.world.entity.projectile;
+
+import com.qwaecd.paramagic.core.particle.builder.PhysicsParamBuilder;
+import com.qwaecd.paramagic.core.particle.emitter.EmitterType;
+import com.qwaecd.paramagic.core.particle.emitter.ParticleBurst;
+import com.qwaecd.paramagic.core.particle.emitter.property.key.AllEmitterProperties;
+import com.qwaecd.paramagic.core.particle.emitter.property.type.VelocityModeStates;
+import com.qwaecd.paramagic.core.render.geometricmask.GeometricEffectCaster;
+import com.qwaecd.paramagic.network.Networking;
+import com.qwaecd.paramagic.network.packet.effect.S2CEffectSpawn;
+import com.qwaecd.paramagic.network.particle.anchor.AnchorSpec;
+import com.qwaecd.paramagic.network.particle.emitter.EmitterConfig;
+import com.qwaecd.paramagic.network.particle.emitter.EmitterPropertyConfig;
+import com.qwaecd.paramagic.particle.EffectSpawnBuilder;
+import com.qwaecd.paramagic.particle.server.ServerEffect;
+import com.qwaecd.paramagic.particle.server.ServerEffectManager;
+import com.qwaecd.paramagic.platform.annotation.PlatformScope;
+import com.qwaecd.paramagic.platform.annotation.PlatformScopeType;
+import com.qwaecd.paramagic.thaumaturgy.ProjectileEntity;
+import com.qwaecd.paramagic.thaumaturgy.projectile.property.LifetimeCarrier;
+import com.qwaecd.paramagic.world.entity.EntityEffectHelper;
+import com.qwaecd.paramagic.world.entity.ModEntityTypes;
+import com.qwaecd.paramagic.world.entity.SpellAnchorEntity;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.projectile.ThrowableProjectile;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
+import org.joml.Vector2f;
+import org.joml.Vector3f;
+import org.joml.Vector4f;
+
+import javax.annotation.Nullable;
+import java.util.List;
+
+public class GravityCollapseEntity extends BaseProjectile implements ProjectileEntity, LifetimeCarrier {
+    private float lifeTime = 6.0f;
+
+    private final DistortionHolder distortionHolder = new DistortionHolder();
+
+    public GravityCollapseEntity(EntityType<? extends ThrowableProjectile> entityType, Level level) {
+        super(entityType, level, 40.0f);
+        this.setNoGravity(true);
+        this.kineticsState.setGravityScale(0.0f);
+    }
+
+    public GravityCollapseEntity(Level level) {
+        this(ModEntityTypes.GRAVITY_COLLAPSE_ENTITY, level);
+    }
+
+    @Override
+    public void tick() {
+        super.tick();
+        if (!this.level().isClientSide) {
+            this.tickOnServer();
+        }
+        if (this.level().isClientSide) {
+            if (!this.hasDistortionEffect()) {
+                EntityEffectHelper.spawnGravityCollapseEffect(this);
+            }
+        }
+    }
+
+    private void tickOnServer() {
+        if (this.age > this.lifeTime) {
+            this.onLifeEnd();
+            return;
+        }
+
+        final double attractionRadius = 12.0d;
+        final double attractionRadiusSquared = attractionRadius * attractionRadius;
+        final double attractionStrength = 0.1d;
+
+        Entity owner = this.getOwner();
+        Vec3 center = this.position();
+        AABB area = this.getBoundingBox().inflate(attractionRadius);
+        List<Entity> entityList = this.level().getEntities(this, area, entity -> {
+                    boolean b1 = entity != owner && entity.distanceToSqr(center) <= attractionRadiusSquared;
+                    boolean b2 = !(entity instanceof SpellAnchorEntity);
+                    return b1 && b2;
+                }
+        );
+        for (Entity entity : entityList) {
+            Vec3 toCenter = center.subtract(entity.position());
+            double distanceSquared = toCenter.lengthSqr();
+            if (distanceSquared <= 1.0e-6d) {
+                continue;
+            }
+
+            Vec3 pull = toCenter.normalize().scale(attractionStrength);
+            if (entity instanceof ProjectileEntity projectile) {
+                double a = 512.0d;
+                pull.scale(a);
+                projectile.physics().pushWithMomentum(pull.x, pull.y, pull.z);
+            } else {
+                entity.push(pull.x, pull.y, pull.z);
+            }
+        }
+    }
+
+    @Override
+    protected void onLifeEnd() {
+        super.onLifeEnd();
+        this.spawnDeathEffect();
+    }
+
+    private void spawnDeathEffect() {
+        Vector3f position = this.position().toVector3f();
+        EffectSpawnBuilder builder = new EffectSpawnBuilder();
+        builder.setAnchorSpec(AnchorSpec.forStaticPosition(position))
+                .setMaxParticles(10000);
+
+        PhysicsParamBuilder paramBuilder = new PhysicsParamBuilder();
+        builder.setEffectPhysicsParameter(paramBuilder.build());
+
+        ParticleBurst[] bursts = new ParticleBurst[] {
+                new ParticleBurst(0.0f, 3000)
+        };
+        EmitterPropertyConfig propConfig = new EmitterPropertyConfig.Builder()
+                .addProperty(AllEmitterProperties.BLOOM_INTENSITY, 2.0f)
+                .addProperty(AllEmitterProperties.LIFE_TIME_RANGE, new Vector2f(0.2f, 1.0f))
+                .addProperty(AllEmitterProperties.SIZE_RANGE, new Vector2f(0.6f, 2.0f))
+                .addProperty(AllEmitterProperties.EMIT_FROM_VOLUME, true)
+                .addProperty(AllEmitterProperties.SPHERE_RADIUS, this.getDistortionRadius())
+                .addProperty(AllEmitterProperties.VELOCITY_MODE, VelocityModeStates.RANDOM)
+                .addProperty(AllEmitterProperties.BASE_VELOCITY, new Vector3f(0, 2.0f, 0))
+                .addProperty(AllEmitterProperties.COLOR, new Vector4f(1.2f, 0.5f, 0.8f, 1.0f))
+                .addProperty(AllEmitterProperties.POSITION, new Vector3f(position))
+                .build();
+        EmitterConfig config = new EmitterConfig(
+                EmitterType.SPHERE,
+                0.0f,
+                position,
+                propConfig,
+                bursts
+        );
+        builder.addEmitterConfig(config);
+
+        ServerEffect effect = ServerEffectManager.getInstance().createEffect(builder);
+        if (effect == null) {
+            return;
+        }
+        final double distance = 128.0D;
+        for (ServerPlayer player : ((ServerLevel) this.level()).players()) {
+            if (player.distanceToSqr(position.x, position.y, position.z) < distance * distance) {
+                Networking.get().sendToPlayer(player, new S2CEffectSpawn(effect.spawnData));
+            }
+        }
+    }
+
+    @Override
+    public void onClientRemoval() {
+        super.onClientRemoval();
+        EntityEffectHelper.removeGravityCollapseEffect(this);
+    }
+
+    public boolean hasDistortionEffect() {
+        return this.distortionHolder.hasDistortionEffect();
+    }
+
+    @Nullable
+    public GeometricEffectCaster getDistortionCaster() {
+        return this.distortionHolder.distortionCaster;
+    }
+
+    public void setDistortionPosition(float x, float y, float z) {
+        this.distortionHolder.setPosition(x, y, z);
+    }
+
+    public float getDistortionRadius() {
+        return this.distortionHolder.getRadius();
+    }
+
+    public void setDistortionCaster(GeometricEffectCaster distortionCaster) {
+        this.distortionHolder.setDistortionCaster(distortionCaster);
+    }
+
+    @Override
+    public float getLifetime() {
+        return this.lifeTime;
+    }
+
+    @Override
+    public void setLifetime(float lifetime) {
+        this.lifeTime = lifetime;
+    }
+
+    @PlatformScope(PlatformScopeType.COMMON)
+    static final class DistortionHolder {
+        @Nullable
+        @PlatformScope(PlatformScopeType.CLIENT)
+        GeometricEffectCaster distortionCaster = null;
+        private float radius = 3.0f;
+
+        public boolean hasDistortionEffect() {
+            return this.distortionCaster != null;
+        }
+
+        public void setPosition(float x, float y, float z) {
+            if (this.distortionCaster != null) {
+                this.distortionCaster.getTransform().setPosition(x, y, z);
+            }
+        }
+
+        public void setDistortionCaster(@Nullable GeometricEffectCaster distortionCaster) {
+            this.distortionCaster = distortionCaster;
+            if (distortionCaster != null) {
+                this.radius = distortionCaster.getTransform().getScale(new Vector3f()).y;
+            }
+        }
+
+        public float getRadius() {
+            return this.radius;
+        }
+
+        public void setRadius(float radius) {
+            this.radius = radius;
+            if (this.distortionCaster != null) {
+                distortionCaster.getTransform().setScale(radius);
+            }
+        }
+    }
+}

@@ -9,12 +9,12 @@ import com.qwaecd.paramagic.thaumaturgy.ParaCrystalData;
 import com.qwaecd.paramagic.thaumaturgy.node.ParaTree;
 import com.qwaecd.paramagic.thaumaturgy.operator.OperatorMap;
 import com.qwaecd.paramagic.thaumaturgy.operator.ParaOpId;
-import com.qwaecd.paramagic.thaumaturgy.operator.RemovedOperatorHandler;
 import com.qwaecd.paramagic.tools.nbt.CrystalComponentUtils;
 import com.qwaecd.paramagic.ui.inventory.ContainerHolder;
 import com.qwaecd.paramagic.ui.inventory.PlayerInventoryHolder;
 import com.qwaecd.paramagic.ui.inventory.slot.SlotActionHandler;
 import com.qwaecd.paramagic.ui.inventory.slot.UISlot;
+import com.qwaecd.paramagic.ui_project.edit_table.RemovedOperatorHandler;
 import com.qwaecd.paramagic.world.item.ParaOperatorItem;
 import com.qwaecd.paramagic.world.item.content.ParaCrystalItem;
 import lombok.Getter;
@@ -115,7 +115,7 @@ public class SpellEditTableMenu extends AbstractContainerMenu implements SlotAct
         List<OperatorMap.Entry> oldOperators = crystalData != null
                 ? crystalData.getOperatorEntriesSnapshot()
                 : List.of();
-        this.access.execute((level, blockPos) -> RemovedOperatorHandler.handleRemovedOperators(level, oldOperators));
+        this.access.execute((level, blockPos) -> RemovedOperatorHandler.handleRemovedOperators(level, blockPos, oldOperators));
 
         if (crystalData == null) {
             crystalData = new ParaCrystalData(paraData);

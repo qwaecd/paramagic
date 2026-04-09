@@ -5,6 +5,7 @@ import com.qwaecd.paramagic.spell.session.server.ServerSession;
 import com.qwaecd.paramagic.thaumaturgy.ProjectileEntity;
 import com.qwaecd.paramagic.thaumaturgy.operator.OperatorType;
 import com.qwaecd.paramagic.thaumaturgy.operator.ParaOperator;
+import com.qwaecd.paramagic.thaumaturgy.operator.modifier.ModifierOperator;
 import lombok.Getter;
 import net.minecraft.server.level.ServerLevel;
 
@@ -22,6 +23,7 @@ public final class ParaContext {
     @Getter
     public final SpellCaster caster;
     private final Map<OperatorType, List<ParaOperator>> operators = new EnumMap<>(OperatorType.class);
+    private final List<ParaOperator> appliedModifiers = new ArrayList<>();
     private final List<ProjectileEntity> projectiles = new ArrayList<>();
 
     public ParaContext(@Nonnull ServerSession session, @Nonnull ServerLevel level, SpellCaster caster) {
@@ -31,6 +33,7 @@ public final class ParaContext {
     }
 
     public void execute() {
+        this.appliedModifiers.clear();
         this.prepareProjectiles();
         this.iterate(OperatorType.MODIFIER);
         this.iterate(OperatorType.ALPHA);
@@ -38,6 +41,11 @@ public final class ParaContext {
 
         for (ProjectileEntity projectile : this.projectiles) {
             projectile.shoot();
+            for (ParaOperator operator : this.appliedModifiers) {
+                if (operator instanceof ModifierOperator modifier) {
+                    projectile.recordOperator(modifier);
+                }
+            }
         }
     }
 
@@ -51,6 +59,9 @@ public final class ParaContext {
             ParaOperator operator = iterator.next();
             boolean applied = operator.apply(this);
             if (applied) {
+                if (operator.getType() == OperatorType.MODIFIER) {
+                    this.appliedModifiers.add(operator);
+                }
                 iterator.remove();
             }
         }

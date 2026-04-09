@@ -1,6 +1,10 @@
 package com.qwaecd.paramagic.thaumaturgy.operator;
 
-import com.qwaecd.paramagic.thaumaturgy.operator.content.*;
+import com.qwaecd.paramagic.thaumaturgy.operator.flow.VoidOperator;
+import com.qwaecd.paramagic.thaumaturgy.operator.modifier.*;
+import com.qwaecd.paramagic.thaumaturgy.operator.projectile.GravityCollapseOperator;
+import com.qwaecd.paramagic.thaumaturgy.operator.projectile.LaserOperator;
+import com.qwaecd.paramagic.thaumaturgy.operator.projectile.MagicArrowOperator;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -29,6 +33,8 @@ public final class AllParaOperators {
     public static void registerAll() {
         registerOperator(VoidOperator.OP_ID, VoidOperator::new);
         registerOperator(AccelerateOperator.OP_ID, AccelerateOperator::new);
+        registerOperator(ShortenLifetimeOperator.OP_ID, ShortenLifetimeOperator::new);
+        registerOperator(ExtendLifetimeOperator.OP_ID, ExtendLifetimeOperator::new);
         registerOperator(GradualAccelerationOperator.OP_ID, GradualAccelerationOperator::new);
         registerOperator(HeavyOperator.OP_ID, HeavyOperator::new);
         registerOperator(LaserOperator.OP_ID, LaserOperator::new);
@@ -36,6 +42,7 @@ public final class AllParaOperators {
         registerOperator(ShortTrackingOperator.OP_ID, ShortTrackingOperator::new);
         registerOperator(TrackingOperator.OP_ID, TrackingOperator::new);
         registerOperator(WeightlessOperator.OP_ID, WeightlessOperator::new);
+        registerOperator(GravityCollapseOperator.OP_ID, GravityCollapseOperator::new);
     }
 
     @Nullable

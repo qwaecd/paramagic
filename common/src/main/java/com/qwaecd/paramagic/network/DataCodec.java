@@ -1,6 +1,8 @@
 package com.qwaecd.paramagic.network;
 
+import org.joml.Vector3d;
 import org.joml.Vector3f;
+import org.joml.Vector4d;
 import org.joml.Vector4f;
 
 import javax.annotation.Nullable;
@@ -13,8 +15,10 @@ public abstract class DataCodec {
     public abstract void writeString(String key, String value);
     public abstract void writeUUID(String key, UUID value);
     public abstract void writeFloat(String key, float value);
+    public abstract void writeDouble(String key, double value);
     public abstract void writeBoolean(String key, boolean value);
     public abstract void writeFloatArray(String key, float[] values);
+    public abstract void writeDoubleArray(String key, double[] values);
     public abstract void writeIntArray(String key, int[] values);
     public abstract void writeLong(String key, long value);
     public abstract <T extends IDataSerializable> void writeObject(String key, T object);
@@ -25,6 +29,12 @@ public abstract class DataCodec {
     public void writeVector4f(String key, Vector4f v) {
         this.writeFloatArray(key, new float[]{v.x, v.y, v.z, v.w});
     }
+    public void writeVector3d(String key, Vector3d v) {
+        this.writeDoubleArray(key, new double[]{v.x, v.y, v.z});
+    }
+    public void writeVector4d(String key, Vector4d v) {
+        this.writeDoubleArray(key, new double[]{v.x, v.y, v.z, v.w});
+    }
     public abstract <T extends IDataSerializable> void writeObjectNullable(String key, @Nullable T object);
     public abstract void writeStringNullable(String key, @Nullable String value);
 
@@ -32,8 +42,10 @@ public abstract class DataCodec {
     public abstract String readString(String key);
     public abstract UUID readUUID(String key);
     public abstract float readFloat(String key);
+    public abstract double readDouble(String key);
     public abstract boolean readBoolean(String key);
     public abstract float[] readFloatArray(String key);
+    public abstract double[] readDoubleArray(String key);
     public abstract int[] readIntArray(String key);
     public abstract long readLong(String key);
     /**
@@ -52,6 +64,14 @@ public abstract class DataCodec {
     public Vector4f readVector4f(String key) {
         float[] arr = this.readFloatArray(key);
         return new Vector4f(arr[0], arr[1], arr[2], arr[3]);
+    }
+    public Vector3d readVector3d(String key) {
+        double[] arr = this.readDoubleArray(key);
+        return new Vector3d(arr[0], arr[1], arr[2]);
+    }
+    public Vector4d readVector4d(String key) {
+        double[] arr = this.readDoubleArray(key);
+        return new Vector4d(arr[0], arr[1], arr[2], arr[3]);
     }
 
     /**

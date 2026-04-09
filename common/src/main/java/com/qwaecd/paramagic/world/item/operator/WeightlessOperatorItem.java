@@ -1,6 +1,6 @@
 package com.qwaecd.paramagic.world.item.operator;
 
-import com.qwaecd.paramagic.thaumaturgy.operator.content.WeightlessOperator;
+import com.qwaecd.paramagic.thaumaturgy.operator.modifier.WeightlessOperator;
 import com.qwaecd.paramagic.world.item.ParaOperatorItem;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;

@@ -72,7 +72,7 @@ public class ArcaneProcessor {
                 // 进行回转判定
                 if (this.cycleCooldown < deltaTime) {
                     this.reset();
-                    break;
+                    return;
                 }
                 if (!this.isCycleCoolingDown) {
                     this.isCycleCoolingDown = true;

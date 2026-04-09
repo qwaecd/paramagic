@@ -24,8 +24,10 @@ public class MagicArrowProjectile extends ArrowLikeProjectileEntity implements P
     private PointEmitter sharedTrailEmitter;
     private CircleEmitter circleEmitter;
 
+    private float lifeTime = 1.0f;
+
     public MagicArrowProjectile(EntityType<? extends ArrowLikeProjectileEntity> type, Level level) {
-        super(type, level);
+        super(type, level, 0.8f);
     }
 
     public MagicArrowProjectile(Level level) {
@@ -33,15 +35,10 @@ public class MagicArrowProjectile extends ArrowLikeProjectileEntity implements P
     }
 
     @Override
-    @Nonnull
-    protected ItemStack getPickupItem() {
-        return ItemStack.EMPTY;
-    }
-
-    @Override
-    public void tick() {
-        super.tick();
-        if (this.inGroundTime >= 20) {
+    protected void tickDespawn() {
+        super.tickDespawn();
+        this.lifeTime -= 1.0f / 20.0f;
+        if (this.lifeTime <= 0.0f) {
             this.discard();
         }
     }
@@ -96,7 +93,7 @@ public class MagicArrowProjectile extends ArrowLikeProjectileEntity implements P
             return this.sharedTrailEmitter;
         }
 
-        PointEmitter emitter = new PointEmitter(new Vector3f(), 320.0f);
+        PointEmitter emitter = new PointEmitter(new Vector3f(), 80.0f);
         emitter.getProperty(VELOCITY_SPREAD).set(60.0f);
         emitter.getProperty(COLOR).modify(v -> v.set(0.6f, 0.4f, 0.8f, 1.0f));
         emitter.getProperty(LIFE_TIME_RANGE).modify(v -> v.set(0.2f, 0.45f));
@@ -105,5 +102,11 @@ public class MagicArrowProjectile extends ArrowLikeProjectileEntity implements P
 
         this.sharedTrailEmitter = emitter;
         return emitter;
+    }
+
+    @Override
+    @Nonnull
+    protected ItemStack getPickupItem() {
+        return ItemStack.EMPTY;
     }
 }
