@@ -19,8 +19,6 @@ public class GravityCollapseOperatorItem extends ParaOperatorItem {
     @Override
     protected void appendDescribeHoverText(ItemStack stack, @Nullable Level level, List<Component> components, TooltipFlag isAdvanced) {
         Component describe1 = Component.translatable("tooltip.paramagic.gravity_collapse_operator.describe1").withStyle(ChatFormatting.GRAY);
-        Component describe2 = Component.translatable("tooltip.paramagic.gravity_collapse_operator.describe2").withStyle(ChatFormatting.GRAY);
         components.add(describe1);
-        components.add(describe2);
     }
 }

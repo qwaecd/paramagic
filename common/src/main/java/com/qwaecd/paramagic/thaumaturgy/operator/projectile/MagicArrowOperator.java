@@ -32,8 +32,8 @@ public class MagicArrowOperator extends ProjectileOperator {
         if (casterEntity != null) {
             projectile.setOwner(casterEntity);
         }
-        projectile.setVelocity((float) forwarded.x * strength, (float) forwarded.y * strength, (float) forwarded.z * strength);
-        projectile.setInaccuracy(5.0f);
+        projectile.setVelocity(forwarded.x * strength, forwarded.y * strength, forwarded.z * strength);
+        projectile.setInaccuracy(10.0f);
         context.addProjectile(projectile);
         return true;
     }

@@ -3,6 +3,8 @@ package com.qwaecd.paramagic.world.entity.projectile;
 import com.qwaecd.paramagic.Paramagic;
 import com.qwaecd.paramagic.network.IDataSerializable;
 import com.qwaecd.paramagic.network.codec.NBTCodec;
+import com.qwaecd.paramagic.platform.annotation.PlatformScope;
+import com.qwaecd.paramagic.platform.annotation.PlatformScopeType;
 import com.qwaecd.paramagic.thaumaturgy.ProjectileEntity;
 import com.qwaecd.paramagic.thaumaturgy.operator.AllParaOperators;
 import com.qwaecd.paramagic.thaumaturgy.operator.ParaOpId;
@@ -36,6 +38,8 @@ import java.util.Objects;
 public abstract class BaseProjectile extends ThrowableProjectile implements ProjectileEntity, PhysicsProvider, ProjectileRuntimeModifierHost {
     private static final Logger LOGGER = LoggerFactory.getLogger(BaseProjectile.class);
 
+    protected float age = 0.0f;
+
     protected final PhysicsState kineticsState;
     protected final KineticsAccumulator kineticsAccumulator = new KineticsAccumulator();
     protected final List<ProjectileRuntimeModifier> runtimeModifiers = new ArrayList<>();
@@ -59,9 +63,15 @@ public abstract class BaseProjectile extends ThrowableProjectile implements Proj
         this.recordedOperators.add(operator);
     }
 
+    @PlatformScope(PlatformScopeType.SERVER)
+    protected void onLifeEnd() {
+        this.discard();
+    }
+
     @Override
     public void tick() {
         super.tick();
+        this.age += 1.0f / 20.0f;
         if (this.level().isClientSide) {
             return;
         }
@@ -81,13 +91,19 @@ public abstract class BaseProjectile extends ThrowableProjectile implements Proj
     @Override
     public void shoot() {
         this.syncEntityVelocityFromKinetics();
-        Vec3 velocity = this.getDeltaMovement();
-        BaseProjectile.shoot(this, this.random, velocity.x, velocity.y, velocity.z, (float) velocity.length(), this.getInaccuracy());
+        Vector3d v = this.kineticsState.getVelocity();
+        BaseProjectile.shoot(this, this.random, v.x, v.y, v.z, (float) v.length(), this.getInaccuracy());
+        this.syncEntityVelocityFromKinetics();
         this.level().addFreshEntity(this);
     }
 
+    protected void syncVelocityFromEntity() {
+        Vec3 movement = this.getDeltaMovement();
+        this.kineticsState.setVelocity(movement.x, movement.y, movement.z);
+    }
+
     public static void shoot(
-            Entity e,
+            PhysicsProvider e,
             RandomSource random,
             double x, double y, double z,
             float velocity,
@@ -117,13 +133,15 @@ public abstract class BaseProjectile extends ThrowableProjectile implements Proj
                 .normalize();
 
         Vec3 vec3 = direction.scale(velocity);
-        e.setDeltaMovement(vec3);
-        double d0 = vec3.horizontalDistance();
-        //noinspection SuspiciousNameCombination
-        e.setYRot((float)(Mth.atan2(vec3.x, vec3.z) * (double)(180F / (float)Math.PI)));
-        e.setXRot((float)(Mth.atan2(vec3.y, d0) * (double)(180F / (float)Math.PI)));
-        e.yRotO = e.getYRot();
-        e.xRotO = e.getXRot();
+        e.setVelocity(vec3.x, vec3.y, vec3.z);
+        if (e instanceof Entity entity) {
+            double d0 = vec3.horizontalDistance();
+            //noinspection SuspiciousNameCombination
+            entity.setYRot((float) (Mth.atan2(vec3.x, vec3.z) * (180.0d / Math.PI)));
+            entity.setXRot((float) (Mth.atan2(vec3.y, d0) * (180.0d / Math.PI)));
+            entity.yRotO = entity.getYRot();
+            entity.xRotO = entity.getXRot();
+        }
     }
 
     private HitResult findHitResult(Vec3 start, Vec3 end) {
@@ -254,6 +272,8 @@ public abstract class BaseProjectile extends ThrowableProjectile implements Proj
     public void addAdditionalSaveData(CompoundTag compound) {
         super.addAdditionalSaveData(compound);
         CompoundTag tag = new CompoundTag();
+        tag.putFloat("age", this.age);
+
         NBTCodec codec = new NBTCodec(tag);
         ParaOpId[] paraOpIds = this.recordedOperators.stream()
                 .filter(Objects::nonNull)
@@ -271,6 +291,8 @@ public abstract class BaseProjectile extends ThrowableProjectile implements Proj
         if (tag.isEmpty()) {
             return;
         }
+        this.age = tag.getFloat("age");
+
         NBTCodec codec = new NBTCodec(tag);
         try {
             IDataSerializable[] array = codec.readObjectArray("recordedOperators", ParaOpId::fromCodec);

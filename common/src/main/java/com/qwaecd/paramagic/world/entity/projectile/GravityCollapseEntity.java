@@ -33,7 +33,6 @@ import org.joml.Vector2f;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 public class GravityCollapseEntity extends BaseProjectile implements ProjectileEntity, LifetimeCarrier {
@@ -43,7 +42,7 @@ public class GravityCollapseEntity extends BaseProjectile implements ProjectileE
     private final DistortionHolder distortionHolder = new DistortionHolder();
 
     public GravityCollapseEntity(EntityType<? extends ThrowableProjectile> entityType, Level level) {
-        super(entityType, level, 20.0f);
+        super(entityType, level, 40.0f);
         this.setNoGravity(true);
         this.kineticsState.setGravityScale(0.0f);
     }
@@ -100,21 +99,15 @@ public class GravityCollapseEntity extends BaseProjectile implements ProjectileE
             }
         }
 
-        this.lifeTime -= 1.0f / 20.0f;
-        if (this.lifeTime < 0.0f) {
-            this.discard();
+        if (this.age > this.lifeTime) {
+            this.onLifeEnd();
         }
     }
 
     @Override
-    public void remove(@Nonnull RemovalReason reason) {
-        super.remove(reason);
-        if (this.level().isClientSide) {
-            return;
-        }
-        switch (reason) {
-            case KILLED, DISCARDED -> this.spawnDeathEffect();
-        }
+    protected void onLifeEnd() {
+        super.onLifeEnd();
+        this.spawnDeathEffect();
     }
 
     private void spawnDeathEffect() {

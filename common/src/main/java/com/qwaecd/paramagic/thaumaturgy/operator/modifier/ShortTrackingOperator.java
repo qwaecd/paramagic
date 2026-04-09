@@ -3,6 +3,7 @@ package com.qwaecd.paramagic.thaumaturgy.operator.modifier;
 import com.qwaecd.paramagic.thaumaturgy.ProjectileEntity;
 import com.qwaecd.paramagic.thaumaturgy.operator.OperatorType;
 import com.qwaecd.paramagic.thaumaturgy.operator.ParaOpId;
+import com.qwaecd.paramagic.thaumaturgy.projectile.kinetics.PhysicsProvider;
 import com.qwaecd.paramagic.thaumaturgy.projectile.kinetics.ProjectileTargetingAlgorithms;
 import com.qwaecd.paramagic.thaumaturgy.projectile.kinetics.engine.KineticsAccumulator;
 import com.qwaecd.paramagic.thaumaturgy.projectile.kinetics.runtime.ProjectileRuntimeModifier;
@@ -21,7 +22,7 @@ public class ShortTrackingOperator extends ModifierOperator {
     );
 
     private static final float TRACKING_RANGE = 8.0f;
-    private static final float TRACKING_STRENGTH = 8.0f;
+    private static final float TRACKING_STRENGTH = 0.6f;
 
     public ShortTrackingOperator() {
         super(OP_ID, ModItems.SHORT_TRACKING_OPERATOR);
@@ -74,10 +75,11 @@ public class ShortTrackingOperator extends ModifierOperator {
                 s = (float) Math.min(rangeSqr / dir * this.maxStrength, this.maxStrength * 1.5f);
             }
             Vec3 normalizedDirection = directionToTarget.normalize().scale(s);
-            accumulator.addTransientAcceleration(
-                    (float) normalizedDirection.x,
-                    (float) normalizedDirection.y,
-                    (float) normalizedDirection.z
+            PhysicsProvider physics = context.getProjectile().physics();
+            physics.pushWithMomentum(
+                    normalizedDirection.x,
+                    normalizedDirection.y,
+                    normalizedDirection.z
             );
         }
     }

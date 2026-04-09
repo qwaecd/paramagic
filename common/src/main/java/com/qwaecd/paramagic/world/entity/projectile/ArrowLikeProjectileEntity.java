@@ -67,11 +67,12 @@ public abstract class ArrowLikeProjectileEntity extends AbstractArrow implements
     @Override
     public void shoot() {
         this.syncEntityVelocityFromKinetics();
-        Vec3 position = this.position();
-        Vec3 velocity = this.getDeltaMovement();
-        this.shoot(velocity.x, velocity.y, velocity.z, (float) velocity.length(), this.getInaccuracy());
+        Vector3d v = this.kineticsState.getVelocity();
+        BaseProjectile.shoot(this, this.random, v.x, v.y, v.z, (float) v.length(), this.getInaccuracy());
+        this.syncEntityVelocityFromKinetics();
         this.level().addFreshEntity(this);
 
+        Vec3 position = this.position();
         level().playSound(
                 null,
                 position.x,

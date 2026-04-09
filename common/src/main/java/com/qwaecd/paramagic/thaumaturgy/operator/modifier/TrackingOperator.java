@@ -3,6 +3,7 @@ package com.qwaecd.paramagic.thaumaturgy.operator.modifier;
 import com.qwaecd.paramagic.thaumaturgy.ProjectileEntity;
 import com.qwaecd.paramagic.thaumaturgy.operator.OperatorType;
 import com.qwaecd.paramagic.thaumaturgy.operator.ParaOpId;
+import com.qwaecd.paramagic.thaumaturgy.projectile.kinetics.PhysicsProvider;
 import com.qwaecd.paramagic.thaumaturgy.projectile.kinetics.ProjectileTargetingAlgorithms;
 import com.qwaecd.paramagic.thaumaturgy.projectile.kinetics.engine.KineticsAccumulator;
 import com.qwaecd.paramagic.thaumaturgy.projectile.kinetics.runtime.ProjectileRuntimeModifier;
@@ -21,7 +22,7 @@ public class TrackingOperator extends ModifierOperator {
     );
 
     private static final float TRACKING_RANGE = 12.0f;
-    private static final float TRACKING_STRENGTH = 4.0f;
+    private static final float TRACKING_STRENGTH = 0.2f;
 
     public TrackingOperator() {
         super(OP_ID, ModItems.TRACKING_OPERATOR);
@@ -67,10 +68,11 @@ public class TrackingOperator extends ModifierOperator {
             }
 
             Vec3 normalizedDirection = directionToTarget.normalize().scale(this.strength);
-            accumulator.addTransientAcceleration(
-                    (float) normalizedDirection.x,
-                    (float) normalizedDirection.y,
-                    (float) normalizedDirection.z
+            PhysicsProvider physics = context.getProjectile().physics();
+            physics.pushWithMomentum(
+                    normalizedDirection.x,
+                    normalizedDirection.y,
+                    normalizedDirection.z
             );
         }
     }

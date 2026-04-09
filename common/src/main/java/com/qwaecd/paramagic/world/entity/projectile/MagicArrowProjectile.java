@@ -24,7 +24,7 @@ public class MagicArrowProjectile extends ArrowLikeProjectileEntity implements P
     private PointEmitter sharedTrailEmitter;
     private CircleEmitter circleEmitter;
 
-    private float lifeTime = 3.0f;
+    private float lifeTime = 1.0f;
 
     public MagicArrowProjectile(EntityType<? extends ArrowLikeProjectileEntity> type, Level level) {
         super(type, level);

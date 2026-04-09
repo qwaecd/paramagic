@@ -48,22 +48,29 @@ public class Lang {
         of("item.paramagic.tracking_operator", "Tracking", "追踪");
         of("item.paramagic.weightless_operator", "Weightless", "失重");
         of("item.paramagic.gravity_collapse_operator", "Gravitational Collapse", "引力坍缩");
-        of("tooltip.paramagic.para_operator_item.operator_type", "§lOperator Type: §r", "§l法术类型: §r");
-        of("tooltip.paramagic.para_operator_item.transmission_delay", "§lTransmission Delay: §r", "§l传导延迟: §r");
-        of("tooltip.paramagic.para_operator_item.cycle_cooldown", "§lCycle Cooldown: §r", "§l回转冷却: §r");
-        of("tooltip.paramagic.magic_arrow_operator.describe", "Shoots a magic arrow forward", "向前射出一支魔法箭");
-        of("tooltip.paramagic.void_operator.describe", "Do noting", "什么也不做");
-        of("tooltip.paramagic.accelerate_operator.describe", "Adds an immediate forward impulse to projectiles", "为投射物施加一次即时向前冲量");
-        of("tooltip.paramagic.gradual_acceleration_operator.describe", "Continuously accelerates projectiles toward a higher speed", "让投射物持续向更高速度加速");
-        of("tooltip.paramagic.heavy_operator.describe", "Makes projectiles fall faster and feel heavier", "让投射物更快下坠并显得更加沉重");
-        of("tooltip.paramagic.laser_operator.describe", "Launches a fast laser-like projectile with a glowing beam trail", "发射一束高速前进并带有发光束线装饰的激光投射物");
-        of("tooltip.paramagic.short_tracking_operator.describe", "Strongly bends projectiles toward nearby targets", "强力扭转投射物以追向近距离目标");
-        of("tooltip.paramagic.tracking_operator.describe", "Gently bends projectiles toward farther targets", "缓慢扭转投射物以追向较远目标");
-        of("tooltip.paramagic.weightless_operator.describe", "Greatly reduces gravity on projectiles", "显著降低投射物受到的重力");
-        of("tooltip.paramagic.gravity_collapse_operator.describe1", "Push the distortion of the world's aetheric field beyond its breaking point, and reality itself will collapse inward.", "当你将世界的魔力场扭曲至极限时，空间本身便会向内坍塌。");
-        of("tooltip.paramagic.gravity_collapse_operator.describe2", "Not a void of darkness, but a singularity of warped space that pulls everything nearby into its unseen gravitational vortex.", "它并非虚无的黑洞，而是一个扭曲现实的奇点，以无形的引力漩涡吞噬靠近的万物。");
+        operatorTooltip();
         gui();
         paraType();
+    }
+
+    private static void operatorTooltip() {
+        of("tooltip.paramagic.para_operator_item.operator_type",
+                "§lOperator Type: §r", "§l法术类型: §r");
+        of("tooltip.paramagic.para_operator_item.transmission_delay",
+                "§lTransmission Delay: §r", "§l传导延迟: §r");
+        of("tooltip.paramagic.para_operator_item.cycle_cooldown",
+                "§lCycle Cooldown: §r", "§l回转冷却: §r");
+
+        of("tooltip.paramagic.magic_arrow_operator.describe", "Ordinary arrow", "普通的箭矢");
+        of("tooltip.paramagic.void_operator.describe", "Does nothing", "什么也不做");
+        of("tooltip.paramagic.accelerate_operator.describe", "Accelerates the launch of projectiles", "使投射物加速射出");
+        of("tooltip.paramagic.gradual_acceleration_operator.describe", "Continuously accelerates projectiles to a higher speed", "让投射物持续向更高速度加速");
+        of("tooltip.paramagic.heavy_operator.describe", "Makes projectiles fall faster and appear heavier", "让投射物更快下坠并显得更加沉重");
+        of("tooltip.paramagic.laser_operator.describe", "Fires a high-speed laser with a glowing beam trail", "发射一束高速前进并带有发光束线的激光");
+        of("tooltip.paramagic.short_tracking_operator.describe", "Strongly bends projectiles to track close-range targets", "强力扭转投射物以追向近距离目标");
+        of("tooltip.paramagic.tracking_operator.describe", "Bends projectiles to track distant targets", "扭转投射物以追向较远目标");
+        of("tooltip.paramagic.weightless_operator.describe", "Significantly reduces the gravity applied to projectiles", "显著降低投射物受到的重力");
+        of("tooltip.paramagic.gravity_collapse_operator.describe1", "When you distort the world's magic field to its limit...", "当你将世界的魔力场扭曲至极限时...");
     }
 
     private static void paraType() {

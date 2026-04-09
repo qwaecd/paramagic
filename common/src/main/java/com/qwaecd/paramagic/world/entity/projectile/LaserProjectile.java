@@ -5,6 +5,7 @@ import com.qwaecd.paramagic.particle.client.shared.BuiltinSharedGPUEffects;
 import com.qwaecd.paramagic.particle.client.shared.SharedGPUEffectRef;
 import com.qwaecd.paramagic.particle.client.shared.SharedGPUEffectRegistry;
 import com.qwaecd.paramagic.thaumaturgy.ProjectileEntity;
+import com.qwaecd.paramagic.thaumaturgy.projectile.property.LifetimeCarrier;
 import com.qwaecd.paramagic.world.entity.ModEntityTypes;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -21,10 +22,10 @@ import javax.annotation.Nonnull;
 
 import static com.qwaecd.paramagic.core.particle.emitter.property.key.AllEmitterProperties.*;
 
-public class LaserProjectile extends BaseProjectile implements ProjectileEntity {
+public class LaserProjectile extends BaseProjectile implements ProjectileEntity, LifetimeCarrier {
     private static final SharedGPUEffectRef LASER_EFFECT = SharedGPUEffectRegistry.ref(BuiltinSharedGPUEffects.LASER_BEAM);
     private static final float BEAM_LENGTH = 6.5f;
-    private static final int MAX_LIFE_TICKS = 20 * 5;
+    private float lifeTime = 5.0f;
 
     private float HIT_DAMAGE = 5.0f;
     private LineEmitter sharedBeamEmitter;
@@ -43,11 +44,11 @@ public class LaserProjectile extends BaseProjectile implements ProjectileEntity 
     @Override
     public void tick() {
         super.tick();
-        if (this.level().isClientSide && this.isAlive()) {
+        if (this.level().isClientSide) {
             return;
         }
-        if (this.tickCount >= MAX_LIFE_TICKS) {
-            this.discard();
+        if (this.age > this.lifeTime) {
+            this.onLifeEnd();
         }
     }
 
@@ -58,7 +59,7 @@ public class LaserProjectile extends BaseProjectile implements ProjectileEntity 
             Entity target = entityHitResult.getEntity();
             target.hurt(this.damageSources().magic(), HIT_DAMAGE);
         }
-        this.discard();
+        this.onLifeEnd();
     }
 
     public void renderBeamEffect(float partialTick, float deltaTime) {
@@ -100,8 +101,7 @@ public class LaserProjectile extends BaseProjectile implements ProjectileEntity 
         double speed = velocity.length();
         if (speed > 1.0e-6f) {
             BaseProjectile.shoot(this, this.random, velocity.x, velocity.y, velocity.z, (float) speed, this.getInaccuracy());
-            Vec3 deltaMovement = this.getDeltaMovement();
-            this.kineticsState.setVelocity((float) deltaMovement.x, (float) deltaMovement.y, (float) deltaMovement.z);
+            this.syncEntityVelocityFromKinetics();
         } else {
             this.syncEntityVelocityFromKinetics();
         }
@@ -116,5 +116,15 @@ public class LaserProjectile extends BaseProjectile implements ProjectileEntity 
                 1.0F,
                 1.0F / (level().getRandom().nextFloat() * 0.4F + 1.2F)
         );
+    }
+
+    @Override
+    public float getLifetime() {
+        return this.lifeTime;
+    }
+
+    @Override
+    public void setLifetime(float lifetime) {
+        this.lifeTime = lifetime;
     }
 }
