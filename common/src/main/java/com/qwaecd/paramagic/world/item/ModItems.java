@@ -47,9 +47,9 @@ public final class ModItems {
     private static void operators(ItemProvider provider) {
         VOID_OPERATOR = create(provider, "void_operator", VoidOperatorItem::new);
         ACCELERATE_OPERATOR = create(provider, "accelerate_operator", AccelerateOperatorItem::new);
+        GRADUAL_ACCELERATION_OPERATOR = create(provider, "gradual_acceleration_operator", GradualAccelerationOperatorItem::new);
         SHORTEN_LIFETIME_OPERATOR = create(provider, "shorten_lifetime_operator", ShortenLifetimeOperatorItem::new);
         EXTEND_LIFETIME_OPERATOR = create(provider, "extend_lifetime_operator", ExtendLifetimeOperatorItem::new);
-        GRADUAL_ACCELERATION_OPERATOR = create(provider, "gradual_acceleration_operator", GradualAccelerationOperatorItem::new);
         LASER_OPERATOR = create(provider, "laser_operator", LaserOperatorItem::new);
         MAGIC_ARROW_OPERATOR = create(provider, "magic_arrow_operator", MagicArrowOperatorItem::new);
         TRACKING_OPERATOR = create(provider, "tracking_operator", TrackingOperatorItem::new);
