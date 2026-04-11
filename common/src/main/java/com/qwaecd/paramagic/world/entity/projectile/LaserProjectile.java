@@ -7,6 +7,7 @@ import com.qwaecd.paramagic.particle.client.shared.SharedGPUEffectRegistry;
 import com.qwaecd.paramagic.thaumaturgy.ProjectileEntity;
 import com.qwaecd.paramagic.thaumaturgy.projectile.property.LifetimeCarrier;
 import com.qwaecd.paramagic.world.entity.ModEntityTypes;
+import com.qwaecd.paramagic.world.sound.ModSounds;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.Entity;
@@ -111,9 +112,9 @@ public class LaserProjectile extends BaseProjectile implements ProjectileEntity,
                 position.x,
                 position.y,
                 position.z,
-                SoundEvents.ARROW_SHOOT,
+                ModSounds.LASER,
                 SoundSource.PLAYERS,
-                1.0F,
+                4.0F,
                 1.0F / (level().getRandom().nextFloat() * 0.4F + 1.2F)
         );
     }

@@ -1,0 +1,19 @@
+{
+  "laser": {
+    "subtitle": "paramagic.sound.laser",
+    "sounds": [
+      {
+        "name": "paramagic:laser_1",
+        "volume": 1.0
+      },
+      {
+        "name": "paramagic:laser_2",
+        "volume": 1.0
+      },
+      {
+        "name": "paramagic:laser_3",
+        "volume": 1.0
+      }
+    ]
+  }
+}
