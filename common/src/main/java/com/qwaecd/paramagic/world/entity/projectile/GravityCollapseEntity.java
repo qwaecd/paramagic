@@ -1,8 +1,12 @@
 package com.qwaecd.paramagic.world.entity.projectile;
 
+import com.qwaecd.paramagic.core.particle.ParticleSystem;
 import com.qwaecd.paramagic.core.particle.builder.PhysicsParamBuilder;
+import com.qwaecd.paramagic.core.particle.data.EffectPhysicsParameter;
+import com.qwaecd.paramagic.core.particle.effect.GPUParticleEffect;
 import com.qwaecd.paramagic.core.particle.emitter.EmitterType;
 import com.qwaecd.paramagic.core.particle.emitter.ParticleBurst;
+import com.qwaecd.paramagic.core.particle.emitter.impl.SphereEmitter;
 import com.qwaecd.paramagic.core.particle.emitter.property.key.AllEmitterProperties;
 import com.qwaecd.paramagic.core.particle.emitter.property.type.VelocityModeStates;
 import com.qwaecd.paramagic.core.render.geometricmask.GeometricEffectCaster;
@@ -33,13 +37,17 @@ import org.joml.Vector2f;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.List;
+
+import static com.qwaecd.paramagic.core.particle.emitter.property.key.AllEmitterProperties.*;
 
 public class GravityCollapseEntity extends BaseProjectile implements ProjectileEntity, LifetimeCarrier {
     private float lifeTime = 6.0f;
 
     private final DistortionHolder distortionHolder = new DistortionHolder();
+    private GPUParticleEffect effect;
 
     public GravityCollapseEntity(EntityType<? extends ThrowableProjectile> entityType, Level level) {
         super(entityType, level, 40.0f);
@@ -92,8 +100,8 @@ public class GravityCollapseEntity extends BaseProjectile implements ProjectileE
 
             Vec3 pull = toCenter.normalize().scale(attractionStrength);
             if (entity instanceof ProjectileEntity projectile) {
-                double a = 512.0d;
-                pull.scale(a);
+                double a = 4.0d;
+                pull = pull.scale(a);
                 projectile.physics().pushWithMomentum(pull.x, pull.y, pull.z);
             } else {
                 entity.push(pull.x, pull.y, pull.z);
@@ -105,6 +113,36 @@ public class GravityCollapseEntity extends BaseProjectile implements ProjectileE
     protected void onLifeEnd() {
         super.onLifeEnd();
         this.spawnDeathEffect();
+    }
+
+    public void renderEffect(float partialTicks, float deltaTime) {
+        Vector3f pos = this.getPosition(partialTicks).toVector3f();
+        GPUParticleEffect gpuEffect = this.getOrCreateEffect();
+        gpuEffect.getPhysicsParameter().setCFPos(pos);
+        gpuEffect.forEachEmitter(emitter -> emitter.getProperty(POSITION).set(pos));
+    }
+
+    @Nonnull
+    private GPUParticleEffect getOrCreateEffect() {
+        if (this.effect != null) {
+            return this.effect;
+        }
+        SphereEmitter emitter = new SphereEmitter(new Vector3f(), 800.0f);
+        emitter.getProperty(COLOR).modify(v -> v.set(1.2f, 0.5f, 0.8f, 1.0f));
+        emitter.getProperty(LIFE_TIME_RANGE).modify(v -> v.set(0.1f, 0.4f));
+        emitter.getProperty(SIZE_RANGE).modify(v -> v.set(3.4f, 4.2f));
+        emitter.getProperty(BLOOM_INTENSITY).set(0.8f);
+        emitter.getProperty(SPHERE_RADIUS).set(this.getDistortionRadius() + 0.5f);
+        emitter.getProperty(VELOCITY_MODE).set(VelocityModeStates.RANDOM);
+        emitter.getProperty(BASE_VELOCITY).modify(v -> v.set(0.8f));
+
+        EffectPhysicsParameter physicsParameter = new PhysicsParamBuilder()
+                .primaryForceParam(320.0f, -2.0f)
+                .primaryForceEnabled(true)
+                .build();
+        this.effect = new GPUParticleEffect(List.of(emitter), 100_000, 0.0f, physicsParameter);
+        ParticleSystem.getInstance().spawnEffect(this.effect);
+        return this.effect;
     }
 
     private void spawnDeathEffect() {
@@ -155,6 +193,9 @@ public class GravityCollapseEntity extends BaseProjectile implements ProjectileE
     public void onClientRemoval() {
         super.onClientRemoval();
         EntityEffectHelper.removeGravityCollapseEffect(this);
+        if (this.effect != null) {
+            ParticleSystem.getInstance().removeEffect(this.effect);
+        }
     }
 
     public boolean hasDistortionEffect() {

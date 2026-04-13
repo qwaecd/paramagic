@@ -12,7 +12,7 @@
         "sources": "https://github.com/qwaecd/paramagic"
     },
     "license": "${license}",
-    "icon": "assets/modid/${mod_id}.png",
+    "icon": "assets/paramagic/icon.png",
     "environment": "*",
     "entrypoints": {
         "main": [

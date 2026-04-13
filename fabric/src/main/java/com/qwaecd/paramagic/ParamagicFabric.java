@@ -21,6 +21,7 @@ public class ParamagicFabric implements ModInitializer {
         ModBlocksFabric.registerAll();
         ModEntityTypesFabric.registerAll();
         CreativeTableFabric.registerAll();
+        ModSoundsFabric.registerAll();
 
         ModBlockEntitiesFabric.registerAll();
         ModMenusFabric.registerAll();

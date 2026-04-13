@@ -50,9 +50,14 @@ public class Lang {
         of("item.paramagic.tracking_operator", "Tracking", "追踪");
         of("item.paramagic.weightless_operator", "Weightless", "失重");
         of("item.paramagic.gravity_collapse_operator", "Gravitational Collapse", "引力坍缩");
+        sound();
         operatorTooltip();
         gui();
         paraType();
+    }
+
+    private static void sound() {
+        of("paramagic.sound.laser", "Laser", "激光");
     }
 
     private static void operatorTooltip() {
