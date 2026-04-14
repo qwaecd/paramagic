@@ -51,7 +51,6 @@ public class GravityCollapseEntity extends BaseProjectile implements ProjectileE
 
     public GravityCollapseEntity(EntityType<? extends ThrowableProjectile> entityType, Level level) {
         super(entityType, level, 40.0f);
-        this.setNoGravity(true);
         this.kineticsState.setGravityScale(0.0f);
     }
 
@@ -70,6 +69,11 @@ public class GravityCollapseEntity extends BaseProjectile implements ProjectileE
                 EntityEffectHelper.spawnGravityCollapseEffect(this);
             }
         }
+    }
+
+    @Override
+    protected void lerpOnClientTick() {
+        super.lerpOnClientTick();
     }
 
     private void tickOnServer() {

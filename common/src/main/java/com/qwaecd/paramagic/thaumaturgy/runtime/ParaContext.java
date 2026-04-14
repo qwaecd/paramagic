@@ -40,12 +40,12 @@ public final class ParaContext {
         this.iterate(OperatorType.FLOW);
 
         for (ProjectileEntity projectile : this.projectiles) {
-            projectile.shoot();
             for (ParaOperator operator : this.appliedModifiers) {
                 if (operator instanceof ModifierOperator modifier) {
                     projectile.recordOperator(modifier);
                 }
             }
+            projectile.shoot();
         }
     }
 

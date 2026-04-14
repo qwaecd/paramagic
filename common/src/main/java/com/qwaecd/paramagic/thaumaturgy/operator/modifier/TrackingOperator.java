@@ -6,6 +6,7 @@ import com.qwaecd.paramagic.thaumaturgy.operator.ParaOpId;
 import com.qwaecd.paramagic.thaumaturgy.projectile.kinetics.PhysicsProvider;
 import com.qwaecd.paramagic.thaumaturgy.projectile.kinetics.ProjectileTargetingAlgorithms;
 import com.qwaecd.paramagic.thaumaturgy.projectile.kinetics.engine.KineticsAccumulator;
+import com.qwaecd.paramagic.thaumaturgy.projectile.kinetics.engine.PhysicsMath;
 import com.qwaecd.paramagic.thaumaturgy.projectile.kinetics.runtime.ProjectileRuntimeModifier;
 import com.qwaecd.paramagic.thaumaturgy.projectile.kinetics.runtime.ProjectileRuntimeModifierContext;
 import com.qwaecd.paramagic.thaumaturgy.projectile.kinetics.runtime.ProjectileRuntimeModifierHost;
@@ -14,6 +15,7 @@ import com.qwaecd.paramagic.tools.ModRL;
 import com.qwaecd.paramagic.world.item.ModItems;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.phys.Vec3;
+import org.joml.Vector3d;
 
 public class TrackingOperator extends ModifierOperator {
     public static final ParaOpId OP_ID = ParaOpId.of(
@@ -67,7 +69,16 @@ public class TrackingOperator extends ModifierOperator {
                 return;
             }
 
-            Vec3 normalizedDirection = directionToTarget.normalize().scale(this.strength);
+            Vector3d normalizedDirection = new Vector3d();
+            if (!PhysicsMath.tryNormalize(
+                    directionToTarget.x,
+                    directionToTarget.y,
+                    directionToTarget.z,
+                    this.strength,
+                    normalizedDirection
+            )) {
+                return;
+            }
             PhysicsProvider physics = context.getProjectile().physics();
             physics.pushWithMomentum(
                     normalizedDirection.x,

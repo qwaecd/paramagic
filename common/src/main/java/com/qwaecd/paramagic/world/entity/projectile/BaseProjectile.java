@@ -1,8 +1,10 @@
 package com.qwaecd.paramagic.world.entity.projectile;
 
 import com.qwaecd.paramagic.Paramagic;
+import com.qwaecd.paramagic.network.DataCodec;
 import com.qwaecd.paramagic.network.IDataSerializable;
 import com.qwaecd.paramagic.network.codec.NBTCodec;
+import com.qwaecd.paramagic.network.serializer.AllEntityDataSerializers;
 import com.qwaecd.paramagic.platform.annotation.PlatformScope;
 import com.qwaecd.paramagic.platform.annotation.PlatformScopeType;
 import com.qwaecd.paramagic.thaumaturgy.ProjectileEntity;
@@ -13,11 +15,14 @@ import com.qwaecd.paramagic.thaumaturgy.operator.modifier.ModifierOperator;
 import com.qwaecd.paramagic.thaumaturgy.projectile.kinetics.PhysicsProvider;
 import com.qwaecd.paramagic.thaumaturgy.projectile.kinetics.engine.KineticsAccumulator;
 import com.qwaecd.paramagic.thaumaturgy.projectile.kinetics.engine.PhysicsEngine;
+import com.qwaecd.paramagic.thaumaturgy.projectile.kinetics.engine.PhysicsMath;
 import com.qwaecd.paramagic.thaumaturgy.projectile.kinetics.engine.PhysicsState;
 import com.qwaecd.paramagic.thaumaturgy.projectile.kinetics.runtime.ProjectileRuntimeModifier;
 import com.qwaecd.paramagic.thaumaturgy.projectile.kinetics.runtime.ProjectileRuntimeModifierContext;
 import com.qwaecd.paramagic.thaumaturgy.projectile.kinetics.runtime.ProjectileRuntimeModifierHost;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.syncher.EntityDataAccessor;
+import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Entity;
@@ -32,11 +37,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 
 public abstract class BaseProjectile extends ThrowableProjectile implements ProjectileEntity, PhysicsProvider, ProjectileRuntimeModifierHost {
     private static final Logger LOGGER = LoggerFactory.getLogger(BaseProjectile.class);
+    protected static final EntityDataAccessor<List<ParaOpId>> PROJECTILE_RUNTIME_MODIFIER = SynchedEntityData.defineId(BaseProjectile.class, AllEntityDataSerializers.PROJECTILE_RUNTIME_MODIFIER);
 
     protected float age = 0.0f;
 
@@ -44,17 +51,20 @@ public abstract class BaseProjectile extends ThrowableProjectile implements Proj
     protected final KineticsAccumulator kineticsAccumulator = new KineticsAccumulator();
     protected final List<ProjectileRuntimeModifier> runtimeModifiers = new ArrayList<>();
 
+    @PlatformScope(PlatformScopeType.COMMON)
     protected final List<ParaOperator> recordedOperators = new ArrayList<>();
 
     protected float inaccuracy = 0.0f;
 
     protected BaseProjectile(EntityType<? extends ThrowableProjectile> entityType, Level level) {
         super(entityType, level);
+        this.setNoGravity(true);
         this.kineticsState = new PhysicsState();
     }
 
     protected BaseProjectile(EntityType<? extends ThrowableProjectile> entityType, Level level, double mass) {
         super(entityType, level);
+        this.setNoGravity(true);
         this.kineticsState = new PhysicsState(mass);
     }
 
@@ -73,10 +83,13 @@ public abstract class BaseProjectile extends ThrowableProjectile implements Proj
         super.tick();
         this.age += 1.0f / 20.0f;
         if (this.level().isClientSide) {
+            // 不要忘记在客户端从速度同步状态，否则会导致客户端的动力学速度初始为0，使得Rot为NaN
+            this.syncVelocityFromEntity();
+            this.applyKineticsStep();
+            this.lerpOnClientTick();
             return;
         }
         this.applyKineticsStep();
-
         Vec3 start = this.position();
         Vec3 end = start.add(this.getDeltaMovement());
         HitResult hitResult = this.findHitResult(start, end);
@@ -88,6 +101,11 @@ public abstract class BaseProjectile extends ThrowableProjectile implements Proj
         }
     }
 
+    protected void lerpOnClientTick() {
+        var v = this.kineticsState.getVelocity();
+        this.setPos(this.getX() + v.x, this.getY() + v.y, this.getZ() + v.z);
+    }
+
     @Override
     public void shoot() {
         this.syncEntityVelocityFromKinetics();
@@ -95,10 +113,26 @@ public abstract class BaseProjectile extends ThrowableProjectile implements Proj
         BaseProjectile.shoot(this, this.random, v.x, v.y, v.z, (float) v.length(), this.getInaccuracy());
         this.syncEntityVelocityFromKinetics();
         this.level().addFreshEntity(this);
+        this.syncRecordedOperators();
+    }
+
+    protected void syncRecordedOperators() {
+        if (this.level().isClientSide) {
+            return;
+        }
+        List<ParaOpId> list = this.recordedOperators.stream()
+                .map(ParaOperator::getId)
+                .collect(ArrayList::new, List::add, List::addAll);
+        this.entityData.set(PROJECTILE_RUNTIME_MODIFIER, list, true);
     }
 
     protected void syncVelocityFromEntity() {
         Vec3 movement = this.getDeltaMovement();
+        if (!PhysicsMath.isFinite(movement.x, movement.y, movement.z)) {
+            this.kineticsState.setVelocity(0.0d, 0.0d, 0.0d);
+            this.setDeltaMovement(Vec3.ZERO);
+            return;
+        }
         this.kineticsState.setVelocity(movement.x, movement.y, movement.z);
     }
 
@@ -180,6 +214,11 @@ public abstract class BaseProjectile extends ThrowableProjectile implements Proj
 
     protected void syncEntityVelocityFromKinetics() {
         Vector3d velocity = this.kineticsState.getVelocity();
+        if (!PhysicsMath.isFinite(velocity)) {
+            this.kineticsState.setVelocity(0.0d, 0.0d, 0.0d);
+            this.setDeltaMovement(Vec3.ZERO);
+            return;
+        }
         this.setDeltaMovement(velocity.x, velocity.y, velocity.z);
     }
 
@@ -266,6 +305,36 @@ public abstract class BaseProjectile extends ThrowableProjectile implements Proj
 
     @Override
     protected void defineSynchedData() {
+        this.entityData.define(PROJECTILE_RUNTIME_MODIFIER, new ArrayList<>());
+    }
+
+    @Override
+    public void onSyncedDataUpdated(EntityDataAccessor<?> key) {
+        super.onSyncedDataUpdated(key);
+        if (this.level().isClientSide && PROJECTILE_RUNTIME_MODIFIER.equals(key)) {
+            List<ParaOpId> paraOpIds = this.entityData.get(PROJECTILE_RUNTIME_MODIFIER);
+            if (paraOpIds.isEmpty()) {
+                return;
+            }
+            this.recordedOperators.clear();
+            for (ParaOpId id : paraOpIds) {
+                ParaOperator operator = AllParaOperators.createOperator(id);
+                this.recordedOperators.add(operator);
+            }
+            this.rebuildAllOperators();
+        }
+    }
+
+    public static void writeRecordedOperators(DataCodec codec, Collection<ParaOpId> value) {
+        ParaOpId[] paraOpIds = value.stream()
+                .filter(Objects::nonNull)
+                .toArray(ParaOpId[]::new);
+        codec.writeObjectArray("recordedOperators", paraOpIds);
+    }
+
+    public static ParaOpId[] readRecordedOperators(DataCodec codec) {
+        IDataSerializable[] array = codec.readObjectArray("recordedOperators", ParaOpId::fromCodec);
+        return DataCodec.castObjectArray(array, ParaOpId[]::new);
     }
 
     @Override
@@ -275,11 +344,15 @@ public abstract class BaseProjectile extends ThrowableProjectile implements Proj
         tag.putFloat("age", this.age);
 
         NBTCodec codec = new NBTCodec(tag);
-        ParaOpId[] paraOpIds = this.recordedOperators.stream()
-                .filter(Objects::nonNull)
+//        ParaOpId[] paraOpIds = this.recordedOperators.stream()
+//                .filter(Objects::nonNull)
+//                .map(ParaOperator::getId)
+//                .toArray(ParaOpId[]::new);
+//        codec.writeObjectArray("recordedOperators", paraOpIds);
+        List<ParaOpId> list = this.recordedOperators.stream()
                 .map(ParaOperator::getId)
-                .toArray(ParaOpId[]::new);
-        codec.writeObjectArray("recordedOperators", paraOpIds);
+                .toList();
+        writeRecordedOperators(codec, list);
         codec.writeObject("kineticsState", this.kineticsState);
         compound.put(Paramagic.MOD_ID, tag);
     }
@@ -295,10 +368,11 @@ public abstract class BaseProjectile extends ThrowableProjectile implements Proj
 
         NBTCodec codec = new NBTCodec(tag);
         try {
-            IDataSerializable[] array = codec.readObjectArray("recordedOperators", ParaOpId::fromCodec);
+//            IDataSerializable[] array = codec.readObjectArray("recordedOperators", ParaOpId::fromCodec);
+            ParaOpId[] paraOperators = readRecordedOperators(codec);
             this.recordedOperators.clear();
-            for (var id : array) {
-                ParaOperator operator = AllParaOperators.createOperator((ParaOpId) id);
+            for (var id : paraOperators) {
+                ParaOperator operator = AllParaOperators.createOperator(id);
                 if (operator != null) {
                     this.recordedOperators.add(operator);
                 }
@@ -308,6 +382,10 @@ public abstract class BaseProjectile extends ThrowableProjectile implements Proj
         } catch (ArrayIndexOutOfBoundsException e) {
             LOGGER.warn("Failed to read recorded operators for projectile {}. The data might be corrupted or from an older version.", this.getId(), e);
         }
+        this.rebuildAllOperators();
+    }
+
+    private void rebuildAllOperators() {
         for (ParaOperator operator : this.recordedOperators) {
             if (operator instanceof ModifierOperator modifier) {
                 modifier.rebuild(this);

@@ -4,6 +4,7 @@ import com.qwaecd.paramagic.thaumaturgy.ProjectileEntity;
 import com.qwaecd.paramagic.thaumaturgy.operator.OperatorType;
 import com.qwaecd.paramagic.thaumaturgy.operator.ParaOpId;
 import com.qwaecd.paramagic.thaumaturgy.projectile.kinetics.PhysicsProvider;
+import com.qwaecd.paramagic.thaumaturgy.projectile.kinetics.engine.PhysicsMath;
 import com.qwaecd.paramagic.thaumaturgy.runtime.ParaContext;
 import com.qwaecd.paramagic.tools.ModRL;
 import com.qwaecd.paramagic.world.item.ModItems;
@@ -34,7 +35,11 @@ public class AccelerateOperator extends ModifierOperator {
 
     private void tryAccelerate(ProjectileEntity projectile) {
         PhysicsProvider physics = projectile.physics();
-        Vector3d velocity = physics.getVelocity(new Vector3d()).normalize(IMPULSE);
-        physics.addVelocity(velocity.x, velocity.y, velocity.z);
+        Vector3d velocity = physics.getVelocity(new Vector3d());
+        Vector3d impulse = new Vector3d();
+        if (!PhysicsMath.tryNormalize(velocity, IMPULSE, impulse)) {
+            return;
+        }
+        physics.addVelocity(impulse.x, impulse.y, impulse.z);
     }
 }

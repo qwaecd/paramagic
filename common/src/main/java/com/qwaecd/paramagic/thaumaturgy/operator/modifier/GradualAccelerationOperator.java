@@ -5,6 +5,7 @@ import com.qwaecd.paramagic.thaumaturgy.operator.OperatorType;
 import com.qwaecd.paramagic.thaumaturgy.operator.ParaOpId;
 import com.qwaecd.paramagic.thaumaturgy.projectile.kinetics.PhysicsProvider;
 import com.qwaecd.paramagic.thaumaturgy.projectile.kinetics.engine.KineticsAccumulator;
+import com.qwaecd.paramagic.thaumaturgy.projectile.kinetics.engine.PhysicsMath;
 import com.qwaecd.paramagic.thaumaturgy.projectile.kinetics.runtime.ProjectileRuntimeModifier;
 import com.qwaecd.paramagic.thaumaturgy.projectile.kinetics.runtime.ProjectileRuntimeModifierContext;
 import com.qwaecd.paramagic.thaumaturgy.projectile.kinetics.runtime.ProjectileRuntimeModifierHost;
@@ -52,6 +53,9 @@ public class GradualAccelerationOperator extends ModifierOperator {
         public void applyTick(ProjectileRuntimeModifierContext context, KineticsAccumulator accumulator) {
             Vector3d velocity = context.getVelocity(new Vector3d());
             double speed = velocity.length();
+            if (!Double.isFinite(speed)) {
+                return;
+            }
             double targetSpeed = Math.max(MIN_TARGET_SPEED, speed * TARGET_SPEED_MULTIPLIER);
             PhysicsProvider physics = context.getProjectile().physics();
             double currentLimit = physics.getMaxSpeed();
@@ -59,8 +63,11 @@ public class GradualAccelerationOperator extends ModifierOperator {
                 accumulator.limitSpeedCap(targetSpeed);
             }
             if (speed < targetSpeed) {
-                velocity.normalize(FORWARD_ACCELERATION);
-                accumulator.addTransientAcceleration(velocity);
+                Vector3d acceleration = new Vector3d();
+                if (!PhysicsMath.tryNormalize(velocity, FORWARD_ACCELERATION, acceleration)) {
+                    return;
+                }
+                accumulator.addTransientAcceleration(acceleration);
             }
         }
     }

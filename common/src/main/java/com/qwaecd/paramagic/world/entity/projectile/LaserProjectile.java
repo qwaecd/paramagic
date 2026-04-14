@@ -1,6 +1,7 @@
 package com.qwaecd.paramagic.world.entity.projectile;
 
-import com.qwaecd.paramagic.core.particle.emitter.impl.LineEmitter;
+import com.qwaecd.paramagic.core.particle.emitter.Emitter;
+import com.qwaecd.paramagic.core.particle.emitter.impl.PointEmitter;
 import com.qwaecd.paramagic.particle.client.shared.BuiltinSharedGPUEffects;
 import com.qwaecd.paramagic.particle.client.shared.SharedGPUEffectRef;
 import com.qwaecd.paramagic.particle.client.shared.SharedGPUEffectRegistry;
@@ -8,7 +9,6 @@ import com.qwaecd.paramagic.thaumaturgy.ProjectileEntity;
 import com.qwaecd.paramagic.thaumaturgy.projectile.property.LifetimeCarrier;
 import com.qwaecd.paramagic.world.entity.ModEntityTypes;
 import com.qwaecd.paramagic.world.sound.ModSounds;
-import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
@@ -29,10 +29,10 @@ public class LaserProjectile extends BaseProjectile implements ProjectileEntity,
     private float lifeTime = 5.0f;
 
     private float HIT_DAMAGE = 5.0f;
-    private LineEmitter sharedBeamEmitter;
+    private Emitter sharedBeamEmitter;
 
     public LaserProjectile(EntityType<? extends LaserProjectile> entityType, Level level) {
-        super(entityType, level, 0.2f);
+        super(entityType, level, 10.0f);
         this.setNoGravity(true);
         this.kineticsState.setGravityScale(0.0f);
         this.kineticsState.setMaxSpeed(64.0f);
@@ -64,33 +64,28 @@ public class LaserProjectile extends BaseProjectile implements ProjectileEntity,
     }
 
     public void renderBeamEffect(float partialTick, float deltaTime) {
-        Vec3 position = this.getPosition(partialTick);
+        Vector3f position = this.getPosition(partialTick).toVector3f();
         Vec3 velocity = this.getDeltaMovement();
         if (velocity.lengthSqr() <= 1.0e-8) {
             return;
         }
-
-        Vector3f start = new Vector3f((float) position.x, (float) position.y, (float) position.z);
-        Vector3f direction = new Vector3f((float) velocity.x, (float) velocity.y, (float) velocity.z).normalize();
-        Vector3f end = new Vector3f(direction).mul(BEAM_LENGTH).add(start);
-
-        LineEmitter emitter = this.getOrCreateSharedBeamEmitter();
-        emitter.moveTo(start);
-        emitter.getProperty(END_POSITION).modify(v -> v.set(end));
-        emitter.getProperty(BASE_VELOCITY).modify(v -> v.set(0.0f, 0.0f, 0.0f));
+        Emitter emitter = this.getOrCreateSharedBeamEmitter();
+        emitter.moveTo(position);
+        emitter.getProperty(BASE_VELOCITY).modify(v -> v.set(0.5f));
         LASER_EFFECT.submitFromEmitter(emitter, deltaTime);
     }
 
-    private LineEmitter getOrCreateSharedBeamEmitter() {
+    private Emitter getOrCreateSharedBeamEmitter() {
         if (this.sharedBeamEmitter != null) {
             return this.sharedBeamEmitter;
         }
 
-        LineEmitter emitter = new LineEmitter(new Vector3f(), 320.0f);
+        Emitter emitter = new PointEmitter(new Vector3f(), 160.0f);
         emitter.getProperty(COLOR).modify(v -> v.set(0.9f, 0.35f, 1.95f, 1.0f));
         emitter.getProperty(LIFE_TIME_RANGE).modify(v -> v.set(0.5f, 0.9f));
         emitter.getProperty(SIZE_RANGE).modify(v -> v.set(1.4f, 2.8f));
         emitter.getProperty(BLOOM_INTENSITY).set(1.8f);
+        emitter.getProperty(VELOCITY_SPREAD).set(180.0f);
         this.sharedBeamEmitter = emitter;
         return emitter;
     }
@@ -107,6 +102,7 @@ public class LaserProjectile extends BaseProjectile implements ProjectileEntity,
             this.syncEntityVelocityFromKinetics();
         }
         this.level().addFreshEntity(this);
+        this.syncRecordedOperators();
         level().playSound(
                 null,
                 position.x,
