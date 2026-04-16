@@ -44,6 +44,20 @@ import java.util.Objects;
 public abstract class BaseProjectile extends ThrowableProjectile implements ProjectileEntity, PhysicsProvider, ProjectileRuntimeModifierHost {
     private static final Logger LOGGER = LoggerFactory.getLogger(BaseProjectile.class);
     protected static final EntityDataAccessor<List<ParaOpId>> PROJECTILE_RUNTIME_MODIFIER = SynchedEntityData.defineId(BaseProjectile.class, AllEntityDataSerializers.PROJECTILE_RUNTIME_MODIFIER);
+    // 客户端单次逻辑步长（20 TPS）
+    private static final double CLIENT_TICK_DELTA = 1.0d / 20.0d;
+    // 位置纠偏收敛速度（Hz），越大追得越快
+    private static final double CLIENT_POSITION_CORRECTION_HZ = 20.0d;
+    // 位置误差超过该阈值时直接瞬移纠正（这里是距离平方）
+    private static final double CLIENT_POSITION_SNAP_DISTANCE_SQR = 9.0d;
+    // 位置误差小于该阈值时视为已收敛（这里是距离平方）
+    private static final double CLIENT_POSITION_CORRECTION_EPSILON_SQR = 1.0E-4D;
+    // 速度融合权重，越大越快贴近服务端速度
+    private static final double CLIENT_VELOCITY_BLEND_ALPHA = 1.0d;
+    // 位置纠偏最少持续 tick 数，避免一帧内结束
+    private static final int CLIENT_MIN_POSITION_CORRECTION_TICKS = 2;
+    // 速度纠偏默认持续 tick 数
+    private static final int CLIENT_DEFAULT_VELOCITY_CORRECTION_TICKS = 3;
 
     protected float age = 0.0f;
 
@@ -55,6 +69,18 @@ public abstract class BaseProjectile extends ThrowableProjectile implements Proj
     protected final List<ParaOperator> recordedOperators = new ArrayList<>();
 
     protected float inaccuracy = 0.0f;
+    // 服务端下发的目标位置（客户端用于渐进纠偏）
+    private Vec3 clientCorrectionTargetPos = Vec3.ZERO;
+    // 服务端下发的目标速度（客户端用于速度融合）
+    private Vec3 clientCorrectionTargetVel = Vec3.ZERO;
+    // 位置纠偏剩余 tick 数
+    private int clientPositionCorrectionTicks = 0;
+    // 速度纠偏剩余 tick 数
+    private int clientVelocityCorrectionTicks = 0;
+    // 是否存在待处理的位置纠偏
+    private boolean hasClientPositionCorrection = false;
+    // 是否存在待处理的速度纠偏
+    private boolean hasClientVelocityCorrection = false;
 
     protected BaseProjectile(EntityType<? extends ThrowableProjectile> entityType, Level level) {
         super(entityType, level);
@@ -84,7 +110,7 @@ public abstract class BaseProjectile extends ThrowableProjectile implements Proj
         this.age += 1.0f / 20.0f;
         if (this.level().isClientSide) {
             // 不要忘记在客户端从速度同步状态，否则会导致客户端的动力学速度初始为0，使得Rot为NaN
-            this.syncVelocityFromEntity();
+//            this.syncVelocityFromEntity();
             this.applyKineticsStep();
             this.lerpOnClientTick();
             return;
@@ -102,13 +128,85 @@ public abstract class BaseProjectile extends ThrowableProjectile implements Proj
     }
 
     protected void lerpOnClientTick() {
-        var v = this.kineticsState.getVelocity();
-        this.setPos(this.getX() + v.x, this.getY() + v.y, this.getZ() + v.z);
+        Vec3 localVelocity = this.getDeltaMovement();
+        if (this.hasClientVelocityCorrection && this.clientVelocityCorrectionTicks > 0) {
+            localVelocity = localVelocity.lerp(this.clientCorrectionTargetVel, CLIENT_VELOCITY_BLEND_ALPHA);
+            this.kineticsState.setVelocity(localVelocity.x, localVelocity.y, localVelocity.z);
+            this.setDeltaMovement(localVelocity);
+            this.clientVelocityCorrectionTicks--;
+            if (this.clientVelocityCorrectionTicks <= 0) {
+                this.hasClientVelocityCorrection = false;
+            }
+        } else {
+            var v = this.kineticsState.getVelocity();
+            localVelocity = new Vec3(v.x, v.y, v.z);
+        }
+
+        Vec3 predictedPos = this.position().add(localVelocity);
+        if (!this.hasClientPositionCorrection || this.clientPositionCorrectionTicks <= 0) {
+            this.setPos(predictedPos);
+            return;
+        }
+
+        Vec3 error = this.clientCorrectionTargetPos.subtract(predictedPos);
+        if (error.lengthSqr() > CLIENT_POSITION_SNAP_DISTANCE_SQR) {
+            this.setPos(this.clientCorrectionTargetPos);
+            this.clearClientPositionCorrection();
+            return;
+        }
+
+        double alpha = 1.0d - Math.exp(-CLIENT_POSITION_CORRECTION_HZ * CLIENT_TICK_DELTA);
+        this.setPos(predictedPos.add(error.scale(alpha)));
+        this.clientPositionCorrectionTicks--;
+        if (this.clientPositionCorrectionTicks <= 0 || error.lengthSqr() <= CLIENT_POSITION_CORRECTION_EPSILON_SQR) {
+            this.clearClientPositionCorrection();
+        }
+    }
+
+    @Override
+    public void lerpTo(double x, double y, double z, float yRot, float xRot, int lerpSteps, boolean teleport) {
+        if (!this.level().isClientSide) {
+            super.lerpTo(x, y, z, yRot, xRot, lerpSteps, teleport);
+            return;
+        }
+
+        Vec3 targetPos = new Vec3(x, y, z);
+        this.setRot(yRot, xRot);
+        if (teleport || this.position().distanceToSqr(targetPos) > CLIENT_POSITION_SNAP_DISTANCE_SQR) {
+            this.setPos(targetPos);
+            this.clearClientPositionCorrection();
+            return;
+        }
+
+        this.clientCorrectionTargetPos = targetPos;
+        this.clientPositionCorrectionTicks = Math.max(CLIENT_MIN_POSITION_CORRECTION_TICKS, lerpSteps);
+        this.hasClientPositionCorrection = true;
+    }
+
+    @Override
+    public void lerpMotion(double x, double y, double z) {
+        if (!this.level().isClientSide) {
+            super.lerpMotion(x, y, z);
+            return;
+        }
+
+        this.clientCorrectionTargetVel = new Vec3(x, y, z);
+        this.clientVelocityCorrectionTicks = CLIENT_DEFAULT_VELOCITY_CORRECTION_TICKS;
+        this.hasClientVelocityCorrection = true;
+        if (this.getDeltaMovement().lengthSqr() < 1.0E-8D) {
+            this.kineticsState.setVelocity(x, y, z);
+            this.setDeltaMovement(x, y, z);
+        }
+    }
+
+    private void clearClientPositionCorrection() {
+        this.hasClientPositionCorrection = false;
+        this.clientPositionCorrectionTicks = 0;
     }
 
     @Override
     public void shoot() {
-        this.syncEntityVelocityFromKinetics();
+//        this.syncEntityVelocityFromKinetics();
         Vector3d v = this.kineticsState.getVelocity();
         BaseProjectile.shoot(this, this.random, v.x, v.y, v.z, (float) v.length(), this.getInaccuracy());
         this.syncEntityVelocityFromKinetics();
@@ -246,6 +344,7 @@ public abstract class BaseProjectile extends ThrowableProjectile implements Proj
     public void setVelocity(double x, double y, double z) {
         this.kineticsState.setVelocity(x, y, z);
         this.syncEntityVelocityFromKinetics();
+        this.markVelocitySyncDirty();
     }
 
     @Override
@@ -257,6 +356,7 @@ public abstract class BaseProjectile extends ThrowableProjectile implements Proj
     public void addVelocity(double x, double y, double z) {
         this.kineticsState.addVelocity(x, y, z);
         this.syncEntityVelocityFromKinetics();
+        this.markVelocitySyncDirty();
     }
 
     @Override
@@ -335,6 +435,11 @@ public abstract class BaseProjectile extends ThrowableProjectile implements Proj
     public static ParaOpId[] readRecordedOperators(DataCodec codec) {
         IDataSerializable[] array = codec.readObjectArray("recordedOperators", ParaOpId::fromCodec);
         return DataCodec.castObjectArray(array, ParaOpId[]::new);
+    }
+
+    @PlatformScope(PlatformScopeType.SERVER)
+    public void markVelocitySyncDirty() {
+        this.hasImpulse = true;
     }
 
     @Override
