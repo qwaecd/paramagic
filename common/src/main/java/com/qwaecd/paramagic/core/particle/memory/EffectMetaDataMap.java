@@ -31,7 +31,7 @@ public final class EffectMetaDataMap implements AutoCloseable {
     private static final int OFFSET_CURRENT_COUNT = 4;
     private static final int OFFSET_FLAGS         = 8;
     private static final int OFFSET_PADDING       = 12;
-    private static final int OFFSET_MATRIX        = 16;
+    public static final int OFFSET_MATRIX_IN_BYTES = 16;
 
     private ByteBuffer mappedBuffer;
     /**
@@ -104,6 +104,15 @@ public final class EffectMetaDataMap implements AutoCloseable {
         mappedBuffer.putInt(flagOffset, flags);
     }
 
+    void updateModelMatrix(int effectId, Matrix4f modelMatrix) {
+        if (mappedBuffer == null || effectId < 0 || effectId >= maxEffectCount) {
+            return;
+        }
+        int matrixOffset = effectId * SIZE_IN_BYTES + OFFSET_MATRIX_IN_BYTES;
+        mappedBuffer.position(matrixOffset);
+        modelMatrix.get(mappedBuffer);
+    }
+
     /**
      * 清理一个 Effect 的元数据。
      * 在 removeEffect 时调用，将其标记为死亡。
@@ -122,6 +131,7 @@ public final class EffectMetaDataMap implements AutoCloseable {
         mappedBuffer.putInt(0); // currentCount = 0
         mappedBuffer.putInt(EffectFlags.KILL_ALL.get());
         mappedBuffer.putInt(0); // padding
+        mappedBuffer.asFloatBuffer().put(new float[16]); // 写入 4x4 矩阵
     }
 
     @Override

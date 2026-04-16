@@ -121,9 +121,18 @@ public class GravityCollapseEntity extends BaseProjectile implements ProjectileE
 
     public void renderEffect(float partialTicks, float deltaTime) {
         Vector3f pos = this.getPosition(partialTicks).toVector3f();
+        Vector3f axis;
+        Vector3f v = this.getDeltaMovement().toVector3f();
+        if (v.lengthSquared() > 1.0e-6f) {
+            axis = v.normalize();
+        } else {
+            axis = new Vector3f(0.0f, 1.0f, 0.0f);
+        }
         GPUParticleEffect gpuEffect = this.getOrCreateEffect();
-        gpuEffect.getPhysicsParameter().setCFPos(pos);
-        gpuEffect.forEachEmitter(emitter -> emitter.modifyProp(POSITION, v -> v.set(pos)));
+        final float degreesPerSecond = 90.0f;
+        gpuEffect.getTransform()
+                .rotate((float) Math.toRadians(degreesPerSecond * deltaTime), axis)
+                .setPosition(pos);
     }
 
     @Nonnull
@@ -135,13 +144,14 @@ public class GravityCollapseEntity extends BaseProjectile implements ProjectileE
         emitter.modifyProp(COLOR, v -> v.set(1.2f, 0.5f, 0.8f, 1.0f));
         emitter.modifyProp(LIFE_TIME_RANGE, v -> v.set(0.1f, 0.4f));
         emitter.modifyProp(SIZE_RANGE, v -> v.set(3.4f, 4.2f));
-        emitter.getProperty(BLOOM_INTENSITY).set(0.8f);
-        emitter.getProperty(SPHERE_RADIUS).set(this.getDistortionRadius() + 0.5f);
-        emitter.getProperty(VELOCITY_MODE).set(VelocityModeStates.RANDOM);
+        emitter.trySet(BLOOM_INTENSITY, 0.8f);
+        emitter.trySet(SPHERE_RADIUS, this.getDistortionRadius() + 1.5f);
+        emitter.trySet(VELOCITY_MODE, VelocityModeStates.RANDOM);
         emitter.modifyProp(BASE_VELOCITY, v -> v.set(0.8f));
 
         EffectPhysicsParameter physicsParameter = new PhysicsParamBuilder()
-                .primaryForceParam(320.0f, -2.0f)
+                .centerForcePos(0.0f, 0.0f, 0.0f)
+                .primaryForceParam(320.0f, -1.2f)
                 .primaryForceEnabled(true)
                 .build();
         this.effect = new GPUParticleEffect(List.of(emitter), 100_000, 0.0f, physicsParameter);

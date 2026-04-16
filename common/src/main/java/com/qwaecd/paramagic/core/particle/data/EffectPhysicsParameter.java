@@ -12,6 +12,11 @@ import org.joml.Vector4f;
 import java.nio.ByteBuffer;
 
 /**
+ * GPU 粒子效果的物理参数容器。<br>
+ * Spatial semantics: <b>all vector/position fields are interpreted in effect-local space</b>.<br>
+ * 空间语义：所有位置/方向参数均按 <b>effect 局部坐标</b> 解释。<br>
+ * 若业务层使用世界坐标，请在持有 {@code GPUParticleEffect} 的地方先转换到局部坐标后再写入本对象。<br>
+ *
  * <pre>
  * struct EffectPhysicsParams {
  *     // F(r) = A * pow(r, B) + C * pow(r, D) + E * sin(F * r + phase) * pow(r, G);
@@ -21,9 +26,9 @@ import java.nio.ByteBuffer;
  *     vec4 sinusoidalForce; // sinusoidalForce: x: E, y: F, z: G, w: enableSinus(0/1)
  *     vec4 sinusoidalExtra; // sinusoidalExtra: x: phase, y,z,w = reserved
  *
- *     vec4 centerForcePos; // x, y, z: 力场中心位置, w: dragCoefficient (阻力系数), acceleration -= velocity * dragCoefficient;
+ *     vec4 centerForcePos; // x, y, z: local force-center, w: dragCoefficient
  *
- *     vec4 linearForce; // x, y, z: 线性力 (e.g. gravity + wind), w: enable (0 or 1)
+ *     vec4 linearForce; // x, y, z: local linear force (e.g. gravity + wind), w: enable (0 or 1)
  * };
  * </pre>
  */
@@ -98,6 +103,9 @@ public final class EffectPhysicsParameter implements IDataSerializable {
         this.modified = true;
     }
 
+    /**
+     * Sets center-force position in effect-local coordinates.
+     */
     public void setCFPos(float x, float y, float z) {
         this.centerForcePos.x = x;
         this.centerForcePos.y = y;
@@ -105,6 +113,9 @@ public final class EffectPhysicsParameter implements IDataSerializable {
         this.modified = true;
     }
 
+    /**
+     * Sets center-force position in effect-local coordinates.
+     */
     public void setCFPos(Vector3f v) {
         this.setCFPos(v.x, v.y, v.z);
     }
@@ -179,6 +190,9 @@ public final class EffectPhysicsParameter implements IDataSerializable {
         this.modified = true;
     }
 
+    /**
+     * Sets linear force vector in effect-local coordinates.
+     */
     public void setLinearForce(float x, float y, float z) {
         this.linearForce.x = x;
         this.linearForce.y = y;
@@ -186,6 +200,9 @@ public final class EffectPhysicsParameter implements IDataSerializable {
         this.modified = true;
     }
 
+    /**
+     * Sets linear force vector in effect-local coordinates.
+     */
     public void setLinearForce(Vector3f v) {
         this.setLinearForce(v.x, v.y, v.z);
     }

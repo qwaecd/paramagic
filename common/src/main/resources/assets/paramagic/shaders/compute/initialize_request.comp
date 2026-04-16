@@ -168,6 +168,8 @@ void buildOrthonormalBasis(vec3 a_axis, out vec3 out_axis_x, out vec3 out_axis_y
  *   vec4 color;
  * };
  */
+// All emitter request parameters are interpreted in effect-local space.
+// The initialized particle position/velocity written here are local-space values.
 void pointEmitter(uint particleIndex, EmissionRequest req, uint unique_ID) {
     // Gram-Schmidt process
     vec3 axisX, axisY, axisZ;
@@ -179,8 +181,8 @@ void pointEmitter(uint particleIndex, EmissionRequest req, uint unique_ID) {
     float y = sin_theta * sin(phi);
     float z = cos_theta;
     vec3 local_dir = vec3(x, y, z);
-    vec3 random_dir_world = local_dir.x * axisX + local_dir.y * axisY + local_dir.z * axisZ;
-    vec3 initial_velocity = random_dir_world * length(req.param2.xyz);
+    vec3 random_dir_local = local_dir.x * axisX + local_dir.y * axisY + local_dir.z * axisZ;
+    vec3 initial_velocity = random_dir_local * length(req.param2.xyz);
 
 
     particles[particleIndex].meta = vec4(float(req.effectId), 0.0, 0.0, 0.0);
@@ -213,10 +215,10 @@ void lineEmitter(uint particleIndex, EmissionRequest req, uint unique_ID) {
         }
     }
 
-    vec3 direction = req.param1.xyz + (req.param2.xyz - req.param1.xyz) * random(2.0 + float(unique_ID));
+    vec3 localPositionOnLine = req.param1.xyz + (req.param2.xyz - req.param1.xyz) * random(2.0 + float(unique_ID));
 
     particles[particleIndex].meta = vec4(float(req.effectId), 0.0, 0.0, 0.0);
-    particles[particleIndex].position = vec4(direction, req.param1.w);
+    particles[particleIndex].position = vec4(localPositionOnLine, req.param1.w);
     particles[particleIndex].velocity = vec4(initial_velocity, req.param5.w);
     particles[particleIndex].attributes = vec4(0.0, randomFloatInRange(req.param4.x, req.param4.y, 2.1 + float(unique_ID)), 0.0, 0.0);
     particles[particleIndex].renderAttribs = vec4(randomFloatInRange(req.param4.z, req.param4.w, 2.2 + float(unique_ID)), 0.0, 0.0, req.param5.w);
@@ -241,7 +243,7 @@ void sphereEmitter(uint particleIndex, EmissionRequest req, uint unique_ID) {
     float y = sin_theta * sin(phi);
     float z = cos_theta;
     vec3 local_dir = vec3(x, y, z);
-    vec3 random_dir_world = local_dir.x * axisX + local_dir.y * axisY + local_dir.z * axisZ;
+    vec3 random_dir_local = local_dir.x * axisX + local_dir.y * axisY + local_dir.z * axisZ;
 
     uint emitterFlags = floatBitsToUint(req.param5.z);
     uint velocityMode = emitterFlags & EMITTER_MASK_VELOCITY_MODE;
@@ -257,8 +259,8 @@ void sphereEmitter(uint particleIndex, EmissionRequest req, uint unique_ID) {
             y = sin_theta * sin(phi);
             z = cos_theta;
             local_dir = vec3(x, y, z);
-            random_dir_world = local_dir.x * axisX + local_dir.y * axisY + local_dir.z * axisZ;
-            initial_velocity = random_dir_world * length(req.param2.xyz);
+            random_dir_local = local_dir.x * axisX + local_dir.y * axisY + local_dir.z * axisZ;
+            initial_velocity = random_dir_local * length(req.param2.xyz);
             break;
         }
         case EMITTER_FLAGS_VELOCITY_MODE_RANDOM: {
@@ -269,7 +271,7 @@ void sphereEmitter(uint particleIndex, EmissionRequest req, uint unique_ID) {
         }
         case EMITTER_FLAGS_VELOCITY_MODE_RADIAL_FROM_CENTER: {
             // Radial from center
-            initial_velocity = random_dir_world * length(req.param2.xyz);
+            initial_velocity = random_dir_local * length(req.param2.xyz);
             break;
         }
         case EMITTER_FLAGS_VELOCITY_MODE_DIRECT:
@@ -284,7 +286,7 @@ void sphereEmitter(uint particleIndex, EmissionRequest req, uint unique_ID) {
     float surfaceOffset = req.param1.w;
     float volumeOffset = pow(random(3.2 + float(unique_ID)), 1.0 / 3.0) * req.param1.w;
     float finalOffset = mix(surfaceOffset, volumeOffset, isVolume);
-    vec3 particlePosition = req.param1.xyz + random_dir_world * finalOffset;
+    vec3 particlePosition = req.param1.xyz + random_dir_local * finalOffset;
 
     particles[particleIndex].meta = vec4(float(req.effectId), 0.0, 0.0, 0.0);
     particles[particleIndex].position = vec4(particlePosition, req.param1.w);
@@ -361,8 +363,8 @@ void cubeEmitter(uint particleIndex, EmissionRequest req, uint unique_ID) {
         }
         case EMITTER_FLAGS_VELOCITY_MODE_RADIAL_FROM_CENTER: {
             // Radial from center
-            vec3 random_dir_world = normalize(particlePosition - centerPos);
-            initial_velocity = random_dir_world * length(req.param5.xyz);
+            vec3 random_dir_local = normalize(particlePosition - centerPos);
+            initial_velocity = random_dir_local * length(req.param5.xyz);
             break;
         }
         case EMITTER_FLAGS_VELOCITY_MODE_DIRECT:

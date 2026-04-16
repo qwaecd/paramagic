@@ -20,6 +20,13 @@ public interface Emitter {
         }
     }
 
+    default <T> void trySet(PropertyKey<T> key, T value) {
+        EmitterProperty<T> prop = this.getProperty(key);
+        if (prop != null) {
+            prop.set(value);
+        }
+    }
+
     boolean hasProperty(PropertyKey<?> key);
 
     void moveTo(Vector3f newPos);

@@ -2,7 +2,11 @@ package com.qwaecd.paramagic.core.particle.builder;
 
 import com.qwaecd.paramagic.core.particle.data.EffectPhysicsParameter;
 import org.joml.Vector3f;
-
+/**
+ * Builder for {@link EffectPhysicsParameter}.<br>
+ * Spatial semantics: all positions/vectors passed into this builder are interpreted in effect-local space.<br>
+ * 该 Builder 不持有 {@code GPUParticleEffect} 实例，无法执行 world-local 转换。<br>
+ */
 @SuppressWarnings({"unused", "UnusedReturnValue"})
 public class PhysicsParamBuilder {
     private final EffectPhysicsParameter param;
@@ -105,6 +109,9 @@ public class PhysicsParamBuilder {
         return this;
     }
 
+    /**
+     * Returns the built parameter object. The returned instance is mutable.
+     */
     public EffectPhysicsParameter build() {
         return this.param;
     }

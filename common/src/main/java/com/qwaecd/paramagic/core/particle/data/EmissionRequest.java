@@ -17,8 +17,9 @@ import java.nio.ByteBuffer;
  *     int _padding;       // 填充，确保vec4对齐
  *
  *     // --- 通用参数 (其含义由emitterType解释) ---
- *     vec4 param1; // e.g., 发射源位置 (xyz)
- *     vec4 param2; // e.g., 基础速度或方向 (xyz)
+ *     // 注意：空间语义统一为 effect-local（局部空间）
+ *     vec4 param1; // e.g., 发射源局部位置 (xyz)
+ *     vec4 param2; // e.g., 局部基础速度或方向 (xyz)
  *     vec4 param3; // e.g., 颜色 (rgba)
  *     vec4 param4; // e.g., 粒子生命周期(min, max), 尺寸(min, max)
  *     vec4 param5; // e.g., (for BURST_SPHERE) 速度(min, max), (for POINT) 发射角度

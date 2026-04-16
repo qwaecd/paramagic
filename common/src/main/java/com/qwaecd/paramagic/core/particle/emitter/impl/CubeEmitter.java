@@ -16,7 +16,7 @@ import static com.qwaecd.paramagic.core.particle.emitter.property.key.AllEmitter
 
 /**
  * <table border="1" style="width:100%; border-collapse: collapse;">
- *   <caption>CubeEmitter 参数映射</caption>
+ *   <caption>CubeEmitter 参数映射（effect-local）</caption>
  *   <thead>
  *     <tr>
  *       <th style="text-align:left; padding: 5px;">参数</th>
@@ -28,14 +28,14 @@ import static com.qwaecd.paramagic.core.particle.emitter.property.key.AllEmitter
  *   </thead>
  *   <tbody>
  *     <tr>
- *       <td style="padding: 5px;"><b>param1</b> (最小AABB/发射标识)</td>
+ *       <td style="padding: 5px;"><b>param1</b> (局部最小AABB/发射标识)</td>
  *       <td style="padding: 5px;">minAABB.x</td>
  *       <td style="padding: 5px;">minAABB.y</td>
  *       <td style="padding: 5px;">minAABB.z</td>
  *       <td style="padding: 5px;">flags (e.g., emitFromVolume)</td>
  *     </tr>
  *     <tr>
- *       <td style="padding: 5px;"><b>param2</b> (最大AABB)</td>
+ *       <td style="padding: 5px;"><b>param2</b> (局部最大AABB)</td>
  *       <td style="padding: 5px;">maxAABB.x</td>
  *       <td style="padding: 5px;">maxAABB.y</td>
  *       <td style="padding: 5px;">maxAABB.z</td>
@@ -56,7 +56,7 @@ import static com.qwaecd.paramagic.core.particle.emitter.property.key.AllEmitter
  *       <td style="padding: 5px;">size.max</td>
  *     </tr>
  *     <tr>
- *       <td style="padding: 5px;"><b>param5</b> (基础速度/光晕)</td>
+ *       <td style="padding: 5px;"><b>param5</b> (局部基础速度/光晕)</td>
  *       <td style="padding: 5px;">baseVelocity.x</td>
  *       <td style="padding: 5px;">baseVelocity.y</td>
  *       <td style="padding: 5px;">baseVelocity.z</td>

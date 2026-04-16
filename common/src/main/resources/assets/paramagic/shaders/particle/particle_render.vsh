@@ -45,7 +45,9 @@ void main() {
 
     v_color = particle.color;
 
-    vec3 vertex_position_relative = particle.position.xyz - u_cameraPosition;
+    uint effectId = uint(particle.meta.x);
+    vec4 worldPosition = effectData[effectId].modelMatrix * vec4(particle.position.xyz, 1.0);
+    vec3 vertex_position_relative = worldPosition.xyz - u_cameraPosition;
 
     gl_Position = u_projectionMatrix * u_viewMatrix * vec4(vertex_position_relative, 1.0);
     v_intensity = particle.renderAttribs.w;

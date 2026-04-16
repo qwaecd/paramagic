@@ -14,7 +14,7 @@ import static com.qwaecd.paramagic.core.particle.emitter.property.key.AllEmitter
 
 /**
  * <table border="1" style="width:100%; border-collapse: collapse;">
- *   <caption>CircleEmitter 参数映射</caption>
+ *   <caption>CircleEmitter 参数映射（effect-local）</caption>
  *   <thead>
  *     <tr>
  *       <th style="text-align:left; padding: 5px;">参数</th>
@@ -26,14 +26,14 @@ import static com.qwaecd.paramagic.core.particle.emitter.property.key.AllEmitter
  *   </thead>
  *   <tbody>
  *     <tr>
- *       <td style="padding: 5px;"><b>param1</b> (位置/标识)</td>
+ *       <td style="padding: 5px;"><b>param1</b> (局部位置/标识)</td>
  *       <td style="padding: 5px;">position.x</td>
  *       <td style="padding: 5px;">position.y</td>
  *       <td style="padding: 5px;">position.z</td>
  *       <td style="padding: 5px;">flags (velocityMode)</td>
  *     </tr>
  *     <tr>
- *       <td style="padding: 5px;"><b>param2</b> (基础速度)</td>
+ *       <td style="padding: 5px;"><b>param2</b> (局部基础速度)</td>
  *       <td style="padding: 5px;">baseVelocity.x</td>
  *       <td style="padding: 5px;">baseVelocity.y</td>
  *       <td style="padding: 5px;">baseVelocity.z</td>
@@ -54,7 +54,7 @@ import static com.qwaecd.paramagic.core.particle.emitter.property.key.AllEmitter
  *       <td style="padding: 5px;">size.max</td>
  *     </tr>
  *     <tr>
- *       <td style="padding: 5px;"><b>param5</b> (法线/Bloom)</td>
+ *       <td style="padding: 5px;"><b>param5</b> (局部法线/Bloom)</td>
  *       <td style="padding: 5px;">normal.x</td>
  *       <td style="padding: 5px;">normal.y</td>
  *       <td style="padding: 5px;">normal.z</td>
