@@ -40,6 +40,7 @@ struct EffectMetaData {
     uint currentCount;
     uint flags;
     uint _padding2;
+    mat4 modelMatrix;
 };
 
 layout(std430, binding = BINDING_GLOBAL_DATA) buffer Globals {

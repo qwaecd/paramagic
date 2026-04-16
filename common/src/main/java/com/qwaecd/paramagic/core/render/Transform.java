@@ -33,6 +33,10 @@ public class Transform {
         return dest.set(this.scale);
     }
 
+    public boolean isDirty() {
+        return this.isDirty;
+    }
+
     /**
      * Sets the position of this transform.<br>
      * 设置此变换的位置。

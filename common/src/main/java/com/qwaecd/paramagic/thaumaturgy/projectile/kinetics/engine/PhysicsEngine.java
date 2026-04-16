@@ -13,6 +13,11 @@ public final class PhysicsEngine {
             return;
         }
         Vector3d velocity = state.getVelocity(new Vector3d());
+        if (!PhysicsMath.isFinite(velocity)) {
+            velocity.zero();
+            state.setVelocity(velocity);
+            return;
+        }
         // v += a * dt
         velocity.add(accumulator.getTransientAcceleration(new Vector3d())
                 .mul(dt)
@@ -27,6 +32,11 @@ public final class PhysicsEngine {
         if (drag > 0.0d) {
             velocity.mul(1.0d - drag);
         }
+        if (!PhysicsMath.isFinite(velocity)) {
+            velocity.zero();
+            state.setVelocity(velocity);
+            return;
+        }
         double maxSpeed = state.getMaxSpeed();
         double speedCapOverride = accumulator.getSpeedCapOverride();
         if (Double.isFinite(speedCapOverride)) {
@@ -35,8 +45,13 @@ public final class PhysicsEngine {
         if (Double.isFinite(maxSpeed) && maxSpeed >= 0.0d) {
             double speedSquared = velocity.lengthSquared();
             double maxSpeedSquared = maxSpeed * maxSpeed;
-            if (speedSquared > maxSpeedSquared) {
-                velocity.normalize(maxSpeed);
+            if (Double.isFinite(speedSquared) && Double.isFinite(maxSpeedSquared) && speedSquared > maxSpeedSquared) {
+                Vector3d limitedVelocity = new Vector3d();
+                if (PhysicsMath.tryNormalize(velocity, maxSpeed, limitedVelocity)) {
+                    velocity.set(limitedVelocity);
+                } else {
+                    velocity.zero();
+                }
             }
         }
         state.setVelocity(velocity);

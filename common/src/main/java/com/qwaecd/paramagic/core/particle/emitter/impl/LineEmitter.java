@@ -15,7 +15,7 @@ import static com.qwaecd.paramagic.core.particle.emitter.property.key.AllEmitter
 
 /**
  * <table border="1" style="width:100%; border-collapse: collapse;">
- *   <caption>LineEmitter 参数映射</caption>
+ *   <caption>LineEmitter 参数映射（effect-local）</caption>
  *   <thead>
  *     <tr>
  *       <th style="text-align:left; padding: 5px;">参数</th>
@@ -27,14 +27,14 @@ import static com.qwaecd.paramagic.core.particle.emitter.property.key.AllEmitter
  *   </thead>
  *   <tbody>
  *     <tr>
- *       <td style="padding: 5px;"><b>param1</b> (线起点)</td>
+ *       <td style="padding: 5px;"><b>param1</b> (局部线起点)</td>
  *       <td style="padding: 5px;">startPosition.x</td>
  *       <td style="padding: 5px;">startPosition.y</td>
  *       <td style="padding: 5px;">startPosition.z</td>
  *       <td style="padding: 5px;">flags (velocityModeProp)</td>
  *     </tr>
  *     <tr>
- *       <td style="padding: 5px;"><b>param2</b> (线终点)</td>
+ *       <td style="padding: 5px;"><b>param2</b> (局部线终点)</td>
  *       <td style="padding: 5px;">endPosition.x</td>
  *       <td style="padding: 5px;">endPosition.y</td>
  *       <td style="padding: 5px;">endPosition.z</td>
@@ -55,7 +55,7 @@ import static com.qwaecd.paramagic.core.particle.emitter.property.key.AllEmitter
  *       <td style="padding: 5px;">size.max</td>
  *     </tr>
  *     <tr>
- *       <td style="padding: 5px;"><b>param5</b> (速度/Bloom)</td>
+ *       <td style="padding: 5px;"><b>param5</b> (局部速度/Bloom)</td>
  *       <td style="padding: 5px;">baseVelocity.x</td>
  *       <td style="padding: 5px;">baseVelocity.y</td>
  *       <td style="padding: 5px;">baseVelocity.z</td>

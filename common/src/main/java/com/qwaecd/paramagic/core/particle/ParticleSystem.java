@@ -11,6 +11,7 @@ import com.qwaecd.paramagic.core.particle.effect.EffectManager;
 import com.qwaecd.paramagic.core.particle.effect.GPUParticleEffect;
 import com.qwaecd.paramagic.core.particle.memory.ParticleMemoryManager;
 import com.qwaecd.paramagic.core.particle.request.ParticleEmissionProcessor;
+import com.qwaecd.paramagic.core.render.Transform;
 import com.qwaecd.paramagic.core.render.context.RenderContext;
 import com.qwaecd.paramagic.core.render.shader.Shader;
 import com.qwaecd.paramagic.core.render.shader.ShaderManager;
@@ -99,6 +100,8 @@ public class ParticleSystem {
         if (this.effectManager.getCurrentEffectCount() == 0 || !shouldWork() || this.renderShader == null){
             return;
         }
+
+        this.effectManager.forEachActiveEffect(this::uploadEffectModelMatrixIfDirty);
 
         Matrix4f projectionMatrix = context.getProjectionMatrix();
         Matrix4f viewMatrix = context.getMatrixStackProvider().getViewMatrix();
@@ -189,6 +192,18 @@ public class ParticleSystem {
             glBufferSubData(GL_SHADER_STORAGE_BUFFER, offset, singleEffectBuffer);
             param.setDirty(false);
         }
+    }
+
+    private void uploadEffectModelMatrixIfDirty(GPUParticleEffect activeEffect) {
+        Transform transform = activeEffect.getTransform();
+        if (!transform.isDirty()) {
+            return;
+        }
+        int effectId = activeEffect.getEffectId();
+        if (effectId < 0 || effectId >= MAX_EFFECT_COUNT) {
+            return;
+        }
+        this.memoryManager.updateEffectModelMatrix(effectId, transform.getModelMatrix());
     }
 
     private void collectEmissionRequests(GPUParticleEffect effect) {

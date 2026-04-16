@@ -6,6 +6,7 @@ import com.qwaecd.paramagic.core.particle.data.EffectPhysicsParameter;
 import com.qwaecd.paramagic.core.particle.effect.GPUParticleEffect;
 import com.qwaecd.paramagic.core.particle.emitter.EmitterType;
 import com.qwaecd.paramagic.core.particle.emitter.ParticleBurst;
+import com.qwaecd.paramagic.core.particle.emitter.impl.CircleEmitter;
 import com.qwaecd.paramagic.core.particle.emitter.impl.SphereEmitter;
 import com.qwaecd.paramagic.core.particle.emitter.property.key.AllEmitterProperties;
 import com.qwaecd.paramagic.core.particle.emitter.property.type.VelocityModeStates;
@@ -51,7 +52,6 @@ public class GravityCollapseEntity extends BaseProjectile implements ProjectileE
 
     public GravityCollapseEntity(EntityType<? extends ThrowableProjectile> entityType, Level level) {
         super(entityType, level, 40.0f);
-        this.setNoGravity(true);
         this.kineticsState.setGravityScale(0.0f);
     }
 
@@ -70,6 +70,11 @@ public class GravityCollapseEntity extends BaseProjectile implements ProjectileE
                 EntityEffectHelper.spawnGravityCollapseEffect(this);
             }
         }
+    }
+
+    @Override
+    protected void lerpOnClientTick() {
+        super.lerpOnClientTick();
     }
 
     private void tickOnServer() {
@@ -117,9 +122,19 @@ public class GravityCollapseEntity extends BaseProjectile implements ProjectileE
 
     public void renderEffect(float partialTicks, float deltaTime) {
         Vector3f pos = this.getPosition(partialTicks).toVector3f();
+        Vector3f axis;
+        Vector3f v = this.getDeltaMovement().toVector3f();
+        if (v.lengthSquared() > 1.0e-6f) {
+            axis = v.normalize();
+        } else {
+            axis = new Vector3f(0.0f, 1.0f, 0.0f);
+        }
         GPUParticleEffect gpuEffect = this.getOrCreateEffect();
-        gpuEffect.getPhysicsParameter().setCFPos(pos);
-        gpuEffect.forEachEmitter(emitter -> emitter.getProperty(POSITION).set(pos));
+        gpuEffect.forEachEmitter(emitter -> emitter.modifyProp(NORMAL, normal -> normal.set(axis)));
+        final float degreesPerSecond = 90.0f;
+        gpuEffect.getTransform()
+                .rotate((float) Math.toRadians(degreesPerSecond * deltaTime), axis)
+                .setPosition(pos);
     }
 
     @Nonnull
@@ -127,20 +142,34 @@ public class GravityCollapseEntity extends BaseProjectile implements ProjectileE
         if (this.effect != null) {
             return this.effect;
         }
-        SphereEmitter emitter = new SphereEmitter(new Vector3f(), 800.0f);
-        emitter.getProperty(COLOR).modify(v -> v.set(1.2f, 0.5f, 0.8f, 1.0f));
-        emitter.getProperty(LIFE_TIME_RANGE).modify(v -> v.set(0.1f, 0.4f));
-        emitter.getProperty(SIZE_RANGE).modify(v -> v.set(3.4f, 4.2f));
-        emitter.getProperty(BLOOM_INTENSITY).set(0.8f);
-        emitter.getProperty(SPHERE_RADIUS).set(this.getDistortionRadius() + 0.5f);
-        emitter.getProperty(VELOCITY_MODE).set(VelocityModeStates.RANDOM);
-        emitter.getProperty(BASE_VELOCITY).modify(v -> v.set(0.8f));
+        SphereEmitter sphereEmitter = new SphereEmitter(new Vector3f(), 800.0f);
+        sphereEmitter.modifyProp(COLOR, v -> v.set(1.2f, 0.5f, 0.8f, 1.0f));
+        sphereEmitter.modifyProp(LIFE_TIME_RANGE, v -> v.set(0.1f, 0.4f));
+        sphereEmitter.modifyProp(SIZE_RANGE, v -> v.set(3.4f, 4.2f));
+        sphereEmitter.trySet(BLOOM_INTENSITY, 0.8f);
+        sphereEmitter.trySet(SPHERE_RADIUS, this.getDistortionRadius() + 1.5f);
+        sphereEmitter.trySet(VELOCITY_MODE, VelocityModeStates.RANDOM);
+        sphereEmitter.modifyProp(BASE_VELOCITY, v -> v.set(0.8f));
+
+        CircleEmitter accretionDiskEmitter = new CircleEmitter(new Vector3f(), 620.0f);
+        accretionDiskEmitter.modifyProp(COLOR, v -> v.set(4.35f, 0.72f, 0.85f, 1.0f));
+        accretionDiskEmitter.modifyProp(LIFE_TIME_RANGE, v -> v.set(0.13f, 0.3f));
+        accretionDiskEmitter.modifyProp(SIZE_RANGE, v -> v.set(1.8f, 3.0f));
+        accretionDiskEmitter.trySet(BLOOM_INTENSITY, 1.0f);
+        accretionDiskEmitter.modifyProp(NORMAL, v -> v.set(0.0f, 1.0f, 0.0f));
+        accretionDiskEmitter.modifyProp(INNER_OUTER_RADIUS, v -> v.set(
+                Math.max(0.3f, this.getDistortionRadius() + 0.2f),
+                this.getDistortionRadius() + 3.2f
+        ));
+        accretionDiskEmitter.trySet(VELOCITY_MODE, VelocityModeStates.RADIAL_FROM_CENTER);
+        accretionDiskEmitter.modifyProp(BASE_VELOCITY, v -> v.set(0.65f));
 
         EffectPhysicsParameter physicsParameter = new PhysicsParamBuilder()
-                .primaryForceParam(320.0f, -2.0f)
+                .centerForcePos(0.0f, 0.0f, 0.0f)
+                .primaryForceParam(320.0f, -1.2f)
                 .primaryForceEnabled(true)
                 .build();
-        this.effect = new GPUParticleEffect(List.of(emitter), 100_000, 0.0f, physicsParameter);
+        this.effect = new GPUParticleEffect(List.of(sphereEmitter, accretionDiskEmitter), 100_000, 0.0f, physicsParameter);
         ParticleSystem.getInstance().spawnEffect(this.effect);
         return this.effect;
     }

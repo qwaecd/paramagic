@@ -6,6 +6,7 @@ import com.qwaecd.paramagic.thaumaturgy.operator.ParaOpId;
 import com.qwaecd.paramagic.thaumaturgy.projectile.kinetics.PhysicsProvider;
 import com.qwaecd.paramagic.thaumaturgy.projectile.kinetics.ProjectileTargetingAlgorithms;
 import com.qwaecd.paramagic.thaumaturgy.projectile.kinetics.engine.KineticsAccumulator;
+import com.qwaecd.paramagic.thaumaturgy.projectile.kinetics.engine.PhysicsMath;
 import com.qwaecd.paramagic.thaumaturgy.projectile.kinetics.runtime.ProjectileRuntimeModifier;
 import com.qwaecd.paramagic.thaumaturgy.projectile.kinetics.runtime.ProjectileRuntimeModifierContext;
 import com.qwaecd.paramagic.thaumaturgy.projectile.kinetics.runtime.ProjectileRuntimeModifierHost;
@@ -14,6 +15,7 @@ import com.qwaecd.paramagic.tools.ModRL;
 import com.qwaecd.paramagic.world.item.ModItems;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.phys.Vec3;
+import org.joml.Vector3d;
 
 public class ShortTrackingOperator extends ModifierOperator {
     public static final ParaOpId OP_ID = ParaOpId.of(
@@ -63,7 +65,7 @@ public class ShortTrackingOperator extends ModifierOperator {
 
             Vec3 directionToTarget = target.getEyePosition().subtract(context.getPosition());
             final double dir = directionToTarget.lengthSqr();
-            if (dir <= 1.0e-8) {
+            if (!Double.isFinite(dir) || dir <= 1.0e-8) {
                 return;
             }
 
@@ -74,7 +76,19 @@ public class ShortTrackingOperator extends ModifierOperator {
             } else {
                 s = (float) Math.min(rangeSqr / dir * this.maxStrength, this.maxStrength * 1.5f);
             }
-            Vec3 normalizedDirection = directionToTarget.normalize().scale(s);
+            if (!Float.isFinite(s)) {
+                return;
+            }
+            Vector3d normalizedDirection = new Vector3d();
+            if (!PhysicsMath.tryNormalize(
+                    directionToTarget.x,
+                    directionToTarget.y,
+                    directionToTarget.z,
+                    s,
+                    normalizedDirection
+            )) {
+                return;
+            }
             PhysicsProvider physics = context.getProjectile().physics();
             physics.pushWithMomentum(
                     normalizedDirection.x,
