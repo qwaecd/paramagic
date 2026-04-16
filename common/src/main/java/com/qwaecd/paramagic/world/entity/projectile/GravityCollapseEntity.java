@@ -123,7 +123,7 @@ public class GravityCollapseEntity extends BaseProjectile implements ProjectileE
         Vector3f pos = this.getPosition(partialTicks).toVector3f();
         GPUParticleEffect gpuEffect = this.getOrCreateEffect();
         gpuEffect.getPhysicsParameter().setCFPos(pos);
-        gpuEffect.forEachEmitter(emitter -> emitter.getProperty(POSITION).set(pos));
+        gpuEffect.forEachEmitter(emitter -> emitter.modifyProp(POSITION, v -> v.set(pos)));
     }
 
     @Nonnull
@@ -132,13 +132,13 @@ public class GravityCollapseEntity extends BaseProjectile implements ProjectileE
             return this.effect;
         }
         SphereEmitter emitter = new SphereEmitter(new Vector3f(), 800.0f);
-        emitter.getProperty(COLOR).modify(v -> v.set(1.2f, 0.5f, 0.8f, 1.0f));
-        emitter.getProperty(LIFE_TIME_RANGE).modify(v -> v.set(0.1f, 0.4f));
-        emitter.getProperty(SIZE_RANGE).modify(v -> v.set(3.4f, 4.2f));
+        emitter.modifyProp(COLOR, v -> v.set(1.2f, 0.5f, 0.8f, 1.0f));
+        emitter.modifyProp(LIFE_TIME_RANGE, v -> v.set(0.1f, 0.4f));
+        emitter.modifyProp(SIZE_RANGE, v -> v.set(3.4f, 4.2f));
         emitter.getProperty(BLOOM_INTENSITY).set(0.8f);
         emitter.getProperty(SPHERE_RADIUS).set(this.getDistortionRadius() + 0.5f);
         emitter.getProperty(VELOCITY_MODE).set(VelocityModeStates.RANDOM);
-        emitter.getProperty(BASE_VELOCITY).modify(v -> v.set(0.8f));
+        emitter.modifyProp(BASE_VELOCITY, v -> v.set(0.8f));
 
         EffectPhysicsParameter physicsParameter = new PhysicsParamBuilder()
                 .primaryForceParam(320.0f, -2.0f)

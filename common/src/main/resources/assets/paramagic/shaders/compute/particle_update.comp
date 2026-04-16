@@ -33,6 +33,7 @@ struct EffectMetaData {
     uint currentCount;
     uint flags;
     uint _padding2;
+    mat4 modelMatrix;
 };
 
 struct EffectPhysicsParams {

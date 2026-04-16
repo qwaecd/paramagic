@@ -1,6 +1,7 @@
 package com.qwaecd.paramagic.core.particle.effect;
 
 import com.qwaecd.paramagic.core.particle.memory.ParticleMemoryManager;
+import org.joml.Matrix4f;
 
 import java.util.Deque;
 import java.util.concurrent.ConcurrentLinkedDeque;
@@ -41,7 +42,8 @@ public class EffectManager {
         }
         this.particleEffects[id] = effect;
         effect.setEffectId(id);
-        this.memoryManager.updateEffect(id, effect.getMaxParticleCount(), effect.getEffectFlag());
+        Matrix4f modelMatrix = effect.getTransform().getModelMatrix();
+        this.memoryManager.updateEffect(id, effect.getMaxParticleCount(), effect.getEffectFlag(), modelMatrix);
         this.currentEffectCount.incrementAndGet();
         return true;
     }

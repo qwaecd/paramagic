@@ -6,10 +6,20 @@ import com.qwaecd.paramagic.core.particle.emitter.property.key.PropertyKey;
 import org.joml.Vector3f;
 
 import javax.annotation.Nullable;
+import java.util.function.Consumer;
 
 public interface Emitter {
     <T> void setProperty(PropertyKey<T> key, T value);
+    @Nullable
     <T> EmitterProperty<T> getProperty(PropertyKey<T> key);
+
+    default <T> void modifyProp(PropertyKey<T> key, Consumer<T> consumer) {
+        EmitterProperty<T> prop = this.getProperty(key);
+        if (prop != null) {
+            consumer.accept(prop.get());
+        }
+    }
+
     boolean hasProperty(PropertyKey<?> key);
 
     void moveTo(Vector3f newPos);

@@ -3,6 +3,7 @@ package com.qwaecd.paramagic.core.particle.effect;
 import com.qwaecd.paramagic.core.particle.data.EffectPhysicsParameter;
 import com.qwaecd.paramagic.core.particle.data.EmissionRequest;
 import com.qwaecd.paramagic.core.particle.emitter.Emitter;
+import com.qwaecd.paramagic.core.render.Transform;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -26,6 +27,8 @@ public class GPUParticleEffect {
     @Getter
     private final EffectPhysicsParameter physicsParameter;
 
+    private final Transform transform;
+
     @Getter
     @Setter
     private int effectFlag = EffectFlags.IS_ALIVE.get(); // 效果的状态标志位掩码（bitmask）
@@ -44,6 +47,7 @@ public class GPUParticleEffect {
         this.emissionRequests = new ArrayList<>(emitters.size());
         this.externalEmissionRequests = new ConcurrentLinkedQueue<>();
         this.physicsParameter = new EffectPhysicsParameter();
+        this.transform = new Transform();
     }
 
     public GPUParticleEffect(
@@ -58,6 +62,11 @@ public class GPUParticleEffect {
         this.emissionRequests = new ArrayList<>(emitters.size());
         this.externalEmissionRequests = new ConcurrentLinkedQueue<>();
         this.physicsParameter = physicsParameter;
+        this.transform = new Transform();
+    }
+
+    public Transform getTransform() {
+        return this.transform;
     }
 
     /**

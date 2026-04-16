@@ -1,6 +1,7 @@
 package com.qwaecd.paramagic.core.particle.memory;
 
 import com.qwaecd.paramagic.core.particle.effect.EffectFlags;
+import org.joml.Matrix4f;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -17,6 +18,7 @@ import static org.lwjgl.opengl.GL44.*;
  *     uint currentCount;
  *     uint flags;
  *     uint _padding2;
+ *     mat4 modelMatrix;
  * };
  * </pre>
  */
@@ -29,9 +31,13 @@ public final class EffectMetaDataMap implements AutoCloseable {
     private static final int OFFSET_CURRENT_COUNT = 4;
     private static final int OFFSET_FLAGS         = 8;
     private static final int OFFSET_PADDING       = 12;
+    private static final int OFFSET_MATRIX        = 16;
 
     private ByteBuffer mappedBuffer;
-    public static final int SIZE_IN_BYTES = 4 * Integer.BYTES;
+    /**
+     * 每个 EffectMetaData 占用 16 字节（4 个 uint） + 64 字节（4x4 float 矩阵）= 80 字节。
+     */
+    public static final int SIZE_IN_BYTES = 4 * Integer.BYTES + (4 * 4) * Float.BYTES;
 
 
     EffectMetaDataMap(int maxEffectCount, int effectMetaData) {
@@ -59,11 +65,13 @@ public final class EffectMetaDataMap implements AutoCloseable {
     /**
      * 更新一个 Effect 的完整元数据。
      * 在 spawnEffect 时调用。
-     * @param effectId 要更新的 Effect ID。
+     *
+     * @param effectId     要更新的 Effect ID。
      * @param maxParticles 该 Effect 的最大粒子数。
-     * @param flags 该 Effect 的初始标志位 (e.g., EFFECT_FLAG_IS_ALIVE)。
+     * @param flags        该 Effect 的初始标志位 (e.g., EFFECT_FLAG_IS_ALIVE)。
+     * @param modelMatrix  该 Effect 的初始模型矩阵
      */
-    void updateEffect(int effectId, int maxParticles, int flags) {
+    void updateEffect(int effectId, int maxParticles, int flags, Matrix4f modelMatrix) {
         if (mappedBuffer == null || effectId < 0 || effectId >= maxEffectCount) {
             return;
         }
@@ -75,7 +83,8 @@ public final class EffectMetaDataMap implements AutoCloseable {
         mappedBuffer.putInt(maxParticles); // 写入 maxParticles
         mappedBuffer.putInt(0);      // 写入 currentCount (初始为0)
         mappedBuffer.putInt(flags);        // 写入 flags
-        mappedBuffer.putInt(0);
+        mappedBuffer.putInt(0);      // 写入 padding
+        mappedBuffer.asFloatBuffer().put(modelMatrix.get(new float[16])); // 写入 4x4 矩阵
     }
 
     /**

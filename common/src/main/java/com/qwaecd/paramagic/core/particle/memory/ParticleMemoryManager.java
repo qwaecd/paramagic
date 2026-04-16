@@ -5,6 +5,7 @@ import com.qwaecd.paramagic.core.particle.data.EffectPhysicsParameter;
 import com.qwaecd.paramagic.core.particle.data.EmissionRequest;
 import com.qwaecd.paramagic.core.particle.data.GPUParticle;
 import lombok.Getter;
+import org.joml.Matrix4f;
 import org.lwjgl.system.MemoryUtil;
 
 import java.nio.IntBuffer;
@@ -75,6 +76,7 @@ public final class ParticleMemoryManager implements AutoCloseable {
 
     public void renderParticleStep() {
         glBindBufferBase(GL_SHADER_STORAGE_BUFFER, ShaderBindingPoints.PARTICLE_DATA, this.particleDataSSBO);
+        glBindBufferBase(GL_SHADER_STORAGE_BUFFER, ShaderBindingPoints.EFFECT_META_DATA, this.effectMetaDataSSBO);
     }
 
     public void bindPhysicsParamsBuffer() {
@@ -84,12 +86,14 @@ public final class ParticleMemoryManager implements AutoCloseable {
     /**
      * 更新一个 Effect 的完整元数据。
      * 在 spawnEffect 时调用。
-     * @param effectId 要更新的 Effect ID。
+     *
+     * @param effectId     要更新的 Effect ID。
      * @param maxParticles 该 Effect 的最大粒子数。
-     * @param flags 该 Effect 的初始标志位 (e.g., EFFECT_FLAG_IS_ALIVE)。
+     * @param flags        该 Effect 的初始标志位 (e.g., EFFECT_FLAG_IS_ALIVE)。
+     * @param modelMatrix 该 Effect 的初始模型矩阵
      */
-    public void updateEffect(int effectId, int maxParticles, int flags) {
-        this.effectMetaDataMap.updateEffect(effectId, maxParticles, flags);
+    public void updateEffect(int effectId, int maxParticles, int flags, Matrix4f modelMatrix) {
+        this.effectMetaDataMap.updateEffect(effectId, maxParticles, flags, modelMatrix);
     }
 
     /**

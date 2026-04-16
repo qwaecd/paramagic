@@ -48,7 +48,7 @@ public class MagicArrowProjectile extends ArrowLikeProjectileEntity implements P
         PointEmitter emitter = this.getOrCreateSharedTrailEmitter();
         Vector3f newPos = this.getPosition(partialTicks).toVector3f();
         emitter.moveTo(newPos);
-        emitter.getProperty(BASE_VELOCITY).modify(v -> v.set(
+        emitter.modifyProp(BASE_VELOCITY, v -> v.set(
                 (-velocity.x * 2.6f),
                 (-velocity.y * 2.6f),
                 (-velocity.z * 2.6f)
@@ -62,7 +62,7 @@ public class MagicArrowProjectile extends ArrowLikeProjectileEntity implements P
 
         CircleEmitter circleEmitter = this.getOrCreateCircleEmitter();
         circleEmitter.moveTo(newPos);
-        circleEmitter.getProperty(NORMAL).modify(v -> v.set(
+        circleEmitter.modifyProp(NORMAL, v -> v.set(
                 (-velocity.x),
                 (-velocity.y),
                 (-velocity.z)
@@ -76,13 +76,13 @@ public class MagicArrowProjectile extends ArrowLikeProjectileEntity implements P
         }
 
         CircleEmitter emitter = new CircleEmitter(new Vector3f(), 320.0f);
-        emitter.getProperty(COLOR).modify(v -> v.set(1.6f, 0.4f, 0.8f, 1.0f));
-        emitter.getProperty(LIFE_TIME_RANGE).modify(v -> v.set(0.2f, 0.4f));
-        emitter.getProperty(SIZE_RANGE).modify(v -> v.set(1.4f, 2.2f));
+        emitter.modifyProp(COLOR, v -> v.set(1.6f, 0.4f, 0.8f, 1.0f));
+        emitter.modifyProp(LIFE_TIME_RANGE, v -> v.set(0.2f, 0.4f));
+        emitter.modifyProp(SIZE_RANGE, v -> v.set(1.4f, 2.2f));
         emitter.getProperty(BLOOM_INTENSITY).set(0.3f);
-        emitter.getProperty(INNER_OUTER_RADIUS).modify(v -> v.set(1.0f, 1.2f));
+        emitter.modifyProp(INNER_OUTER_RADIUS, v -> v.set(1.0f, 1.2f));
         emitter.getProperty(VELOCITY_MODE).set(VelocityModeStates.RADIAL_FROM_CENTER);
-        emitter.getProperty(BASE_VELOCITY).modify(v -> v.set(1.0f));
+        emitter.modifyProp(BASE_VELOCITY, v -> v.set(1.0f));
 
         this.circleEmitter = emitter;
         return emitter;
@@ -95,9 +95,9 @@ public class MagicArrowProjectile extends ArrowLikeProjectileEntity implements P
 
         PointEmitter emitter = new PointEmitter(new Vector3f(), 80.0f);
         emitter.getProperty(VELOCITY_SPREAD).set(60.0f);
-        emitter.getProperty(COLOR).modify(v -> v.set(0.6f, 0.4f, 0.8f, 1.0f));
-        emitter.getProperty(LIFE_TIME_RANGE).modify(v -> v.set(0.2f, 0.45f));
-        emitter.getProperty(SIZE_RANGE).modify(v -> v.set(2.8f, 3.2f));
+        emitter.modifyProp(COLOR, v -> v.set(0.6f, 0.4f, 0.8f, 1.0f));
+        emitter.modifyProp(LIFE_TIME_RANGE, v -> v.set(0.2f, 0.45f));
+        emitter.modifyProp(SIZE_RANGE, v -> v.set(2.8f, 3.2f));
         emitter.getProperty(BLOOM_INTENSITY).set(0.4f);
 
         this.sharedTrailEmitter = emitter;
