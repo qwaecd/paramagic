@@ -32,7 +32,7 @@ public class LaserProjectile extends BaseProjectile implements ProjectileEntity,
     private Emitter sharedBeamEmitter;
 
     public LaserProjectile(EntityType<? extends LaserProjectile> entityType, Level level) {
-        super(entityType, level, 10.0f);
+        super(entityType, level, 8.0f);
         this.setNoGravity(true);
         this.kineticsState.setGravityScale(0.0f);
         this.kineticsState.setMaxSpeed(64.0f);

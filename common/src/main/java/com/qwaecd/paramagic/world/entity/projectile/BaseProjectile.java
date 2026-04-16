@@ -109,8 +109,6 @@ public abstract class BaseProjectile extends ThrowableProjectile implements Proj
         super.tick();
         this.age += 1.0f / 20.0f;
         if (this.level().isClientSide) {
-            // 不要忘记在客户端从速度同步状态，否则会导致客户端的动力学速度初始为0，使得Rot为NaN
-//            this.syncVelocityFromEntity();
             this.applyKineticsStep();
             this.lerpOnClientTick();
             return;
@@ -206,7 +204,6 @@ public abstract class BaseProjectile extends ThrowableProjectile implements Proj
 
     @Override
     public void shoot() {
-//        this.syncEntityVelocityFromKinetics();
         Vector3d v = this.kineticsState.getVelocity();
         BaseProjectile.shoot(this, this.random, v.x, v.y, v.z, (float) v.length(), this.getInaccuracy());
         this.syncEntityVelocityFromKinetics();
