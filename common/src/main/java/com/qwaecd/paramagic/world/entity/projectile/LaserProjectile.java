@@ -110,7 +110,7 @@ public class LaserProjectile extends BaseProjectile implements ProjectileEntity,
                 position.z,
                 ModSounds.LASER,
                 SoundSource.PLAYERS,
-                4.0F,
+                1.0F,
                 1.0F / (level().getRandom().nextFloat() * 0.4F + 1.2F)
         );
     }

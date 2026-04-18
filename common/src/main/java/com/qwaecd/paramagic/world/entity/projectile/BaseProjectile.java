@@ -23,14 +23,20 @@ import com.qwaecd.paramagic.thaumaturgy.projectile.kinetics.runtime.ProjectileRu
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.core.BlockPos;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.projectile.ProjectileUtil;
 import net.minecraft.world.entity.projectile.ThrowableProjectile;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.TheEndGatewayBlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.*;
 import org.joml.Vector3d;
 import org.slf4j.Logger;
@@ -38,8 +44,11 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
+import java.util.function.Predicate;
 
 public abstract class BaseProjectile extends ThrowableProjectile implements ProjectileEntity, PhysicsProvider, ProjectileRuntimeModifierHost {
     private static final Logger LOGGER = LoggerFactory.getLogger(BaseProjectile.class);
@@ -58,6 +67,8 @@ public abstract class BaseProjectile extends ThrowableProjectile implements Proj
     private static final int CLIENT_MIN_POSITION_CORRECTION_TICKS = 2;
     // 速度纠偏默认持续 tick 数
     private static final int CLIENT_DEFAULT_VELOCITY_CORRECTION_TICKS = 3;
+    private static final int MAX_COLLISION_ITERATIONS = 16;
+    private static final double COLLISION_ADVANCE_EPSILON = 1.0E-4D;
 
     protected float age = 0.0f;
 
@@ -81,6 +92,10 @@ public abstract class BaseProjectile extends ThrowableProjectile implements Proj
     private boolean hasClientPositionCorrection = false;
     // 是否存在待处理的速度纠偏
     private boolean hasClientVelocityCorrection = false;
+    private boolean hasBeenShotLike = false;
+    private boolean leftOwnerLike = false;
+    private boolean noPhysicsLike = false;
+    private int piercedEntityCount = 0;
 
     protected BaseProjectile(EntityType<? extends ThrowableProjectile> entityType, Level level) {
         super(entityType, level);
@@ -106,23 +121,131 @@ public abstract class BaseProjectile extends ThrowableProjectile implements Proj
 
     @Override
     public void tick() {
-        super.tick();
+        this.runBaseLifecycleTick();
         this.age += 1.0f / 20.0f;
         if (this.level().isClientSide) {
             this.applyKineticsStep();
             this.lerpOnClientTick();
+            this.finalizePostMoveState();
             return;
         }
+        this.updateProjectileStateFlags();
         this.applyKineticsStep();
         Vec3 start = this.position();
-        Vec3 end = start.add(this.getDeltaMovement());
-        HitResult hitResult = this.findHitResult(start, end);
-        if (hitResult.getType() != HitResult.Type.MISS) {
-            this.setPos(hitResult.getLocation());
-            this.onHit(hitResult);
-        } else {
-            this.setPos(end);
+        MovementPlan plan = this.resolveMovement(start, this.getDeltaMovement());
+        CollisionResolveResult collisionResult = this.processCollisionPipeline(plan);
+        if (this.isRemoved()) {
+            return;
         }
+        this.setPos(collisionResult.finalPosition());
+        this.finalizePostMoveState();
+    }
+
+    protected void runBaseLifecycleTick() {
+        this.baseTick();
+    }
+
+    protected void updateProjectileStateFlags() {
+        if (!this.hasBeenShotLike) {
+            this.gameEvent(GameEvent.PROJECTILE_SHOOT, this.getOwner());
+            this.hasBeenShotLike = true;
+        }
+        if (!this.leftOwnerLike) {
+            this.leftOwnerLike = this.checkLeftOwnerLike();
+        }
+    }
+
+    protected MovementPlan resolveMovement(Vec3 start, Vec3 delta) {
+        return new MovementPlan(start, delta, start.add(delta));
+    }
+
+    protected CollisionResolveResult processCollisionPipeline(MovementPlan plan) {
+        if (this.isNoPhysicsLike() || plan.delta.lengthSqr() < 1.0E-12D) {
+            return new CollisionResolveResult(plan.intendedEnd);
+        }
+
+        Vec3 cursor = plan.start;
+        Vec3 remainingDelta = plan.delta;
+        Set<Integer> piercedEntityIds = new HashSet<>();
+        int iterations = 0;
+        while (iterations++ < MAX_COLLISION_ITERATIONS && remainingDelta.lengthSqr() >= 1.0E-12D) {
+            Vec3 segmentEnd = cursor.add(remainingDelta);
+            HitResult hitResult = this.detectFirstHit(cursor, segmentEnd, entity -> this.canHitEntity(entity) && !piercedEntityIds.contains(entity.getId()));
+            if (hitResult.getType() == HitResult.Type.MISS) {
+                cursor = segmentEnd;
+                break;
+            }
+
+            Vec3 hitLocation = hitResult.getLocation();
+            // block
+            if (hitResult instanceof BlockHitResult blockHitResult) {
+                PortalBlockDecision portalDecision = this.handlePortalOrGatewayHit(blockHitResult);
+                if (portalDecision == PortalBlockDecision.HANDLED_STOP) {
+                    cursor = hitLocation;
+                    break;
+                }
+                if (portalDecision == PortalBlockDecision.HANDLED_PASS_THROUGH) {
+                    cursor = segmentEnd;
+                    break;
+                }
+                if (!this.canHitBlock(blockHitResult)) {
+                    Vec3 nextStart = this.advancePastHit(hitLocation, remainingDelta);
+                    if (nextStart == null) {
+                        cursor = hitLocation;
+                        break;
+                    }
+                    remainingDelta = segmentEnd.subtract(nextStart);
+                    cursor = nextStart;
+                    continue;
+                }
+                HitDecision decision = this.sanitizeHitDecision(this.onHitBlockDecision(blockHitResult));
+                this.setPos(hitLocation);
+                this.onHit(blockHitResult);
+                if (this.isRemoved()) {
+                    return new CollisionResolveResult(hitLocation);
+                }
+                if (decision == HitDecision.PASS_THROUGH) {
+                    Vec3 nextStart = this.advancePastHit(hitLocation, remainingDelta);
+                    if (nextStart == null) {
+                        cursor = hitLocation;
+                        break;
+                    }
+                    remainingDelta = segmentEnd.subtract(nextStart);
+                    cursor = nextStart;
+                    continue;
+                }
+                cursor = hitLocation;
+                break;
+            }
+
+            // entity
+            if (hitResult instanceof EntityHitResult entityHitResult) {
+                HitDecision decision = this.sanitizeHitDecision(this.onHitEntityDecision(entityHitResult));
+                this.setPos(hitLocation);
+                this.onHit(entityHitResult);
+                if (this.isRemoved()) {
+                    return new CollisionResolveResult(hitLocation);
+                }
+                if (decision == HitDecision.PASS_THROUGH && this.canPassThroughEntity(entityHitResult.getEntity())) {
+                    piercedEntityIds.add(entityHitResult.getEntity().getId());
+                    this.piercedEntityCount++;
+                    Vec3 nextStart = this.advancePastHit(hitLocation, remainingDelta);
+                    if (nextStart == null) {
+                        cursor = hitLocation;
+                        break;
+                    }
+                    remainingDelta = segmentEnd.subtract(nextStart);
+                    cursor = nextStart;
+                    continue;
+                }
+                cursor = hitLocation;
+                break;
+            }
+
+            cursor = hitLocation;
+            break;
+        }
+        return new CollisionResolveResult(cursor);
     }
 
     protected void lerpOnClientTick() {
@@ -202,6 +325,11 @@ public abstract class BaseProjectile extends ThrowableProjectile implements Proj
         this.clientPositionCorrectionTicks = 0;
     }
 
+    protected void finalizePostMoveState() {
+        this.updateRotation();
+        this.checkInsideBlocks();
+    }
+
     @Override
     public void shoot() {
         Vector3d v = this.kineticsState.getVelocity();
@@ -273,11 +401,15 @@ public abstract class BaseProjectile extends ThrowableProjectile implements Proj
         }
     }
 
-    private HitResult findHitResult(Vec3 start, Vec3 end) {
+    protected HitResult detectFirstHit(Vec3 start, Vec3 end) {
+        return this.detectFirstHit(start, end, this::canHitEntity);
+    }
+
+    private HitResult detectFirstHit(Vec3 start, Vec3 end, Predicate<Entity> entityPredicate) {
         BlockHitResult blockHitResult = this.level().clip(new ClipContext(start, end, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, this));
         Vec3 clippedEnd = blockHitResult.getType() == HitResult.Type.MISS ? end : blockHitResult.getLocation();
-        AABB searchBox = this.getBoundingBox().expandTowards(this.getDeltaMovement()).inflate(0.35f);
-        EntityHitResult entityHitResult = ProjectileUtil.getEntityHitResult(this.level(), this, start, clippedEnd, searchBox, this::canHitEntity);
+        AABB searchBox = this.getBoundingBox().expandTowards(end.subtract(start)).inflate(0.35f);
+        EntityHitResult entityHitResult = ProjectileUtil.getEntityHitResult(this.level(), this, start, clippedEnd, searchBox, entityPredicate);
         if (entityHitResult == null) {
             return blockHitResult;
         }
@@ -287,6 +419,105 @@ public abstract class BaseProjectile extends ThrowableProjectile implements Proj
         double entityDistance = start.distanceToSqr(entityHitResult.getLocation());
         double blockDistance = start.distanceToSqr(blockHitResult.getLocation());
         return entityDistance <= blockDistance ? entityHitResult : blockHitResult;
+    }
+
+    protected HitDecision onHitEntityDecision(EntityHitResult hitResult) {
+        return HitDecision.STOP;
+    }
+
+    protected HitDecision onHitBlockDecision(BlockHitResult hitResult) {
+        return HitDecision.STOP;
+    }
+
+    protected PortalBlockDecision handlePortalOrGatewayHit(BlockHitResult hitResult) {
+        BlockPos blockPos = hitResult.getBlockPos();
+        BlockState blockState = this.level().getBlockState(blockPos);
+        if (blockState.is(Blocks.NETHER_PORTAL)) {
+            this.handleInsidePortal(blockPos);
+            return PortalBlockDecision.HANDLED_PASS_THROUGH;
+        }
+        if (!blockState.is(Blocks.END_GATEWAY)) {
+            return PortalBlockDecision.NOT_HANDLED;
+        }
+        BlockEntity blockEntity = this.level().getBlockEntity(blockPos);
+        if (blockEntity instanceof TheEndGatewayBlockEntity gatewayBlockEntity && TheEndGatewayBlockEntity.canEntityTeleport(this)) {
+            TheEndGatewayBlockEntity.teleportEntity(this.level(), blockPos, blockState, this, gatewayBlockEntity);
+        }
+        return PortalBlockDecision.HANDLED_PASS_THROUGH;
+    }
+
+    protected boolean canHitBlock(BlockHitResult hitResult) {
+        return true;
+    }
+
+    protected int getMaxPierceCount() {
+        return 0;
+    }
+
+    protected boolean canPierceEntity(Entity entity) {
+        return true;
+    }
+
+    protected void setNoPhysicsLike(boolean noPhysicsLike) {
+        this.noPhysicsLike = noPhysicsLike;
+    }
+
+    protected boolean isNoPhysicsLike() {
+        return this.noPhysicsLike;
+    }
+
+    @Override
+    protected boolean canHitEntity(Entity target) {
+        if (!target.canBeHitByProjectile()) {
+            return false;
+        }
+        Entity owner = this.getOwner();
+        return owner == null || this.leftOwnerLike || !owner.isPassengerOfSameVehicle(target);
+    }
+
+    private boolean checkLeftOwnerLike() {
+        Entity owner = this.getOwner();
+        if (owner == null) {
+            return true;
+        }
+        for (Entity candidate : this.level().getEntities(
+                this,
+                this.getBoundingBox().expandTowards(this.getDeltaMovement()).inflate(1.0D),
+                entity -> !entity.isSpectator() && entity.isPickable())) {
+            if (candidate.getRootVehicle() == owner.getRootVehicle()) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private HitDecision sanitizeHitDecision(HitDecision decision) {
+        if (decision == HitDecision.BOUNCE || decision == HitDecision.IGNORE) {
+            // TODO: 实现完整的反弹以及忽略策略
+            LOGGER.warn("Hit decision {} is disabled in BaseProjectile first stage, fallback to STOP for entity {}", decision, this.getId());
+            return HitDecision.STOP;
+        }
+        return decision;
+    }
+
+    private Vec3 advancePastHit(Vec3 hitLocation, Vec3 remainingDelta) {
+        double lengthSqr = remainingDelta.lengthSqr();
+        if (lengthSqr < 1.0E-12D) {
+            return null;
+        }
+        Vec3 direction = remainingDelta.scale(1.0D / Math.sqrt(lengthSqr));
+        return hitLocation.add(direction.scale(COLLISION_ADVANCE_EPSILON));
+    }
+
+    private boolean canPassThroughEntity(Entity entity) {
+        if (!this.canPierceEntity(entity)) {
+            return false;
+        }
+        int maxPierceCount = this.getMaxPierceCount();
+        if (maxPierceCount < 0) {
+            return true;
+        }
+        return this.piercedEntityCount < maxPierceCount;
     }
 
     protected void applyKineticsStep() {
@@ -444,6 +675,10 @@ public abstract class BaseProjectile extends ThrowableProjectile implements Proj
         super.addAdditionalSaveData(compound);
         CompoundTag tag = new CompoundTag();
         tag.putFloat("age", this.age);
+        tag.putBoolean("hasBeenShotLike", this.hasBeenShotLike);
+        tag.putBoolean("leftOwnerLike", this.leftOwnerLike);
+        tag.putBoolean("noPhysicsLike", this.noPhysicsLike);
+        tag.putInt("piercedEntityCount", this.piercedEntityCount);
 
         NBTCodec codec = new NBTCodec(tag);
 //        ParaOpId[] paraOpIds = this.recordedOperators.stream()
@@ -467,6 +702,10 @@ public abstract class BaseProjectile extends ThrowableProjectile implements Proj
             return;
         }
         this.age = tag.getFloat("age");
+        this.hasBeenShotLike = tag.getBoolean("hasBeenShotLike");
+        this.leftOwnerLike = tag.getBoolean("leftOwnerLike");
+        this.noPhysicsLike = tag.getBoolean("noPhysicsLike");
+        this.piercedEntityCount = tag.getInt("piercedEntityCount");
 
         NBTCodec codec = new NBTCodec(tag);
         try {

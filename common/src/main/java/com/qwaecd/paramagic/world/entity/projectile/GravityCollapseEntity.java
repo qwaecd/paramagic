@@ -60,6 +60,11 @@ public class GravityCollapseEntity extends BaseProjectile implements ProjectileE
     }
 
     @Override
+    protected boolean isNoPhysicsLike() {
+        return true;
+    }
+
+    @Override
     public void tick() {
         super.tick();
         if (!this.level().isClientSide) {
