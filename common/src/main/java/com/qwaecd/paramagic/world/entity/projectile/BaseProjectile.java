@@ -21,11 +21,10 @@ import com.qwaecd.paramagic.thaumaturgy.projectile.kinetics.runtime.ProjectileRu
 import com.qwaecd.paramagic.thaumaturgy.projectile.kinetics.runtime.ProjectileRuntimeModifierContext;
 import com.qwaecd.paramagic.thaumaturgy.projectile.kinetics.runtime.ProjectileRuntimeModifierHost;
 import com.qwaecd.paramagic.world.sound.SoundHelper;
+import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.protocol.game.ClientboundAddEntityPacket;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.SynchedEntityData;
-import net.minecraft.core.BlockPos;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
@@ -34,26 +33,20 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.projectile.ProjectileUtil;
 import net.minecraft.world.entity.projectile.ThrowableProjectile;
+import net.minecraft.world.level.ClipContext;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.TheEndGatewayBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.ClipContext;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.*;
 import org.joml.Vector3d;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Predicate;
 
 public abstract class BaseProjectile extends ThrowableProjectile implements ProjectileEntity, PhysicsProvider, ProjectileRuntimeModifierHost {
@@ -69,6 +62,9 @@ public abstract class BaseProjectile extends ThrowableProjectile implements Proj
     protected final KineticsAccumulator kineticsAccumulator = new KineticsAccumulator();
     protected final List<ProjectileRuntimeModifier> runtimeModifiers = new ArrayList<>();
 
+    /**
+     * 仅修改该字段会导致双端不同步，应当使用 entityData 来进行同步修改
+     */
     @PlatformScope(PlatformScopeType.COMMON)
     protected final List<ParaOperator> recordedOperators = new ArrayList<>();
 
@@ -81,13 +77,11 @@ public abstract class BaseProjectile extends ThrowableProjectile implements Proj
 
     protected BaseProjectile(EntityType<? extends ThrowableProjectile> entityType, Level level) {
         super(entityType, level);
-        this.setNoGravity(true);
         this.kineticsState = new PhysicsState();
     }
 
     protected BaseProjectile(EntityType<? extends ThrowableProjectile> entityType, Level level, double mass) {
         super(entityType, level);
-        this.setNoGravity(true);
         this.kineticsState = new PhysicsState(mass);
     }
 
@@ -108,6 +102,7 @@ public abstract class BaseProjectile extends ThrowableProjectile implements Proj
 
         if (this.level().isClientSide && !this.hasBeenShot) {
             this.syncVelocityFromEntity();
+            this.playShootSound();
         }
         this.updateProjectileStateFlags();
 
@@ -241,12 +236,6 @@ public abstract class BaseProjectile extends ThrowableProjectile implements Proj
         this.syncEntityVelocityFromKinetics();
         this.level().addFreshEntity(this);
         this.syncRecordedOperators();
-    }
-
-    @Override
-    public void recreateFromPacket(@Nonnull ClientboundAddEntityPacket packet) {
-        super.recreateFromPacket(packet);
-        this.playShootSound();
     }
 
     @PlatformScope(PlatformScopeType.CLIENT)
@@ -602,7 +591,7 @@ public abstract class BaseProjectile extends ThrowableProjectile implements Proj
         super.addAdditionalSaveData(compound);
         CompoundTag tag = new CompoundTag();
         tag.putFloat("age", this.age);
-        tag.putBoolean("hasBeenShotLike", this.hasBeenShot);
+        tag.putBoolean("hasBeenShot", this.hasBeenShot);
         tag.putBoolean("leftOwnerLike", this.leftOwnerLike);
         tag.putBoolean("noPhysicsLike", this.noPhysicsLike);
         tag.putInt("piercedEntityCount", this.piercedEntityCount);
@@ -629,7 +618,7 @@ public abstract class BaseProjectile extends ThrowableProjectile implements Proj
             return;
         }
         this.age = tag.getFloat("age");
-        this.hasBeenShot = tag.getBoolean("hasBeenShotLike");
+        this.hasBeenShot = tag.getBoolean("hasBeenShot");
         this.leftOwnerLike = tag.getBoolean("leftOwnerLike");
         this.noPhysicsLike = tag.getBoolean("noPhysicsLike");
         this.piercedEntityCount = tag.getInt("piercedEntityCount");

@@ -21,7 +21,7 @@ public final class SoundHelper {
             float volume,
             float pitch
     ) {
-        if (sound == null || category == null) {
+        if (!level.isClientSide || sound == null || category == null) {
             return;
         }
         level.playSound(
