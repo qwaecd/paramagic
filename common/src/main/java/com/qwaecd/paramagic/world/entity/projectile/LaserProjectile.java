@@ -9,7 +9,7 @@ import com.qwaecd.paramagic.thaumaturgy.ProjectileEntity;
 import com.qwaecd.paramagic.thaumaturgy.projectile.property.LifetimeCarrier;
 import com.qwaecd.paramagic.world.entity.ModEntityTypes;
 import com.qwaecd.paramagic.world.sound.ModSounds;
-import net.minecraft.sounds.SoundSource;
+import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.Level;
@@ -20,12 +20,12 @@ import org.joml.Vector3d;
 import org.joml.Vector3f;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 import static com.qwaecd.paramagic.core.particle.emitter.property.key.AllEmitterProperties.*;
 
 public class LaserProjectile extends BaseProjectile implements ProjectileEntity, LifetimeCarrier {
     private static final SharedGPUEffectRef LASER_EFFECT = SharedGPUEffectRegistry.ref(BuiltinSharedGPUEffects.LASER_BEAM);
-    private static final float BEAM_LENGTH = 6.5f;
     private float lifeTime = 5.0f;
 
     private float HIT_DAMAGE = 5.0f;
@@ -56,11 +56,20 @@ public class LaserProjectile extends BaseProjectile implements ProjectileEntity,
     @Override
     protected void onHit(@Nonnull HitResult hitResult) {
         super.onHit(hitResult);
+        if (this.level().isClientSide) {
+            return;
+        }
         if (hitResult instanceof EntityHitResult entityHitResult) {
             Entity target = entityHitResult.getEntity();
             target.hurt(this.damageSources().magic(), HIT_DAMAGE);
         }
         this.onLifeEnd();
+    }
+
+    @Nullable
+    @Override
+    protected SoundEvent getShootSound() {
+        return ModSounds.LASER;
     }
 
     public void renderBeamEffect(float partialTick, float deltaTime) {
@@ -103,16 +112,6 @@ public class LaserProjectile extends BaseProjectile implements ProjectileEntity,
         }
         this.level().addFreshEntity(this);
         this.syncRecordedOperators();
-        level().playSound(
-                null,
-                position.x,
-                position.y,
-                position.z,
-                ModSounds.LASER,
-                SoundSource.PLAYERS,
-                1.0F,
-                1.0F / (level().getRandom().nextFloat() * 0.4F + 1.2F)
-        );
     }
 
     @Override

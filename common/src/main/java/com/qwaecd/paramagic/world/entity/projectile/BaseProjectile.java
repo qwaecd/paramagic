@@ -20,10 +20,14 @@ import com.qwaecd.paramagic.thaumaturgy.projectile.kinetics.engine.PhysicsState;
 import com.qwaecd.paramagic.thaumaturgy.projectile.kinetics.runtime.ProjectileRuntimeModifier;
 import com.qwaecd.paramagic.thaumaturgy.projectile.kinetics.runtime.ProjectileRuntimeModifierContext;
 import com.qwaecd.paramagic.thaumaturgy.projectile.kinetics.runtime.ProjectileRuntimeModifierHost;
+import com.qwaecd.paramagic.world.sound.SoundHelper;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.protocol.game.ClientboundAddEntityPacket;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.core.BlockPos;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Entity;
@@ -42,6 +46,8 @@ import org.joml.Vector3d;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -53,20 +59,7 @@ import java.util.function.Predicate;
 public abstract class BaseProjectile extends ThrowableProjectile implements ProjectileEntity, PhysicsProvider, ProjectileRuntimeModifierHost {
     private static final Logger LOGGER = LoggerFactory.getLogger(BaseProjectile.class);
     protected static final EntityDataAccessor<List<ParaOpId>> PROJECTILE_RUNTIME_MODIFIER = SynchedEntityData.defineId(BaseProjectile.class, AllEntityDataSerializers.PROJECTILE_RUNTIME_MODIFIER);
-    // 客户端单次逻辑步长（20 TPS）
-    private static final double CLIENT_TICK_DELTA = 1.0d / 20.0d;
-    // 位置纠偏收敛速度（Hz），越大追得越快
-    private static final double CLIENT_POSITION_CORRECTION_HZ = 20.0d;
-    // 位置误差超过该阈值时直接瞬移纠正（这里是距离平方）
-    private static final double CLIENT_POSITION_SNAP_DISTANCE_SQR = 9.0d;
-    // 位置误差小于该阈值时视为已收敛（这里是距离平方）
-    private static final double CLIENT_POSITION_CORRECTION_EPSILON_SQR = 1.0E-4D;
-    // 速度融合权重，越大越快贴近服务端速度
-    private static final double CLIENT_VELOCITY_BLEND_ALPHA = 1.0d;
-    // 位置纠偏最少持续 tick 数，避免一帧内结束
-    private static final int CLIENT_MIN_POSITION_CORRECTION_TICKS = 2;
-    // 速度纠偏默认持续 tick 数
-    private static final int CLIENT_DEFAULT_VELOCITY_CORRECTION_TICKS = 3;
+
     private static final int MAX_COLLISION_ITERATIONS = 16;
     private static final double COLLISION_ADVANCE_EPSILON = 1.0E-4D;
 
@@ -80,19 +73,8 @@ public abstract class BaseProjectile extends ThrowableProjectile implements Proj
     protected final List<ParaOperator> recordedOperators = new ArrayList<>();
 
     protected float inaccuracy = 0.0f;
-    // 服务端下发的目标位置（客户端用于渐进纠偏）
-    private Vec3 clientCorrectionTargetPos = Vec3.ZERO;
-    // 服务端下发的目标速度（客户端用于速度融合）
-    private Vec3 clientCorrectionTargetVel = Vec3.ZERO;
-    // 位置纠偏剩余 tick 数
-    private int clientPositionCorrectionTicks = 0;
-    // 速度纠偏剩余 tick 数
-    private int clientVelocityCorrectionTicks = 0;
-    // 是否存在待处理的位置纠偏
-    private boolean hasClientPositionCorrection = false;
-    // 是否存在待处理的速度纠偏
-    private boolean hasClientVelocityCorrection = false;
-    private boolean hasBeenShotLike = false;
+
+    private boolean hasBeenShot = false;
     private boolean leftOwnerLike = false;
     private boolean noPhysicsLike = false;
     private int piercedEntityCount = 0;
@@ -123,13 +105,12 @@ public abstract class BaseProjectile extends ThrowableProjectile implements Proj
     public void tick() {
         this.runBaseLifecycleTick();
         this.age += 1.0f / 20.0f;
-        if (this.level().isClientSide) {
-            this.applyKineticsStep();
-            this.lerpOnClientTick();
-            this.finalizePostMoveState();
-            return;
+
+        if (this.level().isClientSide && !this.hasBeenShot) {
+            this.syncVelocityFromEntity();
         }
         this.updateProjectileStateFlags();
+
         this.applyKineticsStep();
         Vec3 start = this.position();
         MovementPlan plan = this.resolveMovement(start, this.getDeltaMovement());
@@ -146,9 +127,9 @@ public abstract class BaseProjectile extends ThrowableProjectile implements Proj
     }
 
     protected void updateProjectileStateFlags() {
-        if (!this.hasBeenShotLike) {
+        if (!this.hasBeenShot) {
             this.gameEvent(GameEvent.PROJECTILE_SHOOT, this.getOwner());
-            this.hasBeenShotLike = true;
+            this.hasBeenShot = true;
         }
         if (!this.leftOwnerLike) {
             this.leftOwnerLike = this.checkLeftOwnerLike();
@@ -160,7 +141,7 @@ public abstract class BaseProjectile extends ThrowableProjectile implements Proj
     }
 
     protected CollisionResolveResult processCollisionPipeline(MovementPlan plan) {
-        if (this.isNoPhysicsLike() || plan.delta.lengthSqr() < 1.0E-12D) {
+        if (this.isNoPhysics() || plan.delta.lengthSqr() < 1.0E-12D) {
             return new CollisionResolveResult(plan.intendedEnd);
         }
 
@@ -248,83 +229,6 @@ public abstract class BaseProjectile extends ThrowableProjectile implements Proj
         return new CollisionResolveResult(cursor);
     }
 
-    protected void lerpOnClientTick() {
-        Vec3 localVelocity = this.getDeltaMovement();
-        if (this.hasClientVelocityCorrection && this.clientVelocityCorrectionTicks > 0) {
-            localVelocity = localVelocity.lerp(this.clientCorrectionTargetVel, CLIENT_VELOCITY_BLEND_ALPHA);
-            this.kineticsState.setVelocity(localVelocity.x, localVelocity.y, localVelocity.z);
-            this.setDeltaMovement(localVelocity);
-            this.clientVelocityCorrectionTicks--;
-            if (this.clientVelocityCorrectionTicks <= 0) {
-                this.hasClientVelocityCorrection = false;
-            }
-        } else {
-            var v = this.kineticsState.getVelocity();
-            localVelocity = new Vec3(v.x, v.y, v.z);
-        }
-
-        Vec3 predictedPos = this.position().add(localVelocity);
-        if (!this.hasClientPositionCorrection || this.clientPositionCorrectionTicks <= 0) {
-            this.setPos(predictedPos);
-            return;
-        }
-
-        Vec3 error = this.clientCorrectionTargetPos.subtract(predictedPos);
-        if (error.lengthSqr() > CLIENT_POSITION_SNAP_DISTANCE_SQR) {
-            this.setPos(this.clientCorrectionTargetPos);
-            this.clearClientPositionCorrection();
-            return;
-        }
-
-        double alpha = 1.0d - Math.exp(-CLIENT_POSITION_CORRECTION_HZ * CLIENT_TICK_DELTA);
-        this.setPos(predictedPos.add(error.scale(alpha)));
-        this.clientPositionCorrectionTicks--;
-        if (this.clientPositionCorrectionTicks <= 0 || error.lengthSqr() <= CLIENT_POSITION_CORRECTION_EPSILON_SQR) {
-            this.clearClientPositionCorrection();
-        }
-    }
-
-    @Override
-    public void lerpTo(double x, double y, double z, float yRot, float xRot, int lerpSteps, boolean teleport) {
-        if (!this.level().isClientSide) {
-            super.lerpTo(x, y, z, yRot, xRot, lerpSteps, teleport);
-            return;
-        }
-
-        Vec3 targetPos = new Vec3(x, y, z);
-        this.setRot(yRot, xRot);
-        if (teleport || this.position().distanceToSqr(targetPos) > CLIENT_POSITION_SNAP_DISTANCE_SQR) {
-            this.setPos(targetPos);
-            this.clearClientPositionCorrection();
-            return;
-        }
-
-        this.clientCorrectionTargetPos = targetPos;
-        this.clientPositionCorrectionTicks = Math.max(CLIENT_MIN_POSITION_CORRECTION_TICKS, lerpSteps);
-        this.hasClientPositionCorrection = true;
-    }
-
-    @Override
-    public void lerpMotion(double x, double y, double z) {
-        if (!this.level().isClientSide) {
-            super.lerpMotion(x, y, z);
-            return;
-        }
-
-        this.clientCorrectionTargetVel = new Vec3(x, y, z);
-        this.clientVelocityCorrectionTicks = CLIENT_DEFAULT_VELOCITY_CORRECTION_TICKS;
-        this.hasClientVelocityCorrection = true;
-        if (this.getDeltaMovement().lengthSqr() < 1.0E-8D) {
-            this.kineticsState.setVelocity(x, y, z);
-            this.setDeltaMovement(x, y, z);
-        }
-    }
-
-    private void clearClientPositionCorrection() {
-        this.hasClientPositionCorrection = false;
-        this.clientPositionCorrectionTicks = 0;
-    }
-
     protected void finalizePostMoveState() {
         this.updateRotation();
         this.checkInsideBlocks();
@@ -337,6 +241,29 @@ public abstract class BaseProjectile extends ThrowableProjectile implements Proj
         this.syncEntityVelocityFromKinetics();
         this.level().addFreshEntity(this);
         this.syncRecordedOperators();
+    }
+
+    @Override
+    public void recreateFromPacket(@Nonnull ClientboundAddEntityPacket packet) {
+        super.recreateFromPacket(packet);
+        this.playShootSound();
+    }
+
+    @PlatformScope(PlatformScopeType.CLIENT)
+    protected void playShootSound() {
+        SoundHelper.playLocalSound(
+                this.level(),
+                this.getX(), this.getY(), this.getZ(),
+                this.getShootSound(),
+                SoundSource.PLAYERS,
+                1.0f,
+                1.0F / (this.random.nextFloat() * 0.2F + 0.9F)
+        );
+    }
+
+    @Nullable
+    protected SoundEvent getShootSound() {
+        return null;
     }
 
     protected void syncRecordedOperators() {
@@ -458,11 +385,11 @@ public abstract class BaseProjectile extends ThrowableProjectile implements Proj
         return true;
     }
 
-    protected void setNoPhysicsLike(boolean noPhysicsLike) {
+    protected void setNoPhysics(boolean noPhysicsLike) {
         this.noPhysicsLike = noPhysicsLike;
     }
 
-    protected boolean isNoPhysicsLike() {
+    protected boolean isNoPhysics() {
         return this.noPhysicsLike;
     }
 
@@ -675,7 +602,7 @@ public abstract class BaseProjectile extends ThrowableProjectile implements Proj
         super.addAdditionalSaveData(compound);
         CompoundTag tag = new CompoundTag();
         tag.putFloat("age", this.age);
-        tag.putBoolean("hasBeenShotLike", this.hasBeenShotLike);
+        tag.putBoolean("hasBeenShotLike", this.hasBeenShot);
         tag.putBoolean("leftOwnerLike", this.leftOwnerLike);
         tag.putBoolean("noPhysicsLike", this.noPhysicsLike);
         tag.putInt("piercedEntityCount", this.piercedEntityCount);
@@ -702,7 +629,7 @@ public abstract class BaseProjectile extends ThrowableProjectile implements Proj
             return;
         }
         this.age = tag.getFloat("age");
-        this.hasBeenShotLike = tag.getBoolean("hasBeenShotLike");
+        this.hasBeenShot = tag.getBoolean("hasBeenShotLike");
         this.leftOwnerLike = tag.getBoolean("leftOwnerLike");
         this.noPhysicsLike = tag.getBoolean("noPhysicsLike");
         this.piercedEntityCount = tag.getInt("piercedEntityCount");

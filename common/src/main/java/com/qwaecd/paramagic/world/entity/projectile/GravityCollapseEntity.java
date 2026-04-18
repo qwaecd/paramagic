@@ -60,7 +60,7 @@ public class GravityCollapseEntity extends BaseProjectile implements ProjectileE
     }
 
     @Override
-    protected boolean isNoPhysicsLike() {
+    protected boolean isNoPhysics() {
         return true;
     }
 
@@ -75,11 +75,6 @@ public class GravityCollapseEntity extends BaseProjectile implements ProjectileE
                 EntityEffectHelper.spawnGravityCollapseEffect(this);
             }
         }
-    }
-
-    @Override
-    protected void lerpOnClientTick() {
-        super.lerpOnClientTick();
     }
 
     private void tickOnServer() {
