@@ -28,6 +28,9 @@ import com.qwaecd.paramagic.world.entity.ModEntityTypes;
 import com.qwaecd.paramagic.world.entity.SpellAnchorEntity;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.projectile.ThrowableProjectile;
@@ -60,6 +63,11 @@ public class GravityCollapseEntity extends BaseProjectile implements ProjectileE
     }
 
     @Override
+    protected boolean isNoPhysics() {
+        return true;
+    }
+
+    @Override
     public void tick() {
         super.tick();
         if (!this.level().isClientSide) {
@@ -70,11 +78,6 @@ public class GravityCollapseEntity extends BaseProjectile implements ProjectileE
                 EntityEffectHelper.spawnGravityCollapseEffect(this);
             }
         }
-    }
-
-    @Override
-    protected void lerpOnClientTick() {
-        super.lerpOnClientTick();
     }
 
     private void tickOnServer() {
@@ -118,6 +121,15 @@ public class GravityCollapseEntity extends BaseProjectile implements ProjectileE
     protected void onLifeEnd() {
         super.onLifeEnd();
         this.spawnDeathEffect();
+        RandomSource random = this.level().random;
+        this.level().playSound(
+                null,
+                this.getX(), this.getY(), this.getZ(),
+                SoundEvents.GENERIC_EXPLODE,
+                SoundSource.BLOCKS,
+                4.0f,
+                (1.0F + (random.nextFloat() - random.nextFloat()) * 0.2F) * 0.7F
+        );
     }
 
     public void renderEffect(float partialTicks, float deltaTime) {
