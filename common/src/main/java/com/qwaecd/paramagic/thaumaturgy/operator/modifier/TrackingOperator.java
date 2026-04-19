@@ -84,7 +84,7 @@ public class TrackingOperator extends ModifierOperator {
                     normalizedDirection.x,
                     normalizedDirection.y,
                     normalizedDirection.z,
-                    true
+                    false
             );
         }
     }

@@ -51,10 +51,11 @@ import java.util.function.Predicate;
 
 public abstract class BaseProjectile extends ThrowableProjectile implements ProjectileEntity, PhysicsProvider, ProjectileRuntimeModifierHost {
     private static final Logger LOGGER = LoggerFactory.getLogger(BaseProjectile.class);
+
     protected static final EntityDataAccessor<List<ParaOpId>> PROJECTILE_RUNTIME_MODIFIER = SynchedEntityData.defineId(BaseProjectile.class, AllEntityDataSerializers.PROJECTILE_RUNTIME_MODIFIER);
 
     private static final int MAX_COLLISION_ITERATIONS = 16;
-    private static final double COLLISION_ADVANCE_EPSILON = 1.0E-4D;
+    private static final double COLLISION_ADVANCE_EPSILON = 1.0E-2D;
 
     protected float age = 0.0f;
 
@@ -100,9 +101,11 @@ public abstract class BaseProjectile extends ThrowableProjectile implements Proj
         this.runBaseLifecycleTick();
         this.age += 1.0f / 20.0f;
 
-        if (this.level().isClientSide && !this.hasBeenShot) {
-            this.syncVelocityFromEntity();
-            this.playShootSound();
+        if (this.level().isClientSide) {
+            if (!this.hasBeenShot) {
+                this.syncVelocityFromEntity();
+                this.playShootSound();
+            }
         }
         this.updateProjectileStateFlags();
 
@@ -132,6 +135,7 @@ public abstract class BaseProjectile extends ThrowableProjectile implements Proj
     }
 
     protected MovementPlan resolveMovement(Vec3 start, Vec3 delta) {
+        // Tick-driven movement: x += v (v is blocks/tick).
         return new MovementPlan(start, delta, start.add(delta));
     }
 
@@ -273,6 +277,14 @@ public abstract class BaseProjectile extends ThrowableProjectile implements Proj
             return;
         }
         this.kineticsState.setVelocity(movement.x, movement.y, movement.z);
+    }
+
+    @Override
+    public void lerpMotion(double x, double y, double z) {
+        super.lerpMotion(x, y, z);
+        if (this.level().isClientSide) {
+            this.syncVelocityFromEntity();
+        }
     }
 
     public static void shoot(
@@ -450,7 +462,7 @@ public abstract class BaseProjectile extends ThrowableProjectile implements Proj
         for (ProjectileRuntimeModifier modifier : this.runtimeModifiers) {
             modifier.applyTick(context, this.kineticsAccumulator);
         }
-        PhysicsEngine.update(this.kineticsState, this.kineticsAccumulator, 1.0d / 20.0d);
+        PhysicsEngine.update(this.kineticsState, this.kineticsAccumulator);
         this.syncEntityVelocityFromKinetics();
     }
 

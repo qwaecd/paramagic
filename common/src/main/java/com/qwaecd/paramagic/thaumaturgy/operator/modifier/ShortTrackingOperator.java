@@ -94,7 +94,7 @@ public class ShortTrackingOperator extends ModifierOperator {
                     normalizedDirection.x,
                     normalizedDirection.y,
                     normalizedDirection.z,
-                    true
+                    false
             );
         }
     }

@@ -101,7 +101,7 @@ public abstract class ArrowLikeProjectileEntity extends AbstractArrow implements
         for (ProjectileRuntimeModifier modifier : this.runtimeModifiers) {
             modifier.applyTick(context, this.kineticsAccumulator);
         }
-        PhysicsEngine.update(this.kineticsState, this.kineticsAccumulator, 1.0d / 20.0d);
+        PhysicsEngine.update(this.kineticsState, this.kineticsAccumulator);
         this.syncEntityVelocityFromKinetics();
     }
 

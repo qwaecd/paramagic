@@ -3,30 +3,24 @@ package com.qwaecd.paramagic.thaumaturgy.projectile.kinetics.engine;
 import org.joml.Vector3d;
 
 public final class PhysicsEngine {
-    // m/s^2
-    public static final double worldGravity = 0.32d;
-    public static final double maxDt = 2.0d;
+    /**
+     * Gravity acceleration in blocks/tick^2.
+     */
+    public static final double worldGravity = 0.00943d;
 
-    public static void update(PhysicsState state, KineticsAccumulator accumulator, double deltaTime) {
-        final double dt = clamp(deltaTime, 0.0d, maxDt);
-        if (dt <= 0.0d) {
-            return;
-        }
+    public static void update(PhysicsState state, KineticsAccumulator accumulator) {
         Vector3d velocity = state.getVelocity(new Vector3d());
         if (!PhysicsMath.isFinite(velocity)) {
             velocity.zero();
             state.setVelocity(velocity);
             return;
         }
-        // v += a * dt
-        velocity.add(accumulator.getTransientAcceleration(new Vector3d())
-                .mul(dt)
-        );
+        // Tick-driven update (v in blocks/tick, a in blocks/tick^2):
+        // v += a
+        velocity.add(accumulator.getTransientAcceleration(new Vector3d()));
         velocity.add(accumulator.getDeltaVelocity(new Vector3d()));
 
-        // F * dt = m * dv
-        // dv = F * dt / m = m*g * dt / m = g * dt
-        velocity.y -= worldGravity * dt * state.getGravityScale();
+        velocity.y -= worldGravity * state.getGravityScale();
 
         double drag = clamp01(state.getDragCoefficient());
         if (drag > 0.0d) {
@@ -62,12 +56,5 @@ public final class PhysicsEngine {
             return 0.0d;
         }
         return Math.min(value, 1.0d);
-    }
-
-    public static double clamp(double value, double min, double max) {
-        if (value < min) {
-            return min;
-        }
-        return Math.min(value, max);
     }
 }
