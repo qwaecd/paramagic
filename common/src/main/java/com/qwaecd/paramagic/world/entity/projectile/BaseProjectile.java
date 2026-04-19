@@ -485,10 +485,12 @@ public abstract class BaseProjectile extends ThrowableProjectile implements Proj
     }
 
     @Override
-    public void setVelocity(double x, double y, double z) {
+    public void setVelocity(double x, double y, double z, boolean syncToClient) {
         this.kineticsState.setVelocity(x, y, z);
         this.syncEntityVelocityFromKinetics();
-        this.markVelocitySyncDirty();
+        if (syncToClient) {
+            this.markVelocitySyncDirty();
+        }
     }
 
     @Override
@@ -497,10 +499,12 @@ public abstract class BaseProjectile extends ThrowableProjectile implements Proj
     }
 
     @Override
-    public void addVelocity(double x, double y, double z) {
+    public void addVelocity(double x, double y, double z, boolean syncToClient) {
         this.kineticsState.addVelocity(x, y, z);
         this.syncEntityVelocityFromKinetics();
-        this.markVelocitySyncDirty();
+        if (syncToClient) {
+            this.markVelocitySyncDirty();
+        }
     }
 
     @Override

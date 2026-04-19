@@ -110,7 +110,7 @@ public class GravityCollapseEntity extends BaseProjectile implements ProjectileE
             if (entity instanceof ProjectileEntity projectile) {
                 double a = 4.0d;
                 pull = pull.scale(a);
-                projectile.physics().pushWithMomentum(pull.x, pull.y, pull.z);
+                projectile.physics().pushWithMomentum(pull.x, pull.y, pull.z, true);
             } else {
                 entity.push(pull.x, pull.y, pull.z);
             }

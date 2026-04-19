@@ -3,6 +3,8 @@ package com.qwaecd.paramagic.world.entity.projectile;
 import com.qwaecd.paramagic.Paramagic;
 import com.qwaecd.paramagic.network.IDataSerializable;
 import com.qwaecd.paramagic.network.codec.NBTCodec;
+import com.qwaecd.paramagic.platform.annotation.PlatformScope;
+import com.qwaecd.paramagic.platform.annotation.PlatformScopeType;
 import com.qwaecd.paramagic.thaumaturgy.ProjectileEntity;
 import com.qwaecd.paramagic.thaumaturgy.operator.AllParaOperators;
 import com.qwaecd.paramagic.thaumaturgy.operator.ParaOpId;
@@ -129,9 +131,12 @@ public abstract class ArrowLikeProjectileEntity extends AbstractArrow implements
     }
 
     @Override
-    public void setVelocity(double x, double y, double z) {
+    public void setVelocity(double x, double y, double z, boolean syncToClient) {
         this.kineticsState.setVelocity(x, y, z);
         this.syncEntityVelocityFromKinetics();
+        if (syncToClient) {
+            this.markVelocitySyncDirty();
+        }
     }
 
     @Override
@@ -140,9 +145,12 @@ public abstract class ArrowLikeProjectileEntity extends AbstractArrow implements
     }
 
     @Override
-    public void addVelocity(double x, double y, double z) {
+    public void addVelocity(double x, double y, double z, boolean syncToClient) {
         this.kineticsState.addVelocity(x, y, z);
         this.syncEntityVelocityFromKinetics();
+        if (syncToClient) {
+            this.markVelocitySyncDirty();
+        }
     }
 
     @Override
@@ -187,6 +195,11 @@ public abstract class ArrowLikeProjectileEntity extends AbstractArrow implements
     @Override
     public PhysicsProvider physics() {
         return this;
+    }
+
+    @PlatformScope(PlatformScopeType.SERVER)
+    public void markVelocitySyncDirty() {
+        this.hasImpulse = true;
     }
 
     @Override
