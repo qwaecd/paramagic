@@ -11,7 +11,7 @@ void main() {
     o_bloomColor = vec4(0.0, 0.0, 0.0, 1.0);
     const float threshold = 0.1;
     if (v_intensity > threshold) {
-        o_bloomColor = vec4(growHDRColor - threshold, 1.0);
+        o_bloomColor = vec4(growHDRColor * v_color.a, 1.0);
     }
     o_color = v_color;
 }
