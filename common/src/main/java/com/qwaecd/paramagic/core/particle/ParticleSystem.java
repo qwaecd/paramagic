@@ -35,9 +35,12 @@ import static org.lwjgl.opengl.GL20.glUseProgram;
 import static org.lwjgl.opengl.GL30.glBindVertexArray;
 import static org.lwjgl.opengl.GL30.glGenVertexArrays;
 import static org.lwjgl.opengl.GL32.GL_PROGRAM_POINT_SIZE;
+import static org.lwjgl.opengl.GL42.GL_COMMAND_BARRIER_BIT;
 import static org.lwjgl.opengl.GL42.glMemoryBarrier;
 import static org.lwjgl.opengl.GL43.GL_SHADER_STORAGE_BARRIER_BIT;
 import static org.lwjgl.opengl.GL43.GL_SHADER_STORAGE_BUFFER;
+import static org.lwjgl.opengl.GL40.GL_DRAW_INDIRECT_BUFFER;
+import static org.lwjgl.opengl.GL40.glDrawArraysIndirect;
 
 @PlatformScope(PlatformScopeType.CLIENT)
 public class ParticleSystem {
@@ -50,7 +53,9 @@ public class ParticleSystem {
     private final ParticleEmissionProcessor emissionProcessor;
     private final IComputeShaderProvider computeShaderProvider;
     @Nullable
-    private final Shader renderShader;
+    private final Shader pointRenderShader;
+    @Nullable
+    private final Shader shapeRenderShader;
 
     private final boolean canUseComputeShader;
     private final boolean canUseGeometryShader;
@@ -59,6 +64,10 @@ public class ParticleSystem {
     private final List<EmissionRequest> emissionRequests;
     private final ConcurrentLinkedQueue<GPUParticleEffect> killedEffects = new ConcurrentLinkedQueue<>();
     private final int emptyVao;
+    private static final int BUCKET_TYPE_POINT = 0;
+    private static final int BUCKET_TYPE_TRIANGLE = 1;
+    private static final int BUCKET_TYPE_QUAD = 2;
+    private static final int INDIRECT_COMMAND_STRIDE_BYTES = 4 * Integer.BYTES; // DrawArraysIndirectCommand
 
     private ParticleSystem(boolean canUseComputeShader, boolean canUseGeometryShader) {
         this.canUseComputeShader = canUseComputeShader;
@@ -69,7 +78,8 @@ public class ParticleSystem {
         this.computeShaderProvider = new CShaderProvider(this.canUseComputeShader && this.canUseGeometryShader);
         this.emissionProcessor = new ParticleEmissionProcessor(computeShaderProvider, this.memoryManager.getMAX_REQUESTS_PER_FRAME());
 
-        this.renderShader = ShaderManager.getInstance().getShaderNullable("particle_render");
+        this.pointRenderShader = ShaderManager.getInstance().getShaderNullable("particle_render_point");
+        this.shapeRenderShader = ShaderManager.getInstance().getShaderNullable("particle_render_shape");
 
         this.emissionRequests = new ArrayList<>(MAX_EFFECT_COUNT);
         this.emptyVao = glGenVertexArrays();
@@ -97,10 +107,14 @@ public class ParticleSystem {
     }
 
     public void renderParticles(RenderContext context) {
-        if (this.effectManager.getCurrentEffectCount() == 0 || !shouldWork() || this.renderShader == null){
+        if (this.effectManager.getCurrentEffectCount() == 0 || !shouldWork() || this.pointRenderShader == null){
             return;
         }
 
+        this.dispatchClassify();
+        if (!this.dispatchBuildDrawCommands()) {
+            return;
+        }
         this.effectManager.forEachActiveEffect(this::uploadEffectModelMatrixIfDirty);
 
         Matrix4f projectionMatrix = context.getProjectionMatrix();
@@ -108,13 +122,29 @@ public class ParticleSystem {
         Vector3d cameraPos = context.getCamera().position();
         this.memoryManager.renderParticleStep();
         glBindVertexArray(this.emptyVao);
-        // Pass uniforms to particle_render.vsh
-        this.renderShader.bind();
-        this.renderShader.setUniformMatrix4f("u_projectionMatrix", projectionMatrix);
-        this.renderShader.setUniformMatrix4f("u_viewMatrix", viewMatrix);
-        this.renderShader.setUniformValue3f("u_cameraPosition", (float) cameraPos.x, (float) cameraPos.y, (float) cameraPos.z);
+        glBindBuffer(GL_DRAW_INDIRECT_BUFFER, this.memoryManager.getBucketDrawCommandsSSBO());
 
-        glDrawArrays(GL_POINTS, 0, MAX_PARTICLES);
+        // Point bucket
+        this.pointRenderShader.bind();
+        this.setCommonRenderUniforms(this.pointRenderShader, projectionMatrix, viewMatrix, cameraPos);
+        this.pointRenderShader.setUniformValue1i("u_bucketType", BUCKET_TYPE_POINT);
+        glDrawArraysIndirect(GL_POINTS, 0L);
+        this.pointRenderShader.unbind();
+
+        // Triangle + Quad buckets share one geometry shader, selected by uniform branch.
+        if (this.shapeRenderShader != null) {
+            this.shapeRenderShader.bind();
+            this.setCommonRenderUniforms(this.shapeRenderShader, projectionMatrix, viewMatrix, cameraPos);
+
+            this.shapeRenderShader.setUniformValue1i("u_bucketType", BUCKET_TYPE_TRIANGLE);
+            glDrawArraysIndirect(GL_POINTS, (long) INDIRECT_COMMAND_STRIDE_BYTES);
+
+            this.shapeRenderShader.setUniformValue1i("u_bucketType", BUCKET_TYPE_QUAD);
+            glDrawArraysIndirect(GL_POINTS, (long) INDIRECT_COMMAND_STRIDE_BYTES * 2L);
+            this.shapeRenderShader.unbind();
+        }
+
+        glBindBuffer(GL_DRAW_INDIRECT_BUFFER, 0);
         glBindVertexArray(0);
         glUseProgram(0);
         this.memoryManager.unbindAllSSBO();
@@ -122,7 +152,7 @@ public class ParticleSystem {
 
     public void update(float deltaTime) {
         flushEffects();
-        if (this.effectManager.getCurrentEffectCount() == 0 || !shouldWork()) {
+        if (this.effectManager.getCurrentEffectCount() == 0 || !this.shouldWork()) {
             return;
         }
 
@@ -141,14 +171,14 @@ public class ParticleSystem {
                 }
 
                 // 收集发射请求
-                collectEmissionRequests(activeEffect);
+                this.collectEmissionRequests(activeEffect);
                 // 上传物理参数至 GPU 等待后续 update 使用
-                uploadPhysicsParams(activeEffect, singleEffectBuffer);
+                this.uploadPhysicsParams(activeEffect, singleEffectBuffer);
             });
             glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
         }
-        processRequests();
-        dispatchUpdate(deltaTime);
+        this.processRequests();
+        this.dispatchUpdate(deltaTime);
     }
 
     @SuppressWarnings("UnusedReturnValue")
@@ -176,6 +206,43 @@ public class ParticleSystem {
         glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
         updateShader.unbind();
         memoryManager.unbindAllSSBO();
+    }
+
+    private void dispatchClassify() {
+        ComputeShader classifyShader = this.computeShaderProvider.particleClassifyShader();
+        if (classifyShader == null) {
+            return;
+        }
+        this.memoryManager.resetBucketCounters();
+        this.memoryManager.classifyStep();
+
+        classifyShader.bind();
+        classifyShader.setUniformValue1i("u_maxParticles", MAX_PARTICLES);
+        classifyShader.dispatch((MAX_PARTICLES + ParticleMemoryManager.LOCAL_SIZE - 1) / ParticleMemoryManager.LOCAL_SIZE, 1, 1);
+
+        glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
+        classifyShader.unbind();
+        this.memoryManager.unbindAllSSBO();
+    }
+
+    private boolean dispatchBuildDrawCommands() {
+        ComputeShader commandShader = this.computeShaderProvider.particleBuildDrawCommandsShader();
+        if (commandShader == null) {
+            return false;
+        }
+        this.memoryManager.buildDrawCommandsStep();
+        commandShader.bind();
+        commandShader.dispatch(1, 1, 1);
+        glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT | GL_COMMAND_BARRIER_BIT);
+        commandShader.unbind();
+        this.memoryManager.unbindAllSSBO();
+        return true;
+    }
+
+    private void setCommonRenderUniforms(Shader shader, Matrix4f projectionMatrix, Matrix4f viewMatrix, Vector3d cameraPos) {
+        shader.setUniformMatrix4f("u_projectionMatrix", projectionMatrix);
+        shader.setUniformMatrix4f("u_viewMatrix", viewMatrix);
+        shader.setUniformValue3f("u_cameraPosition", (float) cameraPos.x, (float) cameraPos.y, (float) cameraPos.z);
     }
 
     private void uploadPhysicsParams(GPUParticleEffect activeEffect, ByteBuffer singleEffectBuffer) {
