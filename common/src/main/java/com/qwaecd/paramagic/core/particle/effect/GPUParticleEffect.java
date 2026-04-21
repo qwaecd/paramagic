@@ -10,6 +10,7 @@ import org.joml.Matrix4f;
 import org.joml.Vector3f;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -36,6 +37,13 @@ public class GPUParticleEffect {
     private final EffectPhysicsParameter physicsParameter;
 
     private final Transform transform;
+
+    public interface EffectConsumer {
+        void accept(GPUParticleEffect effect, float deltaTime);
+    }
+
+    @Nullable
+    private EffectConsumer consumer;
 
     @Getter
     @Setter
@@ -72,6 +80,10 @@ public class GPUParticleEffect {
         this.externalEmissionRequests = new ConcurrentLinkedQueue<>();
         this.physicsParameter = physicsParameter;
         this.transform = new Transform();
+    }
+
+    public void setConsumer(@Nullable EffectConsumer consumer) {
+        this.consumer = consumer;
     }
 
     public Transform getTransform() {
@@ -182,6 +194,9 @@ public class GPUParticleEffect {
      * 时间增量，单位秒（为距离上一帧的时间）<br>
      */
     public void update(float deltaTime) {
+        if (this.consumer != null) {
+            this.consumer.accept(this, deltaTime);
+        }
         this.currentLifeTime += deltaTime;
         for (Emitter e : emitters) {
             e.update(deltaTime);
