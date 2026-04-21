@@ -19,6 +19,6 @@ public class GravityCollapseEntityRenderer extends EmptyEntityRenderer<GravityCo
         super.render(entity, entityYaw, partialTick, poseStack, buffer, packedLight);
         Vec3 position = entity.getPosition(partialTick);
         entity.setDistortionPosition((float) position.x, (float) position.y, (float) position.z);
-        entity.renderEffect(partialTick, TimeProvider.getDeltaTime(Minecraft.getInstance()));
+        entity.renderEffect(partialTick, TimeProvider.getDeltaTime(Minecraft.getInstance()), Minecraft.getInstance().isPaused());
     }
 }

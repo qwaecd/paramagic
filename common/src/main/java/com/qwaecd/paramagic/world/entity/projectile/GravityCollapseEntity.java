@@ -9,6 +9,8 @@ import com.qwaecd.paramagic.core.particle.emitter.ParticleBurst;
 import com.qwaecd.paramagic.core.particle.emitter.impl.CircleEmitter;
 import com.qwaecd.paramagic.core.particle.emitter.impl.SphereEmitter;
 import com.qwaecd.paramagic.core.particle.emitter.property.key.AllEmitterProperties;
+import com.qwaecd.paramagic.core.particle.emitter.property.type.ParticleFacingModeStates;
+import com.qwaecd.paramagic.core.particle.emitter.property.type.ParticlePrimitiveTypeStates;
 import com.qwaecd.paramagic.core.particle.emitter.property.type.VelocityModeStates;
 import com.qwaecd.paramagic.core.render.geometricmask.GeometricEffectCaster;
 import com.qwaecd.paramagic.network.Networking;
@@ -132,7 +134,7 @@ public class GravityCollapseEntity extends BaseProjectile implements ProjectileE
         );
     }
 
-    public void renderEffect(float partialTicks, float deltaTime) {
+    public void renderEffect(float partialTicks, float deltaTime, boolean paused) {
         Vector3f pos = this.getPosition(partialTicks).toVector3f();
         Vector3f axis;
         Vector3f v = this.getDeltaMovement().toVector3f();
@@ -143,6 +145,9 @@ public class GravityCollapseEntity extends BaseProjectile implements ProjectileE
         }
         GPUParticleEffect gpuEffect = this.getOrCreateEffect();
         gpuEffect.forEachEmitter(emitter -> emitter.modifyProp(NORMAL, normal -> normal.set(axis)));
+        if (paused) {
+            return;
+        }
         final float degreesPerSecond = 90.0f;
         gpuEffect.getTransform()
                 .rotate((float) Math.toRadians(degreesPerSecond * deltaTime), axis)
@@ -157,24 +162,28 @@ public class GravityCollapseEntity extends BaseProjectile implements ProjectileE
         SphereEmitter sphereEmitter = new SphereEmitter(new Vector3f(), 800.0f);
         sphereEmitter.modifyProp(COLOR, v -> v.set(1.2f, 0.5f, 0.8f, 1.0f));
         sphereEmitter.modifyProp(LIFE_TIME_RANGE, v -> v.set(0.1f, 0.4f));
-        sphereEmitter.modifyProp(SIZE_RANGE, v -> v.set(3.4f, 4.2f));
-        sphereEmitter.trySet(BLOOM_INTENSITY, 0.8f);
+        sphereEmitter.modifyProp(SIZE_RANGE, v -> v.set(0.04f, 0.25f));
+        sphereEmitter.trySet(BLOOM_INTENSITY, 0.3f);
         sphereEmitter.trySet(SPHERE_RADIUS, this.getDistortionRadius() + 1.5f);
         sphereEmitter.trySet(VELOCITY_MODE, VelocityModeStates.RANDOM);
         sphereEmitter.modifyProp(BASE_VELOCITY, v -> v.set(0.8f));
+        sphereEmitter.trySet(PARTICLE_PRIMITIVE_TYPE, ParticlePrimitiveTypeStates.TRIANGLE);
+        sphereEmitter.trySet(PARTICLE_FACING_MODE, ParticleFacingModeStates.NORMAL_FACING);
 
         CircleEmitter accretionDiskEmitter = new CircleEmitter(new Vector3f(), 620.0f);
         accretionDiskEmitter.modifyProp(COLOR, v -> v.set(4.35f, 0.72f, 0.85f, 1.0f));
         accretionDiskEmitter.modifyProp(LIFE_TIME_RANGE, v -> v.set(0.13f, 0.3f));
-        accretionDiskEmitter.modifyProp(SIZE_RANGE, v -> v.set(1.8f, 3.0f));
-        accretionDiskEmitter.trySet(BLOOM_INTENSITY, 1.0f);
+        accretionDiskEmitter.modifyProp(SIZE_RANGE, v -> v.set(0.05f, 0.1f));
+        accretionDiskEmitter.trySet(BLOOM_INTENSITY, 0.2f);
         accretionDiskEmitter.modifyProp(NORMAL, v -> v.set(0.0f, 1.0f, 0.0f));
         accretionDiskEmitter.modifyProp(INNER_OUTER_RADIUS, v -> v.set(
                 Math.max(0.3f, this.getDistortionRadius() + 0.2f),
                 this.getDistortionRadius() + 3.2f
         ));
-        accretionDiskEmitter.trySet(VELOCITY_MODE, VelocityModeStates.RADIAL_FROM_CENTER);
+        accretionDiskEmitter.trySet(VELOCITY_MODE, VelocityModeStates.RANDOM);
         accretionDiskEmitter.modifyProp(BASE_VELOCITY, v -> v.set(0.65f));
+        accretionDiskEmitter.trySet(PARTICLE_PRIMITIVE_TYPE, ParticlePrimitiveTypeStates.QUAD);
+        accretionDiskEmitter.trySet(PARTICLE_FACING_MODE, ParticleFacingModeStates.NORMAL_FACING);
 
         EffectPhysicsParameter physicsParameter = new PhysicsParamBuilder()
                 .centerForcePos(0.0f, 0.0f, 0.0f)

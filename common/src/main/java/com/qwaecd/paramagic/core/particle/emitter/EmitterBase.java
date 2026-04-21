@@ -4,6 +4,8 @@ import com.qwaecd.paramagic.core.exception.EmitterPropertyTypeException;
 import com.qwaecd.paramagic.core.particle.data.EmissionRequest;
 import com.qwaecd.paramagic.core.particle.emitter.property.EmitterProperty;
 import com.qwaecd.paramagic.core.particle.emitter.property.key.PropertyKey;
+import com.qwaecd.paramagic.core.particle.emitter.property.type.ParticleFacingModeStates;
+import com.qwaecd.paramagic.core.particle.emitter.property.type.ParticlePrimitiveTypeStates;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
 
@@ -12,6 +14,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import static com.qwaecd.paramagic.core.particle.emitter.property.key.AllEmitterProperties.PARTICLE_FACING_MODE;
+import static com.qwaecd.paramagic.core.particle.emitter.property.key.AllEmitterProperties.PARTICLE_PRIMITIVE_TYPE;
 
 public abstract class EmitterBase implements Emitter {
     protected float particlesToEmitAccumulated = 0.0f;
@@ -66,6 +71,12 @@ public abstract class EmitterBase implements Emitter {
                 new Vector4f(),
                 new Vector4f()
         );
+
+        // Render primitive/facing mode are encoded as uint bit-pattern in float channels.
+        registerProperty(PARTICLE_PRIMITIVE_TYPE, new EmitterProperty<>(ParticlePrimitiveTypeStates.POINT,
+                (req, v) -> req.getParam6().z = Float.intBitsToFloat(v.value)));
+        registerProperty(PARTICLE_FACING_MODE, new EmitterProperty<>(ParticleFacingModeStates.CAMERA_FACING,
+                (req, v) -> req.getParam6().w = Float.intBitsToFloat(v.value)));
     }
 
     protected <T> void registerProperty(PropertyKey<T> key, EmitterProperty<T> property) {
