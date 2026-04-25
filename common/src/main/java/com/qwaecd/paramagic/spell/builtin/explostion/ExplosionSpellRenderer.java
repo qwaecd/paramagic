@@ -10,11 +10,12 @@ import com.qwaecd.paramagic.data.animation.util.TimelineBuilder;
 import com.qwaecd.paramagic.data.para.struct.ParaComponentData;
 import com.qwaecd.paramagic.data.para.struct.ParaData;
 import com.qwaecd.paramagic.data.para.struct.components.CurvyStarParaData;
+import com.qwaecd.paramagic.data.para.struct.components.PolygonParaData;
 import com.qwaecd.paramagic.data.para.struct.components.RingParaData;
 import com.qwaecd.paramagic.data.para.util.ParaComponentBuilder;
 import com.qwaecd.paramagic.feature.circle.MagicCircle;
 import com.qwaecd.paramagic.feature.circle.MagicCircleManager;
-import com.qwaecd.paramagic.feature.effect.explosion.ExplosionAssets;
+import com.qwaecd.paramagic.feature.circle.MagicNode;
 import com.qwaecd.paramagic.spell.builtin.client.SpellRenderer;
 import com.qwaecd.paramagic.spell.config.CircleAssets;
 import com.qwaecd.paramagic.spell.phase.SpellPhaseType;
@@ -90,26 +91,159 @@ public class ExplosionSpellRenderer extends SpellRenderer {
     }
 
     static class AroundPlayerCircle {
+        // T1: front/under 法阵从无到有的过渡结束时刻
+        private static final float T1 = 0.8f;
+        // T2: front 的中层图元完成显现的时刻
+        private static final float T2 = T1 + 0.1f;
+        // frontLength: front 法阵位于玩家视线前方的距离
+        private static final float FRONT_LENGTH = 3.0f;
+
+        private static final Vector4f RING_COLOR = new Vector4f(0.6f, 0.25f, 0.25f, 1.0f);
+        private static final Vector4f STAR_COLOR = new Vector4f(0.5f, 0.25f, 0.25f, 1.0f);
 
         private MagicCircle forward;
-        private MagicCircle underPlayer;
 
         void build(CasterTransformSource tfSource) {
             try {
-                this.forward = ParaComposer.assemble(ExplosionAssets.create());
-                this.forward.getTransform().setScale(0.5f);
-                this.underPlayer = ParaComposer.assemble(ExplosionAssets.create());
-                BillboardFunction billboardFunction = new BillboardFunction(false, 3.0f);
+                this.forward = ParaComposer.assemble(createFrontAssets());
+                initializeAnimationState(this.forward);
+                this.forward.getTransform().setScale(1.8f);
+                BillboardFunction billboardFunction = new BillboardFunction(false, FRONT_LENGTH);
                 FixedAnchorFunction anchorFunction = new FixedAnchorFunction(tfSource.applyTo(new TransformSample()).getPosition());
-//                FollowCasterFunction followCasterFunction = new FollowCasterFunction(TransformSample::getPosition);
 
                 this.forward.registerModifyTransform(transform -> billboardFunction.apply(transform, tfSource));
-                this.underPlayer.registerModifyTransform(anchorFunction::apply);
 
                 MagicCircleManager.getInstance().addCircle(this.forward);
-                MagicCircleManager.getInstance().addCircle(this.underPlayer);
             } catch (Exception e) {
                 LOGGER.error("Failed to create around player circle: ", e);
+            }
+        }
+
+        private static CircleAssets createFrontAssets() {
+            return new CircleAssets(new ParaData(createFrontParaData()), createFrontAnimConfig());
+        }
+
+        private static CircleAssets createUnderAssets() {
+            return new CircleAssets(new ParaData(genComponentData("under")), createUnderAnimConfig());
+        }
+
+        private static ParaComponentData createFrontParaData() {
+            final float intensity = 0.35f;
+            final float centerTriangleLineWidth = 0.04f; // centerStar 的单个三角形线宽
+
+            final float starRadius = 0.4f;
+            return new ParaComponentBuilder().withName("front")
+                    .beginChild()
+                    .withName("centerStar")
+                    .beginChild(new PolygonParaData(starRadius, 3, 0.0f, centerTriangleLineWidth))
+                    .withColor(STAR_COLOR)
+                    .withIntensity(intensity)
+                    .endChild()
+                    .beginChild(new PolygonParaData(starRadius, 3, (float) Math.toRadians(60.0f), centerTriangleLineWidth))
+                    .withColor(STAR_COLOR)
+                    .withIntensity(intensity)
+                    .endChild()
+                    .endChild()
+
+                    .beginChild(new CurvyStarParaData(0.4f, 6, -1.5f, 0.0f, 0.03f))
+                    .withName("cStar")
+                    .withColor(STAR_COLOR)
+                    .withIntensity(intensity)
+                    .endChild()
+
+                    .beginChild(new RingParaData(1.5f, 1.55f, 8))
+                    .withName("r0")
+                    .withColor(RING_COLOR)
+                    .withIntensity(intensity)
+                    .endChild()
+
+                    .beginChild(new RingParaData(1.6f, 1.63f, 8))
+                    .withName("r01")
+                    .withColor(RING_COLOR)
+                    .withIntensity(intensity)
+                    .endChild()
+
+                    .beginChild(new PolygonParaData(1.4f, 4, 0.0f, 0.08f))
+                    .withName("r1")
+                    .withColor(RING_COLOR)
+                    .withIntensity(intensity)
+                    .endChild()
+
+                    .beginChild(new PolygonParaData(1.4f, 4, (float) Math.toRadians(45.0f), 0.08f))
+                    .withName("r2")
+                    .withColor(RING_COLOR)
+                    .withIntensity(intensity)
+                    .endChild()
+                    .build();
+        }
+
+        private static AnimationBindingConfig createFrontAnimConfig() {
+            List<AnimationBinding> bindings = new ArrayList<>();
+            bindings.add(new AnimationBinding("centerStar", null, buildScaleRotationAnimator(0.0f, T1, 1.0f, 45.0f)));
+            bindings.add(new AnimationBinding("r0", null, buildScaleRotationAnimator(T1 - 0.4f, T2 + 0.4f, 1.0f, 45.0f)));
+            bindings.add(new AnimationBinding("r01", null, buildScaleRotationAnimator(T1, T2 + 0.6f, 1.0f, 45.0f)));
+
+            float outerStart = T1 - 0.1f;
+            float outerEnd = T2 + 0.2f;
+            bindings.add(new AnimationBinding("cStar", null, buildScaleRotationAnimator(outerStart, outerEnd, 1.0f, 45.0f)));
+            bindings.add(new AnimationBinding("r1", null, buildScaleRotationAnimator(outerStart, outerEnd, 1.0f, 45.0f)));
+            bindings.add(new AnimationBinding("r2", null, buildScaleRotationAnimator(outerStart, outerEnd, 1.0f, 45.0f)));
+            return new AnimationBindingConfig(bindings);
+        }
+
+        private static AnimationBindingConfig createUnderAnimConfig() {
+            return new AnimationBindingConfig(List.of(
+                    new AnimationBinding("under", null, buildScaleRotationAnimator(0.0f, T1, 1.0f, -30.0f))
+            ));
+        }
+
+        private static AnimatorData buildScaleAnimator(float startTime, float endTime, float targetScale) {
+            TimelineBuilder timelineBuilder = new TimelineBuilder();
+            timelineBuilder.at(0.0f)
+                    .keyframe(AllAnimatableProperties.SCALE, new Vector3f(0.0f));
+            if (startTime > 0.0f) {
+                timelineBuilder.at(startTime)
+                        .keyframe(AllAnimatableProperties.SCALE, new Vector3f(0.0f));
+            }
+            timelineBuilder.at(endTime)
+                    .keyframe(AllAnimatableProperties.SCALE, new Vector3f(targetScale));
+            return timelineBuilder.build();
+        }
+
+        private static AnimatorData buildScaleRotationAnimator(float startTime, float endTime, float targetScale, float degreesPerSecond) {
+            TimelineBuilder timelineBuilder = new TimelineBuilder();
+            float fullRotationDuration = 359.0f / Math.abs(degreesPerSecond);
+            float angleSign = Math.signum(degreesPerSecond);
+
+            timelineBuilder.at(0.0f)
+                    .keyframe(AllAnimatableProperties.ROTATION, new Quaternionf().identity(), true)
+                    .keyframe(AllAnimatableProperties.SCALE, new Vector3f(0.0f));
+            if (startTime > 0.0f) {
+                timelineBuilder.at(startTime)
+                        .keyframe(AllAnimatableProperties.SCALE, new Vector3f(0.0f));
+            }
+            timelineBuilder.at(endTime)
+                    .keyframe(AllAnimatableProperties.SCALE, new Vector3f(targetScale));
+
+            // Quaternion 插值会走最短路径，不能只给 0 -> 359/-359 两个端点，否则看起来几乎不转。
+            timelineBuilder.at(fullRotationDuration * 0.25f)
+                    .keyframe(AllAnimatableProperties.ROTATION, new Quaternionf().rotateY((float) Math.toRadians(90.0f * angleSign)));
+            timelineBuilder.at(fullRotationDuration * 0.5f)
+                    .keyframe(AllAnimatableProperties.ROTATION, new Quaternionf().rotateY((float) Math.toRadians(180.0f * angleSign)));
+            timelineBuilder.at(fullRotationDuration * 0.75f)
+                    .keyframe(AllAnimatableProperties.ROTATION, new Quaternionf().rotateY((float) Math.toRadians(270.0f * angleSign)));
+            timelineBuilder.at(fullRotationDuration)
+                    .keyframe(AllAnimatableProperties.ROTATION, new Quaternionf().rotateY((float) Math.toRadians(359.0f * angleSign)));
+            return timelineBuilder.build();
+        }
+
+        private static void initializeAnimationState(MagicNode node) {
+            if (node.getAnimator() != null) {
+                node.getAnimator().reset();
+                node.getAnimator().play();
+            }
+            for (MagicNode child : node.getChildren()) {
+                initializeAnimationState(child);
             }
         }
 
@@ -117,10 +251,6 @@ public class ExplosionSpellRenderer extends SpellRenderer {
             if (this.forward != null) {
                 MagicCircleManager.getInstance().removeCircle(this.forward);
                 this.forward = null;
-            }
-            if (this.underPlayer != null) {
-                MagicCircleManager.getInstance().removeCircle(this.underPlayer);
-                this.underPlayer = null;
             }
         }
     }
