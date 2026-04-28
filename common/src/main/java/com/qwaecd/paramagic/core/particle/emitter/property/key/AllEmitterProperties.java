@@ -32,7 +32,15 @@ public final class AllEmitterProperties {
     public static final PropertyKey<Float> BLOOM_INTENSITY = register("bloom_intensity", Float.class);
 
     public static final PropertyKey<Boolean> EMIT_FROM_VOLUME = register("emit_from_volume", Boolean.class);
+    /**
+     * If this property is sent over the network via {@code EmitterPropertyValue}, its value type must remain
+     * registered in {@code CommonCodableTypes} / {@code CodableTypeRegistry}.
+     */
     public static final PropertyKey<CubeAABB> CUBE_AABB = register("cube_aabb", CubeAABB.class);
+    /**
+     * If this property is sent over the network via {@code EmitterPropertyValue}, its value type must remain
+     * registered in {@code CommonCodableTypes} / {@code CodableTypeRegistry}.
+     */
     public static final PropertyKey<VelocityModeStates> VELOCITY_MODE = register("velocity_mode", VelocityModeStates.class);
 
     /**
@@ -45,13 +53,32 @@ public final class AllEmitterProperties {
      */
     public static final PropertyKey<Vector2f> INNER_OUTER_RADIUS = register("inner_outer_radius", Vector2f.class);
     public static final PropertyKey<Vector3f> NORMAL = register("normal", Vector3f.class);
+    /**
+     * If this property is sent over the network via {@code EmitterPropertyValue}, its value type must remain
+     * registered in {@code CommonCodableTypes} / {@code CodableTypeRegistry}.
+     */
     public static final PropertyKey<ParticlePrimitiveTypeStates> PARTICLE_PRIMITIVE_TYPE =
             register("particle_primitive_type", ParticlePrimitiveTypeStates.class);
+    /**
+     * If this property is sent over the network via {@code EmitterPropertyValue}, its value type must remain
+     * registered in {@code CommonCodableTypes} / {@code CodableTypeRegistry}.
+     */
     public static final PropertyKey<ParticleFacingModeStates> PARTICLE_FACING_MODE =
             register("particle_facing_mode", ParticleFacingModeStates.class);
+    /**
+     * If this property is sent over the network via {@code EmitterPropertyValue}, its value type must remain
+     * registered in {@code CommonCodableTypes} / {@code CodableTypeRegistry}.
+     */
     public static final PropertyKey<ParticleShapeFlags> PARTICLE_SHAPE_FLAGS =
             register("particle_shape_flags", ParticleShapeFlags.class);
 
+    /**
+     * Register an emitter property key.
+     * If the value type of this property may be transported through {@code EmitterPropertyValue},
+     * it must be encodable by the codec registry:
+     * primitive wrappers should be supported by {@code PrimitiveCodableTypes},
+     * common math/custom types should be supported by {@code CommonCodableTypes} or other registry entries.
+     */
     public static <T> PropertyKey<T> register(String name, Class<T> clazz) {
         PropertyKey<T> key = new PropertyKey<>(name, clazz);
         if (PROPERTY_KEY_MAP.putIfAbsent(name, key) != null) {

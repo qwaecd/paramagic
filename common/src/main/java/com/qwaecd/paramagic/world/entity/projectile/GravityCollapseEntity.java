@@ -8,7 +8,6 @@ import com.qwaecd.paramagic.core.particle.emitter.EmitterType;
 import com.qwaecd.paramagic.core.particle.emitter.ParticleBurst;
 import com.qwaecd.paramagic.core.particle.emitter.impl.CircleEmitter;
 import com.qwaecd.paramagic.core.particle.emitter.impl.SphereEmitter;
-import com.qwaecd.paramagic.core.particle.emitter.property.key.AllEmitterProperties;
 import com.qwaecd.paramagic.core.particle.emitter.property.type.ParticleFacingModeStates;
 import com.qwaecd.paramagic.core.particle.emitter.property.type.ParticlePrimitiveTypeStates;
 import com.qwaecd.paramagic.core.particle.emitter.property.type.ParticleShapeFlags;
@@ -207,19 +206,19 @@ public class GravityCollapseEntity extends BaseProjectile implements ProjectileE
         builder.setEffectPhysicsParameter(paramBuilder.build());
 
         ParticleBurst[] bursts = new ParticleBurst[] {
-                new ParticleBurst(0.0f, 3000)
+                new ParticleBurst(0.0f, 1600)
         };
         EmitterPropertyConfig propConfig = new EmitterPropertyConfig.Builder()
-                .addProperty(BLOOM_INTENSITY, 2.0f)
+                .addProperty(BLOOM_INTENSITY, 0.2f)
                 .addProperty(LIFE_TIME_RANGE, new Vector2f(0.2f, 1.0f))
-                .addProperty(SIZE_RANGE, new Vector2f(0.6f, 2.0f))
+                .addProperty(SIZE_RANGE, new Vector2f(0.04f, 0.1f))
                 .addProperty(EMIT_FROM_VOLUME, true)
                 .addProperty(SPHERE_RADIUS, this.getDistortionRadius())
                 .addProperty(VELOCITY_MODE, VelocityModeStates.RANDOM)
                 .addProperty(BASE_VELOCITY, new Vector3f(0, 2.0f, 0))
-                .addProperty(COLOR, new Vector4f(1.2f, 0.5f, 0.8f, 1.0f))
+                .addProperty(COLOR, new Vector4f(0.72f, 0.3f, 0.48f, 1.0f))
                 .addProperty(POSITION, new Vector3f(position))
-                .addProperty(PARTICLE_PRIMITIVE_TYPE, ParticlePrimitiveTypeStates.TRIANGLE)
+                .addProperty(PARTICLE_PRIMITIVE_TYPE, ParticlePrimitiveTypeStates.QUAD)
                 .addProperty(PARTICLE_SHAPE_FLAGS, ParticleShapeFlags.JITTERED)
                 .build();
         EmitterConfig config = new EmitterConfig(

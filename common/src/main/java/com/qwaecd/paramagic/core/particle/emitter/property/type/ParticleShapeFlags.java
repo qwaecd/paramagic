@@ -1,6 +1,9 @@
 package com.qwaecd.paramagic.core.particle.emitter.property.type;
 
-public enum ParticleShapeFlags {
+import com.qwaecd.paramagic.network.DataCodec;
+import com.qwaecd.paramagic.network.IDataSerializable;
+
+public enum ParticleShapeFlags implements IDataSerializable {
     FIXED(0b00),
     JITTERED(0b01),
     RESERVED_2(0b10),
@@ -20,6 +23,15 @@ public enum ParticleShapeFlags {
         return this.bits;
     }
 
+    public static ParticleShapeFlags fromBits(int bits) {
+        for (ParticleShapeFlags state : values()) {
+            if (state.bits == bits) {
+                return state;
+            }
+        }
+        throw new IllegalArgumentException("Unknown ParticleShapeFlags bits: " + bits);
+    }
+
     public boolean in(int mask) {
         return (mask & MASK) == this.bits;
     }
@@ -34,5 +46,14 @@ public enum ParticleShapeFlags {
 
     public int applyToRequest(int requestMask) {
         return (requestMask & ~REQUEST_MASK) | (this.bits << REQUEST_OFFSET);
+    }
+
+    @Override
+    public void write(DataCodec codec) {
+        codec.writeInt("particleShapeFlags", this.bits);
+    }
+
+    public static ParticleShapeFlags fromCodec(DataCodec codec) {
+        return fromBits(codec.readInt("particleShapeFlags"));
     }
 }
