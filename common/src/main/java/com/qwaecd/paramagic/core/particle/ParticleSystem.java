@@ -28,19 +28,20 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
-import static org.lwjgl.opengl.GL11.*;
+import static org.lwjgl.opengl.GL11.GL_POINTS;
+import static org.lwjgl.opengl.GL11.glEnable;
 import static org.lwjgl.opengl.GL15.glBindBuffer;
 import static org.lwjgl.opengl.GL15.glBufferSubData;
 import static org.lwjgl.opengl.GL20.glUseProgram;
 import static org.lwjgl.opengl.GL30.glBindVertexArray;
 import static org.lwjgl.opengl.GL30.glGenVertexArrays;
 import static org.lwjgl.opengl.GL32.GL_PROGRAM_POINT_SIZE;
+import static org.lwjgl.opengl.GL40.GL_DRAW_INDIRECT_BUFFER;
+import static org.lwjgl.opengl.GL40.glDrawArraysIndirect;
 import static org.lwjgl.opengl.GL42.GL_COMMAND_BARRIER_BIT;
 import static org.lwjgl.opengl.GL42.glMemoryBarrier;
 import static org.lwjgl.opengl.GL43.GL_SHADER_STORAGE_BARRIER_BIT;
 import static org.lwjgl.opengl.GL43.GL_SHADER_STORAGE_BUFFER;
-import static org.lwjgl.opengl.GL40.GL_DRAW_INDIRECT_BUFFER;
-import static org.lwjgl.opengl.GL40.glDrawArraysIndirect;
 
 @PlatformScope(PlatformScopeType.CLIENT)
 public class ParticleSystem {

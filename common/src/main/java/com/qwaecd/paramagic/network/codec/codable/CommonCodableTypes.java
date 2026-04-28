@@ -1,10 +1,6 @@
 package com.qwaecd.paramagic.network.codec.codable;
 
-import com.qwaecd.paramagic.core.particle.emitter.property.type.CubeAABB;
-import com.qwaecd.paramagic.core.particle.emitter.property.type.ParticleFacingModeStates;
-import com.qwaecd.paramagic.core.particle.emitter.property.type.ParticlePrimitiveTypeStates;
-import com.qwaecd.paramagic.core.particle.emitter.property.type.ParticleShapeFlags;
-import com.qwaecd.paramagic.core.particle.emitter.property.type.VelocityModeStates;
+import com.qwaecd.paramagic.core.particle.emitter.property.type.*;
 import com.qwaecd.paramagic.network.DataCodec;
 import org.joml.Quaternionf;
 import org.joml.Vector2f;
