@@ -6,15 +6,15 @@ import org.joml.Vector4f;
  * <pre>
  * struct Particle {
  *   // (16 bytes)
- *   vec4 meta;     // x: effectId, y: unused, z: unused, w: unused
+ *   vec4 meta;     // x: effectId, y: primitiveType(bits in float), z: facingMode(bits in float), w: unused
  *   // 物理属性 (16 bytes)
  *   vec4 position;    // x, y, z, mass
  *   // 物理属性 (16 bytes)
- *   vec4 velocity;    // vx, vy, vz, (unused)
- *   // 动画与生命周期属性 (16 bytes)
- *   vec4 attributes;  // x: age, y: lifetime, z: current_anim_frame, w: anim_speed
+ *   vec4 velocity;    // vx, vy, vz, normal.x (when facingMode=normal)
+ *   // 生命周期与朝向属性 (16 bytes)
+ *   vec4 attributes;  // x: age, y: lifetime, z: normal.y, w: normal.z
  *   // 渲染属性 (16 bytes)
- *   vec4 renderAttribs;  // x: size, y: angle, z: angular_velocity, w: bloom_intensity
+ *   vec4 renderAttribs;  // x: size, y: angle, z: shapeFlags(bits in float), w: bloom_intensity
  *   // 颜色 (16 bytes)
  *   vec4 color;
  * };

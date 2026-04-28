@@ -2,7 +2,9 @@ package com.qwaecd.paramagic.feature.circle;
 
 
 import com.qwaecd.paramagic.core.render.Transform;
+import org.joml.Vector3f;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.*;
 import java.util.function.Consumer;
@@ -10,11 +12,32 @@ import java.util.function.Consumer;
 public class MagicCircle extends MagicNode {
     private final MagicNodeRegistry nodeRegistry = new MagicNodeRegistry();
 
+    @Nonnull
+    private CircleState state;
+
     @Nullable
     private Consumer<Transform> transformModifier = null;
 
+    public interface DeadAnimator {
+        void animate(MagicCircle circle, float deltaTime);
+    }
+
+    @Nullable
+    private DeadAnimator deadAnimator;
+
     public MagicCircle() {
         super(null, null);
+        this.state = CircleState.ACTIVE;
+        this.deadAnimator = new ScaleDeadAnimator(0.6f, new Vector3f(0.0f, 1.0f, 0.0f));
+    }
+
+    void setState(@Nonnull CircleState state) {
+        this.state = state;
+    }
+
+    @Nonnull
+    public CircleState getState() {
+        return this.state;
     }
 
     @Override
@@ -28,11 +51,35 @@ public class MagicCircle extends MagicNode {
         super.addChild(child);
     }
 
+    public boolean canRemove() {
+        return this.state == CircleState.DEAD;
+    }
+
+    public void requestDestroy() {
+        if (this.state != CircleState.ACTIVE) {
+            return;
+        }
+        this.state = CircleState.EXITING;
+    }
+
+    public void setDeadAnimator(@Nullable DeadAnimator animator) {
+        this.deadAnimator = animator;
+    }
+
     @Override
     public void update(float deltaTime) {
-        if (this.transformModifier != null) {
-            this.transformModifier.accept(this.transform);
+        if (this.state == CircleState.EXITING) {
+            if (this.deadAnimator != null) {
+                this.deadAnimator.animate(this, deltaTime);
+            } else {
+                this.state = CircleState.DEAD;
+            }
+        } else {
+            if (this.transformModifier != null) {
+                this.transformModifier.accept(this.transform);
+            }
         }
+
         super.update(deltaTime);
     }
 
@@ -126,6 +173,41 @@ public class MagicCircle extends MagicNode {
         }
         Set<String> getRegisteredComponentIds() {
             return Collections.unmodifiableSet(nodesByPath.keySet());
+        }
+    }
+
+    public static class ScaleDeadAnimator implements DeadAnimator {
+        private final float duration;
+        private float elapsed = 0.0f;
+        @Nullable
+        private Vector3f initialScale;
+        private final Vector3f targetScale;
+
+        public ScaleDeadAnimator(float duration) {
+            this(duration, new Vector3f(0.0f));
+        }
+
+        public ScaleDeadAnimator(
+                float duration,
+                Vector3f targetScale
+        ) {
+            this.duration = duration;
+            this.targetScale = new Vector3f(targetScale);
+        }
+
+        @Override
+        public void animate(MagicCircle circle, float deltaTime) {
+            this.elapsed += deltaTime;
+            float t = Math.min(this.elapsed / this.duration, 1.0f);
+            if (this.initialScale == null) {
+                this.initialScale = circle.getTransform().getScale(new Vector3f());
+            }
+            Vector3f newScale = new Vector3f();
+            this.initialScale.lerp(this.targetScale, t, newScale);
+            circle.getTransform().setScale(newScale);
+            if (t >= 1.0f) {
+                circle.setState(CircleState.DEAD);
+            }
         }
     }
 }

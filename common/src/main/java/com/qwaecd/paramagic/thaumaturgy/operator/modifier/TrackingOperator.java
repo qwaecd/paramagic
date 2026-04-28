@@ -83,7 +83,8 @@ public class TrackingOperator extends ModifierOperator {
             physics.pushWithMomentum(
                     normalizedDirection.x,
                     normalizedDirection.y,
-                    normalizedDirection.z
+                    normalizedDirection.z,
+                    false
             );
         }
     }

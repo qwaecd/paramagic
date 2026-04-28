@@ -7,6 +7,8 @@ public class CShaderProvider implements IComputeShaderProvider {
     private final ComputeShader initializeRequestShader;
     private final ComputeShader reserveRequestShader;
     private final ComputeShader particleUpdateShader;
+    private final ComputeShader particleClassifyShader;
+    private final ComputeShader particleBuildDrawCommandsShader;
 
     private final boolean computeShadersSupported;
 
@@ -15,6 +17,8 @@ public class CShaderProvider implements IComputeShaderProvider {
         this.initializeRequestShader = get("initialize_request");
         this.reserveRequestShader = get("reserve_request");
         this.particleUpdateShader = get("particle_update");
+        this.particleClassifyShader = get("particle_classify");
+        this.particleBuildDrawCommandsShader = get("particle_build_draw_commands");
     }
 
     private ComputeShader get(String name) {
@@ -44,5 +48,15 @@ public class CShaderProvider implements IComputeShaderProvider {
     @Override
     public ComputeShader particleUpdateShader() {
         return this.particleUpdateShader;
+    }
+
+    @Override
+    public ComputeShader particleClassifyShader() {
+        return this.particleClassifyShader;
+    }
+
+    @Override
+    public ComputeShader particleBuildDrawCommandsShader() {
+        return this.particleBuildDrawCommandsShader;
     }
 }

@@ -1,7 +1,6 @@
 package com.qwaecd.paramagic.network.codec.codable;
 
-import com.qwaecd.paramagic.core.particle.emitter.property.type.CubeAABB;
-import com.qwaecd.paramagic.core.particle.emitter.property.type.VelocityModeStates;
+import com.qwaecd.paramagic.core.particle.emitter.property.type.*;
 import com.qwaecd.paramagic.network.DataCodec;
 import org.joml.Quaternionf;
 import org.joml.Vector2f;
@@ -70,6 +69,18 @@ public final class CommonCodableTypes {
     );
     public static final ICodableType<VelocityModeStates> VELOCITY_MODE = registerWithClass(31, VelocityModeStates.class,
             ((codec, k) -> codec.readObject(k, VelocityModeStates::fromCodec)),
+            (DataCodec::writeObject)
+    );
+    public static final ICodableType<ParticlePrimitiveTypeStates> PARTICLE_PRIMITIVE_TYPE = registerWithClass(32, ParticlePrimitiveTypeStates.class,
+            ((codec, k) -> codec.readObject(k, ParticlePrimitiveTypeStates::fromCodec)),
+            (DataCodec::writeObject)
+    );
+    public static final ICodableType<ParticleFacingModeStates> PARTICLE_FACING_MODE = registerWithClass(33, ParticleFacingModeStates.class,
+            ((codec, k) -> codec.readObject(k, ParticleFacingModeStates::fromCodec)),
+            (DataCodec::writeObject)
+    );
+    public static final ICodableType<ParticleShapeFlags> PARTICLE_SHAPE_FLAGS = registerWithClass(34, ParticleShapeFlags.class,
+            ((codec, k) -> codec.readObject(k, ParticleShapeFlags::fromCodec)),
             (DataCodec::writeObject)
     );
 

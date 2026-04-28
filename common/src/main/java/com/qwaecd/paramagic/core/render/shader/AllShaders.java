@@ -38,6 +38,17 @@ public class AllShaders {
         ShaderManager.registerShaderInfo("initialize_request", new ShaderInfo("compute/", "initialize_request", ShaderType.COMPUTE));
         ShaderManager.registerShaderInfo("reserve_request", new ShaderInfo("compute/", "reserve_request", ShaderType.COMPUTE));
         ShaderManager.registerShaderInfo("particle_update", new ShaderInfo("compute/", "particle_update", ShaderType.COMPUTE));
+        ShaderManager.registerShaderInfo("particle_classify", new ShaderInfo("compute/", "particle_classify", ShaderType.COMPUTE));
+        ShaderManager.registerShaderInfo("particle_build_draw_commands", new ShaderInfo("compute/", "particle_build_draw_commands", ShaderType.COMPUTE));
+
+        // Point pass: vertex + fragment
+        ShaderManager.registerShaderInfo("particle_render_point",
+                new ShaderInfo("particle/", "particle_render", ShaderType.VERTEX, ShaderType.FRAGMENT));
+        // Shape pass: vertex + geometry + fragment, triangle/quad selected by uniform.
+        ShaderManager.registerShaderInfo("particle_render_shape",
+                new ShaderInfo("particle/", "particle_render", ShaderType.VERTEX, ShaderType.GEOMETRY, ShaderType.FRAGMENT));
+
+        // Keep legacy alias for compatibility.
         ShaderManager.registerShaderInfo("particle_render", new ShaderInfo("particle/", "particle_render"));
     }
 }

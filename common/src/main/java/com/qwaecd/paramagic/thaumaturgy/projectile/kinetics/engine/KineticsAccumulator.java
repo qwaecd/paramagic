@@ -4,6 +4,10 @@ import org.joml.Vector3d;
 
 public final class KineticsAccumulator {
     private final Vector3d deltaVelocity = new Vector3d();
+    /**
+     * Transient acceleration accumulated per tick, unit: blocks/tick^2.
+     * With tick-driven integration, this value is applied directly as {@code v += a} each tick.
+     */
     private final Vector3d transientAcceleration = new Vector3d();
     private double speedCapOverride = Double.POSITIVE_INFINITY;
 
@@ -25,6 +29,9 @@ public final class KineticsAccumulator {
         return dest.set(this.transientAcceleration);
     }
 
+    /**
+     * Adds transient acceleration in blocks/tick^2.
+     */
     public void addTransientAcceleration(double x, double y, double z) {
         this.transientAcceleration.add(x, y, z);
     }

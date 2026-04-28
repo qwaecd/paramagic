@@ -8,7 +8,9 @@ import com.qwaecd.paramagic.core.particle.emitter.EmitterType;
 import com.qwaecd.paramagic.core.particle.emitter.ParticleBurst;
 import com.qwaecd.paramagic.core.particle.emitter.impl.CircleEmitter;
 import com.qwaecd.paramagic.core.particle.emitter.impl.SphereEmitter;
-import com.qwaecd.paramagic.core.particle.emitter.property.key.AllEmitterProperties;
+import com.qwaecd.paramagic.core.particle.emitter.property.type.ParticleFacingModeStates;
+import com.qwaecd.paramagic.core.particle.emitter.property.type.ParticlePrimitiveTypeStates;
+import com.qwaecd.paramagic.core.particle.emitter.property.type.ParticleShapeFlags;
 import com.qwaecd.paramagic.core.particle.emitter.property.type.VelocityModeStates;
 import com.qwaecd.paramagic.core.render.geometricmask.GeometricEffectCaster;
 import com.qwaecd.paramagic.network.Networking;
@@ -110,7 +112,7 @@ public class GravityCollapseEntity extends BaseProjectile implements ProjectileE
             if (entity instanceof ProjectileEntity projectile) {
                 double a = 4.0d;
                 pull = pull.scale(a);
-                projectile.physics().pushWithMomentum(pull.x, pull.y, pull.z);
+                projectile.physics().pushWithMomentum(pull.x, pull.y, pull.z, true);
             } else {
                 entity.push(pull.x, pull.y, pull.z);
             }
@@ -132,7 +134,7 @@ public class GravityCollapseEntity extends BaseProjectile implements ProjectileE
         );
     }
 
-    public void renderEffect(float partialTicks, float deltaTime) {
+    public void renderEffect(float partialTicks, float deltaTime, boolean paused) {
         Vector3f pos = this.getPosition(partialTicks).toVector3f();
         Vector3f axis;
         Vector3f v = this.getDeltaMovement().toVector3f();
@@ -143,6 +145,9 @@ public class GravityCollapseEntity extends BaseProjectile implements ProjectileE
         }
         GPUParticleEffect gpuEffect = this.getOrCreateEffect();
         gpuEffect.forEachEmitter(emitter -> emitter.modifyProp(NORMAL, normal -> normal.set(axis)));
+        if (paused) {
+            return;
+        }
         final float degreesPerSecond = 90.0f;
         gpuEffect.getTransform()
                 .rotate((float) Math.toRadians(degreesPerSecond * deltaTime), axis)
@@ -157,24 +162,29 @@ public class GravityCollapseEntity extends BaseProjectile implements ProjectileE
         SphereEmitter sphereEmitter = new SphereEmitter(new Vector3f(), 800.0f);
         sphereEmitter.modifyProp(COLOR, v -> v.set(1.2f, 0.5f, 0.8f, 1.0f));
         sphereEmitter.modifyProp(LIFE_TIME_RANGE, v -> v.set(0.1f, 0.4f));
-        sphereEmitter.modifyProp(SIZE_RANGE, v -> v.set(3.4f, 4.2f));
-        sphereEmitter.trySet(BLOOM_INTENSITY, 0.8f);
+        sphereEmitter.modifyProp(SIZE_RANGE, v -> v.set(0.06f, 0.3f));
+        sphereEmitter.trySet(BLOOM_INTENSITY, 0.3f);
         sphereEmitter.trySet(SPHERE_RADIUS, this.getDistortionRadius() + 1.5f);
         sphereEmitter.trySet(VELOCITY_MODE, VelocityModeStates.RANDOM);
         sphereEmitter.modifyProp(BASE_VELOCITY, v -> v.set(0.8f));
+        sphereEmitter.trySet(PARTICLE_PRIMITIVE_TYPE, ParticlePrimitiveTypeStates.TRIANGLE);
+        sphereEmitter.trySet(PARTICLE_FACING_MODE, ParticleFacingModeStates.NORMAL_FACING);
+        sphereEmitter.trySet(PARTICLE_SHAPE_FLAGS, ParticleShapeFlags.JITTERED);
 
         CircleEmitter accretionDiskEmitter = new CircleEmitter(new Vector3f(), 620.0f);
         accretionDiskEmitter.modifyProp(COLOR, v -> v.set(4.35f, 0.72f, 0.85f, 1.0f));
         accretionDiskEmitter.modifyProp(LIFE_TIME_RANGE, v -> v.set(0.13f, 0.3f));
-        accretionDiskEmitter.modifyProp(SIZE_RANGE, v -> v.set(1.8f, 3.0f));
-        accretionDiskEmitter.trySet(BLOOM_INTENSITY, 1.0f);
+        accretionDiskEmitter.modifyProp(SIZE_RANGE, v -> v.set(0.05f, 0.1f));
+        accretionDiskEmitter.trySet(BLOOM_INTENSITY, 0.2f);
         accretionDiskEmitter.modifyProp(NORMAL, v -> v.set(0.0f, 1.0f, 0.0f));
         accretionDiskEmitter.modifyProp(INNER_OUTER_RADIUS, v -> v.set(
                 Math.max(0.3f, this.getDistortionRadius() + 0.2f),
                 this.getDistortionRadius() + 3.2f
         ));
-        accretionDiskEmitter.trySet(VELOCITY_MODE, VelocityModeStates.RADIAL_FROM_CENTER);
+        accretionDiskEmitter.trySet(VELOCITY_MODE, VelocityModeStates.RANDOM);
         accretionDiskEmitter.modifyProp(BASE_VELOCITY, v -> v.set(0.65f));
+        accretionDiskEmitter.trySet(PARTICLE_PRIMITIVE_TYPE, ParticlePrimitiveTypeStates.QUAD);
+        accretionDiskEmitter.trySet(PARTICLE_FACING_MODE, ParticleFacingModeStates.NORMAL_FACING);
 
         EffectPhysicsParameter physicsParameter = new PhysicsParamBuilder()
                 .centerForcePos(0.0f, 0.0f, 0.0f)
@@ -196,18 +206,20 @@ public class GravityCollapseEntity extends BaseProjectile implements ProjectileE
         builder.setEffectPhysicsParameter(paramBuilder.build());
 
         ParticleBurst[] bursts = new ParticleBurst[] {
-                new ParticleBurst(0.0f, 3000)
+                new ParticleBurst(0.0f, 1600)
         };
         EmitterPropertyConfig propConfig = new EmitterPropertyConfig.Builder()
-                .addProperty(AllEmitterProperties.BLOOM_INTENSITY, 2.0f)
-                .addProperty(AllEmitterProperties.LIFE_TIME_RANGE, new Vector2f(0.2f, 1.0f))
-                .addProperty(AllEmitterProperties.SIZE_RANGE, new Vector2f(0.6f, 2.0f))
-                .addProperty(AllEmitterProperties.EMIT_FROM_VOLUME, true)
-                .addProperty(AllEmitterProperties.SPHERE_RADIUS, this.getDistortionRadius())
-                .addProperty(AllEmitterProperties.VELOCITY_MODE, VelocityModeStates.RANDOM)
-                .addProperty(AllEmitterProperties.BASE_VELOCITY, new Vector3f(0, 2.0f, 0))
-                .addProperty(AllEmitterProperties.COLOR, new Vector4f(1.2f, 0.5f, 0.8f, 1.0f))
-                .addProperty(AllEmitterProperties.POSITION, new Vector3f(position))
+                .addProperty(BLOOM_INTENSITY, 0.2f)
+                .addProperty(LIFE_TIME_RANGE, new Vector2f(0.2f, 1.0f))
+                .addProperty(SIZE_RANGE, new Vector2f(0.04f, 0.1f))
+                .addProperty(EMIT_FROM_VOLUME, true)
+                .addProperty(SPHERE_RADIUS, this.getDistortionRadius())
+                .addProperty(VELOCITY_MODE, VelocityModeStates.RANDOM)
+                .addProperty(BASE_VELOCITY, new Vector3f(0, 2.0f, 0))
+                .addProperty(COLOR, new Vector4f(0.72f, 0.3f, 0.48f, 1.0f))
+                .addProperty(POSITION, new Vector3f(position))
+                .addProperty(PARTICLE_PRIMITIVE_TYPE, ParticlePrimitiveTypeStates.QUAD)
+                .addProperty(PARTICLE_SHAPE_FLAGS, ParticleShapeFlags.JITTERED)
                 .build();
         EmitterConfig config = new EmitterConfig(
                 EmitterType.SPHERE,

@@ -35,7 +35,7 @@ public class LaserOperator extends ProjectileOperator {
 
         PhysicsProvider physics = projectile.physics();
         Vec3 forwarded = caster.forwardVector();
-        final float strength = 1.2f;
+        final float strength = 1.5f;
         physics.setVelocity(forwarded.x * strength, forwarded.y * strength, forwarded.z * strength);
         projectile.setInaccuracy(10.0f);
         context.addProjectile(projectile);

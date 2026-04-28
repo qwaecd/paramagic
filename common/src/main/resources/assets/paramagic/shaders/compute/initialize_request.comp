@@ -33,11 +33,11 @@ struct EmissionRequest {
 };
 
 struct Particle {
-    vec4 meta;        // x: effectId, y: unused, z: unused, w: unused
+    vec4 meta;        // x: effectId, y: primitiveType(bits in float), z: facingMode(bits in float), w: unused
     vec4 position;    // x, y, z, mass(unused)
-    vec4 velocity;    // vx, vy, vz, (unused)
-    vec4 attributes;  // x: age, y: lifetime, z: current_anim_frame, w: anim_speed
-    vec4 renderAttribs;  // x: size, y: angle, z: angular_velocity, w: bloom_intensity
+    vec4 velocity;    // vx, vy, vz, normal.x (when facingMode=normal)
+    vec4 attributes;  // x: age, y: lifetime, z: normal.y, w: normal.z
+    vec4 renderAttribs;  // x: size, y: angle, z: shapeFlags(bits in float), w: bloom_intensity
     vec4 color; // rgba
 };
 
@@ -78,6 +78,15 @@ const int SPHERE_EMITTER = 3;
 const int CUBE_EMITTER = 4;
 const int CIRCLE_EMITTER = 5;
 
+// particle primitive types (written as uint bits in float field meta.y)
+const uint PARTICLE_PRIMITIVE_POINT = 0u;
+const uint PARTICLE_PRIMITIVE_TRIANGLE = 1u;
+const uint PARTICLE_PRIMITIVE_QUAD = 2u;
+
+// particle facing modes (written as uint bits in float field meta.z)
+const uint PARTICLE_FACING_CAMERA = 0u;
+const uint PARTICLE_FACING_NORMAL = 1u;
+
 // emitter flags
 const uint EMITTER_FLAGS_EMIT_FROM_VOLUME = (1u << 0);
 
@@ -89,6 +98,9 @@ const uint EMITTER_FLAGS_VELOCITY_MODE_DIRECT = ((1u << 2) << VELOCITY_MODE_OFFS
 // flags masks emitFromVolume
 const uint EMITTER_MASK_EMIT_FROM_VOLUME = (1u << 0); // 0001
 const uint EMITTER_MASK_VELOCITY_MODE = (7u << 1); // 1110
+const uint PARTICLE_SHAPE_MODE_MASK = 0x3u; // particle renderAttribs.z bits [1:0]
+const uint REQUEST_SHAPE_MODE_OFFSET = 4u;  // request flag carrier bits [5:4]
+const uint REQUEST_SHAPE_MODE_MASK = (PARTICLE_SHAPE_MODE_MASK << REQUEST_SHAPE_MODE_OFFSET);
 
 // --- Random utilities ---
 // 32-bit mix hash (variant of Wang/Jenkins style) producing good bit diffusion.
@@ -158,13 +170,62 @@ void buildOrthonormalBasis(vec3 a_axis, out vec3 out_axis_x, out vec3 out_axis_y
     out_axis_y = cross(out_axis_z, out_axis_x);
 }
 
+vec3 fallbackNormalFromVelocity(vec3 initialVelocity) {
+    float vlen = length(initialVelocity);
+    if (vlen > 1e-6) {
+        return initialVelocity / vlen;
+    }
+    return vec3(0.0, 1.0, 0.0);
+}
+
+uint extractEmitterFlags(EmissionRequest req) {
+    switch (req.emitterType) {
+        case POINT_EMITTER:
+            return floatBitsToUint(req.param5.z);
+        case LINE_EMITTER:
+        case CIRCLE_EMITTER:
+        case CUBE_EMITTER:
+            return floatBitsToUint(req.param1.w);
+        case SPHERE_EMITTER:
+            return floatBitsToUint(req.param5.z);
+        default:
+            return 0u;
+    }
+}
+
+float encodeShapeFlags(EmissionRequest req) {
+    uint requestFlags = extractEmitterFlags(req);
+    uint shapeMode = (requestFlags & REQUEST_SHAPE_MODE_MASK) >> REQUEST_SHAPE_MODE_OFFSET;
+    return uintBitsToFloat(shapeMode & PARTICLE_SHAPE_MODE_MASK);
+}
+
+void writeRenderMetaAndNormal(uint particleIndex, EmissionRequest req, vec3 initialVelocity) {
+    // param6.z / param6.w carry uint bit-pattern encoded as float.
+    particles[particleIndex].meta.y = req.param6.z; // primitiveType bits
+    particles[particleIndex].meta.z = req.param6.w; // facingMode bits
+
+    uint facingMode = floatBitsToUint(req.param6.w);
+    if (facingMode == PARTICLE_FACING_NORMAL) {
+        vec3 n = fallbackNormalFromVelocity(initialVelocity);
+        particles[particleIndex].velocity.w = n.x;
+        particles[particleIndex].attributes.z = n.y;
+        particles[particleIndex].attributes.w = n.z;
+        return;
+    }
+
+    // camera-facing mode does not require per-particle normal
+    particles[particleIndex].velocity.w = 0.0;
+    particles[particleIndex].attributes.z = 0.0;
+    particles[particleIndex].attributes.w = 0.0;
+}
+
 /**
  * struct Particle {
- *   vec4 meta;     // x: effectId, y: unused, z: unused, w: unused
+ *   vec4 meta;     // x: effectId, y: primitiveType(bits in float), z: facingMode(bits in float), w: unused
  *   vec4 position;    // x, y, z, mass
- *   vec4 velocity;    // vx, vy, vz, (unused)
- *   vec4 attributes;  // x: age, y: lifetime, z: current_anim_frame, w: anim_speed
- *   vec4 renderAttribs;  // x: size, y: angle, z: angular_velocity, w: bloom_intensity
+ *   vec4 velocity;    // vx, vy, vz, normal.x (when facingMode=normal)
+ *   vec4 attributes;  // x: age, y: lifetime, z: normal.y, w: normal.z
+ *   vec4 renderAttribs;  // x: size, y: angle, z: shapeFlags(bits in float), w: bloom_intensity
  *   vec4 color;
  * };
  */
@@ -185,12 +246,13 @@ void pointEmitter(uint particleIndex, EmissionRequest req, uint unique_ID) {
     vec3 initial_velocity = random_dir_local * length(req.param2.xyz);
 
 
-    particles[particleIndex].meta = vec4(float(req.effectId), 0.0, 0.0, 0.0);
+    particles[particleIndex].meta = vec4(float(req.effectId), req.param6.z, req.param6.w, 0.0);
     particles[particleIndex].position = req.param1;
-    particles[particleIndex].velocity = vec4(initial_velocity, req.param2.w);
+    particles[particleIndex].velocity = vec4(initial_velocity, 0.0);
     particles[particleIndex].attributes = vec4(0.0, randomFloatInRange(req.param4.x, req.param4.y, 1.2 + float(unique_ID)), 0.0, 0.0);
-    particles[particleIndex].renderAttribs = vec4(randomFloatInRange(req.param4.z, req.param4.w, 1.3 + float(unique_ID)), 0.0, 0.0, req.param5.y);
+    particles[particleIndex].renderAttribs = vec4(randomFloatInRange(req.param4.z, req.param4.w, 1.3 + float(unique_ID)), 0.0, encodeShapeFlags(req), req.param5.y);
     particles[particleIndex].color = req.param3;
+    writeRenderMetaAndNormal(particleIndex, req, initial_velocity);
 }
 
 void lineEmitter(uint particleIndex, EmissionRequest req, uint unique_ID) {
@@ -217,12 +279,13 @@ void lineEmitter(uint particleIndex, EmissionRequest req, uint unique_ID) {
 
     vec3 localPositionOnLine = req.param1.xyz + (req.param2.xyz - req.param1.xyz) * random(2.0 + float(unique_ID));
 
-    particles[particleIndex].meta = vec4(float(req.effectId), 0.0, 0.0, 0.0);
+    particles[particleIndex].meta = vec4(float(req.effectId), req.param6.z, req.param6.w, 0.0);
     particles[particleIndex].position = vec4(localPositionOnLine, req.param1.w);
-    particles[particleIndex].velocity = vec4(initial_velocity, req.param5.w);
+    particles[particleIndex].velocity = vec4(initial_velocity, 0.0);
     particles[particleIndex].attributes = vec4(0.0, randomFloatInRange(req.param4.x, req.param4.y, 2.1 + float(unique_ID)), 0.0, 0.0);
-    particles[particleIndex].renderAttribs = vec4(randomFloatInRange(req.param4.z, req.param4.w, 2.2 + float(unique_ID)), 0.0, 0.0, req.param5.w);
+    particles[particleIndex].renderAttribs = vec4(randomFloatInRange(req.param4.z, req.param4.w, 2.2 + float(unique_ID)), 0.0, encodeShapeFlags(req), req.param5.w);
     particles[particleIndex].color = req.param3;
+    writeRenderMetaAndNormal(particleIndex, req, initial_velocity);
 }
 
 void sphereEmitter(uint particleIndex, EmissionRequest req, uint unique_ID) {
@@ -288,12 +351,13 @@ void sphereEmitter(uint particleIndex, EmissionRequest req, uint unique_ID) {
     float finalOffset = mix(surfaceOffset, volumeOffset, isVolume);
     vec3 particlePosition = req.param1.xyz + random_dir_local * finalOffset;
 
-    particles[particleIndex].meta = vec4(float(req.effectId), 0.0, 0.0, 0.0);
+    particles[particleIndex].meta = vec4(float(req.effectId), req.param6.z, req.param6.w, 0.0);
     particles[particleIndex].position = vec4(particlePosition, req.param1.w);
-    particles[particleIndex].velocity = vec4(initial_velocity * isNonZero, req.param2.w);
+    particles[particleIndex].velocity = vec4(initial_velocity * isNonZero, 0.0);
     particles[particleIndex].attributes = vec4(0.0, randomFloatInRange(req.param4.x, req.param4.y, 3.4 + float(unique_ID)), 0.0, 0.0);
-    particles[particleIndex].renderAttribs = vec4(randomFloatInRange(req.param4.z, req.param4.w, 3.5 + float(unique_ID)), 0.0, 0.0, req.param5.y);
+    particles[particleIndex].renderAttribs = vec4(randomFloatInRange(req.param4.z, req.param4.w, 3.5 + float(unique_ID)), 0.0, encodeShapeFlags(req), req.param5.y);
     particles[particleIndex].color = req.param3;
+    writeRenderMetaAndNormal(particleIndex, req, initial_velocity * isNonZero);
 }
 
 void cubeEmitter(uint particleIndex, EmissionRequest req, uint unique_ID) {
@@ -375,12 +439,13 @@ void cubeEmitter(uint particleIndex, EmissionRequest req, uint unique_ID) {
             break;
         }
     }
-    particles[particleIndex].meta = vec4(float(req.effectId), 0.0, 0.0, 0.0);
+    particles[particleIndex].meta = vec4(float(req.effectId), req.param6.z, req.param6.w, 0.0);
     particles[particleIndex].position = vec4(particlePosition, req.param1.w);
-    particles[particleIndex].velocity = vec4(initial_velocity, req.param2.w);
+    particles[particleIndex].velocity = vec4(initial_velocity, 0.0);
     particles[particleIndex].attributes = vec4(0.0, randomFloatInRange(req.param4.x, req.param4.y, 4.4 + float(unique_ID)), 0.0, 0.0);
-    particles[particleIndex].renderAttribs = vec4(randomFloatInRange(req.param4.z, req.param4.w, 4.5 + float(unique_ID)), 0.0, 0.0, req.param5.y);
+    particles[particleIndex].renderAttribs = vec4(randomFloatInRange(req.param4.z, req.param4.w, 4.5 + float(unique_ID)), 0.0, encodeShapeFlags(req), req.param5.y);
     particles[particleIndex].color = req.param3;
+    writeRenderMetaAndNormal(particleIndex, req, initial_velocity);
 }
 
 void circleEmitter(uint particleIndex, EmissionRequest req, uint unique_ID) {
@@ -424,12 +489,13 @@ void circleEmitter(uint particleIndex, EmissionRequest req, uint unique_ID) {
             break;
         }
     }
-    particles[particleIndex].meta = vec4(float(req.effectId), 0.0, 0.0, 0.0);
+    particles[particleIndex].meta = vec4(float(req.effectId), req.param6.z, req.param6.w, 0.0);
     particles[particleIndex].position = vec4(particlePosition, req.param1.w);
-    particles[particleIndex].velocity = vec4(initial_velocity, req.param2.w);
+    particles[particleIndex].velocity = vec4(initial_velocity, 0.0);
     particles[particleIndex].attributes = vec4(0.0, randomFloatInRange(req.param4.x, req.param4.y, 5.4 + float(unique_ID)), 0.0, 0.0);
-    particles[particleIndex].renderAttribs = vec4(randomFloatInRange(req.param4.z, req.param4.w, 5.5 + float(unique_ID)), 0.0, 0.0, req.param5.w);
+    particles[particleIndex].renderAttribs = vec4(randomFloatInRange(req.param4.z, req.param4.w, 5.5 + float(unique_ID)), 0.0, encodeShapeFlags(req), req.param5.w);
     particles[particleIndex].color = req.param3;
+    writeRenderMetaAndNormal(particleIndex, req, initial_velocity);
 }
 
 void main() {

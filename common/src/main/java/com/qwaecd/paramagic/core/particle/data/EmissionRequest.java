@@ -23,7 +23,7 @@ import java.nio.ByteBuffer;
  *     vec4 param3; // e.g., 颜色 (rgba)
  *     vec4 param4; // e.g., 粒子生命周期(min, max), 尺寸(min, max)
  *     vec4 param5; // e.g., (for BURST_SPHERE) 速度(min, max), (for POINT) 发射角度
- *     vec4 param6;
+ *     vec4 param6; // x,y: emitter-specific extra (e.g. circle radius range), z: primitiveType bits, w: facingMode bits
  * };
  * </pre>
  */

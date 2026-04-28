@@ -58,9 +58,17 @@ public class DebugTools {
         sun.getTransform().setPosition(0, 80, 10).setScale(5.0f, 5.0f, 5.0f);
 //        ModRenderSystem.getInstance().addRenderable(sun);
 
-        spawnDebugBlackHole();
+//        spawnDebugBlackHole();
+        testGpuMagicCircleEffect();
 //        paraTest();
 //        effectTest();
+    }
+
+    private static void testGpuMagicCircleEffect() {
+        GPUParticleEffect effect = DebugGpuMagicCircleEffect.create(new Vector3f(0.0f, 110.05f, 0.0f));
+        if (ParticleSystem.getInstance().spawnEffect(effect)) {
+            testEffects.add(effect);
+        }
     }
 
     private static void spawnDebugBlackHole() {

@@ -4,6 +4,8 @@ import com.qwaecd.paramagic.core.particle.emitter.Emitter;
 import com.qwaecd.paramagic.core.particle.emitter.EmitterBase;
 import com.qwaecd.paramagic.core.particle.emitter.EmitterType;
 import com.qwaecd.paramagic.core.particle.emitter.property.EmitterProperty;
+import com.qwaecd.paramagic.core.particle.emitter.property.type.ParticleShapeFlags;
+import com.qwaecd.paramagic.tools.BitmaskUtils;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
@@ -91,6 +93,14 @@ public class PointEmitter extends EmitterBase implements Emitter {
         registerProperty(BLOOM_INTENSITY, new EmitterProperty<>(0.0f,
                 (req, v) -> req.getParam5().y = v
                 ));
+        registerProperty(PARTICLE_SHAPE_FLAGS, new EmitterProperty<>(ParticleShapeFlags.FIXED,
+                (req, v) -> {
+                    // param5.z bits: [5:4]=shapeMode
+                    Vector4f param5 = req.getParam5();
+                    int currentFlags = Float.floatToIntBits(param5.z);
+                    int nextFlags = BitmaskUtils.clearFlag(currentFlags, ParticleShapeFlags.REQUEST_MASK);
+                    param5.z = Float.intBitsToFloat(v.applyToRequest(nextFlags));
+                }));
     }
 
     @Override

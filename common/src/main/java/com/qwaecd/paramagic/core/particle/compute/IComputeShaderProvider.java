@@ -1,7 +1,7 @@
 package com.qwaecd.paramagic.core.particle.compute;
 
 /**。
- * Provides GPU compute shaders used in the particle system pipeline (particle emission & update).
+ * Provides GPU compute shaders used in the particle system pipeline (particle emission / update / classify).
  * <p>
  * Contract / 使用约定:
  * <ul>
@@ -22,6 +22,8 @@ package com.qwaecd.paramagic.core.particle.compute;
  * ComputeShader reserve = provider.reserveRequestShader();
  * ComputeShader init    = provider.initializeRequestShader();
  * ComputeShader update  = provider.particleUpdateShader();
+ * ComputeShader classify = provider.particleClassifyShader();
+ * ComputeShader drawCmd  = provider.particleBuildDrawCommandsShader();
  * // Use the shaders...
  * }</pre>
  * <p>
@@ -67,4 +69,25 @@ public interface IComputeShaderProvider {
      * @return non-null {@link ComputeShader}
      */
     ComputeShader particleUpdateShader();
+
+    /**
+     * Returns the compute shader that classifies alive particles into primitive buckets (point/triangle/quad)
+     * before render.
+     * <p>Chinese: 返回用于在渲染前将存活粒子按图元类型（点/三角形/矩形）分桶的 compute shader。</p>
+     * <p>
+     * Precondition / 前置条件: {@link #isSupported()} MUST be {@code true}.
+     * </p>
+     * @return non-null {@link ComputeShader}
+     */
+    ComputeShader particleClassifyShader();
+
+    /**
+     * Returns the compute shader that builds indirect draw commands from bucket counters.
+     * <p>Chinese: 返回根据分桶计数器生成间接绘制命令（DrawArraysIndirectCommand）的 compute shader。</p>
+     * <p>
+     * Precondition / 前置条件: {@link #isSupported()} MUST be {@code true}.
+     * </p>
+     * @return non-null {@link ComputeShader}
+     */
+    ComputeShader particleBuildDrawCommandsShader();
 }

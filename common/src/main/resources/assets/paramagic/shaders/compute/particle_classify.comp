@@ -1,0 +1,75 @@
+#version 430 core
+#define BINDING_PARTICLE_DATA 1
+#define BINDING_BUCKET_COUNTERS 7
+#define BINDING_BUCKET_POINT_INDICES 8
+#define BINDING_BUCKET_TRIANGLE_INDICES 9
+#define BINDING_BUCKET_QUAD_INDICES 10
+
+layout(local_size_x = 256, local_size_y = 1, local_size_z = 1) in;
+
+struct Particle {
+    vec4 meta;        // x: effectId, y: primitiveType(bits in float), z: facingMode(bits in float), w: unused
+    vec4 position;    // x, y, z, mass(unused)
+    vec4 velocity;    // vx, vy, vz, normal.x (when facingMode=normal)
+    vec4 attributes;  // x: age, y: lifetime, z: normal.y, w: normal.z
+    vec4 renderAttribs;  // x: size, y: angle, z: shapeFlags(bits in float), w: bloom_intensity
+    vec4 color; // rgba
+};
+
+layout(std430, binding = BINDING_PARTICLE_DATA) buffer ParticleData {
+    Particle particles[];
+};
+
+layout(std430, binding = BINDING_BUCKET_COUNTERS) buffer BucketCounters {
+    uint pointCount;
+    uint triangleCount;
+    uint quadCount;
+    uint _padding;
+};
+
+layout(std430, binding = BINDING_BUCKET_POINT_INDICES) buffer PointBucket {
+    uint pointIndices[];
+};
+
+layout(std430, binding = BINDING_BUCKET_TRIANGLE_INDICES) buffer TriangleBucket {
+    uint triangleIndices[];
+};
+
+layout(std430, binding = BINDING_BUCKET_QUAD_INDICES) buffer QuadBucket {
+    uint quadIndices[];
+};
+
+uniform int u_maxParticles;
+
+const uint PRIMITIVE_POINT = 0u;
+const uint PRIMITIVE_TRIANGLE = 1u;
+const uint PRIMITIVE_QUAD = 2u;
+
+void main() {
+    uint idx = gl_GlobalInvocationID.x;
+    if (idx >= uint(u_maxParticles)) {
+        return;
+    }
+
+    Particle p = particles[idx];
+    if (p.attributes.x >= p.attributes.y) {
+        // dead particle
+        return;
+    }
+
+    uint primitiveType = floatBitsToUint(p.meta.y);
+    if (primitiveType == PRIMITIVE_TRIANGLE) {
+        uint outIdx = atomicAdd(triangleCount, 1u);
+        triangleIndices[outIdx] = idx;
+        return;
+    }
+    if (primitiveType == PRIMITIVE_QUAD) {
+        uint outIdx = atomicAdd(quadCount, 1u);
+        quadIndices[outIdx] = idx;
+        return;
+    }
+
+    // default to point bucket for unknown primitiveType
+    uint outIdx = atomicAdd(pointCount, 1u);
+    pointIndices[outIdx] = idx;
+}
