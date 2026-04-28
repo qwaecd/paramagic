@@ -23,6 +23,9 @@ public class MagicCircleManager {
 
     public void addCircle(MagicCircle magicCircle) {
         pendingAdd.add(magicCircle);
+        if (magicCircle != null) {
+            magicCircle.setState(CircleState.ACTIVE);
+        }
     }
     public void removeCircle(MagicCircle circle) {
         pendingRemove.add(circle);
@@ -50,18 +53,21 @@ public class MagicCircleManager {
      */
     public void update(float deltaTime) {
         MagicCircle magicCircle;
-        while ((magicCircle = pendingAdd.poll()) != null) {
-            activeCircles.add(magicCircle);
+        while ((magicCircle = this.pendingAdd.poll()) != null) {
+            this.activeCircles.add(magicCircle);
         }
 
         while ((magicCircle = pendingRemove.poll()) != null) {
-            if (activeCircles.remove(magicCircle)) {
-                unregisterCircleFromRenderSystem(magicCircle);
+            if (this.activeCircles.remove(magicCircle)) {
+                this.unregisterCircleFromRenderSystem(magicCircle);
             }
         }
 
         for (MagicCircle circle : activeCircles) {
             circle.update(deltaTime);
+            if (circle.canRemove()) {
+                this.pendingRemove.add(circle);
+            }
         }
     }
 
@@ -80,6 +86,7 @@ public class MagicCircleManager {
             }
         }
         new Collector().collect(circle);
+        circle.setState(CircleState.DEAD);
         rs.removeRenderables(toRemove);
     }
 }

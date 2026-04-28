@@ -1,7 +1,6 @@
 package com.qwaecd.paramagic.spell.builtin.explostion;
 
 import com.qwaecd.paramagic.assembler.ParaComposer;
-import com.qwaecd.paramagic.core.render.TransformSample;
 import com.qwaecd.paramagic.data.animation.property.AllAnimatableProperties;
 import com.qwaecd.paramagic.data.animation.struct.AnimationBinding;
 import com.qwaecd.paramagic.data.animation.struct.AnimationBindingConfig;
@@ -15,7 +14,6 @@ import com.qwaecd.paramagic.data.para.struct.components.RingParaData;
 import com.qwaecd.paramagic.data.para.util.ParaComponentBuilder;
 import com.qwaecd.paramagic.feature.circle.MagicCircle;
 import com.qwaecd.paramagic.feature.circle.MagicCircleManager;
-import com.qwaecd.paramagic.feature.circle.MagicNode;
 import com.qwaecd.paramagic.spell.builtin.client.SpellRenderer;
 import com.qwaecd.paramagic.spell.config.CircleAssets;
 import com.qwaecd.paramagic.spell.phase.SpellPhaseType;
@@ -24,7 +22,6 @@ import com.qwaecd.paramagic.spell.session.store.AllSessionDataKeys;
 import com.qwaecd.paramagic.spell.session.store.SessionDataStore;
 import com.qwaecd.paramagic.spell.session.store.SessionDataValue;
 import com.qwaecd.paramagic.spell.util.transform.BillboardFunction;
-import com.qwaecd.paramagic.spell.util.transform.FixedAnchorFunction;
 import com.qwaecd.paramagic.spell.view.CasterTransformSource;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
@@ -46,6 +43,8 @@ public class ExplosionSpellRenderer extends SpellRenderer {
     public void onPhaseChanged(ClientSessionView session, SpellPhaseType oldPhase, SpellPhaseType currentPhase) {
         if (currentPhase == SpellPhaseType.CASTING) {
             this.aroundPlayerCircle.build(session.casterSource());
+        }
+        if (currentPhase == SpellPhaseType.CHANNELING) {
             this.createRemoteCircle(session.getDataStore());
         }
     }
@@ -75,7 +74,7 @@ public class ExplosionSpellRenderer extends SpellRenderer {
     @Override
     public void onSessionClose() {
         if (this.remoteCircle != null) {
-            MagicCircleManager.getInstance().removeCircle(this.remoteCircle);
+            this.remoteCircle.requestDestroy();
             this.remoteCircle = null;
         }
         this.aroundPlayerCircle.close();
@@ -84,7 +83,7 @@ public class ExplosionSpellRenderer extends SpellRenderer {
     @Override
     public void onInterrupt() {
         if (this.remoteCircle != null) {
-            MagicCircleManager.getInstance().removeCircle(this.remoteCircle);
+            this.remoteCircle.requestDestroy();
             this.remoteCircle = null;
         }
         this.aroundPlayerCircle.close();
@@ -106,13 +105,10 @@ public class ExplosionSpellRenderer extends SpellRenderer {
         void build(CasterTransformSource tfSource) {
             try {
                 this.forward = ParaComposer.assemble(createFrontAssets());
-                initializeAnimationState(this.forward);
-                this.forward.getTransform().setScale(1.8f);
+                this.forward.getTransform().setScale(2.0f);
                 BillboardFunction billboardFunction = new BillboardFunction(false, FRONT_LENGTH);
-                FixedAnchorFunction anchorFunction = new FixedAnchorFunction(tfSource.applyTo(new TransformSample()).getPosition());
 
                 this.forward.registerModifyTransform(transform -> billboardFunction.apply(transform, tfSource));
-
                 MagicCircleManager.getInstance().addCircle(this.forward);
             } catch (Exception e) {
                 LOGGER.error("Failed to create around player circle: ", e);
@@ -121,10 +117,6 @@ public class ExplosionSpellRenderer extends SpellRenderer {
 
         private static CircleAssets createFrontAssets() {
             return new CircleAssets(new ParaData(createFrontParaData()), createFrontAnimConfig());
-        }
-
-        private static CircleAssets createUnderAssets() {
-            return new CircleAssets(new ParaData(genComponentData("under")), createUnderAnimConfig());
         }
 
         private static ParaComponentData createFrontParaData() {
@@ -191,11 +183,6 @@ public class ExplosionSpellRenderer extends SpellRenderer {
             return new AnimationBindingConfig(bindings);
         }
 
-        private static AnimationBindingConfig createUnderAnimConfig() {
-            return new AnimationBindingConfig(List.of(
-                    new AnimationBinding("under", null, buildScaleRotationAnimator(0.0f, T1, 1.0f, -30.0f))
-            ));
-        }
 
         private static AnimatorData buildScaleAnimator(float startTime, float endTime, float targetScale) {
             TimelineBuilder timelineBuilder = new TimelineBuilder();
@@ -237,19 +224,9 @@ public class ExplosionSpellRenderer extends SpellRenderer {
             return timelineBuilder.build();
         }
 
-        private static void initializeAnimationState(MagicNode node) {
-            if (node.getAnimator() != null) {
-                node.getAnimator().reset();
-                node.getAnimator().play();
-            }
-            for (MagicNode child : node.getChildren()) {
-                initializeAnimationState(child);
-            }
-        }
-
         void close() {
             if (this.forward != null) {
-                MagicCircleManager.getInstance().removeCircle(this.forward);
+                this.forward.requestDestroy();
                 this.forward = null;
             }
         }
