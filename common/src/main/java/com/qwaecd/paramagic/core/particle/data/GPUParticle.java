@@ -14,7 +14,7 @@ import org.joml.Vector4f;
  *   // 生命周期与朝向属性 (16 bytes)
  *   vec4 attributes;  // x: age, y: lifetime, z: normal.y, w: normal.z
  *   // 渲染属性 (16 bytes)
- *   vec4 renderAttribs;  // x: size, y: angle, z: angular_velocity, w: bloom_intensity
+ *   vec4 renderAttribs;  // x: size, y: angle, z: shapeFlags(bits in float), w: bloom_intensity
  *   // 颜色 (16 bytes)
  *   vec4 color;
  * };

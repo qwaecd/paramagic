@@ -7,6 +7,8 @@ in ParticleVaryings {
     float angle;
     vec3 centerView;
     vec3 normalView;
+    flat uint particleSeed;
+    flat uint shapeFlags;
     flat uint facingMode;
 } particleIn;
 

@@ -24,7 +24,7 @@ struct Particle {
     vec4 position;    // x, y, z, mass(unused)
     vec4 velocity;    // vx, vy, vz, normal.x (when facingMode=normal)
     vec4 attributes;  // x: age, y: lifetime, z: normal.y, w: normal.z
-    vec4 renderAttribs;  // x: size, y: angle, z: angular_velocity, w: bloom_intensity
+    vec4 renderAttribs;  // x: size, y: angle, z: shapeFlags(bits in float), w: bloom_intensity
     vec4 color; // rgba
 };
 

@@ -5,6 +5,7 @@ import com.qwaecd.paramagic.core.particle.effect.GPUParticleEffect;
 import com.qwaecd.paramagic.core.particle.emitter.impl.PointEmitter;
 import com.qwaecd.paramagic.core.particle.emitter.property.type.ParticleFacingModeStates;
 import com.qwaecd.paramagic.core.particle.emitter.property.type.ParticlePrimitiveTypeStates;
+import com.qwaecd.paramagic.core.particle.emitter.property.type.ParticleShapeFlags;
 import com.qwaecd.paramagic.core.particle.emitter.property.type.VelocityModeStates;
 import org.joml.Vector3f;
 
@@ -42,7 +43,8 @@ public final class DebugGpuMagicCircleEffect {
         penEmitter.getProperty(COLOR).modify(v -> v.set(0.25f, 0.4f, 0.7f, 1.0f));
         penEmitter.getProperty(BLOOM_INTENSITY).set(BLOOM_LEVEL);
         penEmitter.trySet(PARTICLE_FACING_MODE, ParticleFacingModeStates.NORMAL_FACING);
-        penEmitter.trySet(PARTICLE_PRIMITIVE_TYPE, ParticlePrimitiveTypeStates.QUAD);
+        penEmitter.trySet(PARTICLE_PRIMITIVE_TYPE, ParticlePrimitiveTypeStates.TRIANGLE);
+        penEmitter.trySet(PARTICLE_SHAPE_FLAGS, ParticleShapeFlags.JITTERED);
 
         GPUParticleEffect effect = new GPUParticleEffect(
                 List.of(penEmitter),
@@ -64,7 +66,7 @@ public final class DebugGpuMagicCircleEffect {
         penEmitter.getProperty(POSITION).modify(v -> v.set(localPos));
         Vector3f yAxis = new Vector3f(0.0f, 1.0f, 0.0f);
         effect.setConsumer((e, deltaTime) -> {
-            e.getTransform().rotate(0.5f * deltaTime, yAxis);
+            e.getTransform().rotate(0.0f * deltaTime, yAxis);
             animator.advanceAndSample(deltaTime, localPos);
             penEmitter.getProperty(POSITION).modify(v -> v.set(localPos));
         });

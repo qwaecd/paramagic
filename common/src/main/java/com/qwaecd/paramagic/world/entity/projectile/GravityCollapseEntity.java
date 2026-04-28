@@ -11,6 +11,7 @@ import com.qwaecd.paramagic.core.particle.emitter.impl.SphereEmitter;
 import com.qwaecd.paramagic.core.particle.emitter.property.key.AllEmitterProperties;
 import com.qwaecd.paramagic.core.particle.emitter.property.type.ParticleFacingModeStates;
 import com.qwaecd.paramagic.core.particle.emitter.property.type.ParticlePrimitiveTypeStates;
+import com.qwaecd.paramagic.core.particle.emitter.property.type.ParticleShapeFlags;
 import com.qwaecd.paramagic.core.particle.emitter.property.type.VelocityModeStates;
 import com.qwaecd.paramagic.core.render.geometricmask.GeometricEffectCaster;
 import com.qwaecd.paramagic.network.Networking;
@@ -162,13 +163,14 @@ public class GravityCollapseEntity extends BaseProjectile implements ProjectileE
         SphereEmitter sphereEmitter = new SphereEmitter(new Vector3f(), 800.0f);
         sphereEmitter.modifyProp(COLOR, v -> v.set(1.2f, 0.5f, 0.8f, 1.0f));
         sphereEmitter.modifyProp(LIFE_TIME_RANGE, v -> v.set(0.1f, 0.4f));
-        sphereEmitter.modifyProp(SIZE_RANGE, v -> v.set(0.04f, 0.25f));
+        sphereEmitter.modifyProp(SIZE_RANGE, v -> v.set(0.06f, 0.3f));
         sphereEmitter.trySet(BLOOM_INTENSITY, 0.3f);
         sphereEmitter.trySet(SPHERE_RADIUS, this.getDistortionRadius() + 1.5f);
         sphereEmitter.trySet(VELOCITY_MODE, VelocityModeStates.RANDOM);
         sphereEmitter.modifyProp(BASE_VELOCITY, v -> v.set(0.8f));
         sphereEmitter.trySet(PARTICLE_PRIMITIVE_TYPE, ParticlePrimitiveTypeStates.TRIANGLE);
         sphereEmitter.trySet(PARTICLE_FACING_MODE, ParticleFacingModeStates.NORMAL_FACING);
+        sphereEmitter.trySet(PARTICLE_SHAPE_FLAGS, ParticleShapeFlags.JITTERED);
 
         CircleEmitter accretionDiskEmitter = new CircleEmitter(new Vector3f(), 620.0f);
         accretionDiskEmitter.modifyProp(COLOR, v -> v.set(4.35f, 0.72f, 0.85f, 1.0f));
@@ -208,15 +210,17 @@ public class GravityCollapseEntity extends BaseProjectile implements ProjectileE
                 new ParticleBurst(0.0f, 3000)
         };
         EmitterPropertyConfig propConfig = new EmitterPropertyConfig.Builder()
-                .addProperty(AllEmitterProperties.BLOOM_INTENSITY, 2.0f)
-                .addProperty(AllEmitterProperties.LIFE_TIME_RANGE, new Vector2f(0.2f, 1.0f))
-                .addProperty(AllEmitterProperties.SIZE_RANGE, new Vector2f(0.6f, 2.0f))
-                .addProperty(AllEmitterProperties.EMIT_FROM_VOLUME, true)
-                .addProperty(AllEmitterProperties.SPHERE_RADIUS, this.getDistortionRadius())
-                .addProperty(AllEmitterProperties.VELOCITY_MODE, VelocityModeStates.RANDOM)
-                .addProperty(AllEmitterProperties.BASE_VELOCITY, new Vector3f(0, 2.0f, 0))
-                .addProperty(AllEmitterProperties.COLOR, new Vector4f(1.2f, 0.5f, 0.8f, 1.0f))
-                .addProperty(AllEmitterProperties.POSITION, new Vector3f(position))
+                .addProperty(BLOOM_INTENSITY, 2.0f)
+                .addProperty(LIFE_TIME_RANGE, new Vector2f(0.2f, 1.0f))
+                .addProperty(SIZE_RANGE, new Vector2f(0.6f, 2.0f))
+                .addProperty(EMIT_FROM_VOLUME, true)
+                .addProperty(SPHERE_RADIUS, this.getDistortionRadius())
+                .addProperty(VELOCITY_MODE, VelocityModeStates.RANDOM)
+                .addProperty(BASE_VELOCITY, new Vector3f(0, 2.0f, 0))
+                .addProperty(COLOR, new Vector4f(1.2f, 0.5f, 0.8f, 1.0f))
+                .addProperty(POSITION, new Vector3f(position))
+                .addProperty(PARTICLE_PRIMITIVE_TYPE, ParticlePrimitiveTypeStates.TRIANGLE)
+                .addProperty(PARTICLE_SHAPE_FLAGS, ParticleShapeFlags.JITTERED)
                 .build();
         EmitterConfig config = new EmitterConfig(
                 EmitterType.SPHERE,

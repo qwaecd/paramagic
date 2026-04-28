@@ -10,7 +10,7 @@ struct Particle {
     vec4 position;    // x, y, z, mass(unused)
     vec4 velocity;    // vx, vy, vz, normal.x (when facingMode=normal)
     vec4 attributes;  // x: age, y: lifetime, z: normal.y, w: normal.z
-    vec4 renderAttribs;  // x: size, y: angle, z: angular_velocity, w: bloom_intensity
+    vec4 renderAttribs;  // x: size, y: angle, z: shapeFlags(bits in float), w: bloom_intensity
     vec4 color; // rgba
 };
 
@@ -54,6 +54,8 @@ out ParticleVaryings {
     float angle;
     vec3 centerView;
     vec3 normalView;
+    flat uint particleSeed;
+    flat uint shapeFlags;
     flat uint facingMode;
 } particleOut;
 
@@ -80,6 +82,8 @@ void main() {
         particleOut.angle = 0.0;
         particleOut.centerView = vec3(0.0);
         particleOut.normalView = vec3(0.0);
+        particleOut.particleSeed = 0u;
+        particleOut.shapeFlags = 0u;
         particleOut.facingMode = 0u;
         return;
     }
@@ -88,6 +92,8 @@ void main() {
     particleOut.intensity = particle.renderAttribs.w;
     particleOut.size = particle.renderAttribs.x;
     particleOut.angle = particle.renderAttribs.y;
+    particleOut.particleSeed = particleIndex;
+    particleOut.shapeFlags = floatBitsToUint(particle.renderAttribs.z);
 
     uint effectId = uint(particle.meta.x);
     vec4 worldPosition = effectData[effectId].modelMatrix * vec4(particle.position.xyz, 1.0);

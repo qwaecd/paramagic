@@ -3,6 +3,7 @@ package com.qwaecd.paramagic.core.particle.emitter.property.key;
 import com.qwaecd.paramagic.core.particle.emitter.property.type.CubeAABB;
 import com.qwaecd.paramagic.core.particle.emitter.property.type.ParticleFacingModeStates;
 import com.qwaecd.paramagic.core.particle.emitter.property.type.ParticlePrimitiveTypeStates;
+import com.qwaecd.paramagic.core.particle.emitter.property.type.ParticleShapeFlags;
 import com.qwaecd.paramagic.core.particle.emitter.property.type.VelocityModeStates;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
@@ -48,6 +49,8 @@ public final class AllEmitterProperties {
             register("particle_primitive_type", ParticlePrimitiveTypeStates.class);
     public static final PropertyKey<ParticleFacingModeStates> PARTICLE_FACING_MODE =
             register("particle_facing_mode", ParticleFacingModeStates.class);
+    public static final PropertyKey<ParticleShapeFlags> PARTICLE_SHAPE_FLAGS =
+            register("particle_shape_flags", ParticleShapeFlags.class);
 
     public static <T> PropertyKey<T> register(String name, Class<T> clazz) {
         PropertyKey<T> key = new PropertyKey<>(name, clazz);
