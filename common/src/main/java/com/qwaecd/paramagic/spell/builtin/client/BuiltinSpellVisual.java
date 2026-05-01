@@ -2,8 +2,8 @@ package com.qwaecd.paramagic.spell.builtin.client;
 
 import com.qwaecd.paramagic.platform.annotation.PlatformScope;
 import com.qwaecd.paramagic.platform.annotation.PlatformScopeType;
-import com.qwaecd.paramagic.spell.session.SpellSessionRef;
-import com.qwaecd.paramagic.spell.session.client.ClientSession;
+import com.qwaecd.paramagic.spell.core.SpellSessionRef;
+import com.qwaecd.paramagic.spell.client.ClientSession;
 
 @PlatformScope(PlatformScopeType.CLIENT)
 public interface BuiltinSpellVisual {

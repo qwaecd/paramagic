@@ -1,4 +1,4 @@
-package com.qwaecd.paramagic.spell.session.client;
+package com.qwaecd.paramagic.spell.client;
 
 import com.qwaecd.paramagic.spell.BuiltinSpellId;
 import com.qwaecd.paramagic.spell.builtin.BuiltinSpellEntry;
@@ -6,9 +6,10 @@ import com.qwaecd.paramagic.spell.builtin.BuiltinSpellRegistry;
 import com.qwaecd.paramagic.spell.builtin.client.BuiltinSpellVisualRegistry;
 import com.qwaecd.paramagic.spell.builtin.client.VisualEntry;
 import com.qwaecd.paramagic.spell.config.CircleAssets;
-import com.qwaecd.paramagic.spell.session.ISessionManager;
-import com.qwaecd.paramagic.spell.session.SpellSession;
-import com.qwaecd.paramagic.spell.session.SpellSessionRef;
+import com.qwaecd.paramagic.spell.core.SpellSession;
+import com.qwaecd.paramagic.spell.core.SpellSessionRef;
+import com.qwaecd.paramagic.spell.session.client.ArcSessionClient;
+import com.qwaecd.paramagic.spell.session.client.MachineSessionClient;
 import com.qwaecd.paramagic.spell.util.CasterUtils;
 import com.qwaecd.paramagic.spell.view.HybridCasterSource;
 import com.qwaecd.paramagic.tools.ConditionalLogger;
@@ -24,7 +25,7 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
-public class ClientSessionManager implements ISessionManager {
+public class ClientSessionManager {
     private static final ConditionalLogger LOGGER = ConditionalLogger.create(ClientSessionManager.class);
 
     private static ClientSessionManager INSTANCE;
@@ -46,12 +47,12 @@ public class ClientSessionManager implements ISessionManager {
     }
 
     @SuppressWarnings("unused")
-    public void tickAll(final ClientLevel clientLevel, final float deltaTime) {
+    public void tickAll(final ClientLevel clientLevel) {
         this.flushPendingRemovals();
         for (var entry : this.sessions.entrySet()) {
             ClientSession session = entry.getValue();
             try {
-                session.tick(deltaTime);
+                session.tick();
                 if (session.canRemoveFromManager()) {
                     this.pendingRemovals.add(session);
                 }
@@ -136,7 +137,6 @@ public class ClientSessionManager implements ISessionManager {
         this.sessions.remove(session.getSessionId());
     }
 
-    @Override
     public SpellSession getSession(UUID sessionId) {
         return this.sessions.get(sessionId);
     }

@@ -1,7 +1,7 @@
 package com.qwaecd.paramagic.spell.caster;
 
-import com.qwaecd.paramagic.spell.session.server.ServerSession;
-import com.qwaecd.paramagic.spell.session.server.ServerSessionManager;
+import com.qwaecd.paramagic.spell.server.ServerSession;
+import com.qwaecd.paramagic.spell.server.ServerSessionManager;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
 

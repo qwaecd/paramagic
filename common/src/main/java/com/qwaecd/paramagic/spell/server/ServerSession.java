@@ -1,12 +1,15 @@
-package com.qwaecd.paramagic.spell.session.server;
+package com.qwaecd.paramagic.spell.server;
 
 import com.qwaecd.paramagic.network.Networking;
 import com.qwaecd.paramagic.network.packet.session.S2CSessionDataSyncPacket;
 import com.qwaecd.paramagic.spell.caster.SpellCaster;
-import com.qwaecd.paramagic.spell.session.SpellSession;
-import com.qwaecd.paramagic.spell.session.store.SessionDataStore;
-import com.qwaecd.paramagic.spell.session.store.SessionDataSyncPayload;
-import com.qwaecd.paramagic.spell.session.store.SessionDataValue;
+import com.qwaecd.paramagic.spell.core.EndSpellReason;
+import com.qwaecd.paramagic.spell.core.SessionState;
+import com.qwaecd.paramagic.spell.core.SpellSession;
+import com.qwaecd.paramagic.spell.session.server.ServerSessionView;
+import com.qwaecd.paramagic.spell.core.store.SessionDataStore;
+import com.qwaecd.paramagic.spell.core.store.SessionDataSyncPayload;
+import com.qwaecd.paramagic.spell.core.store.SessionDataValue;
 import com.qwaecd.paramagic.tools.ConditionalLogger;
 import com.qwaecd.paramagic.world.entity.SpellAnchorEntity;
 import lombok.Getter;
@@ -19,9 +22,11 @@ import java.lang.ref.WeakReference;
 import java.util.*;
 import java.util.function.Consumer;
 
-public abstract class ServerSession extends SpellSession implements AutoCloseable, ServerSessionView {
+public class ServerSession extends SpellSession implements AutoCloseable, ServerSessionView {
     private static final ConditionalLogger LOGGER = ConditionalLogger.create(ServerSession.class);
 
+    @Nonnull
+    private final SpellRuntime spell;
     protected final ServerLevel level;
     protected final int trackingDistance;
 
@@ -38,22 +43,45 @@ public abstract class ServerSession extends SpellSession implements AutoCloseabl
 
     protected final Set<UUID> trackingPlayers = new HashSet<>();
 
-    public ServerSession(UUID sessionId, @Nonnull SpellCaster caster, ServerLevel level) {
-        super(sessionId);
+    private final ServerSpellContext context;
+
+    public ServerSession(@Nonnull SpellRuntime runtime, @Nonnull SpellCaster caster, ServerLevel level) {
+        super();
+        this.spell = runtime;
         this.caster = caster;
         this.level = level;
         this.trackingDistance = this.level.getServer().getPlayerList().getSimulationDistance() * 16;
+        this.context = new ServerSpellContext();
     }
 
-    public abstract void tickOnLevel(ServerLevel level, float deltaTime);
+    public void start() {
+        if (this.sessionState == SessionState.RUNNING) {
+            return;
+        }
+        this.spell.onStart(this.context);
+    }
+
+    public void tick() {
+        this.spell.tick(this.context);
+    }
+
+    @Deprecated
+    public void tickOnLevel(ServerLevel level, float deltaTime) {
+    }
 
     public void casterDisconnected() {
         this.interrupt();
     }
 
     @Override
+    public void interrupt() {
+        super.interrupt();
+        this.spell.interrupt(this.context, EndSpellReason.INTERRUPTED);
+    }
+
+    @Override
     public boolean canRemoveFromManager() {
-        return super.canRemoveFromManager();
+        return this.spell.isFinished() && super.canRemoveFromManager();
     }
 
     public final void connectAnchor(@Nonnull SpellAnchorEntity anchor) {
@@ -105,6 +133,7 @@ public abstract class ServerSession extends SpellSession implements AutoCloseabl
 
     @Override
     public void close() {
+        this.spell.dispose(this.context);
         for (WeakReference<SpellAnchorEntity> anchorRef : this.anchors) {
             Optional.ofNullable(anchorRef.get()).ifPresentOrElse(SpellAnchorEntity::discard, () ->
                     LOGGER.logIfDev(l -> l.warn("SpellAnchorEntity has been garbage collected before session close."))

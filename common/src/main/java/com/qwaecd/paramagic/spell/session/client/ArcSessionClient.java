@@ -5,8 +5,9 @@ import com.qwaecd.paramagic.assembler.ParaComposer;
 import com.qwaecd.paramagic.client.animation.DefaultCircleAnim;
 import com.qwaecd.paramagic.feature.circle.MagicCircle;
 import com.qwaecd.paramagic.feature.circle.MagicCircleManager;
+import com.qwaecd.paramagic.spell.client.ClientSession;
 import com.qwaecd.paramagic.spell.config.CircleAssets;
-import com.qwaecd.paramagic.spell.session.SessionState;
+import com.qwaecd.paramagic.spell.core.SessionState;
 import com.qwaecd.paramagic.spell.util.transform.LambdaFunction;
 import com.qwaecd.paramagic.spell.view.CasterTransformSource;
 import com.qwaecd.paramagic.spell.view.HybridCasterSource;
@@ -17,6 +18,7 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.Nonnull;
 import java.util.UUID;
 
+@Deprecated
 public class ArcSessionClient extends ClientSession {
     private static final Logger LOGGER = LoggerFactory.getLogger(ArcSessionClient.class);
 
@@ -29,7 +31,7 @@ public class ArcSessionClient extends ClientSession {
     }
 
     @Override
-    public void tick(float deltaTime) {
+    public void onTick(float deltaTime) {
     }
 
     public void init() {

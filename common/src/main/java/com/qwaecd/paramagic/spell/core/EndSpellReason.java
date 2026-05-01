@@ -1,4 +1,4 @@
-package com.qwaecd.paramagic.spell;
+package com.qwaecd.paramagic.spell.core;
 
 
 public enum EndSpellReason {

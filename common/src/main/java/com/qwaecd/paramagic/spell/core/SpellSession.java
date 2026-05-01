@@ -1,6 +1,6 @@
-package com.qwaecd.paramagic.spell.session;
+package com.qwaecd.paramagic.spell.core;
 
-import com.qwaecd.paramagic.spell.session.store.SessionDataStore;
+import com.qwaecd.paramagic.spell.core.store.SessionDataStore;
 import lombok.Getter;
 
 import javax.annotation.Nonnull;
@@ -15,13 +15,17 @@ public abstract class SpellSession {
     @Getter
     protected final SessionDataStore dataStore = new SessionDataStore();
 
-    protected SpellSession(UUID sessionId) {
+    private SpellSession(UUID sessionId) {
         this.sessionId = sessionId;
         this.sessionState = SessionState.RUNNING;
     }
 
+    protected SpellSession() {
+        this(UUID.randomUUID());
+    }
+
     public void interrupt() {
-        this.sessionState = SessionState.INTERRUPTED;
+        this.sessionState = SessionState.STOPPING;
     }
 
     public boolean canRemoveFromManager() {

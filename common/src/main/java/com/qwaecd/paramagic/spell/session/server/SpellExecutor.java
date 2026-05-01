@@ -6,6 +6,7 @@ import com.qwaecd.paramagic.spell.phase.SpellPhaseType;
 import net.minecraft.server.level.ServerLevel;
 
 @PlatformScope(PlatformScopeType.SERVER)
+@Deprecated
 public class SpellExecutor {
 
     public SpellExecutor() {

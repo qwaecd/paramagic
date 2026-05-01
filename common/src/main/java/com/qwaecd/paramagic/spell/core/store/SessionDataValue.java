@@ -1,4 +1,4 @@
-package com.qwaecd.paramagic.spell.session.store;
+package com.qwaecd.paramagic.spell.core.store;
 
 import com.qwaecd.paramagic.network.DataCodec;
 import com.qwaecd.paramagic.network.IDataSerializable;

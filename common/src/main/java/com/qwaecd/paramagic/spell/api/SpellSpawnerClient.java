@@ -6,11 +6,11 @@ import com.qwaecd.paramagic.spell.BuiltinSpellId;
 import com.qwaecd.paramagic.spell.builtin.client.BuiltinSpellVisualRegistry;
 import com.qwaecd.paramagic.spell.builtin.client.VisualEntry;
 import com.qwaecd.paramagic.spell.config.CircleAssets;
-import com.qwaecd.paramagic.spell.session.SessionManagers;
-import com.qwaecd.paramagic.spell.session.SpellSessionRef;
+import com.qwaecd.paramagic.spell.core.SessionManagers;
+import com.qwaecd.paramagic.spell.core.SpellSessionRef;
 import com.qwaecd.paramagic.spell.session.client.ArcSessionClient;
-import com.qwaecd.paramagic.spell.session.client.ClientSession;
-import com.qwaecd.paramagic.spell.session.client.ClientSessionManager;
+import com.qwaecd.paramagic.spell.client.ClientSession;
+import com.qwaecd.paramagic.spell.client.ClientSessionManager;
 import com.qwaecd.paramagic.spell.session.client.MachineSessionClient;
 import com.qwaecd.paramagic.spell.state.AllMachineEvents;
 import com.qwaecd.paramagic.spell.util.CasterUtils;
@@ -22,6 +22,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Objects;
 
+@Deprecated
 @SuppressWarnings("UnusedReturnValue")
 @PlatformScope(PlatformScopeType.CLIENT)
 public class SpellSpawnerClient {

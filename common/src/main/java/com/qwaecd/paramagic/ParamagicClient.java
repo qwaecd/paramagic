@@ -7,7 +7,7 @@ import com.qwaecd.paramagic.particle.client.ClientEffectRepository;
 import com.qwaecd.paramagic.particle.client.shared.BuiltinSharedGPUEffects;
 import com.qwaecd.paramagic.particle.client.shared.SharedGPUEffectRegistry;
 import com.qwaecd.paramagic.spell.builtin.client.BuiltinSpellVisualRegistry;
-import com.qwaecd.paramagic.spell.session.client.ClientSessionManager;
+import com.qwaecd.paramagic.spell.client.ClientSessionManager;
 
 public class ParamagicClient {
     public static void initOnClient() {

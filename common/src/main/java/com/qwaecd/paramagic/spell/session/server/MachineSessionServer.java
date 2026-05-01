@@ -3,7 +3,8 @@ package com.qwaecd.paramagic.spell.session.server;
 import com.qwaecd.paramagic.spell.api.SpellPhaseListener;
 import com.qwaecd.paramagic.spell.caster.SpellCaster;
 import com.qwaecd.paramagic.spell.phase.SpellPhaseType;
-import com.qwaecd.paramagic.spell.session.SessionState;
+import com.qwaecd.paramagic.spell.core.SessionState;
+import com.qwaecd.paramagic.spell.server.ServerSession;
 import com.qwaecd.paramagic.spell.state.SpellStateMachine;
 import com.qwaecd.paramagic.spell.state.event.MachineEvent;
 import com.qwaecd.paramagic.tools.ConditionalLogger;
@@ -15,6 +16,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.function.Consumer;
 
+@Deprecated
 public class MachineSessionServer extends ServerSession implements ServerSessionView {
     private static final ConditionalLogger LOGGER = ConditionalLogger.create(MachineSessionServer.class);
     @Nonnull

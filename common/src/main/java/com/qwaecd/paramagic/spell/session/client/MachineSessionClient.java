@@ -4,8 +4,9 @@ import com.qwaecd.paramagic.spell.BuiltinSpellId;
 import com.qwaecd.paramagic.spell.api.SpellPhaseListener;
 import com.qwaecd.paramagic.spell.builtin.client.BuiltinSpellVisualRegistry;
 import com.qwaecd.paramagic.spell.builtin.client.SpellRenderer;
+import com.qwaecd.paramagic.spell.client.ClientSession;
 import com.qwaecd.paramagic.spell.phase.SpellPhaseType;
-import com.qwaecd.paramagic.spell.session.SessionState;
+import com.qwaecd.paramagic.spell.core.SessionState;
 import com.qwaecd.paramagic.spell.state.SpellStateMachine;
 import com.qwaecd.paramagic.spell.state.event.MachineEvent;
 import com.qwaecd.paramagic.spell.view.HybridCasterSource;
@@ -15,6 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+@Deprecated
 public class MachineSessionClient extends ClientSession implements ClientSessionView {
     @Nonnull
     private final SpellStateMachine machine;
@@ -46,7 +48,7 @@ public class MachineSessionClient extends ClientSession implements ClientSession
     }
 
     @Override
-    public void tick(float deltaTime) {
+    public void onTick(float deltaTime) {
         this.machine.update(deltaTime);
         this.renderer.gameTick(this, this.machine.currentPhase());
         // 当前 tick ，状态机已经完成运行，则标记为逻辑完成

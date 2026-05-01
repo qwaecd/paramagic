@@ -9,6 +9,7 @@ import com.qwaecd.paramagic.spell.state.SpellStateMachine;
 
 import javax.annotation.Nonnull;
 
+@Deprecated
 public class MachineBuilder {
     private final PhaseConnection connection;
 

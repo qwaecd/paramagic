@@ -1,8 +1,9 @@
 package com.qwaecd.paramagic.spell.session.client;
 
-import com.qwaecd.paramagic.spell.session.store.SessionDataStore;
+import com.qwaecd.paramagic.spell.core.store.SessionDataStore;
 import com.qwaecd.paramagic.spell.view.CasterTransformSource;
 
+@Deprecated
 public interface ClientSessionView {
     /**
      * 获取用于渲染的变换信息, 返回值可以被 lambda 捕获.

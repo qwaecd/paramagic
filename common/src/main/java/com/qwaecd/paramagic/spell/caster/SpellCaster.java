@@ -1,6 +1,6 @@
 package com.qwaecd.paramagic.spell.caster;
 
-import com.qwaecd.paramagic.spell.session.server.ServerSessionManager;
+import com.qwaecd.paramagic.spell.server.ServerSessionManager;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.UUID;

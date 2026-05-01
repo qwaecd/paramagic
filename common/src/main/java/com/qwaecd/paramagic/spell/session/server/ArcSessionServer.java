@@ -1,7 +1,8 @@
 package com.qwaecd.paramagic.spell.session.server;
 
 import com.qwaecd.paramagic.spell.caster.SpellCaster;
-import com.qwaecd.paramagic.spell.session.SessionState;
+import com.qwaecd.paramagic.spell.core.SessionState;
+import com.qwaecd.paramagic.spell.server.ServerSession;
 import com.qwaecd.paramagic.thaumaturgy.node.ParaTree;
 import com.qwaecd.paramagic.thaumaturgy.runtime.ArcaneProcessor;
 import com.qwaecd.paramagic.thaumaturgy.runtime.ParaContext;
@@ -10,6 +11,7 @@ import net.minecraft.server.level.ServerLevel;
 import javax.annotation.Nonnull;
 import java.util.UUID;
 
+@Deprecated
 public class ArcSessionServer extends ServerSession {
     private final ArcaneProcessor processor;
 

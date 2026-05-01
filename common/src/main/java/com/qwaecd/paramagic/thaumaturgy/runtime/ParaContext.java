@@ -1,7 +1,7 @@
 package com.qwaecd.paramagic.thaumaturgy.runtime;
 
 import com.qwaecd.paramagic.spell.caster.SpellCaster;
-import com.qwaecd.paramagic.spell.session.server.ServerSession;
+import com.qwaecd.paramagic.spell.server.ServerSession;
 import com.qwaecd.paramagic.thaumaturgy.ProjectileEntity;
 import com.qwaecd.paramagic.thaumaturgy.operator.OperatorType;
 import com.qwaecd.paramagic.thaumaturgy.operator.ParaOperator;

@@ -9,15 +9,15 @@ import com.qwaecd.paramagic.spell.builtin.BuiltinSpellEntry;
 import com.qwaecd.paramagic.spell.builtin.BuiltinSpellRegistry;
 import com.qwaecd.paramagic.spell.caster.SpellCaster;
 import com.qwaecd.paramagic.spell.config.CircleAssets;
-import com.qwaecd.paramagic.spell.session.SessionManagers;
-import com.qwaecd.paramagic.spell.session.SpellSessionRef;
+import com.qwaecd.paramagic.spell.core.SessionManagers;
+import com.qwaecd.paramagic.spell.core.SpellSessionRef;
 import com.qwaecd.paramagic.spell.session.server.ArcSessionServer;
 import com.qwaecd.paramagic.spell.session.server.MachineSessionServer;
-import com.qwaecd.paramagic.spell.session.server.ServerSession;
-import com.qwaecd.paramagic.spell.session.server.ServerSessionManager;
-import com.qwaecd.paramagic.spell.session.store.AllSessionDataKeys;
-import com.qwaecd.paramagic.spell.session.store.SessionDataStore;
-import com.qwaecd.paramagic.spell.session.store.SessionDataValue;
+import com.qwaecd.paramagic.spell.server.ServerSession;
+import com.qwaecd.paramagic.spell.server.ServerSessionManager;
+import com.qwaecd.paramagic.spell.core.store.AllSessionDataKeys;
+import com.qwaecd.paramagic.spell.core.store.SessionDataStore;
+import com.qwaecd.paramagic.spell.core.store.SessionDataValue;
 import com.qwaecd.paramagic.spell.state.AllMachineEvents;
 import com.qwaecd.paramagic.spell.state.SpellStateMachine;
 import com.qwaecd.paramagic.thaumaturgy.ParaCrystalData;
@@ -30,6 +30,7 @@ import org.joml.Vector3f;
 
 import javax.annotation.Nullable;
 
+@Deprecated
 @SuppressWarnings("UnusedReturnValue")
 @PlatformScope(PlatformScopeType.SERVER)
 public class SpellSpawner {

@@ -1,10 +1,10 @@
-package com.qwaecd.paramagic.spell.session;
+package com.qwaecd.paramagic.spell.core;
 
 import com.qwaecd.paramagic.network.DataCodec;
 import com.qwaecd.paramagic.network.IDataSerializable;
 import com.qwaecd.paramagic.platform.annotation.PlatformScope;
 import com.qwaecd.paramagic.platform.annotation.PlatformScopeType;
-import com.qwaecd.paramagic.spell.session.server.ServerSession;
+import com.qwaecd.paramagic.spell.server.ServerSession;
 import net.minecraft.network.FriendlyByteBuf;
 
 import javax.annotation.Nonnull;

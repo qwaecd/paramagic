@@ -5,6 +5,7 @@ import com.qwaecd.paramagic.spell.phase.SpellPhaseType;
 
 import javax.annotation.Nullable;
 
+@Deprecated
 public interface SpellPhaseListener {
     void onPhaseChanged(SpellPhaseType oldPhase, SpellPhaseType currentPhase);
     /**

@@ -1,9 +1,11 @@
-package com.qwaecd.paramagic.spell.session.server;
+package com.qwaecd.paramagic.spell.server;
 
 import com.qwaecd.paramagic.mixinapi.IServerLevel;
 import com.qwaecd.paramagic.spell.caster.SpellCaster;
-import com.qwaecd.paramagic.spell.session.ISessionManager;
-import com.qwaecd.paramagic.spell.session.SpellSession;
+import com.qwaecd.paramagic.spell.core.SpellSession;
+import com.qwaecd.paramagic.spell.session.server.ArcSessionServer;
+import com.qwaecd.paramagic.spell.session.server.MachineSessionServer;
+import com.qwaecd.paramagic.spell.session.server.SpellExecutor;
 import com.qwaecd.paramagic.spell.state.SpellStateMachine;
 import com.qwaecd.paramagic.thaumaturgy.node.ParaTree;
 import com.qwaecd.paramagic.tools.ConditionalLogger;
@@ -18,7 +20,7 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
-public class ServerSessionManager implements ISessionManager {
+public class ServerSessionManager {
     private static final ConditionalLogger LOGGER = ConditionalLogger.create(ServerSessionManager.class);
     private final WeakReference<ServerLevel> levelRef;
     private final ResourceKey<Level> levelKey;
@@ -34,7 +36,7 @@ public class ServerSessionManager implements ISessionManager {
         this.levelKey = level.dimension();
 
         IServerLevel callbackRegister = (IServerLevel) level;
-        callbackRegister.registerOnLevelTick(serverLevel -> this.tickAll(serverLevel, 1.0f / 20.0f));
+        callbackRegister.registerOnLevelTick(this::tickAll);
     }
 
     @Nullable
@@ -83,7 +85,7 @@ public class ServerSessionManager implements ISessionManager {
     }
 
     @SuppressWarnings("SameParameterValue")
-    private void tickAll(final ServerLevel serverLevel, final float deltaTime) {
+    private void tickAll(final ServerLevel serverLevel) {
         this.flushPendingRemovals();
 
         for (var entry : this.sessions.entrySet()) {
@@ -99,7 +101,7 @@ public class ServerSessionManager implements ISessionManager {
                     continue;
                 }
 
-                session.tickOnLevel(serverLevel, deltaTime);
+                session.tick();
             } catch (Exception e) {
                 LOGGER.logIfDev(logger ->
                         logger.error("Error while processing spell session {} in level {}", entry.getKey(), this.levelKey, e)
@@ -132,12 +134,10 @@ public class ServerSessionManager implements ISessionManager {
     private void flushPendingRemovals() {
         ServerSession session;
         while ((session = this.pendingRemovals.poll()) != null) {
-//            System.out.println("Removing session " + session.getSessionId() + " from level " + this.levelKey);
             this.removeSession(session);
         }
     }
 
-    @Override
     public SpellSession getSession(UUID sessionId) {
         return this.sessions.get(sessionId);
     }
