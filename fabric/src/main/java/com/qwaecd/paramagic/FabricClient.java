@@ -11,7 +11,7 @@ import com.qwaecd.paramagic.network.ClientNetworking;
 import com.qwaecd.paramagic.network.Networking;
 import com.qwaecd.paramagic.particle.client.shared.SharedGPUEffectRegistry;
 import com.qwaecd.paramagic.platform.Services;
-import com.qwaecd.paramagic.spell.session.SessionManagers;
+import com.qwaecd.paramagic.spell.core.SessionManagers;
 import com.qwaecd.paramagic.ui.screen.ModScreens;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandManager;
@@ -44,7 +44,7 @@ public class FabricClient implements ClientModInitializer {
             RenderContextManager.setContext(fabricContext);
         });
 
-        ClientTickEvents.END_CLIENT_TICK.register(mc -> SessionManagers.getForClient().tickAll(mc.level, 1.0f / 20.0f));
+        ClientTickEvents.END_CLIENT_TICK.register(mc -> SessionManagers.getForClient().tickAll(mc.level));
         registerScreens();
     }
 

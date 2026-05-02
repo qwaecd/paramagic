@@ -3,7 +3,7 @@ package com.qwaecd.paramagic.network.packet.session;
 import com.qwaecd.paramagic.network.DataCodec;
 import com.qwaecd.paramagic.network.api.Packet;
 import com.qwaecd.paramagic.network.api.PacketIdentifier;
-import com.qwaecd.paramagic.spell.session.store.SessionDataSyncPayload;
+import com.qwaecd.paramagic.spell.core.store.SessionDataSyncPayload;
 import com.qwaecd.paramagic.tools.ModRL;
 
 public class S2CSessionDataSyncPacket implements Packet<S2CSessionDataSyncPacket> {

@@ -2,8 +2,8 @@ package com.qwaecd.paramagic.spell;
 
 import com.qwaecd.paramagic.network.DataCodec;
 import com.qwaecd.paramagic.network.IDataSerializable;
-import com.qwaecd.paramagic.spell.config.CircleAssets;
-import com.qwaecd.paramagic.spell.session.SpellSessionRef;
+import com.qwaecd.paramagic.spell.client.CircleAssets;
+import com.qwaecd.paramagic.spell.core.SpellSessionRef;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;

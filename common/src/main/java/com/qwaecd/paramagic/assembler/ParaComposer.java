@@ -7,7 +7,7 @@ import com.qwaecd.paramagic.data.para.converter.ConversionException;
 import com.qwaecd.paramagic.data.para.converter.ParaConverters;
 import com.qwaecd.paramagic.data.para.struct.ParaData;
 import com.qwaecd.paramagic.feature.circle.MagicCircle;
-import com.qwaecd.paramagic.spell.config.CircleAssets;
+import com.qwaecd.paramagic.spell.client.CircleAssets;
 import lombok.Getter;
 
 

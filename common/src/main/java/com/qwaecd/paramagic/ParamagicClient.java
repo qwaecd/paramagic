@@ -6,8 +6,8 @@ import com.qwaecd.paramagic.particle.api.EmitterFactoryRegistry;
 import com.qwaecd.paramagic.particle.client.ClientEffectRepository;
 import com.qwaecd.paramagic.particle.client.shared.BuiltinSharedGPUEffects;
 import com.qwaecd.paramagic.particle.client.shared.SharedGPUEffectRegistry;
-import com.qwaecd.paramagic.spell.builtin.client.BuiltinSpellVisualRegistry;
-import com.qwaecd.paramagic.spell.session.client.ClientSessionManager;
+import com.qwaecd.paramagic.spell.api.AllPresentations;
+import com.qwaecd.paramagic.spell.client.ClientSessionManager;
 
 public class ParamagicClient {
     public static void initOnClient() {
@@ -18,6 +18,6 @@ public class ParamagicClient {
         ClientEffectRepository.init();
         SharedGPUEffectRegistry.init();
         BuiltinSharedGPUEffects.init();
-        BuiltinSpellVisualRegistry.init();
+        AllPresentations.init();
     }
 }
