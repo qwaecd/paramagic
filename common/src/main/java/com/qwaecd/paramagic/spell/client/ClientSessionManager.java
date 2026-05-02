@@ -1,6 +1,5 @@
 package com.qwaecd.paramagic.spell.client;
 
-import com.qwaecd.paramagic.spell.core.SpellSession;
 import com.qwaecd.paramagic.spell.core.SpellSessionRef;
 import com.qwaecd.paramagic.spell.util.CasterUtils;
 import com.qwaecd.paramagic.spell.view.HybridCasterSource;

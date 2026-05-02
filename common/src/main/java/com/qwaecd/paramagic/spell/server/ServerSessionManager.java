@@ -2,7 +2,6 @@ package com.qwaecd.paramagic.spell.server;
 
 import com.qwaecd.paramagic.mixinapi.IServerLevel;
 import com.qwaecd.paramagic.spell.caster.SpellCaster;
-import com.qwaecd.paramagic.spell.core.SpellSession;
 import com.qwaecd.paramagic.tools.ConditionalLogger;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
