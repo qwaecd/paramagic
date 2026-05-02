@@ -2,6 +2,7 @@ package com.qwaecd.paramagic.spell.server;
 
 import com.qwaecd.paramagic.network.Networking;
 import com.qwaecd.paramagic.network.packet.session.S2CSessionDataSyncPacket;
+import com.qwaecd.paramagic.network.packet.session.S2CSessionStopPacket;
 import com.qwaecd.paramagic.spell.caster.SpellCaster;
 import com.qwaecd.paramagic.spell.core.EndSpellReason;
 import com.qwaecd.paramagic.spell.core.SessionState;
@@ -73,7 +74,11 @@ public class ServerSession extends SpellSession implements AutoCloseable {
             this.spell.tick(this.context);
         }
 
-        if (this.spell.isFinished()) {
+        if (this.isState(SessionState.RUNNING) && this.spell.isFinished()) {
+            this.markCompleted();
+        }
+
+        if (this.isState(SessionState.STOPPING) && this.spell.isFinished()) {
             this.setSessionState(SessionState.DISPOSED);
         }
     }
@@ -81,22 +86,34 @@ public class ServerSession extends SpellSession implements AutoCloseable {
     @Override
     protected void onStopRequested(@Nonnull EndSpellReason reason) {
         this.spell.interrupt(this.context, reason);
+        this.broadcastStop(reason);
+    }
+
+    @Override
+    protected void onCompleted() {
+        this.broadcastStop(EndSpellReason.COMPLETED);
     }
 
     @Override
     public boolean canRemoveFromManager() {
-        return this.spell.isFinished() && super.canRemoveFromManager();
+        return super.canRemoveFromManager();
     }
 
     public final void connectAnchor(@Nonnull SpellAnchorEntity anchor) {
-        List<ServerPlayer> players = this.level.getPlayers(player -> (player.distanceToSqr(anchor) < this.trackingDistance * this.trackingDistance));
-        players.forEach(player -> this.trackingPlayers.add(player.getUUID()));
         this.anchors.add(new WeakReference<>(anchor));
+    }
+
+    public void addTrackingPlayer(@Nonnull ServerPlayer player) {
+        this.trackingPlayers.add(player.getUUID());
     }
 
     public void syncDataStore() {
         S2CSessionDataSyncPacket syncPacket = this.createFullSyncPacket();
         this.forEachTrackingPlayer(player -> Networking.get().sendToPlayer(player, syncPacket));
+    }
+
+    public void syncDataStore(@Nonnull ServerPlayer player) {
+        Networking.get().sendToPlayer(player, this.createFullSyncPacket());
     }
 
     protected void forEachTrackingPlayer(Consumer<ServerPlayer> action) {
@@ -133,6 +150,11 @@ public class ServerSession extends SpellSession implements AutoCloseable {
                 )
         );
         return new S2CSessionDataSyncPacket(new SessionDataSyncPayload(this.sessionId, entries));
+    }
+
+    private void broadcastStop(@Nonnull EndSpellReason reason) {
+        S2CSessionStopPacket packet = new S2CSessionStopPacket(this.sessionId, reason);
+        this.forEachTrackingPlayer(player -> Networking.get().sendToPlayer(player, packet));
     }
 
     @Override

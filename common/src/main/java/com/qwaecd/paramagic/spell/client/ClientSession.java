@@ -34,7 +34,10 @@ public class ClientSession extends SpellSession implements AutoCloseable {
         if (this.isState(SessionState.RUNNING)) {
             this.presentation.tick(this.context);
         }
-        if (this.presentation.canDispose()) {
+        if (this.isState(SessionState.STOPPING)) {
+            this.presentation.tick(this.context);
+        }
+        if (!this.isState(SessionState.DISPOSED) && this.presentation.canDispose()) {
             this.setSessionState(SessionState.DISPOSED);
         }
     }
@@ -49,6 +52,18 @@ public class ClientSession extends SpellSession implements AutoCloseable {
 
     @Override
     protected void onStopRequested(@Nonnull EndSpellReason reason) {
+        this.stopPresentation(reason);
+    }
+
+    public boolean handleServerStop(@Nonnull EndSpellReason reason) {
+        if (!this.transitionToStopping(reason)) {
+            return false;
+        }
+        this.stopPresentation(reason);
+        return true;
+    }
+
+    private void stopPresentation(@Nonnull EndSpellReason reason) {
         this.presentation.onStop(this.context, reason);
         if (this.presentation.canDispose()) {
             this.setSessionState(SessionState.DISPOSED);

@@ -109,7 +109,8 @@ public class ClientSessionManager {
         this.sessions.remove(session.getSessionId());
     }
 
-    public SpellSession getSession(UUID sessionId) {
+    @Nullable
+    public ClientSession getSession(UUID sessionId) {
         return this.sessions.get(sessionId);
     }
 

@@ -119,7 +119,8 @@ public class ServerSessionManager {
         }
     }
 
-    public SpellSession getSession(UUID sessionId) {
+    @Nullable
+    public ServerSession getSession(UUID sessionId) {
         return this.sessions.get(sessionId);
     }
 }
