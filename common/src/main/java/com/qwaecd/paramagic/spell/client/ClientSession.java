@@ -48,9 +48,8 @@ public class ClientSession extends SpellSession implements AutoCloseable {
     }
 
     @Override
-    public void interrupt() {
-        super.interrupt();
-        this.presentation.onStop(this.context, EndSpellReason.INTERRUPTED);
+    protected void onStopRequested(@Nonnull EndSpellReason reason) {
+        this.presentation.onStop(this.context, reason);
         if (this.presentation.canDispose()) {
             this.setSessionState(SessionState.DISPOSED);
         }

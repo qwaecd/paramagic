@@ -78,14 +78,9 @@ public class ServerSession extends SpellSession implements AutoCloseable {
         }
     }
 
-    public void casterDisconnected() {
-        this.interrupt();
-    }
-
     @Override
-    public void interrupt() {
-        super.interrupt();
-        this.spell.interrupt(this.context, EndSpellReason.INTERRUPTED);
+    protected void onStopRequested(@Nonnull EndSpellReason reason) {
+        this.spell.interrupt(this.context, reason);
     }
 
     @Override

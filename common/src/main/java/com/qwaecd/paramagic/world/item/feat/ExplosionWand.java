@@ -1,9 +1,9 @@
 package com.qwaecd.paramagic.world.item.feat;
 
 import com.qwaecd.paramagic.Paramagic;
-import com.qwaecd.paramagic.spell.builtin.BuiltinSpellCaster;
-import com.qwaecd.paramagic.spell.builtin.AllBuiltinSpellIds;
 import com.qwaecd.paramagic.spell.api.AllSpellRuntimes;
+import com.qwaecd.paramagic.spell.builtin.AllBuiltinSpellIds;
+import com.qwaecd.paramagic.spell.builtin.BuiltinSpellCaster;
 import com.qwaecd.paramagic.spell.caster.PlayerCaster;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionHand;

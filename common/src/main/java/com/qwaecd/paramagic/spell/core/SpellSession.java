@@ -20,13 +20,20 @@ public abstract class SpellSession {
         this.sessionState = SessionState.RUNNING;
     }
 
-    protected SpellSession() {
-        this(UUID.randomUUID());
+    public final boolean interrupt() {
+        return this.requestStop(EndSpellReason.INTERRUPTED);
     }
 
-    public void interrupt() {
+    public final boolean requestStop(@Nonnull EndSpellReason reason) {
+        if (reason == EndSpellReason.COMPLETED || !this.isState(SessionState.RUNNING)) {
+            return false;
+        }
         this.sessionState = SessionState.STOPPING;
+        this.onStopRequested(reason);
+        return true;
     }
+
+    protected abstract void onStopRequested(@Nonnull EndSpellReason reason);
 
     public boolean canRemoveFromManager() {
         return this.isState(SessionState.DISPOSED);
@@ -37,7 +44,7 @@ public abstract class SpellSession {
         return this.sessionState;
     }
 
-    public void setSessionState(@Nonnull SessionState state) {
+    protected void setSessionState(@Nonnull SessionState state) {
         this.sessionState = state;
     }
 
