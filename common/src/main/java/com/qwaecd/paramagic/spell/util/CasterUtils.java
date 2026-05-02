@@ -1,6 +1,6 @@
 package com.qwaecd.paramagic.spell.util;
 
-import com.qwaecd.paramagic.spell.session.SpellSessionRef;
+import com.qwaecd.paramagic.spell.core.SpellSessionRef;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
 

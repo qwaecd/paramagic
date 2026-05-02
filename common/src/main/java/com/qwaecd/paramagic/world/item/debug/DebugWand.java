@@ -7,7 +7,7 @@ import com.qwaecd.paramagic.core.particle.emitter.ParticleBurst;
 import com.qwaecd.paramagic.core.particle.emitter.impl.LineEmitter;
 import com.qwaecd.paramagic.core.particle.emitter.impl.SphereEmitter;
 import com.qwaecd.paramagic.core.particle.emitter.property.type.VelocityModeStates;
-import com.qwaecd.paramagic.spell.api.SpellSpawner;
+import com.qwaecd.paramagic.spell.arcane.ArcaneSpellCaster;
 import com.qwaecd.paramagic.spell.caster.PlayerCaster;
 import com.qwaecd.paramagic.thaumaturgy.ParaCrystalData;
 import com.qwaecd.paramagic.tools.nbt.CrystalComponentUtils;
@@ -63,7 +63,7 @@ public class DebugWand extends Item {
         }
         PlayerCaster caster = PlayerCaster.create(player);
 
-        SpellSpawner.spawnOnServer((ServerLevel) level, caster, crystalData);
+        ArcaneSpellCaster.castOnServer((ServerLevel) level, caster, crystalData);
         player.startUsingItem(usedHand);
     }
 

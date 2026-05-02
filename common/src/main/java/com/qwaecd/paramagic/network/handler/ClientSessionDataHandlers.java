@@ -4,10 +4,10 @@ import com.qwaecd.paramagic.network.api.NetworkContext;
 import com.qwaecd.paramagic.network.packet.session.S2CSessionDataSyncPacket;
 import com.qwaecd.paramagic.platform.annotation.PlatformScope;
 import com.qwaecd.paramagic.platform.annotation.PlatformScopeType;
-import com.qwaecd.paramagic.spell.session.client.ClientSession;
-import com.qwaecd.paramagic.spell.session.client.ClientSessionManager;
-import com.qwaecd.paramagic.spell.session.store.SessionDataStore;
-import com.qwaecd.paramagic.spell.session.store.SessionDataSyncPayload;
+import com.qwaecd.paramagic.spell.client.ClientSession;
+import com.qwaecd.paramagic.spell.client.ClientSessionManager;
+import com.qwaecd.paramagic.spell.core.store.SessionDataStore;
+import com.qwaecd.paramagic.spell.core.store.SessionDataSyncPayload;
 
 
 @PlatformScope(PlatformScopeType.CLIENT)
