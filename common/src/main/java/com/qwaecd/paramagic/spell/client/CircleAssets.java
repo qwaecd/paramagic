@@ -1,4 +1,4 @@
-package com.qwaecd.paramagic.spell.config;
+package com.qwaecd.paramagic.spell.client;
 
 import com.qwaecd.paramagic.data.animation.struct.AnimationBindingConfig;
 import com.qwaecd.paramagic.data.para.struct.ParaData;

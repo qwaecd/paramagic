@@ -5,9 +5,10 @@ import com.qwaecd.paramagic.platform.annotation.PlatformScope;
 import com.qwaecd.paramagic.platform.annotation.PlatformScopeType;
 import com.qwaecd.paramagic.spell.BuiltinSpellId;
 import com.qwaecd.paramagic.spell.SpellUnion;
-import com.qwaecd.paramagic.spell.api.SpellSpawnerClient;
-import com.qwaecd.paramagic.spell.core.SessionManagers;
+import com.qwaecd.paramagic.spell.arcane.ArcaneClientFactory;
+import com.qwaecd.paramagic.spell.builtin.client.BuiltinSpellClientFactory;
 import com.qwaecd.paramagic.spell.client.ClientSession;
+import com.qwaecd.paramagic.spell.core.SessionManagers;
 import com.qwaecd.paramagic.spell.server.ServerSession;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
@@ -78,10 +79,9 @@ public class SpellAnchorEntity extends Entity {
                 LOGGER.error("BuiltinSpellId is null for builtin spell in SpellUnion");
                 return;
             }
-            SpellSpawnerClient.spawnInternalOnClient(this.level(), spellUnion.getSessionRef(), builtinId, this);
+            BuiltinSpellClientFactory.spawnOnClient(this.level(), spellUnion.getSessionRef(), builtinId, this);
         } else {
-            // Para spell
-            SpellSpawnerClient.spawnOnClient(this.level(), spellUnion.getSessionRef(), spellUnion.getCircleAssets(),this);
+            ArcaneClientFactory.spawnOnClient(this.level(), spellUnion.getSessionRef(), spellUnion.getCircleAssets(), this);
         }
     }
 

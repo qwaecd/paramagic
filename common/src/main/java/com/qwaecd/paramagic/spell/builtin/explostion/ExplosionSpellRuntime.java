@@ -14,11 +14,11 @@ import com.qwaecd.paramagic.network.particle.emitter.EmitterPropertyConfig;
 import com.qwaecd.paramagic.particle.EffectSpawnBuilder;
 import com.qwaecd.paramagic.particle.server.ServerEffect;
 import com.qwaecd.paramagic.particle.server.ServerEffectManager;
-import com.qwaecd.paramagic.spell.phase.SpellPhaseType;
-import com.qwaecd.paramagic.spell.session.server.ServerSessionView;
-import com.qwaecd.paramagic.spell.session.server.SpellExecutor;
+import com.qwaecd.paramagic.spell.core.EndSpellReason;
 import com.qwaecd.paramagic.spell.core.store.AllSessionDataKeys;
 import com.qwaecd.paramagic.spell.core.store.SessionDataValue;
+import com.qwaecd.paramagic.spell.server.ServerSpellContext;
+import com.qwaecd.paramagic.spell.server.SpellRuntime;
 import lombok.Setter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
@@ -35,62 +35,93 @@ import org.joml.Vector4f;
 import javax.annotation.Nullable;
 import java.util.Random;
 
-public class ExplosionExecutor extends SpellExecutor {
+public class ExplosionSpellRuntime implements SpellRuntime {
+    private static final int CASTING_TICKS = 20 * 3;
+    private static final int CHANNELING_TICKS = 20 * 8;
+
     private final LightningSpawner spawner = new LightningSpawner();
 
     @Nullable
     private ServerLevel levelCache;
 
+    private int elapsedTicks = 0;
+    private boolean finished = false;
+    private Stage currentStage = Stage.CASTING;
+
     @Override
-    public void tick(ServerSessionView session, SpellPhaseType currentPhase, ServerLevel level) {
+    public void onStart(ServerSpellContext context) {
+        ServerLevel level = context.getLevel();
+        this.levelCache = level;
+        this.currentStage = Stage.CASTING;
+        this.elapsedTicks = 0;
+        this.finished = false;
+        this.setThunder(level);
+    }
+
+    @Override
+    public void tick(ServerSpellContext context) {
+        if (this.finished) {
+            return;
+        }
+
+        ServerLevel level = context.getLevel();
         if (this.levelCache == null) {
             this.levelCache = level;
         }
 
+        this.elapsedTicks++;
+        this.tickLightning(level, context);
+
+        if (this.currentStage == Stage.CASTING && this.elapsedTicks >= CASTING_TICKS) {
+            this.currentStage = Stage.CHANNELING;
+        }
+
+        if (this.currentStage == Stage.CHANNELING && this.elapsedTicks >= CASTING_TICKS + CHANNELING_TICKS) {
+            this.currentStage = Stage.IMPACT;
+            this.execute(context, level);
+            this.setClear();
+            this.finished = true;
+        }
+    }
+
+    @Override
+    public void interrupt(ServerSpellContext context, EndSpellReason reason) {
+        this.setClear();
+        this.finished = true;
+    }
+
+    @Override
+    public boolean isFinished() {
+        return this.finished;
+    }
+
+    @Override
+    public void dispose(ServerSpellContext context) {
+        this.setClear();
+    }
+
+    private void tickLightning(ServerLevel level, ServerSpellContext context) {
         this.spawner.tick();
         if (!this.spawner.shouldSpawn()) {
             return;
         }
 
-        Vec3 position = session.getCaster().position();
+        Vec3 position = context.getCaster().position();
         this.spawner.setCenter(position);
-        this.summonLighting(level);
+        this.summonLightning(level);
     }
 
-    @Override
-    public void onPhaseChanged(ServerSessionView session, SpellPhaseType oldPhase, SpellPhaseType currentPhase) {
-        ServerLevel level = session.getLevel();
-        if (currentPhase == SpellPhaseType.CASTING) {
-            this.setThunder(level);
-            return;
-        }
-
-        if (currentPhase == SpellPhaseType.COOLDOWN) {
-            Entity caster = level.getEntity(session.getCaster().getEntityNetworkId());
-            this.execute(session, level, caster);
-        }
-    }
-
-    @Override
-    public void onSessionClose() {
-        this.setClear();
-    }
-
-    @Override
-    public void onInterrupt() {
-        this.setClear();
-    }
-
-    private void summonLighting(ServerLevel level) {
+    private void summonLightning(ServerLevel level) {
         BlockPos spawnPosition = this.spawner.getSpawnPosition(level);
         if (spawnPosition == null) {
             return;
         }
         LightningBolt lightningBolt = EntityType.LIGHTNING_BOLT.create(level);
-        if (lightningBolt != null) {
-            lightningBolt.moveTo(Vec3.atBottomCenterOf(spawnPosition));
-            level.addFreshEntity(lightningBolt);
+        if (lightningBolt == null) {
+            return;
         }
+        lightningBolt.moveTo(Vec3.atBottomCenterOf(spawnPosition));
+        level.addFreshEntity(lightningBolt);
     }
 
     private void setThunder(ServerLevel level) {
@@ -104,83 +135,21 @@ public class ExplosionExecutor extends SpellExecutor {
             return;
         }
         int clearTime = ServerLevel.RAIN_DELAY.sample(this.levelCache.getRandom());
-        levelCache.setWeatherParameters(clearTime, 0, false, false);
+        this.levelCache.setWeatherParameters(clearTime, 0, false, false);
     }
 
-    static class LightningSpawner {
-        private static final float tickPerSecond = 1.0f / 20.0f;
-        private static final int maxChunkDistance = 5;
-        private static final int minChunkDistance = 2;
-        private static final Random random = new Random();
-        private float nextSpawnInterval = random.nextFloat(1.0f, 5.0f);
-        private float currentTime = 0.0f;
-        private boolean shouldSpawn = false;
-
-        private boolean interrupted = false;
-
-        @Setter
-        private Vec3 center = Vec3.ZERO;
-
-        void tick() {
-            if (this.interrupted) {
-                return;
-            }
-            this.currentTime += tickPerSecond;
-            if (this.currentTime >= this.nextSpawnInterval) {
-                this.currentTime = 0.0f;
-                this.nextSpawnInterval = random.nextFloat(0.5f, 5.0f);
-                this.shouldSpawn = true;
-            }
-        }
-
-        void setInterrupted() {
-            this.interrupted = true;
-            this.shouldSpawn = false;
-        }
-
-        @Nullable
-        BlockPos getSpawnPosition(ServerLevel level) {
-            this.shouldSpawn = false;
-            try {
-                int x = pickPos((int) this.center.x);
-                int z = pickPos((int) this.center.z);
-                ChunkPos chunkPos = level.getChunk(x >> 4, z >> 4).getPos();
-                int i = chunkPos.getMinBlockX();
-                int j = chunkPos.getMinBlockZ();
-                return ((IServerLevelAccessor) level).findLightningTargetAroundMethod(level.getBlockRandomPos(i, 0, j, 15));
-            } catch (Exception ignored) {
-                return null;
-            }
-        }
-
-        static int pickPos(int i) {
-            int lowerBound = minChunkDistance * 16 + 1;
-            int upperBound = maxChunkDistance * 16 - 1;
-
-            int rangeSize = (upperBound - lowerBound + 1) * 2;
-
-            int offsetIndex = random.nextInt(rangeSize);
-            int d = lowerBound + (offsetIndex / 2);
-            boolean positive = (offsetIndex % 2 == 0);
-
-            return positive ? i + d : i - d;
-        }
-
-        boolean shouldSpawn() {
-            return this.shouldSpawn && !this.interrupted;
-        }
-    }
-
-    private void execute(ServerSessionView session, ServerLevel level, Entity caster) {
+    private void execute(ServerSpellContext context, ServerLevel level) {
+        Entity caster = level.getEntity(context.getCaster().getEntityNetworkId());
         if (caster == null) {
             return;
         }
 
-        SessionDataValue<Vector3f> value = session.getDataStore().getValue(AllSessionDataKeys.firstPosition);
+        SessionDataValue<Vector3f> value = context.getDataStore().getValue(AllSessionDataKeys.firstPosition);
         if (value == null) {
             return;
         }
-        Vector3f pos = value.value;
+
+        Vector3f pos = value.getValue();
         level.explode(
                 caster,
                 pos.x,
@@ -190,7 +159,7 @@ public class ExplosionExecutor extends SpellExecutor {
                 false,
                 ServerLevel.ExplosionInteraction.BLOCK
         );
-        genParticleData(pos, caster, level);
+        this.genParticleData(pos, caster, level);
     }
 
     private void genParticleData(Vector3f pos, Entity casterEntity, ServerLevel level) {
@@ -274,7 +243,6 @@ public class ExplosionExecutor extends SpellExecutor {
                     .addProperty(AllEmitterProperties.SIZE_RANGE, new Vector2f(0.1f, 2.0f))
                     .addProperty(AllEmitterProperties.VELOCITY_MODE, VelocityModeStates.RADIAL_FROM_CENTER)
                     .addProperty(AllEmitterProperties.BASE_VELOCITY, new Vector3f(0, 10.0f, 0))
-//                    .addProperty(AllEmitterProperties.NORMAL, new Vector3f(0.0f, 1.0f, 0.0f))
                     .build();
 
             EmitterConfig config = new EmitterConfig(
@@ -291,11 +259,80 @@ public class ExplosionExecutor extends SpellExecutor {
             return;
         }
 
-        final double distance = 128.0D;
+        double distance = 128.0D;
         for (ServerPlayer player : level.players()) {
             if (player.distanceToSqr(position.x, position.y, position.z) < distance * distance) {
                 Networking.get().sendToPlayer(player, new S2CEffectSpawn(serverEffect.spawnData));
             }
+        }
+    }
+
+    private enum Stage {
+        CASTING,
+        CHANNELING,
+        IMPACT
+    }
+
+    static class LightningSpawner {
+        private static final float TICK_PER_SECOND = 1.0f / 20.0f;
+        private static final int MAX_CHUNK_DISTANCE = 5;
+        private static final int MIN_CHUNK_DISTANCE = 2;
+        private static final Random RANDOM = new Random();
+        private float nextSpawnInterval = RANDOM.nextFloat(1.0f, 5.0f);
+        private float currentTime = 0.0f;
+        private boolean shouldSpawn = false;
+        private boolean interrupted = false;
+
+        @Setter
+        private Vec3 center = Vec3.ZERO;
+
+        void tick() {
+            if (this.interrupted) {
+                return;
+            }
+            this.currentTime += TICK_PER_SECOND;
+            if (this.currentTime >= this.nextSpawnInterval) {
+                this.currentTime = 0.0f;
+                this.nextSpawnInterval = RANDOM.nextFloat(0.5f, 5.0f);
+                this.shouldSpawn = true;
+            }
+        }
+
+        void setInterrupted() {
+            this.interrupted = true;
+            this.shouldSpawn = false;
+        }
+
+        @Nullable
+        BlockPos getSpawnPosition(ServerLevel level) {
+            this.shouldSpawn = false;
+            try {
+                int x = pickPos((int) this.center.x);
+                int z = pickPos((int) this.center.z);
+                ChunkPos chunkPos = level.getChunk(x >> 4, z >> 4).getPos();
+                int i = chunkPos.getMinBlockX();
+                int j = chunkPos.getMinBlockZ();
+                return ((IServerLevelAccessor) level).findLightningTargetAroundMethod(level.getBlockRandomPos(i, 0, j, 15));
+            } catch (Exception ignored) {
+                return null;
+            }
+        }
+
+        static int pickPos(int i) {
+            int lowerBound = MIN_CHUNK_DISTANCE * 16 + 1;
+            int upperBound = MAX_CHUNK_DISTANCE * 16 - 1;
+            int rangeSize = (upperBound - lowerBound + 1) * 2;
+            int offsetIndex = RANDOM.nextInt(rangeSize);
+            int d = lowerBound + (offsetIndex / 2);
+            boolean positive = (offsetIndex % 2 == 0);
+            if (positive) {
+                return i + d;
+            }
+            return i - d;
+        }
+
+        boolean shouldSpawn() {
+            return this.shouldSpawn && !this.interrupted;
         }
     }
 }

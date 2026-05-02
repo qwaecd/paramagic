@@ -1,16 +1,18 @@
-package com.qwaecd.paramagic.spell.session.client;
+package com.qwaecd.paramagic.spell.arcane;
 
 import com.qwaecd.paramagic.assembler.AssemblyException;
 import com.qwaecd.paramagic.assembler.ParaComposer;
 import com.qwaecd.paramagic.client.animation.DefaultCircleAnim;
 import com.qwaecd.paramagic.feature.circle.MagicCircle;
 import com.qwaecd.paramagic.feature.circle.MagicCircleManager;
-import com.qwaecd.paramagic.spell.client.ClientSession;
-import com.qwaecd.paramagic.spell.config.CircleAssets;
-import com.qwaecd.paramagic.spell.core.SessionState;
+import com.qwaecd.paramagic.platform.annotation.PlatformScope;
+import com.qwaecd.paramagic.platform.annotation.PlatformScopeType;
+import com.qwaecd.paramagic.spell.client.CircleAssets;
+import com.qwaecd.paramagic.spell.client.ClientSpellContext;
+import com.qwaecd.paramagic.spell.client.SpellPresentation;
+import com.qwaecd.paramagic.spell.core.EndSpellReason;
 import com.qwaecd.paramagic.spell.util.transform.LambdaFunction;
 import com.qwaecd.paramagic.spell.view.CasterTransformSource;
-import com.qwaecd.paramagic.spell.view.HybridCasterSource;
 import org.joml.Vector3f;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,47 +20,56 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.Nonnull;
 import java.util.UUID;
 
-@Deprecated
-public class ArcSessionClient extends ClientSession {
-    private static final Logger LOGGER = LoggerFactory.getLogger(ArcSessionClient.class);
+@PlatformScope(PlatformScopeType.CLIENT)
+public class ArcanePresentation implements SpellPresentation {
+    private static final Logger LOGGER = LoggerFactory.getLogger(ArcanePresentation.class);
 
-    @Nonnull
-    private final MagicCircleHolder circleHolder;
+    private final MagicCircleHolder holder;
+    private boolean finished = false;
 
-    public ArcSessionClient(UUID sessionId, @Nonnull HybridCasterSource casterSource, CircleAssets assets) {
-        super(sessionId, casterSource);
-        this.circleHolder = new MagicCircleHolder(sessionId, assets, this.casterSource());
+    public ArcanePresentation(UUID sessionId, CasterTransformSource casterTransform, CircleAssets assets) {
+        this.holder = new MagicCircleHolder(sessionId, assets, casterTransform);
     }
 
     @Override
-    public void onTick(float deltaTime) {
-    }
-
-    public void init() {
-        this.circleHolder.init();
-    }
-
-    @Override
-    public boolean canRemoveFromManager() {
-        return !isState(SessionState.RUNNING);
+    public void onStart(ClientSpellContext context) {
+        this.finished = false;
+        this.holder.init();
     }
 
     @Override
-    public void close() {
-        super.close();
-        this.circleHolder.close();
+    public void tick(ClientSpellContext context) {
     }
 
-    public static class MagicCircleHolder {
+    @Override
+    public void onStop(ClientSpellContext context, EndSpellReason reason) {
+        this.holder.close();
+        this.finished = true;
+    }
+
+    @Override
+    public boolean canDispose() {
+        return this.finished;
+    }
+
+    @Override
+    public void dispose(ClientSpellContext context) {
+        this.holder.close();
+        this.finished = true;
+    }
+
+    static class MagicCircleHolder {
         @Nonnull
         final MagicCircle circle;
+        private boolean closed = false;
+
         public MagicCircleHolder(UUID sessionId, CircleAssets assets, CasterTransformSource source) {
             MagicCircle magicCircle;
             try {
                 magicCircle = ParaComposer.assemble(assets);
             } catch (AssemblyException e) {
                 magicCircle = new MagicCircle();
-                LOGGER.warn("Failed to assemble MagicCircle for ArcSessionClient. Session ID: {}, Error: {}", sessionId, e.getMessage());
+                LOGGER.warn("Failed to assemble MagicCircle for ArcanePresentation. Session ID: {}, Error: {}", sessionId, e.getMessage());
             }
 
             if (assets.getAnimBindingConfig() == null) {
@@ -84,7 +95,11 @@ public class ArcSessionClient extends ClientSession {
         }
 
         public void close() {
-            MagicCircleManager.getInstance().removeCircle(this.circle);
+            if (this.closed) {
+                return;
+            }
+            this.closed = true;
+            this.circle.requestDestroy();
         }
     }
 }

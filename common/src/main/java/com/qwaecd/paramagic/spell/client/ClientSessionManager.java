@@ -1,15 +1,7 @@
 package com.qwaecd.paramagic.spell.client;
 
-import com.qwaecd.paramagic.spell.BuiltinSpellId;
-import com.qwaecd.paramagic.spell.builtin.BuiltinSpellEntry;
-import com.qwaecd.paramagic.spell.builtin.BuiltinSpellRegistry;
-import com.qwaecd.paramagic.spell.builtin.client.BuiltinSpellVisualRegistry;
-import com.qwaecd.paramagic.spell.builtin.client.VisualEntry;
-import com.qwaecd.paramagic.spell.config.CircleAssets;
 import com.qwaecd.paramagic.spell.core.SpellSession;
 import com.qwaecd.paramagic.spell.core.SpellSessionRef;
-import com.qwaecd.paramagic.spell.session.client.ArcSessionClient;
-import com.qwaecd.paramagic.spell.session.client.MachineSessionClient;
 import com.qwaecd.paramagic.spell.util.CasterUtils;
 import com.qwaecd.paramagic.spell.view.HybridCasterSource;
 import com.qwaecd.paramagic.tools.ConditionalLogger;
@@ -65,12 +57,7 @@ public class ClientSessionManager {
     }
 
     @Nullable
-    public ArcSessionClient tryCreateArcSession(
-            Level level,
-            SpellSessionRef sessionRef,
-            CircleAssets assets,
-            Entity fallbackSource
-    ) {
+    public ClientSession tryCreatePresentationSession(Level level, SpellSessionRef sessionRef, @Nonnull SpellPresentation presentation, Entity fallbackSource) {
         Entity casterSource = CasterUtils.tryFindCaster(level, sessionRef);
         if (casterSource == null) {
             LOGGER.logIfDev(l ->
@@ -81,43 +68,23 @@ public class ClientSessionManager {
                     )
             );
         }
-        HybridCasterSource hybridCasterSource = HybridCasterSource.create(casterSource, fallbackSource);
 
-        ArcSessionClient session = new ArcSessionClient(sessionRef.serverSessionId, hybridCasterSource, assets);
+        HybridCasterSource hybridCasterSource = HybridCasterSource.create(casterSource, fallbackSource);
+        ClientSession session = new ClientSession(sessionRef.serverSessionId, presentation, hybridCasterSource);
         this.addSession(session);
+        session.start();
         return session;
     }
 
-    @Nullable
-    public MachineSessionClient tryCreateMachineSession(Level level, SpellSessionRef sessionRef, @Nonnull BuiltinSpellId spellId, Entity fallbackSource) {
-        Entity casterSource = CasterUtils.tryFindCaster(level, sessionRef);
-        if (casterSource == null) {
-            LOGGER.logIfDev(l ->
-                    l.warn("Failed to find caster for session {}: casterEntityUuid={}, casterNetworkId={}",
-                            sessionRef.serverSessionId,
-                            sessionRef.casterEntityUuid,
-                            sessionRef.casterNetworkId
-                    )
-            );
-        }
-
-        BuiltinSpellEntry bEntry = BuiltinSpellRegistry.getSpell(spellId);
-        VisualEntry vEntry = BuiltinSpellVisualRegistry.getSpell(spellId);
-        if (bEntry == null || vEntry == null) {
-            LOGGER.get().error("Cannot find built-in spell visual entry with id: {}", spellId);
-            return null;
-        }
-
-        HybridCasterSource hybridCasterSource = HybridCasterSource.create(casterSource, fallbackSource);
-        MachineSessionClient clientSession = new MachineSessionClient(
-                sessionRef.serverSessionId,
-                spellId,
-                hybridCasterSource,
-                bEntry.getSpell().createMachine(),
-                vEntry.createRenderer()
-        );
-        this.addSession(clientSession);
-        return clientSession;
+    public ClientSession createPresentationSession(
+            UUID sessionId,
+            @Nonnull SpellPresentation presentation,
+            @Nonnull HybridCasterSource hybridCasterSource
+    ) {
+        ClientSession session = new ClientSession(sessionId, presentation, hybridCasterSource);
+        this.addSession(session);
+        session.start();
+        return session;
     }
 
     private void addSession(ClientSession session) {

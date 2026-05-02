@@ -1,10 +1,9 @@
 package com.qwaecd.paramagic.world.item.feat;
 
 import com.qwaecd.paramagic.Paramagic;
-import com.qwaecd.paramagic.spell.api.SpellSpawner;
-import com.qwaecd.paramagic.spell.builtin.BuiltinSpellEntry;
-import com.qwaecd.paramagic.spell.builtin.BuiltinSpellRegistry;
-import com.qwaecd.paramagic.spell.builtin.explostion.ExplosionSpell;
+import com.qwaecd.paramagic.spell.builtin.BuiltinSpellCaster;
+import com.qwaecd.paramagic.spell.builtin.BuiltinSpellIds;
+import com.qwaecd.paramagic.spell.builtin.BuiltinSpellRuntimeRegistry;
 import com.qwaecd.paramagic.spell.caster.PlayerCaster;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionHand;
@@ -32,12 +31,11 @@ public class ExplosionWand extends Item {
         ItemStack itemstack = player.getItemInHand(usedHand);
 
         if (level instanceof ServerLevel serverLevel) {
-            BuiltinSpellEntry entry = BuiltinSpellRegistry.getSpell(ExplosionSpell.SPELL_ID);
-            if (entry == null) {
-                Paramagic.LOG.error("Failed to get Built-in Spell: {} from BuiltinSpellRegistry.", ExplosionSpell.SPELL_ID);
+            if (!BuiltinSpellRuntimeRegistry.contains(BuiltinSpellIds.EXPLOSION)) {
+                Paramagic.LOG.error("Failed to get built-in spell runtime: {}", BuiltinSpellIds.EXPLOSION);
                 return InteractionResultHolder.fail(itemstack);
             }
-            SpellSpawner.spawnInternalOnServer(serverLevel, PlayerCaster.create(player), ExplosionSpell.SPELL_ID);
+            BuiltinSpellCaster.castOnServer(serverLevel, PlayerCaster.create(player), BuiltinSpellIds.EXPLOSION);
         }
         player.startUsingItem(usedHand);
         return InteractionResultHolder.consume(itemstack);

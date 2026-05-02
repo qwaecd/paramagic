@@ -3,11 +3,6 @@ package com.qwaecd.paramagic.spell.server;
 import com.qwaecd.paramagic.mixinapi.IServerLevel;
 import com.qwaecd.paramagic.spell.caster.SpellCaster;
 import com.qwaecd.paramagic.spell.core.SpellSession;
-import com.qwaecd.paramagic.spell.session.server.ArcSessionServer;
-import com.qwaecd.paramagic.spell.session.server.MachineSessionServer;
-import com.qwaecd.paramagic.spell.session.server.SpellExecutor;
-import com.qwaecd.paramagic.spell.state.SpellStateMachine;
-import com.qwaecd.paramagic.thaumaturgy.node.ParaTree;
 import com.qwaecd.paramagic.tools.ConditionalLogger;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
@@ -40,34 +35,18 @@ public class ServerSessionManager {
     }
 
     @Nullable
-    public MachineSessionServer tryCreateMachineSession(
+    public ServerSession tryCreateRuntimeSession(
             ServerLevel level,
             SpellCaster caster,
-            SpellStateMachine machine,
-            SpellExecutor executor
+            SpellRuntime runtime
     ) {
         if (!caster.canStartSession(this)) {
             return null;
         }
 
-        MachineSessionServer serverSession = new MachineSessionServer(UUID.randomUUID(), caster, machine, executor, level);
-        this.addSession(serverSession);
-        return serverSession;
-    }
-
-    @Nullable
-    public ArcSessionServer tryCreateArcSession(
-            ServerLevel level,
-            SpellCaster caster,
-            ParaTree tree
-    ) {
-        if (!caster.canStartSession(this)) {
-            return null;
-        }
-
-        ArcSessionServer serverSession = new ArcSessionServer(UUID.randomUUID(), caster, level, tree);
-        this.addSession(serverSession);
-        return serverSession;
+        ServerSession session = new ServerSession(runtime, caster, level);
+        this.addSession(session);
+        return session;
     }
 
     @Nonnull

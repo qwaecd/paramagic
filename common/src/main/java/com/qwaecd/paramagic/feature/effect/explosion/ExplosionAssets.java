@@ -1,7 +1,7 @@
 package com.qwaecd.paramagic.feature.effect.explosion;
 
 import com.qwaecd.paramagic.data.para.struct.ParaData;
-import com.qwaecd.paramagic.spell.config.CircleAssets;
+import com.qwaecd.paramagic.spell.client.CircleAssets;
 
 public final class ExplosionAssets {
     public static CircleAssets create() {

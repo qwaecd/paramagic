@@ -15,7 +15,7 @@ public abstract class SpellSession {
     @Getter
     protected final SessionDataStore dataStore = new SessionDataStore();
 
-    private SpellSession(UUID sessionId) {
+    protected SpellSession(UUID sessionId) {
         this.sessionId = sessionId;
         this.sessionState = SessionState.RUNNING;
     }

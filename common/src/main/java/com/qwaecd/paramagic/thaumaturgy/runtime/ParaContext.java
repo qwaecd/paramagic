@@ -1,7 +1,7 @@
 package com.qwaecd.paramagic.thaumaturgy.runtime;
 
 import com.qwaecd.paramagic.spell.caster.SpellCaster;
-import com.qwaecd.paramagic.spell.server.ServerSession;
+import com.qwaecd.paramagic.spell.server.ServerSpellContext;
 import com.qwaecd.paramagic.thaumaturgy.ProjectileEntity;
 import com.qwaecd.paramagic.thaumaturgy.operator.OperatorType;
 import com.qwaecd.paramagic.thaumaturgy.operator.ParaOperator;
@@ -16,20 +16,21 @@ import java.util.*;
 public final class ParaContext {
     @Getter
     @Nonnull
-    public final ServerSession session;
+    private final ServerSpellContext spellContext;
     @Getter
     @Nonnull
     public final ServerLevel level;
     @Getter
+    @Nonnull
     public final SpellCaster caster;
     private final Map<OperatorType, List<ParaOperator>> operators = new EnumMap<>(OperatorType.class);
     private final List<ParaOperator> appliedModifiers = new ArrayList<>();
     private final List<ProjectileEntity> projectiles = new ArrayList<>();
 
-    public ParaContext(@Nonnull ServerSession session, @Nonnull ServerLevel level, SpellCaster caster) {
-        this.session = session;
-        this.level = level;
-        this.caster = caster;
+    public ParaContext(@Nonnull ServerSpellContext context) {
+        this.spellContext = context;
+        this.level = context.getLevel();
+        this.caster = context.getCaster();
     }
 
     public void execute() {
