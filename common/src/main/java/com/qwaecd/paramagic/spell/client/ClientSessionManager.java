@@ -1,6 +1,5 @@
 package com.qwaecd.paramagic.spell.client;
 
-import com.qwaecd.paramagic.spell.core.SpellSession;
 import com.qwaecd.paramagic.spell.core.SpellSessionRef;
 import com.qwaecd.paramagic.spell.util.CasterUtils;
 import com.qwaecd.paramagic.spell.view.HybridCasterSource;
@@ -109,7 +108,8 @@ public class ClientSessionManager {
         this.sessions.remove(session.getSessionId());
     }
 
-    public SpellSession getSession(UUID sessionId) {
+    @Nullable
+    public ClientSession getSession(UUID sessionId) {
         return this.sessions.get(sessionId);
     }
 

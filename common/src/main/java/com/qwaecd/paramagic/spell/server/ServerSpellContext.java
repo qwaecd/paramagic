@@ -1,7 +1,6 @@
 package com.qwaecd.paramagic.spell.server;
 
 import com.qwaecd.paramagic.spell.caster.SpellCaster;
-import com.qwaecd.paramagic.spell.core.EndSpellReason;
 import com.qwaecd.paramagic.spell.core.store.SessionDataStore;
 import net.minecraft.server.level.ServerLevel;
 
@@ -18,11 +17,6 @@ public final class ServerSpellContext {
     @Nonnull
     public ServerSession getSession() {
         return this.session;
-    }
-
-    @Nonnull
-    public EndSpellReason defaultStopReason() {
-        return EndSpellReason.COMPLETED;
     }
 
     @Nonnull

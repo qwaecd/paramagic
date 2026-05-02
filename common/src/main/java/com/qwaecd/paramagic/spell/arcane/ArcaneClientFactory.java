@@ -1,5 +1,7 @@
 package com.qwaecd.paramagic.spell.arcane;
 
+import com.qwaecd.paramagic.network.Networking;
+import com.qwaecd.paramagic.network.packet.session.C2SSessionAttachPacket;
 import com.qwaecd.paramagic.platform.annotation.PlatformScope;
 import com.qwaecd.paramagic.platform.annotation.PlatformScopeType;
 import com.qwaecd.paramagic.spell.client.CircleAssets;
@@ -23,7 +25,7 @@ public final class ArcaneClientFactory {
     @Nullable
     public static ClientSession spawnOnClient(Level level, SpellSessionRef sessionRef, CircleAssets circleAssets, Entity fallbackSource) {
         ClientSessionManager manager = SessionManagers.getForClient();
-        ClientSession existingSession = (ClientSession) manager.getSession(sessionRef.serverSessionId);
+        ClientSession existingSession = manager.getSession(sessionRef.serverSessionId);
         if (existingSession != null) {
             Entity casterSource = CasterUtils.tryFindCaster(level, sessionRef);
             if (casterSource != null) {
@@ -35,6 +37,8 @@ public final class ArcaneClientFactory {
         Entity casterSource = CasterUtils.tryFindCaster(level, sessionRef);
         HybridCasterSource hybridCasterSource = HybridCasterSource.create(casterSource, fallbackSource);
         SpellPresentation presentation = new ArcanePresentation(sessionRef.serverSessionId, hybridCasterSource, circleAssets);
-        return manager.createPresentationSession(sessionRef.serverSessionId, presentation, hybridCasterSource);
+        ClientSession session = manager.createPresentationSession(sessionRef.serverSessionId, presentation, hybridCasterSource);
+        Networking.get().sendToServer(new C2SSessionAttachPacket(sessionRef.serverSessionId));
+        return session;
     }
 }

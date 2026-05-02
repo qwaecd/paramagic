@@ -7,8 +7,6 @@ import com.qwaecd.paramagic.spell.BuiltinSpellId;
 import com.qwaecd.paramagic.spell.SpellUnion;
 import com.qwaecd.paramagic.spell.arcane.ArcaneClientFactory;
 import com.qwaecd.paramagic.spell.builtin.client.BuiltinSpellClientFactory;
-import com.qwaecd.paramagic.spell.client.ClientSession;
-import com.qwaecd.paramagic.spell.core.SessionManagers;
 import com.qwaecd.paramagic.spell.server.ServerSession;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
@@ -82,18 +80,6 @@ public class SpellAnchorEntity extends Entity {
             BuiltinSpellClientFactory.spawnOnClient(this.level(), spellUnion.getSessionRef(), builtinId, this);
         } else {
             ArcaneClientFactory.spawnOnClient(this.level(), spellUnion.getSessionRef(), spellUnion.getCircleAssets(), this);
-        }
-    }
-
-    @Override
-    public void onClientRemoval() {
-        Optional<SpellUnion> spellUnion = this.entityData.get(OPTIONAL_SPELL_UNION);
-        if (spellUnion.isEmpty()) {
-            return;
-        }
-        ClientSession session = (ClientSession) SessionManagers.getForClient().getSession(spellUnion.get().getSessionRef().getServerSessionId());
-        if (session != null) {
-            session.interrupt();
         }
     }
 

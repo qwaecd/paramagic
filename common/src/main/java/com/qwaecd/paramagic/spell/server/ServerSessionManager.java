@@ -2,7 +2,6 @@ package com.qwaecd.paramagic.spell.server;
 
 import com.qwaecd.paramagic.mixinapi.IServerLevel;
 import com.qwaecd.paramagic.spell.caster.SpellCaster;
-import com.qwaecd.paramagic.spell.core.SpellSession;
 import com.qwaecd.paramagic.tools.ConditionalLogger;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
@@ -29,9 +28,11 @@ public class ServerSessionManager {
     public ServerSessionManager(ServerLevel level) {
         this.levelRef = new WeakReference<>(level);
         this.levelKey = level.dimension();
-
-        IServerLevel callbackRegister = (IServerLevel) level;
-        callbackRegister.registerOnLevelTick(this::tickAll);
+        if (level instanceof IServerLevel callbackRegister) {
+            callbackRegister.registerOnLevelTick(this::tickAll);
+        } else {
+            LOGGER.get().warn("The level {} does not implement IServerLevel, spell sessions will not tick!", this.levelKey);
+        }
     }
 
     @Nullable
@@ -63,7 +64,6 @@ public class ServerSessionManager {
         return Collections.unmodifiableSet(sessionSet);
     }
 
-    @SuppressWarnings("SameParameterValue")
     private void tickAll(final ServerLevel serverLevel) {
         this.flushPendingRemovals();
 
@@ -71,8 +71,9 @@ public class ServerSessionManager {
             ServerSession session = entry.getValue();
             try {
                 if (!session.getCaster().shouldContinueSession(this) && !session.disconnected) {
-                    session.disconnected = true;
-                    session.casterDisconnected();
+                    if (session.interrupt()) {
+                        session.disconnected = true;
+                    }
                 }
 
                 if (session.canRemoveFromManager()) {
@@ -117,7 +118,8 @@ public class ServerSessionManager {
         }
     }
 
-    public SpellSession getSession(UUID sessionId) {
+    @Nullable
+    public ServerSession getSession(UUID sessionId) {
         return this.sessions.get(sessionId);
     }
 }
