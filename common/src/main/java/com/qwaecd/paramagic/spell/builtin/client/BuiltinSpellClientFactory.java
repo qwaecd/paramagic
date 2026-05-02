@@ -3,6 +3,7 @@ package com.qwaecd.paramagic.spell.builtin.client;
 import com.qwaecd.paramagic.platform.annotation.PlatformScope;
 import com.qwaecd.paramagic.platform.annotation.PlatformScopeType;
 import com.qwaecd.paramagic.spell.BuiltinSpellId;
+import com.qwaecd.paramagic.spell.api.AllPresentations;
 import com.qwaecd.paramagic.spell.client.ClientSession;
 import com.qwaecd.paramagic.spell.client.ClientSessionManager;
 import com.qwaecd.paramagic.spell.client.SpellPresentation;
@@ -21,7 +22,7 @@ public final class BuiltinSpellClientFactory {
 
     @Nullable
     public static ClientSession spawnOnClient(Level level, SpellSessionRef sessionRef, BuiltinSpellId spellId, Entity fallbackSource) {
-        SpellPresentation presentation = BuiltinSpellPresentationRegistry.create(spellId);
+        SpellPresentation presentation = AllPresentations.create(spellId);
         if (presentation == null) {
             return null;
         }

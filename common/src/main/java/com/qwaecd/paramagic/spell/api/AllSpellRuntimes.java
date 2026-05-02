@@ -1,8 +1,9 @@
-package com.qwaecd.paramagic.spell.builtin;
+package com.qwaecd.paramagic.spell.api;
 
 import com.qwaecd.paramagic.platform.annotation.PlatformScope;
 import com.qwaecd.paramagic.platform.annotation.PlatformScopeType;
 import com.qwaecd.paramagic.spell.BuiltinSpellId;
+import com.qwaecd.paramagic.spell.builtin.AllBuiltinSpellIds;
 import com.qwaecd.paramagic.spell.builtin.explostion.ExplosionSpellRuntime;
 import com.qwaecd.paramagic.spell.server.SpellRuntime;
 
@@ -12,20 +13,20 @@ import java.util.Map;
 import java.util.function.Supplier;
 
 @PlatformScope(PlatformScopeType.COMMON)
-public final class BuiltinSpellRuntimeRegistry {
-    private static BuiltinSpellRuntimeRegistry INSTANCE;
+public final class AllSpellRuntimes {
+    private static AllSpellRuntimes INSTANCE;
 
     private final Map<BuiltinSpellId, Supplier<SpellRuntime>> registry = new HashMap<>();
 
     public static void init() {
         if (INSTANCE == null) {
-            INSTANCE = new BuiltinSpellRuntimeRegistry();
+            INSTANCE = new AllSpellRuntimes();
             registerAll();
         }
     }
 
     private static void registerAll() {
-        register(BuiltinSpellIds.EXPLOSION, ExplosionSpellRuntime::new);
+        register(AllBuiltinSpellIds.EXPLOSION, ExplosionSpellRuntime::new);
     }
 
     public static synchronized void register(BuiltinSpellId spellId, Supplier<SpellRuntime> runtimeFactory) {

@@ -5,7 +5,7 @@ import com.qwaecd.paramagic.data.para.AllParaComponentData;
 import com.qwaecd.paramagic.datagen.Lang;
 import com.qwaecd.paramagic.network.codec.codable.CodableTypeRegistry;
 import com.qwaecd.paramagic.platform.Services;
-import com.qwaecd.paramagic.spell.builtin.BuiltinSpellRuntimeRegistry;
+import com.qwaecd.paramagic.spell.api.AllSpellRuntimes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,7 +23,7 @@ public class Paramagic {
 		CodableTypeRegistry.init();
 		AllParaComponentData.registerAll();
 		AllEmitterProperties.registerAll();
-		BuiltinSpellRuntimeRegistry.init();
+		AllSpellRuntimes.init();
 	}
 
 	public static boolean isDevEnv() {

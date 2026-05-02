@@ -14,7 +14,7 @@ import com.qwaecd.paramagic.data.para.struct.components.RingParaData;
 import com.qwaecd.paramagic.data.para.util.ParaComponentBuilder;
 import com.qwaecd.paramagic.feature.circle.MagicCircle;
 import com.qwaecd.paramagic.feature.circle.MagicCircleManager;
-import com.qwaecd.paramagic.spell.builtin.BuiltinSpellIds;
+import com.qwaecd.paramagic.spell.builtin.AllBuiltinSpellIds;
 import com.qwaecd.paramagic.spell.client.CircleAssets;
 import com.qwaecd.paramagic.spell.client.ClientSpellContext;
 import com.qwaecd.paramagic.spell.client.SpellPresentation;
@@ -106,7 +106,7 @@ public class ExplosionSpellPresentation implements SpellPresentation {
             this.remoteCircle = ParaComposer.assemble(RemoteCircleData.create());
             this.remoteCircle.getTransform().setPosition(pos.x, pos.y + 0.01f, pos.z);
         } catch (Exception e) {
-            LOGGER.error("Failed to create {} spell visual: ", BuiltinSpellIds.EXPLOSION, e);
+            LOGGER.error("Failed to create {} spell visual: ", AllBuiltinSpellIds.EXPLOSION, e);
             return;
         }
         MagicCircleManager.getInstance().addCircle(this.remoteCircle);

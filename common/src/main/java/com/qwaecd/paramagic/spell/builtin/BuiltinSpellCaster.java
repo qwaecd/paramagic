@@ -4,6 +4,7 @@ import com.qwaecd.paramagic.platform.annotation.PlatformScope;
 import com.qwaecd.paramagic.platform.annotation.PlatformScopeType;
 import com.qwaecd.paramagic.spell.BuiltinSpellId;
 import com.qwaecd.paramagic.spell.SpellUnion;
+import com.qwaecd.paramagic.spell.api.AllSpellRuntimes;
 import com.qwaecd.paramagic.spell.caster.SpellCaster;
 import com.qwaecd.paramagic.spell.core.SessionManagers;
 import com.qwaecd.paramagic.spell.core.SpellSessionRef;
@@ -28,7 +29,7 @@ public final class BuiltinSpellCaster {
 
     @Nullable
     public static ServerSession castOnServer(ServerLevel level, SpellCaster caster, BuiltinSpellId spellId) {
-        SpellRuntime runtime = BuiltinSpellRuntimeRegistry.create(spellId);
+        SpellRuntime runtime = AllSpellRuntimes.create(spellId);
         if (runtime == null) {
             return null;
         }

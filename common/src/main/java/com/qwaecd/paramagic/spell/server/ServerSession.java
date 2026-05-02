@@ -16,7 +16,6 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.players.PlayerList;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.lang.ref.WeakReference;
 import java.util.*;
 import java.util.function.Consumer;
@@ -24,7 +23,7 @@ import java.util.function.Consumer;
 public class ServerSession extends SpellSession implements AutoCloseable {
     private static final ConditionalLogger LOGGER = ConditionalLogger.create(ServerSession.class);
 
-    @Nullable
+    @Nonnull
     private final SpellRuntime spell;
     protected final ServerLevel level;
     protected final int trackingDistance;
@@ -57,23 +56,12 @@ public class ServerSession extends SpellSession implements AutoCloseable {
         this.context = new ServerSpellContext(this);
     }
 
-    protected ServerSession(@Nonnull UUID sessionId, @Nonnull SpellCaster caster, ServerLevel level) {
-        super(sessionId);
-        this.spell = null;
-        this.caster = caster;
-        this.level = level;
-        this.trackingDistance = this.level.getServer().getPlayerList().getSimulationDistance() * 16;
-        this.context = new ServerSpellContext(this);
-    }
-
     public void start() {
         if (this.started) {
             return;
         }
         this.started = true;
-        if (this.spell != null) {
-            this.spell.onStart(this.context);
-        }
+        this.spell.onStart(this.context);
     }
 
     public void tick() {
@@ -81,22 +69,13 @@ public class ServerSession extends SpellSession implements AutoCloseable {
             this.start();
         }
 
-        if (this.spell != null) {
-            if (this.isState(SessionState.RUNNING)) {
-                this.spell.tick(this.context);
-            }
-
-            if (this.spell.isFinished()) {
-                this.setSessionState(SessionState.DISPOSED);
-            }
-            return;
+        if (this.isState(SessionState.RUNNING)) {
+            this.spell.tick(this.context);
         }
 
-        this.tickOnLevel(this.level, 1.0f / 20.0f);
-    }
-
-    @Deprecated
-    public void tickOnLevel(ServerLevel level, float deltaTime) {
+        if (this.spell.isFinished()) {
+            this.setSessionState(SessionState.DISPOSED);
+        }
     }
 
     public void casterDisconnected() {
@@ -106,16 +85,11 @@ public class ServerSession extends SpellSession implements AutoCloseable {
     @Override
     public void interrupt() {
         super.interrupt();
-        if (this.spell != null) {
-            this.spell.interrupt(this.context, EndSpellReason.INTERRUPTED);
-        }
+        this.spell.interrupt(this.context, EndSpellReason.INTERRUPTED);
     }
 
     @Override
     public boolean canRemoveFromManager() {
-        if (this.spell == null) {
-            return super.canRemoveFromManager();
-        }
         return this.spell.isFinished() && super.canRemoveFromManager();
     }
 
@@ -168,9 +142,7 @@ public class ServerSession extends SpellSession implements AutoCloseable {
 
     @Override
     public void close() {
-        if (this.spell != null) {
-            this.spell.dispose(this.context);
-        }
+        this.spell.dispose(this.context);
         for (WeakReference<SpellAnchorEntity> anchorRef : this.anchors) {
             Optional.ofNullable(anchorRef.get()).ifPresentOrElse(SpellAnchorEntity::discard, () ->
                     LOGGER.logIfDev(l -> l.warn("SpellAnchorEntity has been garbage collected before session close."))

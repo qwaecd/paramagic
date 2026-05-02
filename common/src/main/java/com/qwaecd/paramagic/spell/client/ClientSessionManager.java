@@ -57,7 +57,12 @@ public class ClientSessionManager {
     }
 
     @Nullable
-    public ClientSession tryCreatePresentationSession(Level level, SpellSessionRef sessionRef, @Nonnull SpellPresentation presentation, Entity fallbackSource) {
+    public ClientSession tryCreatePresentationSession(
+            Level level,
+            SpellSessionRef sessionRef,
+            @Nonnull SpellPresentation presentation,
+            Entity fallbackSource
+    ) {
         Entity casterSource = CasterUtils.tryFindCaster(level, sessionRef);
         if (casterSource == null) {
             LOGGER.logIfDev(l ->
