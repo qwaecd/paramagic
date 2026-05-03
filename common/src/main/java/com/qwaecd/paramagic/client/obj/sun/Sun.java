@@ -1,7 +1,7 @@
 package com.qwaecd.paramagic.client.obj.sun;
 
 import com.qwaecd.paramagic.client.material.SunMaterial;
-import com.qwaecd.paramagic.client.renderbase.prototype.SpherePrototype;
+import com.qwaecd.paramagic.client.renderbase.SharedMeshes;
 import com.qwaecd.paramagic.core.render.Transform;
 import com.qwaecd.paramagic.core.render.api.IRenderable;
 import com.qwaecd.paramagic.core.render.shader.Shader;
@@ -14,7 +14,7 @@ public class Sun implements IRenderable {
     private final Transform transform;
 
     public Sun(Shader shader) {
-        this.mesh = SpherePrototype.getINSTANCE().getMesh();
+        this.mesh = SharedMeshes.sphere();
         this.transform = new Transform();
         this.material = new SunMaterial(shader);
     }

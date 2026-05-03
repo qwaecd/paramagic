@@ -1,6 +1,6 @@
 package com.qwaecd.paramagic.core.render.post;
 
-import com.qwaecd.paramagic.client.renderbase.factory.FullScreenQuadFactory;
+import com.qwaecd.paramagic.client.renderbase.SharedMeshes;
 import com.qwaecd.paramagic.core.render.shader.Shader;
 import com.qwaecd.paramagic.core.render.shader.ShaderManager;
 import com.qwaecd.paramagic.core.render.vertex.Mesh;
@@ -13,7 +13,7 @@ public class FinalComposePass implements AutoCloseable {
 
     public void initialize() {
         this.composeShader = ShaderManager.getInstance().getShaderThrowIfNotFound("final_compose");
-        this.fullscreenQuad = FullScreenQuadFactory.createFullscreenQuad();
+        this.fullscreenQuad = SharedMeshes.fullscreenQuad();
     }
 
     public void combine(int hdrSceneTextureId, int gameSceneTextureId, float exposure, boolean gammaCorrection) {

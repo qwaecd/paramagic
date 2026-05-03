@@ -1,7 +1,7 @@
 package com.qwaecd.paramagic.core.render.post;
 
 import com.mojang.blaze3d.pipeline.RenderTarget;
-import com.qwaecd.paramagic.client.renderbase.factory.FullScreenQuadFactory;
+import com.qwaecd.paramagic.client.renderbase.SharedMeshes;
 import com.qwaecd.paramagic.core.render.context.RenderContext;
 import com.qwaecd.paramagic.core.render.geometricmask.*;
 import com.qwaecd.paramagic.core.render.post.buffer.ColorDepthFramebuffer;
@@ -41,7 +41,7 @@ public class ScreenSpaceEffectManager implements AutoCloseable {
     public void initialize(int width, int height) {
         this.pingFbo = new SingleTargetFramebuffer(width, height);
         this.pongFbo = new SingleTargetFramebuffer(width, height);
-        this.fullscreenQuad = FullScreenQuadFactory.createFullscreenQuad();
+        this.fullscreenQuad = SharedMeshes.fullscreenQuad();
     }
 
     public void onResize(int newWidth, int newHeight) {

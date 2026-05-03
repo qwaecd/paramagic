@@ -4,8 +4,8 @@ import com.qwaecd.paramagic.Paramagic;
 import com.qwaecd.paramagic.assembler.AssemblyException;
 import com.qwaecd.paramagic.assembler.ParaComposer;
 import com.qwaecd.paramagic.client.obj.sun.Sun;
-import com.qwaecd.paramagic.client.renderbase.factory.SphereFactory;
-import com.qwaecd.paramagic.client.renderbase.prototype.SpherePrototype;
+import com.qwaecd.paramagic.client.renderbase.SharedMeshes;
+import com.qwaecd.paramagic.client.renderbase.Sphere;
 import com.qwaecd.paramagic.core.particle.ParticleSystem;
 import com.qwaecd.paramagic.core.particle.builder.PhysicsParamBuilder;
 import com.qwaecd.paramagic.core.particle.effect.GPUParticleEffect;
@@ -48,9 +48,8 @@ public class DebugTools {
     private static final List<GPUParticleEffect> testEffects = new ArrayList<>();
     public static void test() {
         IRenderable ball;
-        SphereFactory sphereFactory = new SphereFactory();
         Material material = new Material(ShaderManager.getInstance().getBaseBallInShader());
-        ball = sphereFactory.withMaterial(material).createInstance();
+        ball = new Sphere(material);
         ball.getTransform().getModelMatrix().translate(0, 100, 0).scale(4.0f, 4.0f, 4.0f);
 //        ModRenderSystem.getInstance().addRenderable(ball);
 
@@ -82,7 +81,7 @@ public class DebugTools {
             float r = 16.0f;
             transform.setPosition(15.0f, -30.0f, 0.0f).setScale(r, r, r);
             GeometricEffectCaster caster = new GeometricEffectCaster(
-                    SpherePrototype.getINSTANCE().getMesh(),
+                    SharedMeshes.sphere(),
                     transform,
                     effect
             );
@@ -98,7 +97,7 @@ public class DebugTools {
             float r = 4.0f;
             transform.setPosition(0.0f, -30.0f, 0.0f).setScale(r, r, r);
             GeometricEffectCaster caster = new GeometricEffectCaster(
-                    SpherePrototype.getINSTANCE().getMesh(),
+                    SharedMeshes.sphere(),
                     transform,
                     effect
             );

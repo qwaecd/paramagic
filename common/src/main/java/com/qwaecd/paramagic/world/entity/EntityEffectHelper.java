@@ -1,6 +1,6 @@
 package com.qwaecd.paramagic.world.entity;
 
-import com.qwaecd.paramagic.client.renderbase.prototype.SpherePrototype;
+import com.qwaecd.paramagic.client.renderbase.SharedMeshes;
 import com.qwaecd.paramagic.core.render.ModRenderSystem;
 import com.qwaecd.paramagic.core.render.Transform;
 import com.qwaecd.paramagic.core.render.geometricmask.DistortionGeometricMaskEffect;
@@ -27,7 +27,7 @@ public final class EntityEffectHelper {
         transform.setPosition((float) entity.getX(), (float) entity.getY(), (float) entity.getZ());
         transform.setScale(entity.getDistortionRadius());
         GeometricEffectCaster caster = new GeometricEffectCaster(
-                SpherePrototype.getINSTANCE().getMesh(),
+                SharedMeshes.sphere(),
                 transform,
                 effect
         );
