@@ -1,6 +1,12 @@
 package com.qwaecd.paramagic.spell.builtin.explostion;
 
 import com.qwaecd.paramagic.assembler.ParaComposer;
+import com.qwaecd.paramagic.core.particle.ParticleSystem;
+import com.qwaecd.paramagic.core.particle.builder.PhysicsParamBuilder;
+import com.qwaecd.paramagic.core.particle.effect.GPUParticleEffect;
+import com.qwaecd.paramagic.core.particle.emitter.Emitter;
+import com.qwaecd.paramagic.core.particle.emitter.impl.LineEmitter;
+import com.qwaecd.paramagic.core.particle.emitter.property.type.VelocityModeStates;
 import com.qwaecd.paramagic.data.animation.property.AllAnimatableProperties;
 import com.qwaecd.paramagic.data.animation.struct.AnimationBinding;
 import com.qwaecd.paramagic.data.animation.struct.AnimationBindingConfig;
@@ -33,7 +39,14 @@ import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.qwaecd.paramagic.core.particle.emitter.property.key.AllEmitterProperties.*;
+
+import static com.qwaecd.paramagic.core.particle.emitter.property.key.AllEmitterProperties.BASE_VELOCITY;
+import static com.qwaecd.paramagic.core.particle.emitter.property.key.AllEmitterProperties.BLOOM_INTENSITY;
+import static com.qwaecd.paramagic.core.particle.emitter.property.key.AllEmitterProperties.COLOR;
+import static com.qwaecd.paramagic.core.particle.emitter.property.key.AllEmitterProperties.VELOCITY_MODE;
 import static com.qwaecd.paramagic.data.animation.property.AllAnimatableProperties.*;
+import static com.qwaecd.paramagic.data.animation.property.AllAnimatableProperties.POSITION;
 import static com.qwaecd.paramagic.spell.builtin.explostion.ExplosionSpellRuntime.CASTING_TICKS;
 import static com.qwaecd.paramagic.spell.builtin.explostion.ExplosionSpellRuntime.CHANNELING_TICKS;
 
@@ -47,6 +60,9 @@ public class ExplosionSpellPresentation implements SpellPresentation {
     private final AroundPlayerCircleHolder aroundPlayerCircleHolder = new AroundPlayerCircleHolder();
 
     private final ExplosionGPUEffect effect = new ExplosionGPUEffect();
+
+    @Nullable
+    private GPUParticleEffect canReleaseEffect;
 
     private int elapsedTicks = 0;
     private boolean frontBuilt = false;
@@ -74,11 +90,35 @@ public class ExplosionSpellPresentation implements SpellPresentation {
             this.createRemoteCircle(context);
         }
         this.effect.tick(context);
-
-        if (this.elapsedTicks >= TOTAL_TICKS) {
-            this.cleanup();
-            this.finished = true;
+        if (this.elapsedTicks >= TOTAL_TICKS && this.canReleaseEffect == null) {
+            Emitter emitter = createEmitter(context);
+            if (emitter != null) {
+                PhysicsParamBuilder builder = new PhysicsParamBuilder();
+                builder.linearForceEnabled(true)
+                        .linearForce(0.0f, 0.3f, 0.0f)
+                        .dragCoefficient(0.2f);
+                this.canReleaseEffect = new GPUParticleEffect(List.of(emitter), 10_000, -1, builder.build());
+                ParticleSystem.getInstance().spawnEffect(this.canReleaseEffect);
+            }
         }
+    }
+
+    @Nullable
+    private static Emitter createEmitter(ClientSpellContext context) {
+        SessionDataValue<Vector3f> value = context.getDataStore().getValue(AllSessionDataKeys.firstPosition);
+        if (value == null) {
+            return null;
+        }
+        Vector3f pos = value.getValue();
+        LineEmitter emitter = new LineEmitter(pos, 1000.0f);
+        emitter.modifyProp(COLOR, v -> v.set(1.2f, 0.5f, 0.8f, 1.0f));
+        emitter.modifyProp(LIFE_TIME_RANGE, v -> v.set(1.1f, 3.4f));
+        emitter.modifyProp(SIZE_RANGE, v -> v.set(1.04f, 4.16f));
+        emitter.modifyProp(END_POSITION, v -> v.set(pos.x, pos.y + 10.0f * 3.2f, pos.z));
+        emitter.trySet(BLOOM_INTENSITY, 0.4f);
+        emitter.trySet(VELOCITY_MODE, VelocityModeStates.RANDOM);
+        emitter.modifyProp(BASE_VELOCITY, v -> v.set(3.8f));
+        return emitter;
     }
 
     @Override
@@ -127,6 +167,26 @@ public class ExplosionSpellPresentation implements SpellPresentation {
         this.aroundPlayerCircleHolder.close();
         this.effect.cleanup();
         this.frontBuilt = false;
+        if (this.canReleaseEffect != null) {
+            this.canReleaseEffect.setConsumer(new GPUParticleEffect.EffectConsumer() {
+                private float elapsedTime = 0.0f;
+                private boolean flag = false;
+                @Override
+                public void accept(GPUParticleEffect effect, float deltaTime) {
+                    this.elapsedTime += deltaTime;
+                    if (!flag) {
+                        effect.setShouldUpdateEmitter(false);
+                        effect.getPhysicsParameter()
+                                .setLinearForce(0.0f, 0.8f, 0.0f);
+                        flag = true;
+                    }
+                    if (this.elapsedTime >= 8.0f) {
+                        ParticleSystem.getInstance().removeEffect(effect);
+                    }
+                }
+            });
+            this.canReleaseEffect = null;
+        }
     }
 
     static class AroundPlayerCircleHolder {
