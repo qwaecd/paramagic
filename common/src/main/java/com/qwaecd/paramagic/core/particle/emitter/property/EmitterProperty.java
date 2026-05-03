@@ -70,6 +70,10 @@ public class EmitterProperty<T> {
         }
     }
 
+    public void markDirty() {
+        this.isDirty = true;
+    }
+
     @FunctionalInterface
     public interface PropertyUpdater<T> {
         void accept(EmissionRequest req, T value);

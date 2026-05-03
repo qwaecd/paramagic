@@ -33,15 +33,20 @@ import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.qwaecd.paramagic.data.animation.property.AllAnimatableProperties.*;
+import static com.qwaecd.paramagic.spell.builtin.explostion.ExplosionSpellRuntime.CASTING_TICKS;
+import static com.qwaecd.paramagic.spell.builtin.explostion.ExplosionSpellRuntime.CHANNELING_TICKS;
+
 public class ExplosionSpellPresentation implements SpellPresentation {
     private static final Logger LOGGER = LoggerFactory.getLogger(ExplosionSpellPresentation.class);
-    private static final int CASTING_TICKS = 20 * 3;
-    private static final int TOTAL_TICKS = CASTING_TICKS + 20 * 8;
+    private static final int TOTAL_TICKS = CASTING_TICKS + CHANNELING_TICKS;
 
     @Nullable
     private MagicCircle remoteCircle;
 
-    private final AroundPlayerCircle aroundPlayerCircle = new AroundPlayerCircle();
+    private final AroundPlayerCircleHolder aroundPlayerCircleHolder = new AroundPlayerCircleHolder();
+
+    private final ExplosionGPUEffect effect = new ExplosionGPUEffect();
 
     private int elapsedTicks = 0;
     private boolean frontBuilt = false;
@@ -52,9 +57,10 @@ public class ExplosionSpellPresentation implements SpellPresentation {
         this.elapsedTicks = 0;
         this.finished = false;
         if (!this.frontBuilt) {
-            this.aroundPlayerCircle.build(context.casterSource());
+            this.aroundPlayerCircleHolder.build(context.casterSource());
             this.frontBuilt = true;
         }
+        this.effect.onStart(context);
     }
 
     @Override
@@ -67,6 +73,7 @@ public class ExplosionSpellPresentation implements SpellPresentation {
         if (this.elapsedTicks >= CASTING_TICKS) {
             this.createRemoteCircle(context);
         }
+        this.effect.tick(context);
 
         if (this.elapsedTicks >= TOTAL_TICKS) {
             this.cleanup();
@@ -117,11 +124,12 @@ public class ExplosionSpellPresentation implements SpellPresentation {
             this.remoteCircle.requestDestroy();
             this.remoteCircle = null;
         }
-        this.aroundPlayerCircle.close();
+        this.aroundPlayerCircleHolder.close();
+        this.effect.cleanup();
         this.frontBuilt = false;
     }
 
-    static class AroundPlayerCircle {
+    static class AroundPlayerCircleHolder {
         private static final float T1 = 0.8f;
         private static final float T2 = T1 + 0.1f;
         private static final float FRONT_LENGTH = 3.0f;
@@ -211,7 +219,7 @@ public class ExplosionSpellPresentation implements SpellPresentation {
             float angleSign = Math.signum(degreesPerSecond);
 
             timelineBuilder.at(0.0f)
-                    .keyframe(AllAnimatableProperties.ROTATION, new Quaternionf().identity(), true)
+                    .keyframe(ROTATION, new Quaternionf().identity(), true)
                     .keyframe(AllAnimatableProperties.SCALE, new Vector3f(0.0f));
             if (startTime > 0.0f) {
                 timelineBuilder.at(startTime)
@@ -220,13 +228,13 @@ public class ExplosionSpellPresentation implements SpellPresentation {
             timelineBuilder.at(endTime)
                     .keyframe(AllAnimatableProperties.SCALE, new Vector3f(targetScale));
             timelineBuilder.at(fullRotationDuration * 0.25f)
-                    .keyframe(AllAnimatableProperties.ROTATION, new Quaternionf().rotateY((float) Math.toRadians(90.0f * angleSign)));
+                    .keyframe(ROTATION, new Quaternionf().rotateY((float) Math.toRadians(90.0f * angleSign)));
             timelineBuilder.at(fullRotationDuration * 0.5f)
-                    .keyframe(AllAnimatableProperties.ROTATION, new Quaternionf().rotateY((float) Math.toRadians(180.0f * angleSign)));
+                    .keyframe(ROTATION, new Quaternionf().rotateY((float) Math.toRadians(180.0f * angleSign)));
             timelineBuilder.at(fullRotationDuration * 0.75f)
-                    .keyframe(AllAnimatableProperties.ROTATION, new Quaternionf().rotateY((float) Math.toRadians(270.0f * angleSign)));
+                    .keyframe(ROTATION, new Quaternionf().rotateY((float) Math.toRadians(270.0f * angleSign)));
             timelineBuilder.at(fullRotationDuration)
-                    .keyframe(AllAnimatableProperties.ROTATION, new Quaternionf().rotateY((float) Math.toRadians(359.0f * angleSign)));
+                    .keyframe(ROTATION, new Quaternionf().rotateY((float) Math.toRadians(359.0f * angleSign)));
             return timelineBuilder.build();
         }
 
@@ -240,15 +248,22 @@ public class ExplosionSpellPresentation implements SpellPresentation {
 
     static class RemoteCircleData {
         static CircleAssets create() {
+            float[] targetScales = new float[]{0.9f, 0.2f, 0.4f, 0.5f, 0.87f, 1.3f, 0.6f, 0.2f, 0.4f, 0.2f, 0.8f};
             RemoteCircleData helper = new RemoteCircleData();
             ParaComponentBuilder rootBuilder = new ParaComponentBuilder();
-            helper.appendRing(rootBuilder, "ring0", 0.9f);
-            helper.appendRing(rootBuilder, "ring1", 0.5f);
-            helper.appendRing(rootBuilder, "ring2", 1.0f);
-            helper.appendRing(rootBuilder, "ring3", 0.6f);
-            helper.appendRing(rootBuilder, "ring4", 0.4f);
+            for (int i = 0; i < targetScales.length; i++) {
+                helper.appendRing(rootBuilder, "ring" + i, targetScales[i]);
+            }
+            float currentTime = 0.0f;
+            final float yOffset = 3.2f;
+            List<AnimationBinding> bindings = new ArrayList<>();
+            for (int i = 0; i < targetScales.length; i++) {
+                AnimatorData animatorData = genAnimData(currentTime, currentTime + 0.9f, targetScales[i] * 1.4f, i * yOffset);
+                bindings.add(new AnimationBinding("ring" + i, null, animatorData));
+                currentTime += 0.3f;
+            }
             ParaData paraData = new ParaData(rootBuilder);
-            AnimationBindingConfig animConfig = helper.createAnimConfig();
+            AnimationBindingConfig animConfig = new AnimationBindingConfig(bindings);
             return new CircleAssets(paraData, animConfig);
         }
 
@@ -258,57 +273,26 @@ public class ExplosionSpellPresentation implements SpellPresentation {
                     .endChild();
         }
 
-        private AnimationBindingConfig createAnimConfig() {
-            float moveDuration = 0.5f;
-            float startDelay = 0.4f;
-            float yOffset = 6.0f;
-            List<AnimationBinding> bindings = new ArrayList<>();
-            float currentStart = 0.0f;
-            bindings.add(createBinding("ring0", currentStart, currentStart + moveDuration, 1.1f, yOffset * 0));
-            currentStart += startDelay + moveDuration;
-            bindings.add(createBinding("ring1", currentStart, currentStart + moveDuration, 0.5f, yOffset * 1));
-            currentStart += startDelay + moveDuration;
-            bindings.add(createBinding("ring2", currentStart, currentStart + moveDuration, 1.4f, yOffset * 2));
-            currentStart += startDelay + moveDuration;
-            bindings.add(createBinding("ring3", currentStart, currentStart + moveDuration, 0.6f, yOffset * 3));
-            currentStart += startDelay + moveDuration;
-            bindings.add(createBinding("ring4", currentStart, currentStart + moveDuration, 0.8f, yOffset * 4));
-            return new AnimationBindingConfig(bindings);
-        }
-
-        private AnimationBinding createBinding(String nodeName, float startTime, float endTime, float targetScale, float yOffset) {
-            AnimatorData animatorData = buildAnimator(startTime, endTime, targetScale, yOffset);
-            return new AnimationBinding(nodeName, null, animatorData);
-        }
-
-        private AnimatorData buildAnimator(float startTime, float endTime, float targetScale, float yOffset) {
-            TimelineBuilder timelineBuilder = new TimelineBuilder();
-            timelineBuilder.at(0.0f)
-                    .keyframe(AllAnimatableProperties.ROTATION, new Quaternionf().rotateY((float) Math.toRadians(359)), true)
-                    .keyframe(AllAnimatableProperties.SCALE, new Vector3f(0.0f));
-            if (startTime > 0.0f) {
-                timelineBuilder.at(startTime)
-                        .keyframe(AllAnimatableProperties.SCALE, new Vector3f(0.0f));
-            }
-            timelineBuilder.at(endTime)
-                    .keyframe(AllAnimatableProperties.SCALE, new Vector3f(targetScale));
-
-            if (yOffset != 0.0f) {
-                timelineBuilder.at(0.0f)
-                        .keyframe(AllAnimatableProperties.POSITION, new Vector3f(0.0f, 0.0f, 0.0f));
-                if (startTime > 0.0f) {
-                    timelineBuilder.at(startTime)
-                            .keyframe(AllAnimatableProperties.POSITION, new Vector3f(0.0f, 0.0f, 0.0f));
-                }
-                timelineBuilder.at(endTime)
-                        .keyframe(AllAnimatableProperties.POSITION, new Vector3f(0.0f, yOffset, 0.0f));
-            }
-
-            timelineBuilder.at(5.0f)
-                    .keyframe(AllAnimatableProperties.ROTATION, new Quaternionf().rotateY((float) Math.toRadians(180)));
-            timelineBuilder.at(10.0f)
-                    .keyframe(AllAnimatableProperties.ROTATION, new Quaternionf().rotateY((float) Math.toRadians(0)));
-            return timelineBuilder.build();
+        private static AnimatorData genAnimData(float startTime, float endTime, float targetScale, float y) {
+            TimelineBuilder builder = new TimelineBuilder();
+            // rotate
+            builder.at(0.0f)
+                    .keyframe(ROTATION, new Quaternionf().rotateY((float) Math.toRadians(359)), true)
+                    .at(5.0f)
+                    .keyframe(ROTATION, new Quaternionf().rotateY((float) Math.toRadians(180)))
+                    .at(10.0f)
+                    .keyframe(ROTATION, new Quaternionf().rotateY((float) Math.toRadians(0)));
+            // scale
+            builder.at(0.0f)
+                    .keyframe(SCALE, new Vector3f(0.0f))
+                    .at(startTime)
+                    .keyframe(SCALE, new Vector3f(0.0f))
+                    .at(endTime)
+                    .keyframe(SCALE, new Vector3f(targetScale));
+            // position
+            builder.at(0.0f)
+                    .keyframe(POSITION, new Vector3f(0.0f, y == 0.0f ? 0.01f : y, 0.0f));
+            return builder.build();
         }
     }
 

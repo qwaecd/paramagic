@@ -48,6 +48,7 @@ public class GPUParticleEffect {
     @Getter
     @Setter
     private int effectFlag = EffectFlags.IS_ALIVE.get(); // 效果的状态标志位掩码（bitmask）
+    private boolean shouldUpdateEmitter = true;
 
     private final List<EmissionRequest> emissionRequests;
     private final ConcurrentLinkedQueue<EmissionRequest> externalEmissionRequests;
@@ -198,6 +199,9 @@ public class GPUParticleEffect {
             this.consumer.accept(this, deltaTime);
         }
         this.currentLifeTime += deltaTime;
+        if (!this.shouldUpdateEmitter) {
+            return;
+        }
         for (Emitter e : emitters) {
             e.update(deltaTime);
         }
@@ -234,6 +238,10 @@ public class GPUParticleEffect {
     public boolean isAlive() {
         return (!EffectFlags.KILL_ALL.in(this.effectFlag))
                 && (this.maxLifeTime <= 0.0f || this.currentLifeTime < this.maxLifeTime);
+    }
+
+    public void setShouldUpdateEmitter(boolean b) {
+        this.shouldUpdateEmitter = b;
     }
 
     public void forEachEmitter(Consumer<Emitter> action) {

@@ -36,8 +36,8 @@ import javax.annotation.Nullable;
 import java.util.Random;
 
 public class ExplosionSpellRuntime implements SpellRuntime {
-    private static final int CASTING_TICKS = 20 * 3;
-    private static final int CHANNELING_TICKS = 20 * 8;
+    static final int CASTING_TICKS = 20 * 6;
+    static final int CHANNELING_TICKS = 20 * 16;
 
     private final LightningSpawner spawner = new LightningSpawner();
 
