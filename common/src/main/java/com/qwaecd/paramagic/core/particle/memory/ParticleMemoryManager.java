@@ -260,7 +260,7 @@ public final class ParticleMemoryManager implements AutoCloseable {
      * </pre>
      */
     private void initEmissionTasksBuffer() {
-        long bufferSizeBytes = (long) MAX_REQUESTS_PER_FRAME * EmissionRequest.SIZE_IN_BYTES + Integer.BYTES * 4;
+        long bufferSizeBytes = (long) MAX_REQUESTS_PER_FRAME * (EmissionRequest.SIZE_IN_BYTES + Integer.BYTES * 4);
         glBindBuffer(GL_SHADER_STORAGE_BUFFER, this.emissionTasksSSBO);
         glBufferData(GL_SHADER_STORAGE_BUFFER, bufferSizeBytes, GL_DYNAMIC_DRAW);
     }
