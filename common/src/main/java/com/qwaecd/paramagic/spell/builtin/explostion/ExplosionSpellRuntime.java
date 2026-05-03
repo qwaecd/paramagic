@@ -17,8 +17,8 @@ import com.qwaecd.paramagic.particle.server.ServerEffectManager;
 import com.qwaecd.paramagic.spell.core.EndSpellReason;
 import com.qwaecd.paramagic.spell.core.store.AllSessionDataKeys;
 import com.qwaecd.paramagic.spell.core.store.SessionDataValue;
+import com.qwaecd.paramagic.spell.server.ReleaseAwareSpellRuntime;
 import com.qwaecd.paramagic.spell.server.ServerSpellContext;
-import com.qwaecd.paramagic.spell.server.SpellRuntime;
 import lombok.Setter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
@@ -35,9 +35,9 @@ import org.joml.Vector4f;
 import javax.annotation.Nullable;
 import java.util.Random;
 
-public class ExplosionSpellRuntime implements SpellRuntime {
-    private static final int CASTING_TICKS = 20 * 3;
-    private static final int CHANNELING_TICKS = 20 * 8;
+public class ExplosionSpellRuntime implements ReleaseAwareSpellRuntime {
+    static final int CASTING_TICKS = 20 * 6;
+    static final int CHANNELING_TICKS = 20 * 16;
 
     private final LightningSpawner spawner = new LightningSpawner();
 
@@ -75,18 +75,19 @@ public class ExplosionSpellRuntime implements SpellRuntime {
         if (this.currentStage == Stage.CASTING && this.elapsedTicks >= CASTING_TICKS) {
             this.currentStage = Stage.CHANNELING;
         }
+    }
 
+    @Override
+    public void release(ServerSpellContext context) {
         if (this.currentStage == Stage.CHANNELING && this.elapsedTicks >= CASTING_TICKS + CHANNELING_TICKS) {
             this.currentStage = Stage.IMPACT;
-            this.execute(context, level);
-            this.setClear();
-            this.finished = true;
+            this.execute(context, context.getLevel());
         }
+        this.finished = true;
     }
 
     @Override
     public void interrupt(ServerSpellContext context, EndSpellReason reason) {
-        this.setClear();
         this.finished = true;
     }
 
@@ -159,7 +160,7 @@ public class ExplosionSpellRuntime implements SpellRuntime {
                 false,
                 ServerLevel.ExplosionInteraction.BLOCK
         );
-        this.genParticleData(pos, caster, level);
+//        this.genParticleData(pos, caster, level);
     }
 
     private void genParticleData(Vector3f pos, Entity casterEntity, ServerLevel level) {
@@ -266,6 +267,7 @@ public class ExplosionSpellRuntime implements SpellRuntime {
             }
         }
     }
+
 
     private enum Stage {
         CASTING,

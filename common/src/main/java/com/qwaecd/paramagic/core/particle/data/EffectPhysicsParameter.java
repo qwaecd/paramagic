@@ -8,6 +8,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
+import org.joml.Vector4fc;
 
 import java.nio.ByteBuffer;
 
@@ -101,6 +102,54 @@ public final class EffectPhysicsParameter implements IDataSerializable {
         this.centerForcePos .set(other.centerForcePos);
         this.linearForce    .set(other.linearForce);
         this.modified = true;
+    }
+
+    public Vector4fc primaryForce() {
+        return this.primaryForce;
+    }
+
+    public Vector4fc secondaryForce() {
+        return this.secondaryForce;
+    }
+
+    public Vector4fc sinusoidalForce() {
+        return this.sinusoidalForce;
+    }
+
+    public Vector4fc sinusoidalExtra() {
+        return this.sinusoidalExtra;
+    }
+
+    public Vector4fc centerForcePos() {
+        return this.centerForcePos;
+    }
+
+    public Vector4fc linearForce() {
+        return this.linearForce;
+    }
+
+    public Vector4f getPrimaryForce(Vector4f dest) {
+        return dest.set(this.primaryForce);
+    }
+
+    public Vector4f getSecondaryForce(Vector4f dest) {
+        return dest.set(this.secondaryForce);
+    }
+
+    public Vector4f getSinusoidalForce(Vector4f dest) {
+        return dest.set(this.sinusoidalForce);
+    }
+
+    public Vector4f getSinusoidalExtra(Vector4f dest) {
+        return dest.set(this.sinusoidalExtra);
+    }
+
+    public Vector4f getCenterForcePos(Vector4f dest) {
+        return dest.set(this.centerForcePos);
+    }
+
+    public Vector4f getLinearForce(Vector4f dest) {
+        return dest.set(this.linearForce);
     }
 
     /**

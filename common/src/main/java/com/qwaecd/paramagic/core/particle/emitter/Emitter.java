@@ -17,6 +17,7 @@ public interface Emitter {
         EmitterProperty<T> prop = this.getProperty(key);
         if (prop != null) {
             consumer.accept(prop.get());
+            prop.markDirty();
         }
     }
 
@@ -24,6 +25,7 @@ public interface Emitter {
         EmitterProperty<T> prop = this.getProperty(key);
         if (prop != null) {
             prop.set(value);
+            prop.markDirty();
         }
     }
 

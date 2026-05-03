@@ -5,6 +5,8 @@ import com.qwaecd.paramagic.spell.api.AllSpellRuntimes;
 import com.qwaecd.paramagic.spell.builtin.AllBuiltinSpellIds;
 import com.qwaecd.paramagic.spell.builtin.BuiltinSpellCaster;
 import com.qwaecd.paramagic.spell.caster.PlayerCaster;
+import com.qwaecd.paramagic.spell.core.SessionManagers;
+import com.qwaecd.paramagic.spell.server.ServerSession;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
@@ -53,6 +55,14 @@ public class ExplosionWand extends Item {
 
     @Override
     public void releaseUsing(ItemStack stack, Level level, LivingEntity livingEntity, int timeCharged) {
+        if (!(livingEntity instanceof Player player)) {
+            return;
+        }
+        if (level instanceof ServerLevel serverLevel) {
+            for (ServerSession serverSession : SessionManagers.getForServer(serverLevel).getSessionsByUUID(player.getUUID())) {
+                serverSession.release();
+            }
+        }
     }
 
     @Override

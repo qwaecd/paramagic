@@ -83,6 +83,14 @@ public class ServerSession extends SpellSession implements AutoCloseable {
         }
     }
 
+    public void release() {
+        if (this.spell instanceof ReleaseAwareSpellRuntime runtime) {
+            runtime.release(this.context);
+        } else {
+            this.interrupt();
+        }
+    }
+
     @Override
     protected void onStopRequested(@Nonnull EndSpellReason reason) {
         this.spell.interrupt(this.context, reason);

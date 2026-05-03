@@ -1,6 +1,15 @@
 package com.qwaecd.paramagic.spell.builtin.explostion;
 
 import com.qwaecd.paramagic.assembler.ParaComposer;
+import com.qwaecd.paramagic.core.particle.ParticleSystem;
+import com.qwaecd.paramagic.core.particle.builder.PhysicsParamBuilder;
+import com.qwaecd.paramagic.core.particle.data.EffectPhysicsParameter;
+import com.qwaecd.paramagic.core.particle.effect.GPUParticleEffect;
+import com.qwaecd.paramagic.core.particle.emitter.Emitter;
+import com.qwaecd.paramagic.core.particle.emitter.ParticleBurst;
+import com.qwaecd.paramagic.core.particle.emitter.impl.CircleEmitter;
+import com.qwaecd.paramagic.core.particle.emitter.impl.LineEmitter;
+import com.qwaecd.paramagic.core.particle.emitter.property.type.VelocityModeStates;
 import com.qwaecd.paramagic.data.animation.property.AllAnimatableProperties;
 import com.qwaecd.paramagic.data.animation.struct.AnimationBinding;
 import com.qwaecd.paramagic.data.animation.struct.AnimationBindingConfig;
@@ -33,15 +42,30 @@ import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.qwaecd.paramagic.core.particle.emitter.property.key.AllEmitterProperties.*;
+
+import static com.qwaecd.paramagic.core.particle.emitter.property.key.AllEmitterProperties.BASE_VELOCITY;
+import static com.qwaecd.paramagic.core.particle.emitter.property.key.AllEmitterProperties.BLOOM_INTENSITY;
+import static com.qwaecd.paramagic.core.particle.emitter.property.key.AllEmitterProperties.COLOR;
+import static com.qwaecd.paramagic.core.particle.emitter.property.key.AllEmitterProperties.VELOCITY_MODE;
+import static com.qwaecd.paramagic.data.animation.property.AllAnimatableProperties.*;
+import static com.qwaecd.paramagic.data.animation.property.AllAnimatableProperties.POSITION;
+import static com.qwaecd.paramagic.spell.builtin.explostion.ExplosionSpellRuntime.CASTING_TICKS;
+import static com.qwaecd.paramagic.spell.builtin.explostion.ExplosionSpellRuntime.CHANNELING_TICKS;
+
 public class ExplosionSpellPresentation implements SpellPresentation {
     private static final Logger LOGGER = LoggerFactory.getLogger(ExplosionSpellPresentation.class);
-    private static final int CASTING_TICKS = 20 * 3;
-    private static final int TOTAL_TICKS = CASTING_TICKS + 20 * 8;
+    private static final int TOTAL_TICKS = CASTING_TICKS + CHANNELING_TICKS;
 
     @Nullable
     private MagicCircle remoteCircle;
 
-    private final AroundPlayerCircle aroundPlayerCircle = new AroundPlayerCircle();
+    private final AroundPlayerCircleHolder aroundPlayerCircleHolder = new AroundPlayerCircleHolder();
+
+    private final ExplosionGPUEffect effect = new ExplosionGPUEffect();
+
+    @Nullable
+    private GPUParticleEffect canReleaseEffect;
 
     private int elapsedTicks = 0;
     private boolean frontBuilt = false;
@@ -52,9 +76,10 @@ public class ExplosionSpellPresentation implements SpellPresentation {
         this.elapsedTicks = 0;
         this.finished = false;
         if (!this.frontBuilt) {
-            this.aroundPlayerCircle.build(context.casterSource());
+            this.aroundPlayerCircleHolder.build(context.casterSource());
             this.frontBuilt = true;
         }
+        this.effect.onStart(context);
     }
 
     @Override
@@ -67,11 +92,89 @@ public class ExplosionSpellPresentation implements SpellPresentation {
         if (this.elapsedTicks >= CASTING_TICKS) {
             this.createRemoteCircle(context);
         }
-
-        if (this.elapsedTicks >= TOTAL_TICKS) {
-            this.cleanup();
-            this.finished = true;
+        this.effect.tick(context);
+        if (this.elapsedTicks >= TOTAL_TICKS && this.canReleaseEffect == null) {
+            var emitters = createEmitters(context);
+            if (emitters != null) {
+                PhysicsParamBuilder builder = new PhysicsParamBuilder();
+                builder.linearForceEnabled(true)
+                        .linearForce(0.0f, 0.3f, 0.0f)
+                        .dragCoefficient(0.2f);
+                this.canReleaseEffect = new GPUParticleEffect(emitters, 10_0000, -1, builder.build());
+                ParticleSystem.getInstance().spawnEffect(this.canReleaseEffect);
+            }
         }
+    }
+
+    @Nullable
+    private static List<Emitter> createEmitters(ClientSpellContext context) {
+        SessionDataValue<Vector3f> value = context.getDataStore().getValue(AllSessionDataKeys.firstPosition);
+        if (value == null) {
+            return null;
+        }
+        List<Emitter> emitters = new ArrayList<>();
+        Vector3f pos = value.getValue();
+        {
+            LineEmitter lineEmitter = new LineEmitter(pos, 1000.0f);
+            lineEmitter.modifyProp(COLOR, v -> v.set(1.2f, 0.5f, 0.8f, 1.0f));
+            lineEmitter.modifyProp(LIFE_TIME_RANGE, v -> v.set(1.1f, 3.4f));
+            lineEmitter.modifyProp(SIZE_RANGE, v -> v.set(1.04f, 4.16f));
+            lineEmitter.modifyProp(END_POSITION, v -> v.set(pos.x, pos.y + 10.0f * 3.2f, pos.z));
+            lineEmitter.trySet(BLOOM_INTENSITY, 0.4f);
+            lineEmitter.trySet(VELOCITY_MODE, VelocityModeStates.RANDOM);
+            lineEmitter.modifyProp(BASE_VELOCITY, v -> v.set(3.8f));
+            emitters.add(lineEmitter);
+        }
+
+        {
+            CircleEmitter circleEmitter = new CircleEmitter(new Vector3f(pos.x, pos.y + 5.0f, pos.z), 0.0f);
+            circleEmitter.modifyProp(COLOR, v -> v.set(1.8f, 0.7f, 0.8f, 1.0f));
+            circleEmitter.modifyProp(LIFE_TIME_RANGE, v -> v.set(1.1f, 3.4f));
+            circleEmitter.modifyProp(SIZE_RANGE, v -> v.set(1.6f, 3.7f));
+            circleEmitter.trySet(BLOOM_INTENSITY, 0.4f);
+            circleEmitter.trySet(VELOCITY_MODE, VelocityModeStates.RADIAL_FROM_CENTER);
+            final float r = 12.0f;
+            circleEmitter.modifyProp(INNER_OUTER_RADIUS, v -> v.set(r, r + 4.0f));
+            circleEmitter.modifyProp(BASE_VELOCITY, v -> v.set(8.8f));
+            emitters.add(circleEmitter);
+        }
+        {
+            CircleEmitter circleEmitter = new CircleEmitter(new Vector3f(pos.x, pos.y + 12.0f, pos.z), 0.0f);
+            circleEmitter.modifyProp(COLOR, v -> v.set(1.8f, 0.7f, 0.8f, 1.0f));
+            circleEmitter.modifyProp(LIFE_TIME_RANGE, v -> v.set(1.1f, 3.4f));
+            circleEmitter.modifyProp(SIZE_RANGE, v -> v.set(1.6f, 3.7f));
+            circleEmitter.trySet(BLOOM_INTENSITY, 0.4f);
+            circleEmitter.trySet(VELOCITY_MODE, VelocityModeStates.RADIAL_FROM_CENTER);
+            final float r = 8.0f;
+            circleEmitter.modifyProp(INNER_OUTER_RADIUS, v -> v.set(r, r + 4.0f));
+            circleEmitter.modifyProp(BASE_VELOCITY, v -> v.set(8.4f));
+            emitters.add(circleEmitter);
+        }
+        {
+            CircleEmitter circleEmitter = new CircleEmitter(new Vector3f(pos.x, pos.y + 21.0f, pos.z), 0.0f);
+            circleEmitter.modifyProp(COLOR, v -> v.set(1.8f, 0.7f, 0.8f, 1.0f));
+            circleEmitter.modifyProp(LIFE_TIME_RANGE, v -> v.set(1.1f, 3.4f));
+            circleEmitter.modifyProp(SIZE_RANGE, v -> v.set(1.6f, 3.7f));
+            circleEmitter.trySet(BLOOM_INTENSITY, 0.4f);
+            circleEmitter.trySet(VELOCITY_MODE, VelocityModeStates.RADIAL_FROM_CENTER);
+            final float r = 4.0f;
+            circleEmitter.modifyProp(INNER_OUTER_RADIUS, v -> v.set(r, r + 4.0f));
+            circleEmitter.modifyProp(BASE_VELOCITY, v -> v.set(8.2f));
+            emitters.add(circleEmitter);
+        }
+        {
+            CircleEmitter circleEmitter = new CircleEmitter(new Vector3f(pos.x, pos.y + 30.0f, pos.z), 0.0f);
+            circleEmitter.modifyProp(COLOR, v -> v.set(1.8f, 0.7f, 0.8f, 1.0f));
+            circleEmitter.modifyProp(LIFE_TIME_RANGE, v -> v.set(1.1f, 3.4f));
+            circleEmitter.modifyProp(SIZE_RANGE, v -> v.set(1.6f, 3.7f));
+            circleEmitter.trySet(BLOOM_INTENSITY, 0.4f);
+            circleEmitter.trySet(VELOCITY_MODE, VelocityModeStates.RADIAL_FROM_CENTER);
+            final float r = 2.0f;
+            circleEmitter.modifyProp(INNER_OUTER_RADIUS, v -> v.set(r, r + 4.0f));
+            circleEmitter.modifyProp(BASE_VELOCITY, v -> v.set(8.2f));
+            emitters.add(circleEmitter);
+        }
+        return emitters;
     }
 
     @Override
@@ -117,11 +220,48 @@ public class ExplosionSpellPresentation implements SpellPresentation {
             this.remoteCircle.requestDestroy();
             this.remoteCircle = null;
         }
-        this.aroundPlayerCircle.close();
+        this.aroundPlayerCircleHolder.close();
+        this.effect.cleanup();
         this.frontBuilt = false;
+        if (this.canReleaseEffect != null) {
+            this.canReleaseEffect.setConsumer(new GPUParticleEffect.EffectConsumer() {
+                private float elapsedTime = 0.0f;
+                private boolean flag = false;
+                @Override
+                public void accept(GPUParticleEffect effect, float deltaTime) {
+                    this.elapsedTime += deltaTime;
+                    if (!flag) {
+                        effect.forEachEmitter(emitter -> {
+                            if (emitter instanceof LineEmitter lineEmitter) {
+                                ParticleBurst burst = new ParticleBurst(0.0f, 5000);
+                                lineEmitter.modifyProp(END_POSITION, v -> v.set(v.x, v.y + 256.0f, v.z));
+                                lineEmitter.modifyProp(COLOR, v -> v.set(1.8f, 0.7f, 0.8f, 1.0f));
+                                lineEmitter.modifyProp(LIFE_TIME_RANGE, v -> v.set(0.1f, 8.4f));
+                                lineEmitter.modifyProp(BASE_VELOCITY, v -> v.set(0.0f, 16.0f, 0.0f));
+                                lineEmitter.addBurst(burst);
+                            } else if (emitter instanceof  CircleEmitter circleEmitter) {
+                                ParticleBurst burst = new ParticleBurst(0.0f, 3000);
+                                circleEmitter.addBurst(burst);
+                            }
+                            // 手动更新一次参数
+                            emitter.update(deltaTime);
+                        });
+                        effect.setShouldUpdateEmitter(false);
+                        EffectPhysicsParameter parameter = effect.getPhysicsParameter();
+                        parameter.setDragCoefficient(0.1f);
+                        parameter.setLinearForce(0.0f, 0.1f, 0.0f);
+                        flag = true;
+                    }
+                    if (this.elapsedTime >= 8.0f) {
+                        ParticleSystem.getInstance().removeEffect(effect);
+                    }
+                }
+            });
+            this.canReleaseEffect = null;
+        }
     }
 
-    static class AroundPlayerCircle {
+    static class AroundPlayerCircleHolder {
         private static final float T1 = 0.8f;
         private static final float T2 = T1 + 0.1f;
         private static final float FRONT_LENGTH = 3.0f;
@@ -211,7 +351,7 @@ public class ExplosionSpellPresentation implements SpellPresentation {
             float angleSign = Math.signum(degreesPerSecond);
 
             timelineBuilder.at(0.0f)
-                    .keyframe(AllAnimatableProperties.ROTATION, new Quaternionf().identity(), true)
+                    .keyframe(ROTATION, new Quaternionf().identity(), true)
                     .keyframe(AllAnimatableProperties.SCALE, new Vector3f(0.0f));
             if (startTime > 0.0f) {
                 timelineBuilder.at(startTime)
@@ -220,13 +360,13 @@ public class ExplosionSpellPresentation implements SpellPresentation {
             timelineBuilder.at(endTime)
                     .keyframe(AllAnimatableProperties.SCALE, new Vector3f(targetScale));
             timelineBuilder.at(fullRotationDuration * 0.25f)
-                    .keyframe(AllAnimatableProperties.ROTATION, new Quaternionf().rotateY((float) Math.toRadians(90.0f * angleSign)));
+                    .keyframe(ROTATION, new Quaternionf().rotateY((float) Math.toRadians(90.0f * angleSign)));
             timelineBuilder.at(fullRotationDuration * 0.5f)
-                    .keyframe(AllAnimatableProperties.ROTATION, new Quaternionf().rotateY((float) Math.toRadians(180.0f * angleSign)));
+                    .keyframe(ROTATION, new Quaternionf().rotateY((float) Math.toRadians(180.0f * angleSign)));
             timelineBuilder.at(fullRotationDuration * 0.75f)
-                    .keyframe(AllAnimatableProperties.ROTATION, new Quaternionf().rotateY((float) Math.toRadians(270.0f * angleSign)));
+                    .keyframe(ROTATION, new Quaternionf().rotateY((float) Math.toRadians(270.0f * angleSign)));
             timelineBuilder.at(fullRotationDuration)
-                    .keyframe(AllAnimatableProperties.ROTATION, new Quaternionf().rotateY((float) Math.toRadians(359.0f * angleSign)));
+                    .keyframe(ROTATION, new Quaternionf().rotateY((float) Math.toRadians(359.0f * angleSign)));
             return timelineBuilder.build();
         }
 
@@ -240,15 +380,22 @@ public class ExplosionSpellPresentation implements SpellPresentation {
 
     static class RemoteCircleData {
         static CircleAssets create() {
+            float[] targetScales = new float[]{0.9f, 0.2f, 0.4f, 0.5f, 0.87f, 1.3f, 0.6f, 0.2f, 0.4f, 0.2f, 0.8f};
             RemoteCircleData helper = new RemoteCircleData();
             ParaComponentBuilder rootBuilder = new ParaComponentBuilder();
-            helper.appendRing(rootBuilder, "ring0", 0.9f);
-            helper.appendRing(rootBuilder, "ring1", 0.5f);
-            helper.appendRing(rootBuilder, "ring2", 1.0f);
-            helper.appendRing(rootBuilder, "ring3", 0.6f);
-            helper.appendRing(rootBuilder, "ring4", 0.4f);
+            for (int i = 0; i < targetScales.length; i++) {
+                helper.appendRing(rootBuilder, "ring" + i, targetScales[i]);
+            }
+            float currentTime = 0.0f;
+            final float yOffset = 3.2f;
+            List<AnimationBinding> bindings = new ArrayList<>();
+            for (int i = 0; i < targetScales.length; i++) {
+                AnimatorData animatorData = genAnimData(currentTime, currentTime + 0.9f, targetScales[i] * 1.4f, i * yOffset);
+                bindings.add(new AnimationBinding("ring" + i, null, animatorData));
+                currentTime += 0.3f;
+            }
             ParaData paraData = new ParaData(rootBuilder);
-            AnimationBindingConfig animConfig = helper.createAnimConfig();
+            AnimationBindingConfig animConfig = new AnimationBindingConfig(bindings);
             return new CircleAssets(paraData, animConfig);
         }
 
@@ -258,57 +405,26 @@ public class ExplosionSpellPresentation implements SpellPresentation {
                     .endChild();
         }
 
-        private AnimationBindingConfig createAnimConfig() {
-            float moveDuration = 0.5f;
-            float startDelay = 0.4f;
-            float yOffset = 6.0f;
-            List<AnimationBinding> bindings = new ArrayList<>();
-            float currentStart = 0.0f;
-            bindings.add(createBinding("ring0", currentStart, currentStart + moveDuration, 1.1f, yOffset * 0));
-            currentStart += startDelay + moveDuration;
-            bindings.add(createBinding("ring1", currentStart, currentStart + moveDuration, 0.5f, yOffset * 1));
-            currentStart += startDelay + moveDuration;
-            bindings.add(createBinding("ring2", currentStart, currentStart + moveDuration, 1.4f, yOffset * 2));
-            currentStart += startDelay + moveDuration;
-            bindings.add(createBinding("ring3", currentStart, currentStart + moveDuration, 0.6f, yOffset * 3));
-            currentStart += startDelay + moveDuration;
-            bindings.add(createBinding("ring4", currentStart, currentStart + moveDuration, 0.8f, yOffset * 4));
-            return new AnimationBindingConfig(bindings);
-        }
-
-        private AnimationBinding createBinding(String nodeName, float startTime, float endTime, float targetScale, float yOffset) {
-            AnimatorData animatorData = buildAnimator(startTime, endTime, targetScale, yOffset);
-            return new AnimationBinding(nodeName, null, animatorData);
-        }
-
-        private AnimatorData buildAnimator(float startTime, float endTime, float targetScale, float yOffset) {
-            TimelineBuilder timelineBuilder = new TimelineBuilder();
-            timelineBuilder.at(0.0f)
-                    .keyframe(AllAnimatableProperties.ROTATION, new Quaternionf().rotateY((float) Math.toRadians(359)), true)
-                    .keyframe(AllAnimatableProperties.SCALE, new Vector3f(0.0f));
-            if (startTime > 0.0f) {
-                timelineBuilder.at(startTime)
-                        .keyframe(AllAnimatableProperties.SCALE, new Vector3f(0.0f));
-            }
-            timelineBuilder.at(endTime)
-                    .keyframe(AllAnimatableProperties.SCALE, new Vector3f(targetScale));
-
-            if (yOffset != 0.0f) {
-                timelineBuilder.at(0.0f)
-                        .keyframe(AllAnimatableProperties.POSITION, new Vector3f(0.0f, 0.0f, 0.0f));
-                if (startTime > 0.0f) {
-                    timelineBuilder.at(startTime)
-                            .keyframe(AllAnimatableProperties.POSITION, new Vector3f(0.0f, 0.0f, 0.0f));
-                }
-                timelineBuilder.at(endTime)
-                        .keyframe(AllAnimatableProperties.POSITION, new Vector3f(0.0f, yOffset, 0.0f));
-            }
-
-            timelineBuilder.at(5.0f)
-                    .keyframe(AllAnimatableProperties.ROTATION, new Quaternionf().rotateY((float) Math.toRadians(180)));
-            timelineBuilder.at(10.0f)
-                    .keyframe(AllAnimatableProperties.ROTATION, new Quaternionf().rotateY((float) Math.toRadians(0)));
-            return timelineBuilder.build();
+        private static AnimatorData genAnimData(float startTime, float endTime, float targetScale, float y) {
+            TimelineBuilder builder = new TimelineBuilder();
+            // rotate
+            builder.at(0.0f)
+                    .keyframe(ROTATION, new Quaternionf().rotateY((float) Math.toRadians(359)), true)
+                    .at(5.0f)
+                    .keyframe(ROTATION, new Quaternionf().rotateY((float) Math.toRadians(180)))
+                    .at(10.0f)
+                    .keyframe(ROTATION, new Quaternionf().rotateY((float) Math.toRadians(0)));
+            // scale
+            builder.at(0.0f)
+                    .keyframe(SCALE, new Vector3f(0.0f))
+                    .at(startTime)
+                    .keyframe(SCALE, new Vector3f(0.0f))
+                    .at(endTime)
+                    .keyframe(SCALE, new Vector3f(targetScale));
+            // position
+            builder.at(0.0f)
+                    .keyframe(POSITION, new Vector3f(0.0f, y == 0.0f ? 0.01f : y, 0.0f));
+            return builder.build();
         }
     }
 
