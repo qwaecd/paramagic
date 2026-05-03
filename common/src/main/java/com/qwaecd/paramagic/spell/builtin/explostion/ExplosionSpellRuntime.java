@@ -160,7 +160,7 @@ public class ExplosionSpellRuntime implements ReleaseAwareSpellRuntime {
                 false,
                 ServerLevel.ExplosionInteraction.BLOCK
         );
-        this.genParticleData(pos, caster, level);
+//        this.genParticleData(pos, caster, level);
     }
 
     private void genParticleData(Vector3f pos, Entity casterEntity, ServerLevel level) {

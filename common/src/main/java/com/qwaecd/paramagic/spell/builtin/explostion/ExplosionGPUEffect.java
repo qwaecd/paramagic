@@ -48,7 +48,7 @@ public final class ExplosionGPUEffect {
         Vector3f forward = new Vector3f(this.sample.forward).normalize(distance);
         Vector3f spawnPosition = eyePosition.add(forward);
         {
-            SphereEmitter sphereEmitter = new SphereEmitter(new Vector3f(spawnPosition), 600.0f);
+            SphereEmitter sphereEmitter = new SphereEmitter(new Vector3f(spawnPosition), 400.0f);
             sphereEmitter.modifyProp(COLOR, v -> v.set(1.2f, 0.5f, 0.8f, 1.0f));
             sphereEmitter.modifyProp(LIFE_TIME_RANGE, v -> v.set(3.1f, 8.4f));
             sphereEmitter.modifyProp(SIZE_RANGE, v -> v.set(3.0f, 5.3f));

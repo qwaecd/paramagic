@@ -3,8 +3,11 @@ package com.qwaecd.paramagic.spell.builtin.explostion;
 import com.qwaecd.paramagic.assembler.ParaComposer;
 import com.qwaecd.paramagic.core.particle.ParticleSystem;
 import com.qwaecd.paramagic.core.particle.builder.PhysicsParamBuilder;
+import com.qwaecd.paramagic.core.particle.data.EffectPhysicsParameter;
 import com.qwaecd.paramagic.core.particle.effect.GPUParticleEffect;
 import com.qwaecd.paramagic.core.particle.emitter.Emitter;
+import com.qwaecd.paramagic.core.particle.emitter.ParticleBurst;
+import com.qwaecd.paramagic.core.particle.emitter.impl.CircleEmitter;
 import com.qwaecd.paramagic.core.particle.emitter.impl.LineEmitter;
 import com.qwaecd.paramagic.core.particle.emitter.property.type.VelocityModeStates;
 import com.qwaecd.paramagic.data.animation.property.AllAnimatableProperties;
@@ -91,34 +94,87 @@ public class ExplosionSpellPresentation implements SpellPresentation {
         }
         this.effect.tick(context);
         if (this.elapsedTicks >= TOTAL_TICKS && this.canReleaseEffect == null) {
-            Emitter emitter = createEmitter(context);
-            if (emitter != null) {
+            var emitters = createEmitters(context);
+            if (emitters != null) {
                 PhysicsParamBuilder builder = new PhysicsParamBuilder();
                 builder.linearForceEnabled(true)
                         .linearForce(0.0f, 0.3f, 0.0f)
                         .dragCoefficient(0.2f);
-                this.canReleaseEffect = new GPUParticleEffect(List.of(emitter), 10_000, -1, builder.build());
+                this.canReleaseEffect = new GPUParticleEffect(emitters, 10_0000, -1, builder.build());
                 ParticleSystem.getInstance().spawnEffect(this.canReleaseEffect);
             }
         }
     }
 
     @Nullable
-    private static Emitter createEmitter(ClientSpellContext context) {
+    private static List<Emitter> createEmitters(ClientSpellContext context) {
         SessionDataValue<Vector3f> value = context.getDataStore().getValue(AllSessionDataKeys.firstPosition);
         if (value == null) {
             return null;
         }
+        List<Emitter> emitters = new ArrayList<>();
         Vector3f pos = value.getValue();
-        LineEmitter emitter = new LineEmitter(pos, 1000.0f);
-        emitter.modifyProp(COLOR, v -> v.set(1.2f, 0.5f, 0.8f, 1.0f));
-        emitter.modifyProp(LIFE_TIME_RANGE, v -> v.set(1.1f, 3.4f));
-        emitter.modifyProp(SIZE_RANGE, v -> v.set(1.04f, 4.16f));
-        emitter.modifyProp(END_POSITION, v -> v.set(pos.x, pos.y + 10.0f * 3.2f, pos.z));
-        emitter.trySet(BLOOM_INTENSITY, 0.4f);
-        emitter.trySet(VELOCITY_MODE, VelocityModeStates.RANDOM);
-        emitter.modifyProp(BASE_VELOCITY, v -> v.set(3.8f));
-        return emitter;
+        {
+            LineEmitter lineEmitter = new LineEmitter(pos, 1000.0f);
+            lineEmitter.modifyProp(COLOR, v -> v.set(1.2f, 0.5f, 0.8f, 1.0f));
+            lineEmitter.modifyProp(LIFE_TIME_RANGE, v -> v.set(1.1f, 3.4f));
+            lineEmitter.modifyProp(SIZE_RANGE, v -> v.set(1.04f, 4.16f));
+            lineEmitter.modifyProp(END_POSITION, v -> v.set(pos.x, pos.y + 10.0f * 3.2f, pos.z));
+            lineEmitter.trySet(BLOOM_INTENSITY, 0.4f);
+            lineEmitter.trySet(VELOCITY_MODE, VelocityModeStates.RANDOM);
+            lineEmitter.modifyProp(BASE_VELOCITY, v -> v.set(3.8f));
+            emitters.add(lineEmitter);
+        }
+
+        {
+            CircleEmitter circleEmitter = new CircleEmitter(new Vector3f(pos.x, pos.y + 5.0f, pos.z), 0.0f);
+            circleEmitter.modifyProp(COLOR, v -> v.set(1.8f, 0.7f, 0.8f, 1.0f));
+            circleEmitter.modifyProp(LIFE_TIME_RANGE, v -> v.set(1.1f, 3.4f));
+            circleEmitter.modifyProp(SIZE_RANGE, v -> v.set(1.6f, 3.7f));
+            circleEmitter.trySet(BLOOM_INTENSITY, 0.4f);
+            circleEmitter.trySet(VELOCITY_MODE, VelocityModeStates.RADIAL_FROM_CENTER);
+            final float r = 12.0f;
+            circleEmitter.modifyProp(INNER_OUTER_RADIUS, v -> v.set(r, r + 4.0f));
+            circleEmitter.modifyProp(BASE_VELOCITY, v -> v.set(8.8f));
+            emitters.add(circleEmitter);
+        }
+        {
+            CircleEmitter circleEmitter = new CircleEmitter(new Vector3f(pos.x, pos.y + 12.0f, pos.z), 0.0f);
+            circleEmitter.modifyProp(COLOR, v -> v.set(1.8f, 0.7f, 0.8f, 1.0f));
+            circleEmitter.modifyProp(LIFE_TIME_RANGE, v -> v.set(1.1f, 3.4f));
+            circleEmitter.modifyProp(SIZE_RANGE, v -> v.set(1.6f, 3.7f));
+            circleEmitter.trySet(BLOOM_INTENSITY, 0.4f);
+            circleEmitter.trySet(VELOCITY_MODE, VelocityModeStates.RADIAL_FROM_CENTER);
+            final float r = 8.0f;
+            circleEmitter.modifyProp(INNER_OUTER_RADIUS, v -> v.set(r, r + 4.0f));
+            circleEmitter.modifyProp(BASE_VELOCITY, v -> v.set(8.4f));
+            emitters.add(circleEmitter);
+        }
+        {
+            CircleEmitter circleEmitter = new CircleEmitter(new Vector3f(pos.x, pos.y + 21.0f, pos.z), 0.0f);
+            circleEmitter.modifyProp(COLOR, v -> v.set(1.8f, 0.7f, 0.8f, 1.0f));
+            circleEmitter.modifyProp(LIFE_TIME_RANGE, v -> v.set(1.1f, 3.4f));
+            circleEmitter.modifyProp(SIZE_RANGE, v -> v.set(1.6f, 3.7f));
+            circleEmitter.trySet(BLOOM_INTENSITY, 0.4f);
+            circleEmitter.trySet(VELOCITY_MODE, VelocityModeStates.RADIAL_FROM_CENTER);
+            final float r = 4.0f;
+            circleEmitter.modifyProp(INNER_OUTER_RADIUS, v -> v.set(r, r + 4.0f));
+            circleEmitter.modifyProp(BASE_VELOCITY, v -> v.set(8.2f));
+            emitters.add(circleEmitter);
+        }
+        {
+            CircleEmitter circleEmitter = new CircleEmitter(new Vector3f(pos.x, pos.y + 30.0f, pos.z), 0.0f);
+            circleEmitter.modifyProp(COLOR, v -> v.set(1.8f, 0.7f, 0.8f, 1.0f));
+            circleEmitter.modifyProp(LIFE_TIME_RANGE, v -> v.set(1.1f, 3.4f));
+            circleEmitter.modifyProp(SIZE_RANGE, v -> v.set(1.6f, 3.7f));
+            circleEmitter.trySet(BLOOM_INTENSITY, 0.4f);
+            circleEmitter.trySet(VELOCITY_MODE, VelocityModeStates.RADIAL_FROM_CENTER);
+            final float r = 2.0f;
+            circleEmitter.modifyProp(INNER_OUTER_RADIUS, v -> v.set(r, r + 4.0f));
+            circleEmitter.modifyProp(BASE_VELOCITY, v -> v.set(8.2f));
+            emitters.add(circleEmitter);
+        }
+        return emitters;
     }
 
     @Override
@@ -175,9 +231,25 @@ public class ExplosionSpellPresentation implements SpellPresentation {
                 public void accept(GPUParticleEffect effect, float deltaTime) {
                     this.elapsedTime += deltaTime;
                     if (!flag) {
+                        effect.forEachEmitter(emitter -> {
+                            if (emitter instanceof LineEmitter lineEmitter) {
+                                ParticleBurst burst = new ParticleBurst(0.0f, 5000);
+                                lineEmitter.modifyProp(END_POSITION, v -> v.set(v.x, v.y + 256.0f, v.z));
+                                lineEmitter.modifyProp(COLOR, v -> v.set(1.8f, 0.7f, 0.8f, 1.0f));
+                                lineEmitter.modifyProp(LIFE_TIME_RANGE, v -> v.set(0.1f, 8.4f));
+                                lineEmitter.modifyProp(BASE_VELOCITY, v -> v.set(0.0f, 16.0f, 0.0f));
+                                lineEmitter.addBurst(burst);
+                            } else if (emitter instanceof  CircleEmitter circleEmitter) {
+                                ParticleBurst burst = new ParticleBurst(0.0f, 3000);
+                                circleEmitter.addBurst(burst);
+                            }
+                            // 手动更新一次参数
+                            emitter.update(deltaTime);
+                        });
                         effect.setShouldUpdateEmitter(false);
-                        effect.getPhysicsParameter()
-                                .setLinearForce(0.0f, 0.8f, 0.0f);
+                        EffectPhysicsParameter parameter = effect.getPhysicsParameter();
+                        parameter.setDragCoefficient(0.1f);
+                        parameter.setLinearForce(0.0f, 0.1f, 0.0f);
                         flag = true;
                     }
                     if (this.elapsedTime >= 8.0f) {
