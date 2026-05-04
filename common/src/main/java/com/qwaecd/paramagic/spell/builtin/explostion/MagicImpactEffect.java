@@ -22,10 +22,6 @@ import javax.annotation.Nonnull;
 import java.util.List;
 
 import static com.qwaecd.paramagic.core.particle.emitter.property.key.AllEmitterProperties.*;
-import static com.qwaecd.paramagic.core.particle.emitter.property.key.AllEmitterProperties.BASE_VELOCITY;
-import static com.qwaecd.paramagic.core.particle.emitter.property.key.AllEmitterProperties.BLOOM_INTENSITY;
-import static com.qwaecd.paramagic.core.particle.emitter.property.key.AllEmitterProperties.INNER_OUTER_RADIUS;
-import static com.qwaecd.paramagic.core.particle.emitter.property.key.AllEmitterProperties.VELOCITY_MODE;
 
 @PlatformScope(PlatformScopeType.CLIENT)
 public final class MagicImpactEffect implements RenderEffect {

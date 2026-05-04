@@ -1,17 +1,11 @@
 package com.qwaecd.paramagic.client.renderbase;
 
-import com.qwaecd.paramagic.core.render.vertex.Mesh;
-import com.qwaecd.paramagic.core.render.vertex.MeshBuilder;
-import com.qwaecd.paramagic.core.render.vertex.VertexAttribute;
-import com.qwaecd.paramagic.core.render.vertex.VertexAttributeEnum;
-import com.qwaecd.paramagic.core.render.vertex.VertexLayout;
+import com.qwaecd.paramagic.core.render.vertex.*;
 
 import java.nio.ByteBuffer;
 import java.nio.ShortBuffer;
 
-import static org.lwjgl.opengl.GL11.GL_BYTE;
-import static org.lwjgl.opengl.GL11.GL_FLOAT;
-import static org.lwjgl.opengl.GL11.GL_UNSIGNED_BYTE;
+import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL11C.GL_TRIANGLES;
 import static org.lwjgl.opengl.GL15.GL_STATIC_DRAW;
 

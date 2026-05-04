@@ -43,11 +43,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.qwaecd.paramagic.core.particle.emitter.property.key.AllEmitterProperties.*;
-
-import static com.qwaecd.paramagic.core.particle.emitter.property.key.AllEmitterProperties.BASE_VELOCITY;
-import static com.qwaecd.paramagic.core.particle.emitter.property.key.AllEmitterProperties.BLOOM_INTENSITY;
 import static com.qwaecd.paramagic.core.particle.emitter.property.key.AllEmitterProperties.COLOR;
-import static com.qwaecd.paramagic.core.particle.emitter.property.key.AllEmitterProperties.VELOCITY_MODE;
 import static com.qwaecd.paramagic.data.animation.property.AllAnimatableProperties.*;
 import static com.qwaecd.paramagic.data.animation.property.AllAnimatableProperties.POSITION;
 import static com.qwaecd.paramagic.spell.builtin.explostion.ExplosionSpellRuntime.CASTING_TICKS;
