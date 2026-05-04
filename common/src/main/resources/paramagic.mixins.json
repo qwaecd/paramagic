@@ -10,8 +10,10 @@
     "accessor.LevelEntityAccessor"
   ],
   "client": [
+    "accessor.CameraAccessor",
     "accessor.MinecraftMixin",
     "accessor.TimerMixin",
+    "client.GameRendererMixin",
     "client.LevelRenderMixin",
     "client.RenderTargetMixin",
     "client.ScreenMixin"
