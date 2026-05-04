@@ -74,6 +74,7 @@ public class ModRenderSystem extends AbstractRenderSystem implements AutoCloseab
     private boolean canUseGeometryShader = false;
 
     private final Matrix4f reusableMatrix = new Matrix4f();
+    private final long renderStartNanos = System.nanoTime();
 
     private ModRenderSystem() {
         Paramagic.LOG.info("ModRenderSystem instance created.");
@@ -188,7 +189,7 @@ public class ModRenderSystem extends AbstractRenderSystem implements AutoCloseab
                     postTextures.blurredBloomTextureId(),
                     sceneCopyFBO.getGameSceneTextureId()
             );
-            float timeSeconds = (System.currentTimeMillis() & 0x3fffffff) / 1000.0f;
+            float timeSeconds = getRenderTimeSeconds();
             int finalSceneTexture = screenSpaceEffectManager.applyGeometricMaskEffects(
                     context,
                     timeSeconds,
@@ -239,7 +240,7 @@ public class ModRenderSystem extends AbstractRenderSystem implements AutoCloseab
         glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
-        float timeSeconds = (System.currentTimeMillis() & 0x3fffffff) / 1000.0f;
+        float timeSeconds = getRenderTimeSeconds();
         renderQueue.gather(scene, context.getCamera().position());
         renderQueue.sortForDraw();
         stateCache.apply(RenderState.OPAQUE);
@@ -288,6 +289,10 @@ public class ModRenderSystem extends AbstractRenderSystem implements AutoCloseab
         renderable.getMesh().draw();
 
         material.unbind();
+    }
+
+    private float getRenderTimeSeconds() {
+        return (System.nanoTime() - this.renderStartNanos) / 1_000_000_000.0f;
     }
 
     public void onWindowResize(int newWidth, int newHeight) {

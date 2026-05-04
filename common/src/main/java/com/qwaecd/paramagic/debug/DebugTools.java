@@ -3,6 +3,8 @@ package com.qwaecd.paramagic.debug;
 import com.qwaecd.paramagic.Paramagic;
 import com.qwaecd.paramagic.assembler.AssemblyException;
 import com.qwaecd.paramagic.assembler.ParaComposer;
+import com.qwaecd.paramagic.client.material.LaserMaterial;
+import com.qwaecd.paramagic.client.obj.laser.LaserBeam;
 import com.qwaecd.paramagic.client.obj.sun.Sun;
 import com.qwaecd.paramagic.client.renderbase.SharedMeshes;
 import com.qwaecd.paramagic.client.renderbase.Sphere;
@@ -53,6 +55,8 @@ public class DebugTools {
         ball.getTransform().getModelMatrix().translate(0, 100, 0).scale(4.0f, 4.0f, 4.0f);
 //        ModRenderSystem.getInstance().addRenderable(ball);
 
+        spawnDebugLaserBeam();
+
         IRenderable sun = new Sun(ShaderManager.getInstance().getShader("sun"));
         sun.getTransform().setPosition(0, 80, 10).setScale(5.0f, 5.0f, 5.0f);
 //        ModRenderSystem.getInstance().addRenderable(sun);
@@ -61,6 +65,35 @@ public class DebugTools {
         testGpuMagicCircleEffect();
 //        paraTest();
 //        effectTest();
+    }
+
+    private static void spawnDebugLaserBeam() {
+        {
+            LaserMaterial laserMaterial = new LaserMaterial()
+                    .setColor(1.35f, 0.75f, 1.0f)
+                    .setAlpha(1.0f)
+                    .setEmissiveIntensity(0.8f)
+                    .setFlowSpeed(0.01f, -0.9f)
+                    .setNoiseSpeed(0.01f, -0.9f)
+                    .setNoiseScale(0.2f)
+                    .setNoiseStrength(20.5f);
+            LaserBeam laserBeam = new LaserBeam(laserMaterial)
+                    .setBeam(new Vector3f(0.0f, 0.0f, 0.0f), new Vector3f(0.0f, 64.0f, 0.0f), 4.0f);
+            ModRenderSystem.getInstance().addRenderable(laserBeam);
+        }
+        {
+            LaserMaterial laserMaterial = new LaserMaterial(LaserMaterial.DEFAULT_NOISE_TEXTURE, LaserMaterial.DEFAULT_NOISE_TEXTURE)
+                    .setColor(0.5f, 0.3f, 0.5f)
+                    .setAlpha(1.0f)
+                    .setEmissiveIntensity(1.2f)
+                    .setFlowSpeed(0.1f, -0.5f)
+                    .setNoiseSpeed(0.1f, -0.5f)
+                    .setNoiseScale(0.4f)
+                    .setNoiseStrength(2.5f);
+            LaserBeam laserBeam = new LaserBeam(laserMaterial)
+                    .setBeam(new Vector3f(0.0f, 0.0f, 0.0f), new Vector3f(0.0f, 64.0f, 0.0f), 3.8f);
+            ModRenderSystem.getInstance().addRenderable(laserBeam);
+        }
     }
 
     private static void testGpuMagicCircleEffect() {

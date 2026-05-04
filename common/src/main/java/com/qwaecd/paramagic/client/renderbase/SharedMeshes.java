@@ -19,13 +19,14 @@ public final class SharedMeshes {
     private static final int SPHERE_RADIUS = 1;
     private static final int SPHERE_STACKS = 32;
     private static final int SPHERE_SLICES = 64;
-    private static final int UNIT_CYLINDER_SIDE_QUADS = 16;
+    private static final int UNIT_CYLINDER_SIDE_QUADS = 32;
     private static final float UNIT_CYLINDER_RADIUS = 1.0f;
     private static final float UNIT_CYLINDER_HEIGHT = 1.0f;
 
     private static Mesh sphere;
     private static Mesh unitQuad;
     private static Mesh unitCylinder;
+    private static Mesh laserCylinder;
     private static Mesh fullscreenQuad;
 
     private SharedMeshes() {
@@ -40,6 +41,9 @@ public final class SharedMeshes {
         }
         if (unitCylinder == null) {
             unitCylinder = buildUnitCylinderMesh();
+        }
+        if (laserCylinder == null) {
+            laserCylinder = buildLaserCylinderMesh();
         }
         if (fullscreenQuad == null) {
             fullscreenQuad = buildFullscreenQuadMesh();
@@ -61,6 +65,11 @@ public final class SharedMeshes {
         return unitCylinder;
     }
 
+    public static Mesh laserCylinder() {
+        init();
+        return laserCylinder;
+    }
+
     public static Mesh fullscreenQuad() {
         init();
         return fullscreenQuad;
@@ -70,10 +79,12 @@ public final class SharedMeshes {
         closeMesh(sphere);
         closeMesh(unitQuad);
         closeMesh(unitCylinder);
+        closeMesh(laserCylinder);
         closeMesh(fullscreenQuad);
         sphere = null;
         unitQuad = null;
         unitCylinder = null;
+        laserCylinder = null;
         fullscreenQuad = null;
     }
 
@@ -164,6 +175,44 @@ public final class SharedMeshes {
                     .pos(x0, UNIT_CYLINDER_HEIGHT, z0).color(0.0f, 1.0f, 1.0f, 1.0f).normal(nx, 0.0f, nz).endVertex()
                     .pos(x1, UNIT_CYLINDER_HEIGHT, z1).color(0.0f, 1.0f, 1.0f, 1.0f).normal(nx, 0.0f, nz).endVertex()
                     .pos(x1, 0.0f, z1).color(0.0f, 1.0f, 1.0f, 1.0f).normal(nx, 0.0f, nz).endVertex();
+            builder.addQuadIndices(base);
+        }
+
+        ByteBuffer vertexData = builder.buildBuffer(layout);
+        ShortBuffer indexBuffer = builder.buildIndexBufferU16();
+        Mesh mesh = new Mesh(GL_TRIANGLES);
+        mesh.uploadAndConfigure(vertexData, layout, GL_STATIC_DRAW, indexBuffer, GL_STATIC_DRAW);
+        return mesh;
+    }
+
+    private static Mesh buildLaserCylinderMesh() {
+        VertexLayout layout = new VertexLayout();
+        layout
+                .addNextAttribute(new VertexAttribute(0, 3, GL_FLOAT, false))
+                .addNextAttribute(new VertexAttribute(2, 2, GL_FLOAT, false))
+                .addNextAttribute(new VertexAttribute(3, 3, GL_BYTE, true));
+
+        MeshBuilder builder = new MeshBuilder();
+        float step = (float) (2.0 * Math.PI / UNIT_CYLINDER_SIDE_QUADS);
+        for (int i = 0; i < UNIT_CYLINDER_SIDE_QUADS; i++) {
+            float theta0 = step * i;
+            float theta1 = step * (i + 1);
+            float normalTheta = theta0 + step * 0.5f;
+            float u0 = (float) i / UNIT_CYLINDER_SIDE_QUADS;
+            float u1 = (float) (i + 1) / UNIT_CYLINDER_SIDE_QUADS;
+
+            float x0 = (float) Math.cos(theta0) * UNIT_CYLINDER_RADIUS;
+            float z0 = (float) Math.sin(theta0) * UNIT_CYLINDER_RADIUS;
+            float x1 = (float) Math.cos(theta1) * UNIT_CYLINDER_RADIUS;
+            float z1 = (float) Math.sin(theta1) * UNIT_CYLINDER_RADIUS;
+            float nx = (float) Math.cos(normalTheta);
+            float nz = (float) Math.sin(normalTheta);
+
+            int base = i * 4;
+            builder.pos(x0, 0.0f, z0).uv(u0, 0.0f).normal(nx, 0.0f, nz).endVertex()
+                    .pos(x0, UNIT_CYLINDER_HEIGHT, z0).uv(u0, 1.0f).normal(nx, 0.0f, nz).endVertex()
+                    .pos(x1, UNIT_CYLINDER_HEIGHT, z1).uv(u1, 1.0f).normal(nx, 0.0f, nz).endVertex()
+                    .pos(x1, 0.0f, z1).uv(u1, 0.0f).normal(nx, 0.0f, nz).endVertex();
             builder.addQuadIndices(base);
         }
 
