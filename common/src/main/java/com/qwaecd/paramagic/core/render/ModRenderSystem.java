@@ -22,6 +22,7 @@ import com.qwaecd.paramagic.core.render.state.GLStateCache;
 import com.qwaecd.paramagic.core.render.state.GLStateGuard;
 import com.qwaecd.paramagic.core.render.state.RenderState;
 import com.qwaecd.paramagic.core.render.texture.AbstractMaterial;
+import com.qwaecd.paramagic.core.render.texture.TextureManager;
 import com.qwaecd.paramagic.core.render.things.IMatrixStackProvider;
 import com.qwaecd.paramagic.core.render.vertex.Mesh;
 import com.qwaecd.paramagic.data.para.converter.ParaConverters;
@@ -73,6 +74,8 @@ public class ModRenderSystem extends AbstractRenderSystem implements AutoCloseab
     private RenderEffectManager renderEffectManager;
     @Getter
     private ParticleSystem particleSystem;
+    @Getter
+    private TextureManager textureManager;
     private boolean canUseComputeShader = false;
     private boolean canUseGeometryShader = false;
 
@@ -100,6 +103,7 @@ public class ModRenderSystem extends AbstractRenderSystem implements AutoCloseab
         instance.checkGLVersion();
 
         ShaderManager.init();
+        instance.textureManager = new TextureManager();
         SharedMeshes.init();
         ParticleSystem.init(instance.canUseComputeShader, instance.canUseGeometryShader);
         ParaConverters.init();
@@ -421,6 +425,7 @@ public class ModRenderSystem extends AbstractRenderSystem implements AutoCloseab
         closeQuietly("sceneCopyFBO", this.sceneCopyFBO);
         closeQuietly("geometricMaskFbo", this.geometricMaskFbo);
         closeQuietly("combinedSceneFbo", this.combinedSceneFbo);
+        closeQuietly("textureManager", this.textureManager);
         try {
             SharedMeshes.close();
         } catch (Exception e) {
@@ -435,6 +440,7 @@ public class ModRenderSystem extends AbstractRenderSystem implements AutoCloseab
         this.geometricMaskFbo = null;
         this.combinedSceneFbo = null;
         this.fullscreenQuad = null;
+        this.textureManager = null;
         INSTANCE = null;
     }
 

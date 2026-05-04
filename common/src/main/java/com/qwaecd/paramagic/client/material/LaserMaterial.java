@@ -1,9 +1,11 @@
 package com.qwaecd.paramagic.client.material;
 
+import com.qwaecd.paramagic.core.render.ModRenderSystem;
 import com.qwaecd.paramagic.core.render.queue.RenderType;
 import com.qwaecd.paramagic.core.render.shader.ShaderManager;
 import com.qwaecd.paramagic.core.render.texture.AbstractMaterial;
 import com.qwaecd.paramagic.core.render.texture.Texture2D;
+import com.qwaecd.paramagic.core.render.texture.TextureManager;
 import com.qwaecd.paramagic.tools.ModRL;
 import net.minecraft.resources.ResourceLocation;
 import org.joml.Vector2f;
@@ -11,7 +13,7 @@ import org.joml.Vector3f;
 
 import static org.lwjgl.opengl.GL33.GL_REPEAT;
 
-public class LaserMaterial extends AbstractMaterial implements AutoCloseable {
+public class LaserMaterial extends AbstractMaterial {
     public static final ResourceLocation DEFAULT_FLOW_TEXTURE = ModRL.inModSpace("textures/special/fluent_light.png");
     public static final ResourceLocation DEFAULT_NOISE_TEXTURE = ModRL.inModSpace("textures/special/noise_0.png");
 
@@ -40,8 +42,9 @@ public class LaserMaterial extends AbstractMaterial implements AutoCloseable {
 
     @Override
     public void applyCustomUniforms() {
-        flowTexture.bind(0);
-        noiseTexture.bind(1);
+        TextureManager textures = ModRenderSystem.getInstance().getTextureManager();
+        textures.bind(flowTexture, 0);
+        textures.bind(noiseTexture, 1);
         shader.setUniformValue1i("u_flowTexture", 0);
         shader.setUniformValue1i("u_noiseTexture", 1);
         shader.setUniformValue3f("u_color", color);
@@ -111,9 +114,4 @@ public class LaserMaterial extends AbstractMaterial implements AutoCloseable {
         return this;
     }
 
-    @Override
-    public void close() {
-        flowTexture.dispose();
-        noiseTexture.dispose();
-    }
 }
