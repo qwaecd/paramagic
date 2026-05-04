@@ -27,5 +27,7 @@ public class RendererManager {
     public void update(float deltaTime) {
         MagicCircleManager cm = MagicCircleManager.getInstance();
         cm.update(deltaTime);
+        ModRenderSystem rs = ModRenderSystem.getInstance();
+        rs.getRenderEffectManager().update(deltaTime);
     }
 }

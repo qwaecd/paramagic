@@ -1,6 +1,6 @@
 package com.qwaecd.paramagic.core.render.post;
 
-import com.qwaecd.paramagic.client.renderbase.factory.FullScreenQuadFactory;
+import com.qwaecd.paramagic.client.renderbase.SharedMeshes;
 import com.qwaecd.paramagic.core.render.shader.Shader;
 import com.qwaecd.paramagic.core.render.shader.ShaderManager;
 import com.qwaecd.paramagic.core.render.vertex.Mesh;
@@ -13,7 +13,7 @@ public class CompositePass implements AutoCloseable {
     private Mesh fullscreenQuad;
     public void initialize() {
         this.compositeShader = ShaderManager.getInstance().getCompositeShader();
-        this.fullscreenQuad = FullScreenQuadFactory.createFullscreenQuad();
+        this.fullscreenQuad = SharedMeshes.fullscreenQuad();
     }
 
     public void combine(int sceneTextureId, int bloomTextureId, float bloomStrength) {

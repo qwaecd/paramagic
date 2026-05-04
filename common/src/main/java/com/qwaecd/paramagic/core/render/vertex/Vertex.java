@@ -71,6 +71,7 @@ public class Vertex {
         private float a;
         private float u;
         private float v;
+        private final Vector3f normal = new Vector3f(1.0f);
         private boolean hasNormal = false;
         private boolean hasUV = false;
 
@@ -106,15 +107,14 @@ public class Vertex {
         }
 
         public Builder normal(float x, float y, float z) {
-            this.x = x;
-            this.y = y;
-            this.z = z;
+            this.normal.set(x, y, z);
             this.hasNormal = true;
             return this;
         }
 
         public Vertex build() {
             Vertex vertex = new Vertex(x, y, z, r, g, b, a, u, v);
+            vertex.normal = new Vector3f(this.normal);
             vertex.hasNormal = this.hasNormal;
             vertex.hasUV = this.hasUV;
             return vertex;

@@ -1,22 +1,19 @@
-package com.qwaecd.paramagic.client.obj.sun;
+package com.qwaecd.paramagic.client.renderbase;
 
-import com.qwaecd.paramagic.client.material.SunMaterial;
-import com.qwaecd.paramagic.client.renderbase.SharedMeshes;
 import com.qwaecd.paramagic.core.render.Transform;
 import com.qwaecd.paramagic.core.render.api.IRenderable;
-import com.qwaecd.paramagic.core.render.shader.Shader;
 import com.qwaecd.paramagic.core.render.texture.AbstractMaterial;
 import com.qwaecd.paramagic.core.render.vertex.Mesh;
 
-public class Sun implements IRenderable {
-    private final Mesh mesh;
-    private final AbstractMaterial material;
-    private final Transform transform;
+public class RenderableObject implements IRenderable {
+    protected final Mesh mesh;
+    protected final AbstractMaterial material;
+    protected final Transform transform;
 
-    public Sun(Shader shader) {
-        this.mesh = SharedMeshes.sphere();
+    public RenderableObject(Mesh mesh, AbstractMaterial material) {
+        this.mesh = mesh;
+        this.material = material;
         this.transform = new Transform();
-        this.material = new SunMaterial(shader);
     }
 
     @Override

@@ -10,6 +10,7 @@ public class AllShaders {
         postShaders();
         debugShaders();
         paraShaders();
+        effectShaders();
         computeShaders();
     }
     private static void postShaders() {
@@ -32,6 +33,10 @@ public class AllShaders {
 
     private static void paraShaders() {
         ShaderManager.registerShaderInfo("ring_para", new ShaderInfo("para/", "ring_para"));
+    }
+
+    private static void effectShaders() {
+        ShaderManager.registerShaderInfo("laser_cylinder", new ShaderInfo("effect/", "laser_cylinder"));
     }
 
     private static void computeShaders() {

@@ -17,6 +17,10 @@ public class Texture2D {
     private int width, height;
 
     public Texture2D(ResourceLocation location, boolean generateMipmap) {
+        this(location, generateMipmap, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE);
+    }
+
+    public Texture2D(ResourceLocation location, boolean generateMipmap, int wrapS, int wrapT) {
         this.id = glGenTextures();
         bind(0);
         try (InputStream in = Minecraft.getInstance().getResourceManager().getResource(location).get().open();
@@ -26,8 +30,8 @@ public class Texture2D {
 
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, generateMipmap ? GL_LINEAR_MIPMAP_LINEAR : GL_LINEAR);
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrapS);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrapT);
 
             glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
             glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, img.getPixelsRGBA());

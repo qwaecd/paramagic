@@ -1,6 +1,6 @@
 package com.qwaecd.paramagic.core.render.post.effect;
 
-import com.qwaecd.paramagic.client.renderbase.factory.FullScreenQuadFactory;
+import com.qwaecd.paramagic.client.renderbase.SharedMeshes;
 import com.qwaecd.paramagic.core.render.post.buffer.SingleTargetFramebuffer;
 import com.qwaecd.paramagic.core.render.shader.Shader;
 import com.qwaecd.paramagic.core.render.shader.ShaderManager;
@@ -22,7 +22,7 @@ public class BloomEffect implements IPostProcessingEffect {
     public void initialize(int width, int height) {
         this.blurShader = ShaderManager.getInstance().getShaderThrowIfNotFound("blur");
         this.bloomCompositeShader = ShaderManager.getInstance().getShaderThrowIfNotFound("bloom_composite");
-        this.fullscreenQuad = FullScreenQuadFactory.createFullscreenQuad();
+        this.fullscreenQuad = SharedMeshes.fullscreenQuad();
         internalPingPongFbo = new SingleTargetFramebuffer(16, 16);
         blurMipChain = new SingleTargetFramebuffer[blurPasses];
         for (int i = 0; i < blurPasses; i++) {

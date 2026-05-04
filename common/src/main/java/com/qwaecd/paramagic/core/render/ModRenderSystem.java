@@ -2,10 +2,10 @@ package com.qwaecd.paramagic.core.render;
 
 import com.mojang.blaze3d.pipeline.RenderTarget;
 import com.qwaecd.paramagic.Paramagic;
-import com.qwaecd.paramagic.client.renderbase.BaseObjectManager;
-import com.qwaecd.paramagic.client.renderbase.factory.FullScreenQuadFactory;
+import com.qwaecd.paramagic.client.renderbase.SharedMeshes;
 import com.qwaecd.paramagic.core.particle.ParticleSystem;
 import com.qwaecd.paramagic.core.render.api.IRenderable;
+import com.qwaecd.paramagic.core.render.api.RenderEffect;
 import com.qwaecd.paramagic.core.render.context.RenderContext;
 import com.qwaecd.paramagic.core.render.geometricmask.GeometricEffectCaster;
 import com.qwaecd.paramagic.core.render.geometricmask.GeometricMaskSceneTextures;
@@ -37,7 +37,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import static org.lwjgl.opengl.GL33.*;
 
 
-public class ModRenderSystem extends AbstractRenderSystem{
+public class ModRenderSystem extends AbstractRenderSystem implements AutoCloseable {
     private static ModRenderSystem INSTANCE;
 
     private final RenderQueue renderQueue = new RenderQueue();
@@ -70,11 +70,14 @@ public class ModRenderSystem extends AbstractRenderSystem{
     @Getter
     private RendererManager rendererManager;
     @Getter
+    private RenderEffectManager renderEffectManager;
+    @Getter
     private ParticleSystem particleSystem;
     private boolean canUseComputeShader = false;
     private boolean canUseGeometryShader = false;
 
     private final Matrix4f reusableMatrix = new Matrix4f();
+    private final long renderStartNanos = System.nanoTime();
 
     private ModRenderSystem() {
         Paramagic.LOG.info("ModRenderSystem instance created.");
@@ -89,11 +92,7 @@ public class ModRenderSystem extends AbstractRenderSystem{
     public static void init() {
         if (INSTANCE == null) {
             INSTANCE = new ModRenderSystem();
-            INSTANCE.initialize();
         }
-    }
-
-    public void initialize() {
     }
 
     public static void initAfterClientStarted() {
@@ -101,15 +100,16 @@ public class ModRenderSystem extends AbstractRenderSystem{
         instance.checkGLVersion();
 
         ShaderManager.init();
-        BaseObjectManager.init();
+        SharedMeshes.init();
         ParticleSystem.init(instance.canUseComputeShader, instance.canUseGeometryShader);
         ParaConverters.init();
 
 
         instance.initializePostProcessing();
-        instance.fullscreenQuad = FullScreenQuadFactory.createFullscreenQuad();
+        instance.fullscreenQuad = SharedMeshes.fullscreenQuad();
         instance.rendererManager = new RendererManager();
         instance.particleSystem = ParticleSystem.getInstance();
+        instance.renderEffectManager = new RenderEffectManager(instance);
         Paramagic.LOG.info("Render system initialized.");
     }
 
@@ -189,7 +189,7 @@ public class ModRenderSystem extends AbstractRenderSystem{
                     postTextures.blurredBloomTextureId(),
                     sceneCopyFBO.getGameSceneTextureId()
             );
-            float timeSeconds = (System.currentTimeMillis() & 0x3fffffff) / 1000.0f;
+            float timeSeconds = getRenderTimeSeconds();
             int finalSceneTexture = screenSpaceEffectManager.applyGeometricMaskEffects(
                     context,
                     timeSeconds,
@@ -240,7 +240,7 @@ public class ModRenderSystem extends AbstractRenderSystem{
         glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
-        float timeSeconds = (System.currentTimeMillis() & 0x3fffffff) / 1000.0f;
+        float timeSeconds = getRenderTimeSeconds();
         renderQueue.gather(scene, context.getCamera().position());
         renderQueue.sortForDraw();
         stateCache.apply(RenderState.OPAQUE);
@@ -291,6 +291,10 @@ public class ModRenderSystem extends AbstractRenderSystem{
         material.unbind();
     }
 
+    private float getRenderTimeSeconds() {
+        return (System.nanoTime() - this.renderStartNanos) / 1_000_000_000.0f;
+    }
+
     public void onWindowResize(int newWidth, int newHeight) {
         if (this.mainFbo != null) {
             this.mainFbo.resize(newWidth, newHeight);
@@ -336,6 +340,18 @@ public class ModRenderSystem extends AbstractRenderSystem{
         if (renderables != null && !renderables.isEmpty()) {
             this.pendingBatchRemove.add(renderables);
         }
+    }
+
+    public void removeRenderables(IRenderable... renderables) {
+        this.removeRenderables(Arrays.stream(renderables).toList());
+    }
+
+    public void spawnRenderEffect(RenderEffect effect) {
+        renderEffectManager.add(effect);
+    }
+
+    public void destroyRenderEffect(RenderEffect effect) {
+        renderEffectManager.remove(effect);
     }
 
     public void clearAll() {
@@ -394,5 +410,42 @@ public class ModRenderSystem extends AbstractRenderSystem{
 
     public static boolean isInitialized() {
         return INSTANCE != null;
+    }
+
+    @Override
+    public void close() {
+        closeQuietly("postProcessingManager", this.postProcessingManager);
+        closeQuietly("finalComposePass", this.finalComposePass);
+        closeQuietly("screenSpaceEffectManager", this.screenSpaceEffectManager);
+        closeQuietly("mainFbo", this.mainFbo);
+        closeQuietly("sceneCopyFBO", this.sceneCopyFBO);
+        closeQuietly("geometricMaskFbo", this.geometricMaskFbo);
+        closeQuietly("combinedSceneFbo", this.combinedSceneFbo);
+        try {
+            SharedMeshes.close();
+        } catch (Exception e) {
+            Paramagic.LOG.warn("Failed to close shared meshes.", e);
+        }
+
+        this.postProcessingManager = null;
+        this.finalComposePass = null;
+        this.screenSpaceEffectManager = null;
+        this.mainFbo = null;
+        this.sceneCopyFBO = null;
+        this.geometricMaskFbo = null;
+        this.combinedSceneFbo = null;
+        this.fullscreenQuad = null;
+        INSTANCE = null;
+    }
+
+    private static void closeQuietly(String resourceName, AutoCloseable resource) {
+        if (resource == null) {
+            return;
+        }
+        try {
+            resource.close();
+        } catch (Exception e) {
+            Paramagic.LOG.warn("Failed to close render resource: {}", resourceName, e);
+        }
     }
 }
