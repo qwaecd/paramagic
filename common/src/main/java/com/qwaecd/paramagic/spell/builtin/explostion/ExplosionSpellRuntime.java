@@ -82,6 +82,8 @@ public class ExplosionSpellRuntime implements ReleaseAwareSpellRuntime {
         if (this.currentStage == Stage.CHANNELING && this.elapsedTicks >= CASTING_TICKS + CHANNELING_TICKS) {
             this.currentStage = Stage.IMPACT;
             this.execute(context, context.getLevel());
+        } else {
+            context.getSession().interrupt();
         }
         this.finished = true;
     }

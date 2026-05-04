@@ -5,6 +5,7 @@ import com.qwaecd.paramagic.Paramagic;
 import com.qwaecd.paramagic.client.renderbase.SharedMeshes;
 import com.qwaecd.paramagic.core.particle.ParticleSystem;
 import com.qwaecd.paramagic.core.render.api.IRenderable;
+import com.qwaecd.paramagic.core.render.api.RenderEffect;
 import com.qwaecd.paramagic.core.render.context.RenderContext;
 import com.qwaecd.paramagic.core.render.geometricmask.GeometricEffectCaster;
 import com.qwaecd.paramagic.core.render.geometricmask.GeometricMaskSceneTextures;
@@ -69,6 +70,8 @@ public class ModRenderSystem extends AbstractRenderSystem implements AutoCloseab
     @Getter
     private RendererManager rendererManager;
     @Getter
+    private RenderEffectManager renderEffectManager;
+    @Getter
     private ParticleSystem particleSystem;
     private boolean canUseComputeShader = false;
     private boolean canUseGeometryShader = false;
@@ -89,11 +92,7 @@ public class ModRenderSystem extends AbstractRenderSystem implements AutoCloseab
     public static void init() {
         if (INSTANCE == null) {
             INSTANCE = new ModRenderSystem();
-            INSTANCE.initialize();
         }
-    }
-
-    public void initialize() {
     }
 
     public static void initAfterClientStarted() {
@@ -110,6 +109,7 @@ public class ModRenderSystem extends AbstractRenderSystem implements AutoCloseab
         instance.fullscreenQuad = SharedMeshes.fullscreenQuad();
         instance.rendererManager = new RendererManager();
         instance.particleSystem = ParticleSystem.getInstance();
+        instance.renderEffectManager = new RenderEffectManager(instance);
         Paramagic.LOG.info("Render system initialized.");
     }
 
@@ -340,6 +340,18 @@ public class ModRenderSystem extends AbstractRenderSystem implements AutoCloseab
         if (renderables != null && !renderables.isEmpty()) {
             this.pendingBatchRemove.add(renderables);
         }
+    }
+
+    public void removeRenderables(IRenderable... renderables) {
+        this.removeRenderables(Arrays.stream(renderables).toList());
+    }
+
+    public void spawnRenderEffect(RenderEffect effect) {
+        renderEffectManager.add(effect);
+    }
+
+    public void destroyRenderEffect(RenderEffect effect) {
+        renderEffectManager.remove(effect);
     }
 
     public void clearAll() {

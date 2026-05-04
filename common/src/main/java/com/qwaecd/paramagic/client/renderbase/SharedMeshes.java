@@ -43,7 +43,7 @@ public final class SharedMeshes {
             unitCylinder = buildUnitCylinderMesh();
         }
         if (laserCylinder == null) {
-            laserCylinder = buildLaserCylinderMesh();
+            laserCylinder = buildLaserCylinderMesh(64);
         }
         if (fullscreenQuad == null) {
             fullscreenQuad = buildFullscreenQuadMesh();
@@ -185,7 +185,7 @@ public final class SharedMeshes {
         return mesh;
     }
 
-    private static Mesh buildLaserCylinderMesh() {
+    private static Mesh buildLaserCylinderMesh(final int sideQuads) {
         VertexLayout layout = new VertexLayout();
         layout
                 .addNextAttribute(new VertexAttribute(0, 3, GL_FLOAT, false))
@@ -193,13 +193,13 @@ public final class SharedMeshes {
                 .addNextAttribute(new VertexAttribute(3, 3, GL_BYTE, true));
 
         MeshBuilder builder = new MeshBuilder();
-        float step = (float) (2.0 * Math.PI / UNIT_CYLINDER_SIDE_QUADS);
-        for (int i = 0; i < UNIT_CYLINDER_SIDE_QUADS; i++) {
+        float step = (float) (2.0 * Math.PI / sideQuads);
+        for (int i = 0; i < sideQuads; i++) {
             float theta0 = step * i;
             float theta1 = step * (i + 1);
             float normalTheta = theta0 + step * 0.5f;
-            float u0 = (float) i / UNIT_CYLINDER_SIDE_QUADS;
-            float u1 = (float) (i + 1) / UNIT_CYLINDER_SIDE_QUADS;
+            float u0 = (float) i / sideQuads;
+            float u1 = (float) (i + 1) / sideQuads;
 
             float x0 = (float) Math.cos(theta0) * UNIT_CYLINDER_RADIUS;
             float z0 = (float) Math.sin(theta0) * UNIT_CYLINDER_RADIUS;
