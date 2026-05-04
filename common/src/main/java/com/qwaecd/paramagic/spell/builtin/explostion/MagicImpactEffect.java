@@ -1,5 +1,6 @@
 package com.qwaecd.paramagic.spell.builtin.explostion;
 
+import com.qwaecd.paramagic.client.CameraShake;
 import com.qwaecd.paramagic.client.material.LaserMaterial;
 import com.qwaecd.paramagic.client.obj.laser.LaserBeam;
 import com.qwaecd.paramagic.core.particle.ParticleSystem;
@@ -72,14 +73,14 @@ public final class MagicImpactEffect implements RenderEffect {
         circleEmitter.modifyProp(SIZE_RANGE, v -> v.set(0.04f, 0.37f));
         circleEmitter.trySet(BLOOM_INTENSITY, 0.4f);
         circleEmitter.trySet(VELOCITY_MODE, VelocityModeStates.DIRECT);
-        circleEmitter.modifyProp(INNER_OUTER_RADIUS, v -> v.set(4.0f, this.maxBeamRadius + 6.0f));
-        circleEmitter.modifyProp(BASE_VELOCITY, v -> v.set(0.0f, 24.0f, 0.0f));
+        circleEmitter.modifyProp(INNER_OUTER_RADIUS, v -> v.set(4.0f, this.maxBeamRadius + 12.0f));
+        circleEmitter.modifyProp(BASE_VELOCITY, v -> v.set(0.0f, 32.0f, 0.0f));
         circleEmitter.trySet(PARTICLE_PRIMITIVE_TYPE, ParticlePrimitiveTypeStates.TRIANGLE);
         circleEmitter.trySet(PARTICLE_FACING_MODE, ParticleFacingModeStates.NORMAL_FACING);
         circleEmitter.trySet(PARTICLE_SHAPE_FLAGS, ParticleShapeFlags.JITTERED);
         this.explosionParticles = new GPUParticleEffect(List.of(circleEmitter), 10_0000, this.effectTime + 5.0f);
         this.explosionParticles.setConsumer(((effect, deltaTime) -> {
-            if (effect.getCurrentLifeTime() > MagicImpactEffect.this.effectTime) {
+            if (effect.getCurrentLifeTime() > MagicImpactEffect.this.effectTime + 1.0f) {
                 effect.setShouldUpdateEmitter(false);
             }
         }));
@@ -97,6 +98,7 @@ public final class MagicImpactEffect implements RenderEffect {
         ModRenderSystem.getInstance().spawnRenderEffect(this);
         this.explosionParticles.getTransform().setPosition(pos);
         ParticleSystem.getInstance().spawnEffect(this.explosionParticles);
+        CameraShake.shake(2.35f, this.effectTime);
     }
 
     interface BeamConsumer {
