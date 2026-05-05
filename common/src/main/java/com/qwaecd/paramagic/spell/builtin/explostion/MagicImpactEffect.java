@@ -11,12 +11,18 @@ import com.qwaecd.paramagic.core.particle.emitter.property.type.ParticlePrimitiv
 import com.qwaecd.paramagic.core.particle.emitter.property.type.ParticleShapeFlags;
 import com.qwaecd.paramagic.core.particle.emitter.property.type.VelocityModeStates;
 import com.qwaecd.paramagic.core.render.ModRenderSystem;
+import com.qwaecd.paramagic.core.render.TransformSample;
 import com.qwaecd.paramagic.core.render.api.RenderEffect;
 import com.qwaecd.paramagic.platform.annotation.PlatformScope;
 import com.qwaecd.paramagic.platform.annotation.PlatformScopeType;
 import com.qwaecd.paramagic.spell.client.ClientSpellContext;
 import com.qwaecd.paramagic.spell.core.store.AllSessionDataKeys;
 import com.qwaecd.paramagic.spell.core.store.SessionDataValue;
+import com.qwaecd.paramagic.world.sound.ModSounds;
+import com.qwaecd.paramagic.world.sound.SoundHelper;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.sounds.SoundSource;
 import org.joml.Vector3f;
 
 import javax.annotation.Nonnull;
@@ -76,7 +82,7 @@ public final class MagicImpactEffect implements RenderEffect {
         circleEmitter.modifyProp(INNER_OUTER_RADIUS, v -> v.set(4.0f, this.maxBeamRadius + 12.0f));
         circleEmitter.modifyProp(BASE_VELOCITY, v -> v.set(0.0f, 32.0f, 0.0f));
         circleEmitter.trySet(PARTICLE_PRIMITIVE_TYPE, ParticlePrimitiveTypeStates.TRIANGLE);
-        circleEmitter.trySet(PARTICLE_FACING_MODE, ParticleFacingModeStates.NORMAL_FACING);
+        circleEmitter.trySet(PARTICLE_FACING_MODE, ParticleFacingModeStates.CAMERA_FACING);
         circleEmitter.trySet(PARTICLE_SHAPE_FLAGS, ParticleShapeFlags.JITTERED);
         this.explosionParticles = new GPUParticleEffect(List.of(circleEmitter), 10_0000, this.effectTime + 5.0f);
         this.explosionParticles.setConsumer(((effect, deltaTime) -> {
@@ -98,7 +104,30 @@ public final class MagicImpactEffect implements RenderEffect {
         ModRenderSystem.getInstance().spawnRenderEffect(this);
         this.explosionParticles.getTransform().setPosition(pos);
         ParticleSystem.getInstance().spawnEffect(this.explosionParticles);
-        CameraShake.shake(2.35f, this.effectTime);
+        CameraShake.shake(3.35f, this.effectTime + 3.0f);
+        ClientLevel level = Minecraft.getInstance().level;
+
+        if (level == null) {
+            return;
+        }
+        TransformSample sample = new TransformSample();
+        context.casterSource().applyTo(sample);
+        Vector3f soundPos = new Vector3f(sample.eyePosition);
+        Vector3f dir = new Vector3f(pos).sub(soundPos);
+        float distance = dir.length();
+        float volume = 4.0f;
+        if (distance > 32.0f) {
+            volume *= (32.0f / distance);
+        }
+        soundPos.add(dir.normalize());
+        SoundHelper.playLocalSound(
+                level,
+                soundPos.x, soundPos.y, soundPos.z,
+                ModSounds.EXPLOSION,
+                SoundSource.BLOCKS,
+                volume,
+                1.0F / (level.getRandom().nextFloat() * 0.2F + 0.9F)
+        );
     }
 
     interface BeamConsumer {

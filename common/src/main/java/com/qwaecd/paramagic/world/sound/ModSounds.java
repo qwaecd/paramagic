@@ -5,8 +5,10 @@ import net.minecraft.sounds.SoundEvent;
 public final class ModSounds {
     private ModSounds() {}
     public static SoundEvent LASER;
+    public static SoundEvent EXPLOSION;
     public static void init(SoundProvider provider) {
         LASER = create(provider, "laser");
+        EXPLOSION = create(provider, "explosion");
     }
 
     public interface SoundProvider {
