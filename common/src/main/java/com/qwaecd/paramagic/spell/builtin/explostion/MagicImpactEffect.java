@@ -5,7 +5,9 @@ import com.qwaecd.paramagic.client.material.LaserMaterial;
 import com.qwaecd.paramagic.client.obj.laser.LaserBeam;
 import com.qwaecd.paramagic.core.particle.ParticleSystem;
 import com.qwaecd.paramagic.core.particle.effect.GPUParticleEffect;
+import com.qwaecd.paramagic.core.particle.emitter.ParticleBurst;
 import com.qwaecd.paramagic.core.particle.emitter.impl.CircleEmitter;
+import com.qwaecd.paramagic.core.particle.emitter.impl.SphereEmitter;
 import com.qwaecd.paramagic.core.particle.emitter.property.type.ParticleFacingModeStates;
 import com.qwaecd.paramagic.core.particle.emitter.property.type.ParticlePrimitiveTypeStates;
 import com.qwaecd.paramagic.core.particle.emitter.property.type.ParticleShapeFlags;
@@ -71,7 +73,20 @@ public final class MagicImpactEffect implements RenderEffect {
                 .setNoiseScale(0.4f)
                 .setNoiseStrength(2.5f)
         );
-
+        SphereEmitter sphereEmitter = new SphereEmitter(new Vector3f(), 100.0f);
+        sphereEmitter.modifyProp(COLOR, v -> v.set(1.1f, 0.6f, 0.2f, 1.0f));
+        sphereEmitter.modifyProp(LIFE_TIME_RANGE, v -> v.set(1.1f, 5.4f));
+        sphereEmitter.modifyProp(SIZE_RANGE, v -> v.set(0.04f, 0.57f));
+        sphereEmitter.trySet(BLOOM_INTENSITY, 0.5f);
+        sphereEmitter.trySet(SPHERE_RADIUS, 10.0f);
+        sphereEmitter.trySet(EMIT_FROM_VOLUME, true);
+        sphereEmitter.trySet(VELOCITY_MODE, VelocityModeStates.RADIAL_FROM_CENTER);
+        sphereEmitter.modifyProp(BASE_VELOCITY, v -> v.set(0.0f, 8.0f, 0.0f));
+        sphereEmitter.trySet(VELOCITY_SPREAD, 180.f);
+        sphereEmitter.trySet(PARTICLE_PRIMITIVE_TYPE, ParticlePrimitiveTypeStates.TRIANGLE);
+        sphereEmitter.trySet(PARTICLE_FACING_MODE, ParticleFacingModeStates.CAMERA_FACING);
+        sphereEmitter.trySet(PARTICLE_SHAPE_FLAGS, ParticleShapeFlags.JITTERED);
+        sphereEmitter.addBurst(new ParticleBurst(0.0f, 8000));
 
         CircleEmitter circleEmitter = new CircleEmitter(new Vector3f(0.0f), 1600.0f);
         circleEmitter.modifyProp(COLOR, v -> v.set(1.8f, 0.5f, 0.6f, 1.0f));
@@ -84,7 +99,7 @@ public final class MagicImpactEffect implements RenderEffect {
         circleEmitter.trySet(PARTICLE_PRIMITIVE_TYPE, ParticlePrimitiveTypeStates.TRIANGLE);
         circleEmitter.trySet(PARTICLE_FACING_MODE, ParticleFacingModeStates.CAMERA_FACING);
         circleEmitter.trySet(PARTICLE_SHAPE_FLAGS, ParticleShapeFlags.JITTERED);
-        this.explosionParticles = new GPUParticleEffect(List.of(circleEmitter), 10_0000, this.effectTime + 5.0f);
+        this.explosionParticles = new GPUParticleEffect(List.of(circleEmitter, sphereEmitter), 10_0000, this.effectTime + 5.0f);
         this.explosionParticles.setConsumer(((effect, deltaTime) -> {
             if (effect.getCurrentLifeTime() > MagicImpactEffect.this.effectTime + 1.0f) {
                 effect.setShouldUpdateEmitter(false);
@@ -102,11 +117,13 @@ public final class MagicImpactEffect implements RenderEffect {
                 .setPosition(pos)
                 .setScale(0.0f, 1.0f, 0.0f));
         ModRenderSystem.getInstance().spawnRenderEffect(this);
+
         this.explosionParticles.getTransform().setPosition(pos);
         ParticleSystem.getInstance().spawnEffect(this.explosionParticles);
         CameraShake.shake(3.35f, this.effectTime + 3.0f);
-        ClientLevel level = Minecraft.getInstance().level;
 
+        // sound
+        ClientLevel level = Minecraft.getInstance().level;
         if (level == null) {
             return;
         }

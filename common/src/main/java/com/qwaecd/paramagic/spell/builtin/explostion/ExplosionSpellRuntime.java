@@ -21,6 +21,7 @@ import javax.annotation.Nullable;
 import java.util.Random;
 
 public class ExplosionSpellRuntime implements ReleaseAwareSpellRuntime {
+    public static final float RADIUS = 64.0f;
     static final int CASTING_TICKS = 20 * 6;
     static final int CHANNELING_TICKS = 20 * 16;
 
@@ -32,6 +33,10 @@ public class ExplosionSpellRuntime implements ReleaseAwareSpellRuntime {
     private int elapsedTicks = 0;
     private boolean finished = false;
     private Stage currentStage = Stage.CASTING;
+
+    public static Vector3f getExplosionCenter(Vector3f pos) {
+        return new Vector3f(pos.x, pos.y + 12.0f, pos.z);
+    }
 
     @Override
     public void onStart(ServerSpellContext context) {
@@ -138,8 +143,8 @@ public class ExplosionSpellRuntime implements ReleaseAwareSpellRuntime {
         }
 
         Vector3f pos = value.getValue();
-        Vec3 center = new Vec3(pos.x, pos.y + 12.0f, pos.z);
-        CustomExplosion.explode(CustomExplosionConfig.builder(level, center, 64.0f)
+        Vec3 center = new Vec3(getExplosionCenter(pos));
+        CustomExplosion.explode(CustomExplosionConfig.builder(level, center, RADIUS)
                 .source(caster)
                 .createFire(true)
                 .dropCallback(ExplosionDropCallbacks::dropContainerContents)

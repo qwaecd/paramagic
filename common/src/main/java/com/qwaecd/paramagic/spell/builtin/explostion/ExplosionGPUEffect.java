@@ -44,7 +44,7 @@ public final class ExplosionGPUEffect {
         CasterTransformSource source = context.casterSource();
         source.applyTo(this.sample);
         Vector3f eyePosition = new Vector3f(this.sample.eyePosition);
-        final float distance = 1.5f;
+        final float distance = ExplosionSpellPresentation.FRONT_LENGTH;
         Vector3f forward = new Vector3f(this.sample.forward).normalize(distance);
         Vector3f spawnPosition = eyePosition.add(forward);
         {
