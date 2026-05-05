@@ -55,6 +55,7 @@ public class ExplosionWand extends Item {
 
     @Override
     public void releaseUsing(ItemStack stack, Level level, LivingEntity livingEntity, int timeCharged) {
+        super.releaseUsing(stack, level, livingEntity, timeCharged);
         if (!(livingEntity instanceof Player player)) {
             return;
         }
