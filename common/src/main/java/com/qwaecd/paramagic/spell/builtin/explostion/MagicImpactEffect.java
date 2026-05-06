@@ -73,7 +73,7 @@ public final class MagicImpactEffect implements RenderEffect {
                 .setNoiseScale(0.4f)
                 .setNoiseStrength(2.5f)
         );
-        SphereEmitter sphereEmitter = new SphereEmitter(new Vector3f(), 100.0f);
+        SphereEmitter sphereEmitter = new SphereEmitter(new Vector3f(), 1000.0f);
         sphereEmitter.modifyProp(COLOR, v -> v.set(1.1f, 0.6f, 0.2f, 1.0f));
         sphereEmitter.modifyProp(LIFE_TIME_RANGE, v -> v.set(1.1f, 5.4f));
         sphereEmitter.modifyProp(SIZE_RANGE, v -> v.set(0.04f, 0.57f));
@@ -86,7 +86,7 @@ public final class MagicImpactEffect implements RenderEffect {
         sphereEmitter.trySet(PARTICLE_PRIMITIVE_TYPE, ParticlePrimitiveTypeStates.TRIANGLE);
         sphereEmitter.trySet(PARTICLE_FACING_MODE, ParticleFacingModeStates.CAMERA_FACING);
         sphereEmitter.trySet(PARTICLE_SHAPE_FLAGS, ParticleShapeFlags.JITTERED);
-        sphereEmitter.addBurst(new ParticleBurst(0.0f, 8000));
+        sphereEmitter.addBurst(new ParticleBurst(0.0f, 2_0000));
 
         CircleEmitter circleEmitter = new CircleEmitter(new Vector3f(0.0f), 1600.0f);
         circleEmitter.modifyProp(COLOR, v -> v.set(1.8f, 0.5f, 0.6f, 1.0f));
