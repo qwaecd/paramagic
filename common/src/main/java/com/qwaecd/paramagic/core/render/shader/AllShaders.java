@@ -45,6 +45,7 @@ public class AllShaders {
         ShaderManager.registerShaderInfo("particle_update", new ShaderInfo("compute/", "particle_update", ShaderType.COMPUTE));
         ShaderManager.registerShaderInfo("particle_classify", new ShaderInfo("compute/", "particle_classify", ShaderType.COMPUTE));
         ShaderManager.registerShaderInfo("particle_build_draw_commands", new ShaderInfo("compute/", "particle_build_draw_commands", ShaderType.COMPUTE));
+        ShaderManager.registerShaderInfo("particle_debug_stats", new ShaderInfo("compute/", "particle_debug_stats", ShaderType.COMPUTE));
 
         // Point pass: vertex + fragment
         ShaderManager.registerShaderInfo("particle_render_point",

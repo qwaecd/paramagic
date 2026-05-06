@@ -19,6 +19,7 @@ import com.qwaecd.paramagic.platform.annotation.PlatformScope;
 import com.qwaecd.paramagic.platform.annotation.PlatformScopeType;
 import org.joml.Matrix4f;
 import org.joml.Vector3d;
+import org.lwjgl.BufferUtils;
 import org.lwjgl.system.MemoryStack;
 
 import javax.annotation.Nullable;
@@ -32,19 +33,27 @@ import static org.lwjgl.opengl.GL11.GL_POINTS;
 import static org.lwjgl.opengl.GL11.glEnable;
 import static org.lwjgl.opengl.GL15.glBindBuffer;
 import static org.lwjgl.opengl.GL15.glBufferSubData;
+import static org.lwjgl.opengl.GL15.glGetBufferSubData;
 import static org.lwjgl.opengl.GL20.glUseProgram;
 import static org.lwjgl.opengl.GL30.glBindVertexArray;
 import static org.lwjgl.opengl.GL30.glGenVertexArrays;
 import static org.lwjgl.opengl.GL32.GL_PROGRAM_POINT_SIZE;
 import static org.lwjgl.opengl.GL40.GL_DRAW_INDIRECT_BUFFER;
 import static org.lwjgl.opengl.GL40.glDrawArraysIndirect;
+import static org.lwjgl.opengl.GL32.GL_ALREADY_SIGNALED;
+import static org.lwjgl.opengl.GL32.GL_CONDITION_SATISFIED;
+import static org.lwjgl.opengl.GL32.GL_SYNC_GPU_COMMANDS_COMPLETE;
+import static org.lwjgl.opengl.GL32.glClientWaitSync;
+import static org.lwjgl.opengl.GL32.glDeleteSync;
+import static org.lwjgl.opengl.GL32.glFenceSync;
+import static org.lwjgl.opengl.GL42.GL_BUFFER_UPDATE_BARRIER_BIT;
 import static org.lwjgl.opengl.GL42.GL_COMMAND_BARRIER_BIT;
 import static org.lwjgl.opengl.GL42.glMemoryBarrier;
 import static org.lwjgl.opengl.GL43.GL_SHADER_STORAGE_BARRIER_BIT;
 import static org.lwjgl.opengl.GL43.GL_SHADER_STORAGE_BUFFER;
 
 @PlatformScope(PlatformScopeType.CLIENT)
-public class ParticleSystem {
+public class ParticleSystem implements AutoCloseable {
     public  final int MAX_PARTICLES = 1_000_000;
     public  final int MAX_EFFECT_COUNT = 128;
     private static ParticleSystem INSTANCE;
@@ -70,6 +79,18 @@ public class ParticleSystem {
     private static final int BUCKET_TYPE_QUAD = 2;
     private static final int INDIRECT_COMMAND_STRIDE_BYTES = 4 * Integer.BYTES; // DrawArraysIndirectCommand
 
+    // debug data
+    private static final int DEBUG_STATS_SIZE_BYTES = 4 * Integer.BYTES;
+    private static final int DEBUG_STATS_FREE_COUNT_OFFSET = 0;
+    private static final int DEBUG_STATS_SUCCESSFUL_TASK_COUNT_OFFSET = Integer.BYTES;
+    private final long[] debugStatsFences = new long[ParticleMemoryManager.DEBUG_STATS_BUFFER_COUNT];
+    private final ByteBuffer debugStatsReadbackBuffer = BufferUtils.createByteBuffer(DEBUG_STATS_SIZE_BYTES).order(ByteOrder.nativeOrder());
+    private boolean debugStatsEnabled;
+    private int debugStatsFrameIndex;
+    private int cachedAliveParticleCount;
+    private int cachedFreeParticleCount;
+    private int cachedSuccessfulTaskCount;
+
     private ParticleSystem(boolean canUseComputeShader, boolean canUseGeometryShader) {
         this.canUseComputeShader = canUseComputeShader;
         this.canUseGeometryShader = canUseGeometryShader;
@@ -81,6 +102,7 @@ public class ParticleSystem {
 
         this.pointRenderShader = ShaderManager.getInstance().getShaderNullable("particle_render_point");
         this.shapeRenderShader = ShaderManager.getInstance().getShaderNullable("particle_render_shape");
+        this.cachedFreeParticleCount = MAX_PARTICLES;
 
         this.emissionRequests = new ArrayList<>(MAX_EFFECT_COUNT);
         this.emptyVao = glGenVertexArrays();
@@ -94,6 +116,10 @@ public class ParticleSystem {
         return INSTANCE;
     }
 
+    public static boolean isInitialized() {
+        return INSTANCE != null;
+    }
+
     public static void init(boolean canUseComputeShader, boolean canUseGeometryShader) {
         if (INSTANCE != null) {
             Paramagic.LOG.warn("ParticleManager is already initialized.");
@@ -105,6 +131,10 @@ public class ParticleSystem {
         } else {
             Paramagic.LOG.warn("Compute shaders are not supported. Particle effects will be disabled.");
         }
+    }
+
+    public int getActiveEffectCount() {
+        return this.effectManager.getCurrentEffectCount();
     }
 
     public void renderParticles(RenderContext context) {
@@ -149,6 +179,11 @@ public class ParticleSystem {
         glBindVertexArray(0);
         glUseProgram(0);
         this.memoryManager.unbindAllSSBO();
+
+        if (this.debugStatsEnabled) {
+            this.dispatchDebugStatsWrite();
+            this.pollDebugStatsReadback();
+        }
     }
 
     public void update(float deltaTime) {
@@ -192,6 +227,41 @@ public class ParticleSystem {
 
     public void removeEffect(GPUParticleEffect effect) {
         this.effectManager.removeEffect(effect);
+    }
+
+    public void setDebugStatsEnabled(boolean enabled) {
+        if (this.debugStatsEnabled == enabled) {
+            return;
+        }
+        this.debugStatsEnabled = enabled;
+        if (!enabled) {
+            this.deleteAllDebugStatsFences();
+        }
+    }
+
+    public boolean isDebugStatsEnabled() {
+        return this.debugStatsEnabled;
+    }
+
+    public int getDebugAliveParticleCount() {
+        return this.cachedAliveParticleCount;
+    }
+
+    public int getDebugFreeParticleCount() {
+        return this.cachedFreeParticleCount;
+    }
+
+    public int getDebugSuccessfulTaskCount() {
+        return this.cachedSuccessfulTaskCount;
+    }
+
+    @Override
+    public void close() {
+        this.deleteAllDebugStatsFences();
+        this.memoryManager.close();
+        if (INSTANCE == this) {
+            INSTANCE = null;
+        }
     }
 
     private void dispatchUpdate(float deltaTime) {
@@ -238,6 +308,61 @@ public class ParticleSystem {
         commandShader.unbind();
         this.memoryManager.unbindAllSSBO();
         return true;
+    }
+
+    private void dispatchDebugStatsWrite() {
+        ComputeShader debugStatsShader = this.computeShaderProvider.particleDebugStatsShader();
+        if (debugStatsShader == null) {
+            return;
+        }
+        int writeIndex = this.debugStatsFrameIndex % ParticleMemoryManager.DEBUG_STATS_BUFFER_COUNT;
+        this.deleteDebugStatsFence(writeIndex);
+
+        this.memoryManager.debugStatsWriteStep(writeIndex);
+        debugStatsShader.bind();
+        debugStatsShader.dispatch(1, 1, 1);
+        glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT | GL_BUFFER_UPDATE_BARRIER_BIT);
+        debugStatsShader.unbind();
+        this.memoryManager.unbindAllSSBO();
+
+        this.debugStatsFences[writeIndex] = glFenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE, 0);
+    }
+
+    private void pollDebugStatsReadback() {
+        int readIndex = (this.debugStatsFrameIndex + 1) % ParticleMemoryManager.DEBUG_STATS_BUFFER_COUNT;
+        long fence = this.debugStatsFences[readIndex];
+        if (fence != 0L) {
+            int result = glClientWaitSync(fence, 0, 0);
+            if (result == GL_ALREADY_SIGNALED || result == GL_CONDITION_SATISFIED) {
+                this.readDebugStatsBuffer(readIndex);
+                this.deleteDebugStatsFence(readIndex);
+            }
+        }
+        this.debugStatsFrameIndex++;
+    }
+
+    private void readDebugStatsBuffer(int bufferIndex) {
+        glBindBuffer(GL_SHADER_STORAGE_BUFFER, this.memoryManager.getDebugStatsSSBO(bufferIndex));
+        this.debugStatsReadbackBuffer.clear();
+        glGetBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, this.debugStatsReadbackBuffer);
+        this.cachedFreeParticleCount = this.debugStatsReadbackBuffer.getInt(DEBUG_STATS_FREE_COUNT_OFFSET);
+        this.cachedSuccessfulTaskCount = this.debugStatsReadbackBuffer.getInt(DEBUG_STATS_SUCCESSFUL_TASK_COUNT_OFFSET);
+        this.cachedAliveParticleCount = MAX_PARTICLES - this.cachedFreeParticleCount;
+        glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
+    }
+
+    private void deleteDebugStatsFence(int index) {
+        long fence = this.debugStatsFences[index];
+        if (fence != 0L) {
+            glDeleteSync(fence);
+            this.debugStatsFences[index] = 0L;
+        }
+    }
+
+    private void deleteAllDebugStatsFences() {
+        for (int i = 0; i < ParticleMemoryManager.DEBUG_STATS_BUFFER_COUNT; i++) {
+            this.deleteDebugStatsFence(i);
+        }
     }
 
     private void setCommonRenderUniforms(Shader shader, Matrix4f projectionMatrix, Matrix4f viewMatrix, Vector3d cameraPos) {

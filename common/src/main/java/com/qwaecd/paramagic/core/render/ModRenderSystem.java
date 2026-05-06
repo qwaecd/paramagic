@@ -426,6 +426,7 @@ public class ModRenderSystem extends AbstractRenderSystem implements AutoCloseab
         closeQuietly("geometricMaskFbo", this.geometricMaskFbo);
         closeQuietly("combinedSceneFbo", this.combinedSceneFbo);
         closeQuietly("textureManager", this.textureManager);
+        closeQuietly("particleSystem", this.particleSystem);
         try {
             SharedMeshes.close();
         } catch (Exception e) {
@@ -441,6 +442,7 @@ public class ModRenderSystem extends AbstractRenderSystem implements AutoCloseab
         this.combinedSceneFbo = null;
         this.fullscreenQuad = null;
         this.textureManager = null;
+        this.particleSystem = null;
         INSTANCE = null;
     }
 

@@ -19,4 +19,5 @@ public final class ShaderBindingPoints {
     public static final int BUCKET_TRIANGLE_INDICES = 9;
     public static final int BUCKET_QUAD_INDICES = 10;
     public static final int BUCKET_DRAW_COMMANDS = 11;
+    public static final int PARTICLE_DEBUG_STATS = 12;
 }

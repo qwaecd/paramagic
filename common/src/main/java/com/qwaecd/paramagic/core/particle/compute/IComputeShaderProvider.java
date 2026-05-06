@@ -90,4 +90,14 @@ public interface IComputeShaderProvider {
      * @return non-null {@link ComputeShader}
      */
     ComputeShader particleBuildDrawCommandsShader();
+
+    /**
+     * Returns the compute shader that writes small GPU particle debug stats into an async readback buffer.
+     * <p>Chinese: 返回用于将 GPU 粒子调试统计写入异步回读缓冲的小型 compute shader。</p>
+     * <p>
+     * Precondition / 前置条件: {@link #isSupported()} MUST be {@code true}.
+     * </p>
+     * @return non-null {@link ComputeShader}
+     */
+    ComputeShader particleDebugStatsShader();
 }

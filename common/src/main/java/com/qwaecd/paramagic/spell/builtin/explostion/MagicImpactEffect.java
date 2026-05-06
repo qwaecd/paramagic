@@ -100,8 +100,9 @@ public final class MagicImpactEffect implements RenderEffect {
         circleEmitter.trySet(PARTICLE_FACING_MODE, ParticleFacingModeStates.CAMERA_FACING);
         circleEmitter.trySet(PARTICLE_SHAPE_FLAGS, ParticleShapeFlags.JITTERED);
         this.explosionParticles = new GPUParticleEffect(List.of(circleEmitter, sphereEmitter), 10_0000, this.effectTime + 5.0f);
+        final float triggerTime = this.effectTime;
         this.explosionParticles.setConsumer(((effect, deltaTime) -> {
-            if (effect.getCurrentLifeTime() > MagicImpactEffect.this.effectTime + 1.0f) {
+            if (effect.getCurrentLifeTime() > triggerTime + 1.0f) {
                 effect.setShouldUpdateEmitter(false);
             }
         }));
