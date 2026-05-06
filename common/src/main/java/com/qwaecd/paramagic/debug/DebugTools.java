@@ -3,8 +3,8 @@ package com.qwaecd.paramagic.debug;
 import com.qwaecd.paramagic.Paramagic;
 import com.qwaecd.paramagic.assembler.AssemblyException;
 import com.qwaecd.paramagic.assembler.ParaComposer;
-import com.qwaecd.paramagic.client.material.LaserMaterial;
-import com.qwaecd.paramagic.client.obj.laser.LaserBeam;
+import com.qwaecd.paramagic.client.material.EnergyFlowMaterial;
+import com.qwaecd.paramagic.client.obj.laser.EnergyCoreSphere;
 import com.qwaecd.paramagic.client.obj.sun.Sun;
 import com.qwaecd.paramagic.client.renderbase.SharedMeshes;
 import com.qwaecd.paramagic.client.renderbase.Sphere;
@@ -55,7 +55,7 @@ public class DebugTools {
         ball.getTransform().getModelMatrix().translate(0, 100, 0).scale(4.0f, 4.0f, 4.0f);
 //        ModRenderSystem.getInstance().addRenderable(ball);
 
-        spawnDebugLaserBeam();
+        spawnDebugLaserSphere();
 
         IRenderable sun = new Sun(ShaderManager.getInstance().getShader("sun"));
         sun.getTransform().setPosition(0, 80, 10).setScale(5.0f, 5.0f, 5.0f);
@@ -67,32 +67,37 @@ public class DebugTools {
 //        effectTest();
     }
 
-    private static void spawnDebugLaserBeam() {
+    private static void spawnDebugLaserSphere() {
+        Vector3f center = new Vector3f(0.0f, 0.0f, 0.0f);
         {
-            LaserMaterial laserMaterial = new LaserMaterial()
+            EnergyFlowMaterial energyFlowMaterial = new EnergyFlowMaterial()
                     .setColor(1.35f, 0.75f, 1.0f)
-                    .setAlpha(1.0f)
-                    .setEmissiveIntensity(0.8f)
-                    .setFlowSpeed(0.01f, -0.9f)
-                    .setNoiseSpeed(0.01f, -0.9f)
-                    .setNoiseScale(0.2f)
-                    .setNoiseStrength(20.5f);
-            LaserBeam laserBeam = new LaserBeam(laserMaterial)
-                    .setBeam(new Vector3f(0.0f, 0.0f, 0.0f), new Vector3f(0.0f, 64.0f, 0.0f), 4.0f);
-            ModRenderSystem.getInstance().addRenderable(laserBeam);
+                    .setAlpha(0.85f)
+                    .setEmissiveIntensity(0.4f)
+                    .setFlowSpeed(0.3f, -1.1f)
+                    .setNoiseSpeed(0.08f, -0.05f)
+                    .setNoiseScale(2.8f)
+                    .setNoiseStrength(1.0f)
+                    .setThreshold(0.24f)
+                    .setSoftness(0.28f);
+            EnergyCoreSphere energyCoreSphere = new EnergyCoreSphere(energyFlowMaterial)
+                    .setSphere(center, 6.0f);
+            ModRenderSystem.getInstance().addRenderable(energyCoreSphere);
         }
         {
-            LaserMaterial laserMaterial = new LaserMaterial(LaserMaterial.DEFAULT_NOISE_TEXTURE, LaserMaterial.DEFAULT_NOISE_TEXTURE)
-                    .setColor(0.5f, 0.3f, 0.5f)
-                    .setAlpha(1.0f)
+            EnergyFlowMaterial energyFlowMaterial = new EnergyFlowMaterial(EnergyFlowMaterial.DEFAULT_NOISE_TEXTURE, EnergyFlowMaterial.DEFAULT_NOISE_TEXTURE)
+                    .setColor(1.8f, 0.55f, 0.35f)
+                    .setAlpha(0.95f)
                     .setEmissiveIntensity(1.2f)
-                    .setFlowSpeed(0.1f, -0.5f)
-                    .setNoiseSpeed(0.1f, -0.5f)
-                    .setNoiseScale(0.4f)
-                    .setNoiseStrength(2.5f);
-            LaserBeam laserBeam = new LaserBeam(laserMaterial)
-                    .setBeam(new Vector3f(0.0f, 0.0f, 0.0f), new Vector3f(0.0f, 64.0f, 0.0f), 3.8f);
-            ModRenderSystem.getInstance().addRenderable(laserBeam);
+                    .setFlowSpeed(0.35f, -0.03f)
+                    .setNoiseSpeed(0.12f, -0.65f)
+                    .setNoiseScale(1.4f)
+                    .setNoiseStrength(1.0f)
+                    .setThreshold(0.18f)
+                    .setSoftness(0.22f);
+            EnergyCoreSphere energyCoreSphere = new EnergyCoreSphere(energyFlowMaterial)
+                    .setSphere(center, 5.35f);
+            ModRenderSystem.getInstance().addRenderable(energyCoreSphere);
         }
     }
 

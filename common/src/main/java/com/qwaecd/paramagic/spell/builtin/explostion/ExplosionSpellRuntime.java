@@ -37,7 +37,7 @@ public class ExplosionSpellRuntime implements ReleaseAwareSpellRuntime {
     private Stage currentStage = Stage.CASTING;
 
     public static Vector3f getExplosionCenter(Vector3f pos) {
-        return new Vector3f(pos.x, pos.y + 12.0f, pos.z);
+        return new Vector3f(pos.x, pos.y, pos.z);
     }
 
     @Override
@@ -152,6 +152,7 @@ public class ExplosionSpellRuntime implements ReleaseAwareSpellRuntime {
                 .dropCallback(ExplosionDropCallbacks::dropContainerContents)
                 .maxEntityDamage(16384.0f)
                 .knockbackScale(8.0f)
+                .maxDestroyedBlocks(Integer.MAX_VALUE)
                 .build());
     }
 

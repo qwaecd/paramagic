@@ -20,7 +20,8 @@ public final class SharedMeshes {
     private static Mesh sphere;
     private static Mesh unitQuad;
     private static Mesh unitCylinder;
-    private static Mesh laserCylinder;
+    private static Mesh energyFlowCylinder;
+    private static Mesh energyFlowSphere;
     private static Mesh fullscreenQuad;
 
     private SharedMeshes() {
@@ -36,8 +37,11 @@ public final class SharedMeshes {
         if (unitCylinder == null) {
             unitCylinder = buildUnitCylinderMesh();
         }
-        if (laserCylinder == null) {
-            laserCylinder = buildLaserCylinderMesh(64);
+        if (energyFlowCylinder == null) {
+            energyFlowCylinder = buildEnergyFlowCylinderMesh(64);
+        }
+        if (energyFlowSphere == null) {
+            energyFlowSphere = buildEnergyFlowSphereMesh();
         }
         if (fullscreenQuad == null) {
             fullscreenQuad = buildFullscreenQuadMesh();
@@ -61,7 +65,12 @@ public final class SharedMeshes {
 
     public static Mesh laserCylinder() {
         init();
-        return laserCylinder;
+        return energyFlowCylinder;
+    }
+
+    public static Mesh laserSphere() {
+        init();
+        return energyFlowSphere;
     }
 
     public static Mesh fullscreenQuad() {
@@ -73,12 +82,14 @@ public final class SharedMeshes {
         closeMesh(sphere);
         closeMesh(unitQuad);
         closeMesh(unitCylinder);
-        closeMesh(laserCylinder);
+        closeMesh(energyFlowCylinder);
+        closeMesh(energyFlowSphere);
         closeMesh(fullscreenQuad);
         sphere = null;
         unitQuad = null;
         unitCylinder = null;
-        laserCylinder = null;
+        energyFlowCylinder = null;
+        energyFlowSphere = null;
         fullscreenQuad = null;
     }
 
@@ -179,7 +190,7 @@ public final class SharedMeshes {
         return mesh;
     }
 
-    private static Mesh buildLaserCylinderMesh(final int sideQuads) {
+    private static Mesh buildEnergyFlowCylinderMesh(final int sideQuads) {
         VertexLayout layout = new VertexLayout();
         layout
                 .addNextAttribute(new VertexAttribute(0, 3, GL_FLOAT, false))
@@ -208,6 +219,45 @@ public final class SharedMeshes {
                     .pos(x1, UNIT_CYLINDER_HEIGHT, z1).uv(u1, 1.0f).normal(nx, 0.0f, nz).endVertex()
                     .pos(x1, 0.0f, z1).uv(u1, 0.0f).normal(nx, 0.0f, nz).endVertex();
             builder.addQuadIndices(base);
+        }
+
+        ByteBuffer vertexData = builder.buildBuffer(layout);
+        ShortBuffer indexBuffer = builder.buildIndexBufferU16();
+        Mesh mesh = new Mesh(GL_TRIANGLES);
+        mesh.uploadAndConfigure(vertexData, layout, GL_STATIC_DRAW, indexBuffer, GL_STATIC_DRAW);
+        return mesh;
+    }
+
+    private static Mesh buildEnergyFlowSphereMesh() {
+        VertexLayout layout = new VertexLayout();
+        layout
+                .addNextAttribute(new VertexAttribute(0, 3, GL_FLOAT, false))
+                .addNextAttribute(new VertexAttribute(2, 2, GL_FLOAT, false))
+                .addNextAttribute(new VertexAttribute(3, 3, GL_BYTE, true));
+
+        MeshBuilder builder = new MeshBuilder();
+        for (int i = 0; i < SPHERE_STACKS + 1; i++) {
+            float phi = (float) Math.PI * i / SPHERE_STACKS;
+            float v = (float) i / SPHERE_STACKS;
+            for (int j = 0; j < SPHERE_SLICES + 1; j++) {
+                float theta = (float) (2.0 * Math.PI * j / SPHERE_SLICES);
+                float u = (float) j / SPHERE_SLICES;
+                float x = (float) (SPHERE_RADIUS * Math.sin(phi) * Math.cos(theta));
+                float y = (float) (SPHERE_RADIUS * Math.cos(phi));
+                float z = (float) (SPHERE_RADIUS * Math.sin(phi) * Math.sin(theta));
+                builder.pos(x, y, z).uv(u, v).normal(x, y, z).endVertex();
+            }
+        }
+
+        for (int i = 0; i < SPHERE_STACKS; i++) {
+            for (int j = 0; j < SPHERE_SLICES; j++) {
+                int i0 = j + i * (SPHERE_SLICES + 1);
+                int i1 = j + (i + 1) * (SPHERE_SLICES + 1);
+                int i2 = j + 1 + (i + 1) * (SPHERE_SLICES + 1);
+                int i3 = j + 1 + i * (SPHERE_SLICES + 1);
+                builder.addTriangle(i0, i2, i1);
+                builder.addTriangle(i0, i3, i2);
+            }
         }
 
         ByteBuffer vertexData = builder.buildBuffer(layout);

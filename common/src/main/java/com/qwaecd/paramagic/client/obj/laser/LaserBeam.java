@@ -1,6 +1,6 @@
 package com.qwaecd.paramagic.client.obj.laser;
 
-import com.qwaecd.paramagic.client.material.LaserMaterial;
+import com.qwaecd.paramagic.client.material.EnergyFlowMaterial;
 import com.qwaecd.paramagic.client.renderbase.RenderableObject;
 import com.qwaecd.paramagic.client.renderbase.SharedMeshes;
 import org.joml.Quaternionf;
@@ -9,12 +9,12 @@ import org.joml.Vector3f;
 public class LaserBeam extends RenderableObject {
     private static final Vector3f LOCAL_AXIS = new Vector3f(0.0f, 1.0f, 0.0f);
 
-    public LaserBeam(LaserMaterial material) {
+    public LaserBeam(EnergyFlowMaterial material) {
         super(SharedMeshes.laserCylinder(), material);
     }
 
     public static LaserBeam createDefault() {
-        return new LaserBeam(new LaserMaterial());
+        return new LaserBeam(new EnergyFlowMaterial());
     }
 
     public LaserBeam setBeam(Vector3f start, Vector3f end, float radius) {

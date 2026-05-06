@@ -61,7 +61,8 @@ public class ExplosionSpellPresentation implements SpellPresentation {
 
     private final AroundPlayerCircleHolder aroundPlayerCircleHolder = new AroundPlayerCircleHolder();
 
-    private final ExplosionGPUEffect effect = new ExplosionGPUEffect();
+    // 在玩家周围的粒子特效
+    private final ExplosionGPUEffect aroundEffect = new ExplosionGPUEffect();
 
     @Nullable
     private MagicImpactEffect impactEffect;
@@ -86,7 +87,7 @@ public class ExplosionSpellPresentation implements SpellPresentation {
             this.aroundPlayerCircleHolder.build(context.casterSource());
             this.frontBuilt = true;
         }
-        this.effect.onStart(context);
+        this.aroundEffect.onStart(context);
     }
 
     @Override
@@ -104,7 +105,7 @@ public class ExplosionSpellPresentation implements SpellPresentation {
         if (this.elapsedTicks >= CASTING_TICKS) {
             this.createRemoteCircle(context);
         }
-        this.effect.tick(context);
+        this.aroundEffect.tick(context);
         if (this.elapsedTicks >= TOTAL_TICKS) {
             SessionDataValue<Vector3f> value = context.getDataStore().getValue(AllSessionDataKeys.firstPosition);
             if (value == null) {
@@ -166,7 +167,7 @@ public class ExplosionSpellPresentation implements SpellPresentation {
         }
     }
 
-    private static final int dyingTicksThreshold = 20 * 2;
+    private static final int dyingTicksThreshold = 20 * 4;
     private void tickDying(ClientSpellContext context) {
         this.dyingTicks++;
         if (this.dyingTicks >= dyingTicksThreshold) {
@@ -230,7 +231,7 @@ public class ExplosionSpellPresentation implements SpellPresentation {
             this.remoteCircle = null;
         }
         this.aroundPlayerCircleHolder.close();
-        this.effect.cleanup();
+        this.aroundEffect.cleanup();
         if (this.canReleaseEffect != null) {
             this.canReleaseEffect.setConsumer(null);
         }
@@ -340,7 +341,7 @@ public class ExplosionSpellPresentation implements SpellPresentation {
             this.remoteCircle = null;
         }
         this.aroundPlayerCircleHolder.close();
-        this.effect.cleanup();
+        this.aroundEffect.cleanup();
         if (this.impactEffect != null) {
             this.impactEffect.close();
             this.impactEffect = null;

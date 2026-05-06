@@ -1,8 +1,9 @@
 package com.qwaecd.paramagic.spell.builtin.explostion;
 
 import com.qwaecd.paramagic.client.CameraShake;
-import com.qwaecd.paramagic.client.material.LaserMaterial;
+import com.qwaecd.paramagic.client.material.EnergyFlowMaterial;
 import com.qwaecd.paramagic.client.obj.laser.LaserBeam;
+import com.qwaecd.paramagic.client.obj.laser.EnergyCoreSphere;
 import com.qwaecd.paramagic.core.particle.ParticleSystem;
 import com.qwaecd.paramagic.core.particle.effect.GPUParticleEffect;
 import com.qwaecd.paramagic.core.particle.emitter.ParticleBurst;
@@ -37,41 +38,76 @@ public final class MagicImpactEffect implements RenderEffect {
     private final float effectTime;
     private float escapedTime = 0;
     private final float maxBeamRadius = 12.0f;
-    private final float holdEndBeamRadius = maxBeamRadius - 2.0f;
+    private final float holdEndBeamRadius = maxBeamRadius - 2.6f;
+    private final float initialCoreSphereRadius = 2.0f;
+    private final float maxCoreSphereRadius = ExplosionSpellRuntime.RADIUS / 2.0f;
+    private final float coreSphereInnerRadiusScale = 5.6f / 6.0f;
     @Nonnull
     private final LaserBeam beamOut;
     @Nonnull
     private final LaserBeam beamIn;
+    @Nonnull
+    private final EnergyCoreSphere coreSphereOut;
+    @Nonnull
+    private final EnergyCoreSphere coreSphereIn;
 
     private float currentScale = 0.0f;
+    private float currentCoreSphereScale = initialCoreSphereRadius;
 
     private final GPUParticleEffect explosionParticles;
 
     public MagicImpactEffect(float effectTime) {
         this.effectTime = effectTime;
-        this.beamOut = new LaserBeam(new LaserMaterial(
-                LaserMaterial.DEFAULT_FLOW_TEXTURE,
-                LaserMaterial.DEFAULT_NOISE_TEXTURE
+        this.beamOut = new LaserBeam(new EnergyFlowMaterial(
+                EnergyFlowMaterial.DEFAULT_FLOW_TEXTURE,
+                EnergyFlowMaterial.DEFAULT_NOISE_TEXTURE
         )
                 .setColor(1.35f, 0.75f, 1.0f)
-                .setAlpha(1.0f)
+                .setAlpha(0.8f)
                 .setEmissiveIntensity(0.8f)
                 .setFlowSpeed(0.01f, -0.9f)
                 .setNoiseSpeed(0.01f, -0.9f)
                 .setNoiseScale(0.2f)
                 .setNoiseStrength(20.5f)
+                .setThreshold(0.24f)
+                .setSoftness(0.18f)
         );
-        this.beamIn = new LaserBeam(new LaserMaterial(
-                LaserMaterial.DEFAULT_NOISE_TEXTURE,
-                LaserMaterial.DEFAULT_NOISE_TEXTURE
+        this.beamIn = new LaserBeam(new EnergyFlowMaterial(
+                EnergyFlowMaterial.DEFAULT_NOISE_TEXTURE,
+                EnergyFlowMaterial.DEFAULT_NOISE_TEXTURE
         )
                 .setColor(0.5f, 0.3f, 0.5f)
-                .setAlpha(1.0f)
+                .setAlpha(0.6f)
                 .setEmissiveIntensity(2.2f)
                 .setFlowSpeed(0.1f, -0.5f)
                 .setNoiseSpeed(0.1f, -0.5f)
                 .setNoiseScale(0.4f)
                 .setNoiseStrength(2.5f)
+        );
+        this.coreSphereOut = new EnergyCoreSphere(new EnergyFlowMaterial()
+                .setColor(1.35f, 0.75f, 1.0f)
+                .setAlpha(0.85f)
+                .setEmissiveIntensity(0.4f)
+                .setFlowSpeed(0.3f, -1.1f)
+                .setNoiseSpeed(0.08f, -0.05f)
+                .setNoiseScale(2.8f)
+                .setNoiseStrength(1.0f)
+                .setThreshold(0.24f)
+                .setSoftness(0.28f)
+        );
+        this.coreSphereIn = new EnergyCoreSphere(new EnergyFlowMaterial(
+                EnergyFlowMaterial.DEFAULT_NOISE_TEXTURE,
+                EnergyFlowMaterial.DEFAULT_NOISE_TEXTURE
+        )
+                .setColor(1.8f, 0.55f, 0.35f)
+                .setAlpha(0.95f)
+                .setEmissiveIntensity(1.2f)
+                .setFlowSpeed(0.35f, -0.03f)
+                .setNoiseSpeed(0.12f, -0.65f)
+                .setNoiseScale(1.4f)
+                .setNoiseStrength(1.0f)
+                .setThreshold(0.18f)
+                .setSoftness(0.22f)
         );
         SphereEmitter sphereEmitter = new SphereEmitter(new Vector3f(), 1000.0f);
         sphereEmitter.modifyProp(COLOR, v -> v.set(1.1f, 0.6f, 0.2f, 1.0f));
@@ -117,11 +153,13 @@ public final class MagicImpactEffect implements RenderEffect {
         this.forEachBeam(beam -> beam.getTransform()
                 .setPosition(pos)
                 .setScale(0.0f, 1.0f, 0.0f));
+        this.forEachCoreSphere(sphere -> sphere.getTransform().setPosition(pos));
+        this.applyCoreSphereScale(this.initialCoreSphereRadius);
         ModRenderSystem.getInstance().spawnRenderEffect(this);
 
         this.explosionParticles.getTransform().setPosition(pos);
         ParticleSystem.getInstance().spawnEffect(this.explosionParticles);
-        CameraShake.shake(3.35f, this.effectTime + 3.0f);
+        CameraShake.shake(2.35f, this.effectTime + 3.0f);
 
         // sound
         ClientLevel level = Minecraft.getInstance().level;
@@ -157,10 +195,21 @@ public final class MagicImpactEffect implements RenderEffect {
         consumer.accept(this.beamIn);
     }
 
+    interface CoreSphereConsumer {
+        void accept(EnergyCoreSphere sphere);
+    }
+
+    private void forEachCoreSphere(CoreSphereConsumer consumer) {
+        consumer.accept(this.coreSphereOut);
+        consumer.accept(this.coreSphereIn);
+    }
+
     @Override
     public void onAdded(ModRenderSystem renderSystem) {
         ModRenderSystem.getInstance().addRenderable(this.beamOut);
         ModRenderSystem.getInstance().addRenderable(this.beamIn);
+        ModRenderSystem.getInstance().addRenderable(this.coreSphereOut);
+        ModRenderSystem.getInstance().addRenderable(this.coreSphereIn);
     }
 
     @Override
@@ -168,6 +217,8 @@ public final class MagicImpactEffect implements RenderEffect {
         this.escapedTime += deltaTime;
         this.currentScale = calculateBeamScale(this.escapedTime);
         this.forEachBeam(beam -> beam.getTransform().setScale(this.currentScale, 256.0f, this.currentScale));
+        this.currentCoreSphereScale = calculateCoreSphereScale(this.escapedTime);
+        this.applyCoreSphereScale(this.currentCoreSphereScale);
     }
 
     @Override
@@ -177,7 +228,7 @@ public final class MagicImpactEffect implements RenderEffect {
 
     @Override
     public void close() {
-        ModRenderSystem.getInstance().removeRenderables(this.beamOut, this.beamIn);
+        ModRenderSystem.getInstance().removeRenderables(this.beamOut, this.beamIn, this.coreSphereOut, this.coreSphereIn);
     }
 
     private float calculateBeamScale(float time) {
@@ -200,6 +251,33 @@ public final class MagicImpactEffect implements RenderEffect {
             return lerp(this.holdEndBeamRadius, 0.0f, (time - t2) / (this.effectTime - t2));
         }
         return 0.0f;
+    }
+
+    private float calculateCoreSphereScale(float time) {
+        if (this.effectTime <= 0) {
+            return 0.0f;
+        }
+        float t1 = this.effectTime * 0.6f;
+        float t2 = this.effectTime * 0.95f;
+
+        if (time <= 0.0f) {
+            return this.initialCoreSphereRadius;
+        }
+        if (time < t1) {
+            return lerp(this.initialCoreSphereRadius, this.maxCoreSphereRadius, time / t1);
+        }
+        if (time < t2) {
+            return this.maxCoreSphereRadius;
+        }
+        if (time < this.effectTime) {
+            return lerp(this.maxCoreSphereRadius, 0.0f, (time - t2) / (this.effectTime - t2));
+        }
+        return 0.0f;
+    }
+
+    private void applyCoreSphereScale(float outerRadius) {
+        this.coreSphereOut.getTransform().setScale(outerRadius);
+        this.coreSphereIn.getTransform().setScale(outerRadius * this.coreSphereInnerRadiusScale);
     }
 
     private static float lerp(float from, float to, float t) {
