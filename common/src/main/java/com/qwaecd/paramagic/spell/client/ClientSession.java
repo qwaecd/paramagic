@@ -5,6 +5,7 @@ import com.qwaecd.paramagic.spell.core.SessionState;
 import com.qwaecd.paramagic.spell.core.SpellSession;
 import com.qwaecd.paramagic.spell.view.CasterTransformSource;
 import com.qwaecd.paramagic.spell.view.HybridCasterSource;
+import net.minecraft.client.Minecraft;
 import net.minecraft.world.entity.Entity;
 
 import javax.annotation.Nonnull;
@@ -27,6 +28,9 @@ public class ClientSession extends SpellSession implements AutoCloseable {
     }
 
     public void tick() {
+        if (Minecraft.getInstance().isPaused()) {
+            return;
+        }
         if (!this.started) {
             this.start();
         }

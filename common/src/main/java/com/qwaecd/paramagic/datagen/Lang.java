@@ -54,10 +54,20 @@ public class Lang {
         operatorTooltip();
         gui();
         paraType();
+        debugKey();
+    }
+
+    private static void debugKey() {
+        of("debug.paramagic.particle_stats.title", "GPU Particle Stats", "GPU粒子统计");
+        of("debug.paramagic.particle_stats.alive", "Alive particles: %d", "存活粒子: %d");
+        of("debug.paramagic.particle_stats.free", "Free particle slots: %d", "空闲粒子槽: %d");
+        of("debug.paramagic.active_gpu_effect_count", "Active GPU effects: %d / %d", "GPU 特效数量: %d / %d");
+        of("debug.paramagic.particle_stats.successful_emission_tasks", "Successful emission tasks: %d", "成功发射任务: %d");
     }
 
     private static void sound() {
         of("paramagic.sound.laser", "Laser", "激光");
+        of("paramagic.sound.explosion", "EXPLOSION", "爆裂魔法：核爆");
     }
 
     private static void operatorTooltip() {

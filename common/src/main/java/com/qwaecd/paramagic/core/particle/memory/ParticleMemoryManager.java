@@ -33,6 +33,9 @@ public final class ParticleMemoryManager implements AutoCloseable {
     private final int triangleBucketIndicesSSBO;
     private final int quadBucketIndicesSSBO;
     private final int bucketDrawCommandsSSBO;
+    public static final int DEBUG_STATS_BUFFER_COUNT = 3;
+    private static final int DEBUG_STATS_SIZE_BYTES = Integer.BYTES * 4;
+    private final int[] debugStatsSSBOs;
 
     public static final int LOCAL_SIZE = 256;
 
@@ -52,11 +55,15 @@ public final class ParticleMemoryManager implements AutoCloseable {
         this.triangleBucketIndicesSSBO = glGenBuffers();
         this.quadBucketIndicesSSBO = glGenBuffers();
         this.bucketDrawCommandsSSBO = glGenBuffers();
+        this.debugStatsSSBOs = new int[DEBUG_STATS_BUFFER_COUNT];
+        for (int i = 0; i < DEBUG_STATS_BUFFER_COUNT; i++) {
+            this.debugStatsSSBOs[i] = glGenBuffers();
+        }
         this.effectMetaDataMap = new EffectMetaDataMap(maxEffectCount, this.effectMetaDataSSBO);
     }
 
     public void unbindAllSSBO() {
-        for (int i = 0; i <= ShaderBindingPoints.BUCKET_DRAW_COMMANDS; i++) {
+        for (int i = 0; i <= ShaderBindingPoints.PARTICLE_DEBUG_STATS; i++) {
             glBindBufferBase(GL_SHADER_STORAGE_BUFFER, i, 0);
         }
     }
@@ -104,6 +111,11 @@ public final class ParticleMemoryManager implements AutoCloseable {
     public void buildDrawCommandsStep() {
         glBindBufferBase(GL_SHADER_STORAGE_BUFFER, ShaderBindingPoints.BUCKET_COUNTERS, this.bucketCountersSSBO);
         glBindBufferBase(GL_SHADER_STORAGE_BUFFER, ShaderBindingPoints.BUCKET_DRAW_COMMANDS, this.bucketDrawCommandsSSBO);
+    }
+
+    public void debugStatsWriteStep(int bufferIndex) {
+        glBindBufferBase(GL_SHADER_STORAGE_BUFFER, ShaderBindingPoints.GLOBAL_DATA, this.globalData);
+        glBindBufferBase(GL_SHADER_STORAGE_BUFFER, ShaderBindingPoints.PARTICLE_DEBUG_STATS, this.debugStatsSSBOs[bufferIndex]);
     }
 
     /**
@@ -173,6 +185,7 @@ public final class ParticleMemoryManager implements AutoCloseable {
         initBucketCountersBuffer();
         initBucketIndicesBuffers();
         initBucketDrawCommandsBuffer();
+        initDebugStatsBuffers();
 
         this.effectMetaDataMap.init();
         glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
@@ -320,8 +333,22 @@ public final class ParticleMemoryManager implements AutoCloseable {
         MemoryUtil.memFree(zeroBuffer);
     }
 
+    private void initDebugStatsBuffers() {
+        for (int debugStatsSSBO : this.debugStatsSSBOs) {
+            glBindBuffer(GL_SHADER_STORAGE_BUFFER, debugStatsSSBO);
+            glBufferData(GL_SHADER_STORAGE_BUFFER, DEBUG_STATS_SIZE_BYTES, GL_DYNAMIC_DRAW);
+            IntBuffer zeroBuffer = MemoryUtil.memCallocInt(4);
+            glBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, zeroBuffer);
+            MemoryUtil.memFree(zeroBuffer);
+        }
+    }
+
     public int getBucketDrawCommandsSSBO() {
         return this.bucketDrawCommandsSSBO;
+    }
+
+    public int getDebugStatsSSBO(int bufferIndex) {
+        return this.debugStatsSSBOs[bufferIndex];
     }
 
     @Override
@@ -339,5 +366,8 @@ public final class ParticleMemoryManager implements AutoCloseable {
         glDeleteBuffers(this.triangleBucketIndicesSSBO);
         glDeleteBuffers(this.quadBucketIndicesSSBO);
         glDeleteBuffers(this.bucketDrawCommandsSSBO);
+        for (int debugStatsSSBO : this.debugStatsSSBOs) {
+            glDeleteBuffers(debugStatsSSBO);
+        }
     }
 }

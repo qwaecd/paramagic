@@ -1,41 +1,29 @@
 package com.qwaecd.paramagic.spell.builtin.explostion;
 
-import com.qwaecd.paramagic.core.particle.builder.PhysicsParamBuilder;
-import com.qwaecd.paramagic.core.particle.emitter.EmitterType;
-import com.qwaecd.paramagic.core.particle.emitter.ParticleBurst;
-import com.qwaecd.paramagic.core.particle.emitter.property.key.AllEmitterProperties;
-import com.qwaecd.paramagic.core.particle.emitter.property.type.VelocityModeStates;
 import com.qwaecd.paramagic.mixin.accessor.IServerLevelAccessor;
-import com.qwaecd.paramagic.network.Networking;
-import com.qwaecd.paramagic.network.packet.effect.S2CEffectSpawn;
-import com.qwaecd.paramagic.network.particle.anchor.AnchorSpec;
-import com.qwaecd.paramagic.network.particle.emitter.EmitterConfig;
-import com.qwaecd.paramagic.network.particle.emitter.EmitterPropertyConfig;
-import com.qwaecd.paramagic.particle.EffectSpawnBuilder;
-import com.qwaecd.paramagic.particle.server.ServerEffect;
-import com.qwaecd.paramagic.particle.server.ServerEffectManager;
 import com.qwaecd.paramagic.spell.core.EndSpellReason;
 import com.qwaecd.paramagic.spell.core.store.AllSessionDataKeys;
 import com.qwaecd.paramagic.spell.core.store.SessionDataValue;
 import com.qwaecd.paramagic.spell.server.ReleaseAwareSpellRuntime;
 import com.qwaecd.paramagic.spell.server.ServerSpellContext;
+import com.qwaecd.paramagic.world.explosion.CustomExplosion;
+import com.qwaecd.paramagic.world.explosion.CustomExplosionConfig;
+import com.qwaecd.paramagic.world.explosion.ExplosionDropCallbacks;
 import lombok.Setter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LightningBolt;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.phys.Vec3;
-import org.joml.Vector2f;
 import org.joml.Vector3f;
-import org.joml.Vector4f;
 
 import javax.annotation.Nullable;
 import java.util.Random;
 
 public class ExplosionSpellRuntime implements ReleaseAwareSpellRuntime {
+    public static final float RADIUS = 64.0f;
     static final int CASTING_TICKS = 20 * 6;
     static final int CHANNELING_TICKS = 20 * 16;
 
@@ -47,6 +35,10 @@ public class ExplosionSpellRuntime implements ReleaseAwareSpellRuntime {
     private int elapsedTicks = 0;
     private boolean finished = false;
     private Stage currentStage = Stage.CASTING;
+
+    public static Vector3f getExplosionCenter(Vector3f pos) {
+        return new Vector3f(pos.x, pos.y, pos.z);
+    }
 
     @Override
     public void onStart(ServerSpellContext context) {
@@ -153,123 +145,16 @@ public class ExplosionSpellRuntime implements ReleaseAwareSpellRuntime {
         }
 
         Vector3f pos = value.getValue();
-        level.explode(
-                caster,
-                pos.x,
-                pos.y + 12.0f,
-                pos.z,
-                128.0f,
-                false,
-                ServerLevel.ExplosionInteraction.BLOCK
-        );
-//        this.genParticleData(pos, caster, level);
+        Vec3 center = new Vec3(getExplosionCenter(pos));
+        CustomExplosion.explode(CustomExplosionConfig.builder(level, center, RADIUS)
+                .source(caster)
+                .createFire(true)
+                .dropCallback(ExplosionDropCallbacks::dropContainerContents)
+                .maxEntityDamage(16384.0f)
+                .knockbackScale(8.0f)
+                .maxDestroyedBlocks(Integer.MAX_VALUE)
+                .build());
     }
-
-    private void genParticleData(Vector3f pos, Entity casterEntity, ServerLevel level) {
-        Vector3f position = new Vector3f(pos.x, pos.y + 12.0f, pos.z);
-        if (!(casterEntity instanceof ServerPlayer)) {
-            return;
-        }
-        EffectSpawnBuilder builder = new EffectSpawnBuilder();
-        PhysicsParamBuilder physicsBuilder = new PhysicsParamBuilder();
-        physicsBuilder
-                .centerForcePos(position)
-                .primaryForceEnabled(true)
-                .primaryForceParam(-20.0f, -2.0f)
-                .dragCoefficient(0.8f)
-                .linearForce(0.0f, -0.98f, 0.0f)
-                .linearForceEnabled(true);
-
-        builder
-                .setEffectPhysicsParameter(physicsBuilder.build())
-                .setMaxParticles(9_0000)
-                .setMaxLifetime(5.0f)
-                .setAnchorSpec(AnchorSpec.forStaticPosition(position));
-        {
-            ParticleBurst[] bursts = new ParticleBurst[] {
-                    new ParticleBurst(0.0f, 3_0000)
-            };
-            EmitterPropertyConfig propConfig = new EmitterPropertyConfig.Builder()
-                    .addProperty(AllEmitterProperties.BLOOM_INTENSITY, 1.2f)
-                    .addProperty(AllEmitterProperties.LIFE_TIME_RANGE, new Vector2f(0.3f, 5.0f))
-                    .addProperty(AllEmitterProperties.SIZE_RANGE, new Vector2f(0.1f, 3.0f))
-                    .addProperty(AllEmitterProperties.EMIT_FROM_VOLUME, true)
-                    .addProperty(AllEmitterProperties.SPHERE_RADIUS, 1.0f)
-                    .addProperty(AllEmitterProperties.VELOCITY_MODE, VelocityModeStates.RANDOM)
-                    .addProperty(AllEmitterProperties.BASE_VELOCITY, new Vector3f(0, 2.0f, 0))
-                    .addProperty(AllEmitterProperties.POSITION, new Vector3f(position.x, position.y + 0.5f, position.z))
-                    .build();
-
-            EmitterConfig config = new EmitterConfig(
-                    EmitterType.SPHERE,
-                    0.0f,
-                    position,
-                    propConfig,
-                    bursts
-            );
-            builder.addEmitterConfig(config);
-        }
-        {
-            ParticleBurst[] bursts = new ParticleBurst[] {
-                    new ParticleBurst(0.0f, 1_5000),
-                    new ParticleBurst(0.5f, 1_5000)
-            };
-            EmitterPropertyConfig propConfig = new EmitterPropertyConfig.Builder()
-                    .addProperty(AllEmitterProperties.BLOOM_INTENSITY, 1.2f)
-                    .addProperty(AllEmitterProperties.COLOR, new Vector4f(2.0f, 0.5f, 1.0f, 1.0f))
-                    .addProperty(AllEmitterProperties.LIFE_TIME_RANGE, new Vector2f(0.3f, 5.0f))
-                    .addProperty(AllEmitterProperties.SIZE_RANGE, new Vector2f(0.1f, 3.0f))
-                    .addProperty(AllEmitterProperties.VELOCITY_MODE, VelocityModeStates.RANDOM)
-                    .addProperty(AllEmitterProperties.BASE_VELOCITY, new Vector3f(0, 2.0f, 0))
-                    .addProperty(AllEmitterProperties.POSITION, new Vector3f(position.x, position.y - 5.0f, position.z))
-                    .addProperty(AllEmitterProperties.END_POSITION, new Vector3f(position.x, position.y + 5.0f, position.z))
-                    .build();
-
-            EmitterConfig config = new EmitterConfig(
-                    EmitterType.LINE,
-                    0.0f,
-                    position,
-                    propConfig,
-                    bursts
-            );
-            builder.addEmitterConfig(config);
-        }
-        {
-            ParticleBurst[] bursts = new ParticleBurst[] {
-                    new ParticleBurst(0.0f, 3_0000)
-            };
-            EmitterPropertyConfig propConfig = new EmitterPropertyConfig.Builder()
-                    .addProperty(AllEmitterProperties.INNER_OUTER_RADIUS, new Vector2f(3.0f, 5.0f))
-                    .addProperty(AllEmitterProperties.BLOOM_INTENSITY, 1.2f)
-                    .addProperty(AllEmitterProperties.COLOR, new Vector4f(3.0f, 1.5f, 1.4f, 1.0f))
-                    .addProperty(AllEmitterProperties.LIFE_TIME_RANGE, new Vector2f(0.3f, 5.0f))
-                    .addProperty(AllEmitterProperties.SIZE_RANGE, new Vector2f(0.1f, 2.0f))
-                    .addProperty(AllEmitterProperties.VELOCITY_MODE, VelocityModeStates.RADIAL_FROM_CENTER)
-                    .addProperty(AllEmitterProperties.BASE_VELOCITY, new Vector3f(0, 10.0f, 0))
-                    .build();
-
-            EmitterConfig config = new EmitterConfig(
-                    EmitterType.CIRCLE,
-                    0.0f,
-                    position,
-                    propConfig,
-                    bursts
-            );
-            builder.addEmitterConfig(config);
-        }
-        ServerEffect serverEffect = ServerEffectManager.getInstance().createEffect(builder);
-        if (serverEffect == null) {
-            return;
-        }
-
-        double distance = 128.0D;
-        for (ServerPlayer player : level.players()) {
-            if (player.distanceToSqr(position.x, position.y, position.z) < distance * distance) {
-                Networking.get().sendToPlayer(player, new S2CEffectSpawn(serverEffect.spawnData));
-            }
-        }
-    }
-
 
     private enum Stage {
         CASTING,

@@ -14,7 +14,7 @@
     "accessor.MinecraftMixin",
     "accessor.TimerMixin",
     "client.GameRendererMixin",
-    "client.LevelRenderMixin",
+    "client.LevelRendererMixin",
     "client.RenderTargetMixin",
     "client.ScreenMixin"
   ],

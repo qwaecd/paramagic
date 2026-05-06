@@ -1,61 +1,32 @@
 package com.qwaecd.paramagic.core.render.texture;
 
-import com.mojang.blaze3d.platform.NativeImage;
-import com.qwaecd.paramagic.Paramagic;
 import lombok.Getter;
-import net.minecraft.client.Minecraft;
 import net.minecraft.resources.ResourceLocation;
 
-import java.io.IOException;
-import java.io.InputStream;
-
-import static org.lwjgl.opengl.GL33.*;
+import static org.lwjgl.opengl.GL33.GL_CLAMP_TO_EDGE;
 
 @Getter
-public class Texture2D {
-    private final int id;
-    private int width, height;
+public final class Texture2D {
+    private final ResourceLocation location;
+    private final boolean generateMipmap;
+    private final int wrapS;
+    private final int wrapT;
+    private int width = -1;
+    private int height = -1;
 
     public Texture2D(ResourceLocation location, boolean generateMipmap) {
         this(location, generateMipmap, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE);
     }
 
     public Texture2D(ResourceLocation location, boolean generateMipmap, int wrapS, int wrapT) {
-        this.id = glGenTextures();
-        bind(0);
-        try (InputStream in = Minecraft.getInstance().getResourceManager().getResource(location).get().open();
-            NativeImage img = NativeImage.read(in)) {
-            this.width = img.getWidth();
-            this.height = img.getHeight();
-
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, generateMipmap ? GL_LINEAR_MIPMAP_LINEAR : GL_LINEAR);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrapS);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrapT);
-
-            glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, img.getPixelsRGBA());
-
-            if (generateMipmap) {
-                glGenerateMipmap(GL_TEXTURE_2D);
-            }
-        } catch (IOException e) {
-            Paramagic.LOG.error("Failed to load texture: {}", location, e);
-        }
-        unbind();
+        this.location = location;
+        this.generateMipmap = generateMipmap;
+        this.wrapS = wrapS;
+        this.wrapT = wrapT;
     }
 
-    public void bind(int unit) {
-        glActiveTexture(GL_TEXTURE0 + unit);
-        glBindTexture(GL_TEXTURE_2D, id);
+    void setDimensions(int width, int height) {
+        this.width = width;
+        this.height = height;
     }
-
-    public void unbind() {
-        glBindTexture(GL_TEXTURE_2D, 0);
-    }
-
-    public void dispose() {
-        glDeleteTextures(id);
-    }
-
 }

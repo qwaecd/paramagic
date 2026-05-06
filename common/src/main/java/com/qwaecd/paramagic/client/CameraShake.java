@@ -31,6 +31,9 @@ public final class CameraShake {
         if (duration <= 0.0f || elapsedTime >= duration) {
             return;
         }
+        if (minecraft.isPaused()) {
+            return;
+        }
         final float deltaTime = TimeProvider.getDeltaTime(minecraft);
         elapsedTime = Math.min(elapsedTime + deltaTime, duration);
         float progress = elapsedTime / duration;

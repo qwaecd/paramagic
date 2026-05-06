@@ -15,5 +15,14 @@
         "volume": 1.0
       }
     ]
+  },
+  "explosion": {
+    "subtitle": "paramagic.sound.explosion",
+    "sounds": [
+      {
+        "name": "paramagic:explosion_0",
+        "volume": 1.0
+      }
+    ]
   }
 }
