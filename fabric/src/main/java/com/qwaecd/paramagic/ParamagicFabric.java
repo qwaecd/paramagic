@@ -1,13 +1,12 @@
 package com.qwaecd.paramagic;
 
 import com.qwaecd.paramagic.init.*;
+import com.qwaecd.paramagic.lifecycle.LifecycleProviderFabric;
+import com.qwaecd.paramagic.lifecycle.ParamagicLifecycle;
 import com.qwaecd.paramagic.network.FabricNetworking;
 import com.qwaecd.paramagic.network.Networking;
-import com.qwaecd.paramagic.particle.server.ServerEffectManager;
 import com.qwaecd.paramagic.thaumaturgy.operator.AllParaOperators;
-import com.qwaecd.paramagic.world.explosion.CustomExplosionManager;
 import net.fabricmc.api.ModInitializer;
-import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 
 
 public class ParamagicFabric implements ModInitializer {
@@ -16,7 +15,6 @@ public class ParamagicFabric implements ModInitializer {
     public void onInitialize() {
         Paramagic.LOG.info("Hello Fabric world!");
         Paramagic.init();
-        ServerEffectManager.init(runnable -> ServerTickEvents.END_WORLD_TICK.register(level -> runnable.run()));
 
         ModItemsFabric.registerAll();
         ModBlocksFabric.registerAll();
@@ -29,6 +27,6 @@ public class ParamagicFabric implements ModInitializer {
 
         Networking.init(new FabricNetworking());
         AllParaOperators.registerAll();
-        ServerTickEvents.END_WORLD_TICK.register(CustomExplosionManager::tick);
+        ParamagicLifecycle.init(new LifecycleProviderFabric());
     }
 }

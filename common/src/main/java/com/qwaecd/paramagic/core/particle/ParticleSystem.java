@@ -106,6 +106,12 @@ public class ParticleSystem implements AutoCloseable {
         return INSTANCE;
     }
 
+    public void reset() {
+        this.effectManager.reset();
+        this.emissionRequests.clear();
+        this.killedEffects.clear();
+    }
+
     public static boolean isInitialized() {
         return INSTANCE != null;
     }

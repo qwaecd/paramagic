@@ -39,6 +39,21 @@ public class MagicCircleManager {
         pendingRemove.addAll(activeCircles);
     }
 
+    public void reset() {
+        if (ModRenderSystem.isInitialized()) {
+            for (MagicCircle circle : activeCircles) {
+                this.unregisterCircleFromRenderSystem(circle);
+            }
+            MagicCircle pendingCircle;
+            while ((pendingCircle = this.pendingAdd.poll()) != null) {
+                this.unregisterCircleFromRenderSystem(pendingCircle);
+            }
+        }
+        this.activeCircles.clear();
+        this.pendingAdd.clear();
+        this.pendingRemove.clear();
+    }
+
     public void drawAll(MagicCircleRenderer renderer) {
         for (MagicCircle circle : activeCircles) {
             circle.draw(WORLD_IDENTITY, renderer);

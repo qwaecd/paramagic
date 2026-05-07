@@ -23,16 +23,11 @@ public final class ServerEffectManager {
         return INSTANCE;
     }
 
-    public static void init(Ticker ticker) {
+    public static void init() {
         if (INSTANCE != null) {
             return;
         }
         INSTANCE = new ServerEffectManager();
-        ticker.register(() -> INSTANCE.tick(1.0f / 20.0f));
-    }
-
-    public interface Ticker {
-        void register(Runnable tickFunction);
     }
 
     public void tick(float deltaTime) {

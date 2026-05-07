@@ -113,6 +113,14 @@ public class ClientSessionManager {
         return this.sessions.get(sessionId);
     }
 
+    public void reset() {
+        for (ClientSession session : this.sessions.values()) {
+            session.close();
+        }
+        this.sessions.clear();
+        this.pendingRemovals.clear();
+    }
+
     private void flushPendingRemovals() {
         ClientSession session;
         while ((session = this.pendingRemovals.poll()) != null) {

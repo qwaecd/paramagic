@@ -52,4 +52,12 @@ public final class CameraShake {
 
         ((CameraAccessor) camera).setRotationMethod(camera.getYRot() + yaw, camera.getXRot() + pitch);
     }
+
+    public static void reset() {
+        intensity = 0.0f;
+        duration = 0.0f;
+        elapsedTime = 0.0f;
+        phaseX = 0.0f;
+        phaseY = 0.0f;
+    }
 }

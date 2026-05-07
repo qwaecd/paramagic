@@ -15,6 +15,18 @@ public final class SessionManagers {
         return MAP.computeIfAbsent(level, ServerSessionManager::new);
     }
 
+    public static void tickServerLevel(ServerLevel level) {
+        ServerSessionManager manager = MAP.get(level);
+        if (manager != null) {
+            manager.tickAll(level);
+        }
+    }
+
+    public static void clearServerSessions() {
+        MAP.values().forEach(ServerSessionManager::reset);
+        MAP.clear();
+    }
+
     public static ClientSessionManager getForClient() {
         return ClientSessionManager.instance();
     }

@@ -62,6 +62,20 @@ public class EffectManager {
         }
     }
 
+    public void reset() {
+        for (int i = 0; i < this.maxEffectCount; i++) {
+            if (this.particleEffects[i] != null) {
+                this.particleEffects[i] = null;
+                this.memoryManager.clearEffect(i);
+            }
+        }
+        this.idManager.availableIds.clear();
+        for (int i = this.maxEffectCount - 1; i >= 0; i--) {
+            this.idManager.availableIds.push(i);
+        }
+        this.currentEffectCount.set(0);
+    }
+
     private class IDManager {
         private final Deque<Integer> availableIds;
 
