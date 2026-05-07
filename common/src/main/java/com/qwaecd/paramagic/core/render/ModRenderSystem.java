@@ -369,6 +369,9 @@ public class ModRenderSystem extends AbstractRenderSystem implements AutoCloseab
         this.geometricCasterSet.clear();
         this.pendingGeometricAdd.clear();
         this.pendingGeometricRemove.clear();
+        if (this.renderEffectManager != null) {
+            this.renderEffectManager.clear();
+        }
     }
 
     private void updateScene() {

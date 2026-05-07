@@ -10,6 +10,8 @@ import com.qwaecd.paramagic.debug.DebugTools;
 import com.qwaecd.paramagic.debug.ParamagicDebugState;
 import com.qwaecd.paramagic.feature.circle.MagicCircleManager;
 import com.qwaecd.paramagic.init.ModBlockEntityRendererFabric;
+import com.qwaecd.paramagic.lifecycle.LifecycleProviderClientFabric;
+import com.qwaecd.paramagic.lifecycle.ParamagicLifecycleClient;
 import com.qwaecd.paramagic.network.ClientNetworking;
 import com.qwaecd.paramagic.network.Networking;
 import com.qwaecd.paramagic.particle.client.shared.SharedGPUEffectRegistry;
@@ -44,6 +46,7 @@ public class FabricClient implements ClientModInitializer {
     @Override
     public void onInitializeClient() {
         ParamagicClient.initOnClient();
+        ParamagicLifecycleClient.init(new LifecycleProviderClientFabric());
 
         Services.PLATFORM.initializeOpenGL();
         registerClientCommands();

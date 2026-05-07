@@ -1,6 +1,5 @@
 package com.qwaecd.paramagic.spell.server;
 
-import com.qwaecd.paramagic.mixinapi.IServerLevel;
 import com.qwaecd.paramagic.spell.caster.SpellCaster;
 import com.qwaecd.paramagic.tools.ConditionalLogger;
 import net.minecraft.resources.ResourceKey;
@@ -28,11 +27,6 @@ public class ServerSessionManager {
     public ServerSessionManager(ServerLevel level) {
         this.levelRef = new WeakReference<>(level);
         this.levelKey = level.dimension();
-        if (level instanceof IServerLevel callbackRegister) {
-            callbackRegister.registerOnLevelTick(this::tickAll);
-        } else {
-            LOGGER.get().warn("The level {} does not implement IServerLevel, spell sessions will not tick!", this.levelKey);
-        }
     }
 
     @Nullable
@@ -64,7 +58,7 @@ public class ServerSessionManager {
         return Collections.unmodifiableSet(sessionSet);
     }
 
-    private void tickAll(final ServerLevel serverLevel) {
+    public void tickAll(final ServerLevel serverLevel) {
         this.flushPendingRemovals();
 
         for (var entry : this.sessions.entrySet()) {
@@ -88,6 +82,15 @@ public class ServerSessionManager {
                 );
             }
         }
+    }
+
+    public void reset() {
+        this.pendingRemovals.clear();
+        for (ServerSession session : this.sessions.values()) {
+            session.close();
+        }
+        this.sessions.clear();
+        this.casterSessions.clear();
     }
 
     private void removeSession(ServerSession session) {

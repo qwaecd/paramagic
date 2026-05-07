@@ -106,6 +106,12 @@ public class ParticleSystem implements AutoCloseable {
         return INSTANCE;
     }
 
+    public void reset() {
+        this.effectManager.reset();
+        this.emissionRequests.clear();
+        this.killedEffects.clear();
+    }
+
     public static boolean isInitialized() {
         return INSTANCE != null;
     }
@@ -128,7 +134,16 @@ public class ParticleSystem implements AutoCloseable {
     }
 
     public void renderParticles(RenderContext context) {
-        if (this.effectManager.getCurrentEffectCount() == 0 || !shouldWork() || this.pointRenderShader == null){
+        if (!shouldWork()) {
+            return;
+        }
+
+        if (this.pointRenderShader == null) {
+            return;
+        }
+
+        if (this.effectManager.getCurrentEffectCount() == 0) {
+            this.tryWriteDebugStats();
             return;
         }
 
@@ -170,6 +185,10 @@ public class ParticleSystem implements AutoCloseable {
         glUseProgram(0);
         this.memoryManager.unbindAllSSBO();
 
+        this.tryWriteDebugStats();
+    }
+
+    private void tryWriteDebugStats() {
         if (this.debugStatsEnabled) {
             this.dispatchDebugStatsWrite();
             this.pollDebugStatsReadback();

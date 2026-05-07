@@ -22,6 +22,10 @@ public final class CustomExplosionManager {
         INSTANCE.tickLevel(level);
     }
 
+    public static void reset() {
+        INSTANCE.tasks.clear();
+    }
+
     void addTask(CustomExplosionTask task) {
         this.tasks.add(task);
     }

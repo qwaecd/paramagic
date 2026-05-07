@@ -42,4 +42,11 @@ public final class RenderEffectManager {
         effect.close();
         this.effects.remove(effect);
     }
+
+    public void clear() {
+        for (RenderEffect effect : this.effects) {
+            effect.close();
+        }
+        this.effects.clear();
+    }
 }

@@ -2,8 +2,8 @@ package com.qwaecd.paramagic.spell.builtin.explostion;
 
 import com.qwaecd.paramagic.client.CameraShake;
 import com.qwaecd.paramagic.client.material.EnergyFlowMaterial;
-import com.qwaecd.paramagic.client.obj.laser.LaserBeam;
 import com.qwaecd.paramagic.client.obj.laser.EnergyCoreSphere;
+import com.qwaecd.paramagic.client.obj.laser.LaserBeam;
 import com.qwaecd.paramagic.core.particle.ParticleSystem;
 import com.qwaecd.paramagic.core.particle.effect.GPUParticleEffect;
 import com.qwaecd.paramagic.core.particle.emitter.ParticleBurst;
