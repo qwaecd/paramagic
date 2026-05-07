@@ -2,8 +2,8 @@ package com.qwaecd.paramagic.lifecycle;
 
 import com.qwaecd.paramagic.lifecycle.api.LifecycleProvider;
 import com.qwaecd.paramagic.lifecycle.event.ServerLevelTickHandler;
-import com.qwaecd.paramagic.lifecycle.event.ServerTickHandler;
 import com.qwaecd.paramagic.lifecycle.event.ServerStoppingHandler;
+import com.qwaecd.paramagic.lifecycle.event.ServerTickHandler;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 

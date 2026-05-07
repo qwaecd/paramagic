@@ -3,13 +3,13 @@ package com.qwaecd.paramagic.lifecycle;
 import com.qwaecd.paramagic.client.CameraShake;
 import com.qwaecd.paramagic.core.particle.ParticleSystem;
 import com.qwaecd.paramagic.core.render.ModRenderSystem;
+import com.qwaecd.paramagic.feature.circle.MagicCircleManager;
 import com.qwaecd.paramagic.lifecycle.api.client.LifecycleProviderClient;
-import com.qwaecd.paramagic.platform.annotation.PlatformScope;
-import com.qwaecd.paramagic.platform.annotation.PlatformScopeType;
 import com.qwaecd.paramagic.particle.client.ClientEffectRepository;
 import com.qwaecd.paramagic.particle.client.shared.SharedGPUEffectRegistry;
+import com.qwaecd.paramagic.platform.annotation.PlatformScope;
+import com.qwaecd.paramagic.platform.annotation.PlatformScopeType;
 import com.qwaecd.paramagic.spell.core.SessionManagers;
-import com.qwaecd.paramagic.feature.circle.MagicCircleManager;
 
 @PlatformScope(PlatformScopeType.CLIENT)
 public final class ParamagicLifecycleClient {
