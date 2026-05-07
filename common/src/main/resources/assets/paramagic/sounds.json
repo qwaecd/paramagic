@@ -20,7 +20,7 @@
     "subtitle": "paramagic.sound.explosion",
     "sounds": [
       {
-        "name": "paramagic:explosion_0",
+        "name": "paramagic:explosion",
         "volume": 1.0
       }
     ]
