@@ -4,6 +4,7 @@ import com.qwaecd.paramagic.mixin.accessor.MinecraftMixin;
 import com.qwaecd.paramagic.mixin.accessor.TimerMixin;
 import com.qwaecd.paramagic.platform.annotation.PlatformScope;
 import com.qwaecd.paramagic.platform.annotation.PlatformScopeType;
+import com.qwaecd.paramagic.compat.replay.ReplayCompat;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.Timer;
 
@@ -20,7 +21,11 @@ public class TimeProvider {
         Timer timer = ((MinecraftMixin) minecraft).getTimer();
         // 距离上一帧的时间，单位是游戏刻
         float deltaFrameTime = minecraft.getDeltaFrameTime();
-        float secondsPerTick = ((TimerMixin) timer).getMsPerTick() / 1000.0f;
-        return deltaFrameTime * secondsPerTick;
+        float msPerTick = ((TimerMixin) timer).getMsPerTick();
+        float vanillaDeltaTime = 0.0f;
+        if (Float.isFinite(deltaFrameTime) && Float.isFinite(msPerTick) && msPerTick > 0.0f) {
+            vanillaDeltaTime = deltaFrameTime * msPerTick / 1000.0f;
+        }
+        return ReplayCompat.getVisualDeltaTime(minecraft, vanillaDeltaTime);
     }
 }

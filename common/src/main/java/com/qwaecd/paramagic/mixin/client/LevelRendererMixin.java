@@ -6,6 +6,7 @@ import com.qwaecd.paramagic.core.particle.ParticleSystem;
 import com.qwaecd.paramagic.core.render.ModRenderSystem;
 import com.qwaecd.paramagic.core.render.RendererManager;
 import com.qwaecd.paramagic.core.render.context.RenderContextManager;
+import com.qwaecd.paramagic.compat.replay.ReplayCompat;
 import com.qwaecd.paramagic.tools.TimeProvider;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
@@ -44,7 +45,7 @@ public abstract class LevelRendererMixin {
         ModRenderSystem rs = ModRenderSystem.getInstance();
         RendererManager rendererManager = rs.getRendererManager();
         ParticleSystem particleSystem = rs.getParticleSystem();
-        if (!minecraft.isPaused()) {
+        if (!ReplayCompat.shouldPauseVisuals(minecraft)) {
             float deltaTimeInSeconds = TimeProvider.getDeltaTime(minecraft);
             rendererManager.update(deltaTimeInSeconds);
             if (rs.canUseComputerShader()) {
