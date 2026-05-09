@@ -7,9 +7,14 @@ import com.qwaecd.paramagic.thaumaturgy.operator.ParaOperator;
 import net.minecraft.world.level.ItemLike;
 
 import javax.annotation.Nonnull;
+import java.util.function.Supplier;
 
 public abstract class ModifierOperator extends ParaOperator {
     public ModifierOperator(@Nonnull ParaOpId id, @Nonnull ItemLike item) {
+        super(id, item);
+    }
+
+    public ModifierOperator(@Nonnull ParaOpId id, @Nonnull Supplier<? extends ItemLike> item) {
         super(id, item);
     }
 

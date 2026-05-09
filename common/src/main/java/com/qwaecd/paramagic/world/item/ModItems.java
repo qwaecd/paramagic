@@ -4,6 +4,7 @@ import com.qwaecd.paramagic.world.item.content.ParaCrystalItem;
 import com.qwaecd.paramagic.world.item.debug.DebugWand;
 import com.qwaecd.paramagic.world.item.feat.ExplosionWand;
 import com.qwaecd.paramagic.world.item.operator.*;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 
 import java.util.LinkedHashMap;
@@ -11,36 +12,36 @@ import java.util.Map;
 import java.util.function.Supplier;
 
 public final class ModItems {
-    public static final Map<String, Item> ITEMS = new LinkedHashMap<>();
+    public static final Map<String, Entry<? extends Item>> ITEMS = new LinkedHashMap<>();
 
     public static ItemProvider PROVIDER;
-    public static DebugWand DEBUG_WAND;
-    public static ExplosionWand EXPLOSION_WAND;
+    public static Entry<DebugWand> DEBUG_WAND;
+    public static Entry<ExplosionWand> EXPLOSION_WAND;
 
-    public static VoidOperatorItem VOID_OPERATOR;
-    public static AccelerateOperatorItem ACCELERATE_OPERATOR;
-    public static ExtendLifetimeOperatorItem EXTEND_LIFETIME_OPERATOR;
-    public static GradualAccelerationOperatorItem GRADUAL_ACCELERATION_OPERATOR;
-    public static HeavyOperatorItem HEAVY_OPERATOR;
-    public static LaserOperatorItem LASER_OPERATOR;
-    public static MagicArrowOperatorItem MAGIC_ARROW_OPERATOR;
-    public static ShortenLifetimeOperatorItem SHORTEN_LIFETIME_OPERATOR;
-    public static ShortTrackingOperatorItem SHORT_TRACKING_OPERATOR;
-    public static TrackingOperatorItem TRACKING_OPERATOR;
-    public static WeightlessOperatorItem WEIGHTLESS_OPERATOR;
-    public static GravityCollapseOperatorItem GRAVITY_COLLAPSE_OPERATOR;
+    public static Entry<VoidOperatorItem> VOID_OPERATOR;
+    public static Entry<AccelerateOperatorItem> ACCELERATE_OPERATOR;
+    public static Entry<ExtendLifetimeOperatorItem> EXTEND_LIFETIME_OPERATOR;
+    public static Entry<GradualAccelerationOperatorItem> GRADUAL_ACCELERATION_OPERATOR;
+    public static Entry<HeavyOperatorItem> HEAVY_OPERATOR;
+    public static Entry<LaserOperatorItem> LASER_OPERATOR;
+    public static Entry<MagicArrowOperatorItem> MAGIC_ARROW_OPERATOR;
+    public static Entry<ShortenLifetimeOperatorItem> SHORTEN_LIFETIME_OPERATOR;
+    public static Entry<ShortTrackingOperatorItem> SHORT_TRACKING_OPERATOR;
+    public static Entry<TrackingOperatorItem> TRACKING_OPERATOR;
+    public static Entry<WeightlessOperatorItem> WEIGHTLESS_OPERATOR;
+    public static Entry<GravityCollapseOperatorItem> GRAVITY_COLLAPSE_OPERATOR;
 
-    public static ParaCrystalItem PARA_CRYSTAL;
+    public static Entry<ParaCrystalItem> PARA_CRYSTAL;
 
-    public static void init(ItemProvider provider) {
+    public static void init(ItemProvider provider, ItemFactories factories) {
         PROVIDER = provider;
-        worldItems(provider);
+        worldItems(provider, factories);
         operators(provider);
     }
 
-    private static void worldItems(ItemProvider provider) {
+    private static void worldItems(ItemProvider provider, ItemFactories factories) {
         DEBUG_WAND = create(provider, "debug_wand", DebugWand::new);
-        EXPLOSION_WAND = create(provider, "explosion_wand", ExplosionWand::new);
+        EXPLOSION_WAND = create(provider, "explosion_wand", factories.explosionWand());
         PARA_CRYSTAL = create(provider, "para_crystal", ParaCrystalItem::new);
     }
 
@@ -59,13 +60,24 @@ public final class ModItems {
         GRAVITY_COLLAPSE_OPERATOR = create(provider, "gravity_collapse_operator", GravityCollapseOperatorItem::new);
     }
 
-    public interface ItemProvider {
-        <T extends Item> T register(String name, Supplier<T> factory);
+    public interface Entry<T extends Item> extends Supplier<T> {
+        ResourceLocation id();
+
+        @Override
+        T get();
     }
 
-    public static <T extends Item> T create(ItemProvider provider, String name, Supplier<T> factory) {
-        T item = provider.register(name, factory);
-        ITEMS.put(name, item);
-        return item;
+    public interface ItemProvider {
+        <T extends Item> Entry<T> register(String name, Supplier<? extends T> factory);
+    }
+
+    public interface ItemFactories {
+        Supplier<? extends ExplosionWand> explosionWand();
+    }
+
+    public static <T extends Item> Entry<T> create(ItemProvider provider, String name, Supplier<? extends T> factory) {
+        Entry<T> entry = provider.register(name, factory);
+        ITEMS.put(name, entry);
+        return entry;
     }
 }

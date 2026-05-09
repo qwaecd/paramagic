@@ -19,15 +19,11 @@ public final class AllParaOperators {
     private AllParaOperators() {}
 
     public static synchronized void registerOperator(ParaOpId opId, @Nonnull Supplier<ParaOperator> factory) {
-        ParaOpId id = factory.get().getId();
-        if (!id.equals(opId)) {
-            throw new IllegalArgumentException("Factory produced operator with id " + id.getId() + ", expected " + opId.getId());
+        if (OPERATORS.containsKey(opId)) {
+            throw new IllegalArgumentException("ParaOperator with id " + opId.getId() + " is already registered.");
         }
-        if (OPERATORS.containsKey(id)) {
-            throw new IllegalArgumentException("ParaOperator with id " + id.getId() + " is already registered.");
-        }
-        ID_MAP.put(id.getId().toString(), id);
-        OPERATORS.put(id, factory);
+        ID_MAP.put(opId.getId().toString(), opId);
+        OPERATORS.put(opId, factory);
     }
 
     public static void registerAll() {
