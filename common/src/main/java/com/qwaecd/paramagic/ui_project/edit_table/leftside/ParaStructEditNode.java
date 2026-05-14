@@ -7,7 +7,7 @@ import com.qwaecd.paramagic.thaumaturgy.ParaCrystalData;
 import com.qwaecd.paramagic.tools.ModRL;
 import com.qwaecd.paramagic.tools.anim.Interpolation;
 import com.qwaecd.paramagic.tools.nbt.CrystalComponentUtils;
-import com.qwaecd.paramagic.ui.animation.UIAnimator;
+import com.qwaecd.paramagic.ui.animation.fast.FloatUIAnimator;
 import com.qwaecd.paramagic.ui.api.UIRenderContext;
 import com.qwaecd.paramagic.ui.api.event.AllUIEvents;
 import com.qwaecd.paramagic.ui.api.event.UIEventContext;
@@ -55,7 +55,7 @@ public class ParaStructEditNode extends UIScrollView {
     private final StructHeader header;
 
     @Nullable
-    private UIAnimator<Float> scrollAnimator;
+    private FloatUIAnimator scrollAnimator;
 
     @Nullable
     private ParaPathNode currentSelectedNode;
@@ -328,7 +328,7 @@ public class ParaStructEditNode extends UIScrollView {
             }
             manager.removeAnimator(this.scrollAnimator);
         }
-        this.scrollAnimator = this.animate(
+        this.scrollAnimator = this.animateFloat(
                 start, this.viewOffset, 0.1f,
                 Interpolation::easeOutSine,
                 (interpolationValue -> this.viewOffset = interpolationValue)

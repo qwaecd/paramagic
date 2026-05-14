@@ -11,7 +11,7 @@ public final class UIAnimationSystem {
     private final List<Entry> entries = new ArrayList<>();
 
     @Nonnull
-    private final IdentityHashMap<UIAnimator<?>, Entry> byAnimator = new IdentityHashMap<>();
+    private final IdentityHashMap<BaseUIAnimator<?>, Entry> byAnimator = new IdentityHashMap<>();
 
     @Nonnull
     private final IdentityHashMap<UINode, Set<Entry>> byOwner = new IdentityHashMap<>();
@@ -35,7 +35,7 @@ public final class UIAnimationSystem {
             if (entry.removed) {
                 continue;
             }
-            UIAnimator<?> animator = entry.animator;
+            BaseUIAnimator<?> animator = entry.animator;
             animator.update(deltaTime);
             if (animator.isFinished()) {
                 iterator.remove();
@@ -47,11 +47,11 @@ public final class UIAnimationSystem {
         this.flushPendingRemove();
     }
 
-    public void addAnimator(@Nullable UINode owner, @Nonnull UIAnimator<?> animator) {
+    public void addAnimator(@Nullable UINode owner, @Nonnull BaseUIAnimator<?> animator) {
         this.addAnimator(owner, null, animator);
     }
 
-    public void addAnimator(@Nullable UINode owner, @Nullable String key, @Nonnull UIAnimator<?> animator) {
+    public void addAnimator(@Nullable UINode owner, @Nullable String key, @Nonnull BaseUIAnimator<?> animator) {
         if (this.byAnimator.containsKey(animator)) {
             return;
         }
@@ -71,11 +71,11 @@ public final class UIAnimationSystem {
         }
     }
 
-    public void addAnimator(@Nonnull UIAnimator<?> animator) {
+    public void addAnimator(@Nonnull BaseUIAnimator<?> animator) {
         this.addAnimator(null, null, animator);
     }
 
-    public void removeAnimator(@Nullable UIAnimator<?> animator) {
+    public void removeAnimator(@Nullable BaseUIAnimator<?> animator) {
         if (animator == null) {
             return;
         }
@@ -89,12 +89,12 @@ public final class UIAnimationSystem {
     }
 
     @Nullable
-    public UIAnimator<?> getAnimator(@Nonnull UINode owner, @Nonnull String key) {
+    public BaseUIAnimator<?> getAnimator(@Nonnull UINode owner, @Nonnull String key) {
         Entry entry = this.bySlot.get(new AnimationSlot(owner, key));
         return entry == null ? null : entry.animator;
     }
 
-    public void replaceAnimator(@Nonnull UINode owner, @Nonnull String key, @Nonnull UIAnimator<?> animator) {
+    public void replaceAnimator(@Nonnull UINode owner, @Nonnull String key, @Nonnull BaseUIAnimator<?> animator) {
         this.removeAnimator(this.getAnimator(owner, key));
         this.addAnimator(owner, key, animator);
     }
@@ -120,7 +120,7 @@ public final class UIAnimationSystem {
 
     public void close() {
         for (Entry entry : List.copyOf(this.byAnimator.values())) {
-            UIAnimator<?> animator = entry.animator;
+            BaseUIAnimator<?> animator = entry.animator;
             if (!entry.removed) {
                 if (!animator.isFinished()) {
                     animator.cancel();
@@ -191,11 +191,11 @@ public final class UIAnimationSystem {
         @Nullable
         private final AnimationSlot slot;
         @Nonnull
-        private final UIAnimator<?> animator;
+        private final BaseUIAnimator<?> animator;
         private boolean queuedForRemoval = false;
         private boolean removed = false;
 
-        private Entry(@Nullable UINode owner, @Nullable String key, @Nonnull UIAnimator<?> animator) {
+        private Entry(@Nullable UINode owner, @Nullable String key, @Nonnull BaseUIAnimator<?> animator) {
             this.owner = owner;
             this.slot = owner == null || key == null ? null : new AnimationSlot(owner, key);
             this.animator = animator;

@@ -1,28 +1,39 @@
-package com.qwaecd.paramagic.ui.animation;
+package com.qwaecd.paramagic.ui.animation.fast;
 
-import com.qwaecd.paramagic.tools.anim.Interpolator;
+import com.qwaecd.paramagic.ui.animation.BaseUIAnimator;
+import com.qwaecd.paramagic.ui.animation.UIAnimatorState;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.function.Consumer;
 
-public class UIAnimator<T> extends BaseUIAnimator<UIAnimator<T>> {
-    private T start;
-    private T end;
-    private T currentValue;
+public class FloatUIAnimator extends BaseUIAnimator<FloatUIAnimator> {
+    private float start;
+    private float end;
+    private float currentValue;
 
-    private final Interpolator<T> interpolator;
-    private final ValueSetter<T> setter;
+    private final FloatInterpolator interpolator;
+    private final FloatValueSetter setter;
 
     @Nullable
-    private Consumer<T> onUpdate;
+    private FloatUpdateConsumer onUpdate;
 
-    public UIAnimator(
-            T start,
-            T end,
+    public interface FloatValueSetter {
+        void set(float interpolationValue);
+    }
+
+    public interface FloatInterpolator {
+        float interpolate(float start, float end, float alpha);
+    }
+
+    public interface FloatUpdateConsumer {
+        void accept(float currentValue);
+    }
+
+    public FloatUIAnimator(
+            float start,
+            float end,
             float duration,
-            Interpolator<T> interpolator,
-            ValueSetter<T> setter
+            FloatInterpolator interpolator,
+            FloatValueSetter setter
     ) {
         super(duration);
         this.start = start;
@@ -42,7 +53,11 @@ public class UIAnimator<T> extends BaseUIAnimator<UIAnimator<T>> {
         }
     }
 
-    public UIAnimator<T> retarget(@Nonnull T newEnd, float newDuration) {
+    public float getCurrentValue() {
+        return this.currentValue;
+    }
+
+    public FloatUIAnimator retarget(float newEnd, float newDuration) {
         if (this.state == UIAnimatorState.REMOVED) {
             return this;
         }
@@ -55,18 +70,14 @@ public class UIAnimator<T> extends BaseUIAnimator<UIAnimator<T>> {
         return this;
     }
 
-    public UIAnimator<T> retarget(@Nonnull T newEnd, @Nonnull RetargetDurationProvider durationProvider) {
+    public FloatUIAnimator retarget(float newEnd, RetargetDurationProvider durationProvider) {
         float oldDuration = this.duration;
         float elapsed = Math.min(this.elapsedTime, oldDuration);
         float remaining = Math.max(0.0f, oldDuration - elapsed);
         return this.retarget(newEnd, durationProvider.getDuration(elapsed, oldDuration, remaining));
     }
 
-    public T getCurrentValue() {
-        return this.currentValue;
-    }
-
-    public UIAnimator<T> setOnUpdate(Consumer<T> callback) {
+    public FloatUIAnimator setOnUpdate(FloatUpdateConsumer callback) {
         this.onUpdate = callback;
         return this;
     }

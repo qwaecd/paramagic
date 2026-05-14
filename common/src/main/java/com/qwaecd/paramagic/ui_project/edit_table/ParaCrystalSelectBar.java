@@ -2,7 +2,7 @@ package com.qwaecd.paramagic.ui_project.edit_table;
 
 import com.qwaecd.paramagic.tools.anim.Interpolation;
 import com.qwaecd.paramagic.ui.MenuContent;
-import com.qwaecd.paramagic.ui.animation.UIAnimator;
+import com.qwaecd.paramagic.ui.animation.fast.FloatUIAnimator;
 import com.qwaecd.paramagic.ui.api.UIRenderContext;
 import com.qwaecd.paramagic.ui.api.event.AllUIEvents;
 import com.qwaecd.paramagic.ui.api.event.UIEventContext;
@@ -36,7 +36,7 @@ public class ParaCrystalSelectBar extends UIScrollView {
     private final float panelOffsetY = 4.0f;
 
     @Nullable
-    private UIAnimator<Float> scrollAnimator;
+    private FloatUIAnimator scrollAnimator;
 
     private static final EditTableSprite paraSelectBar = new EditTableSprite(
             0, 0,
@@ -134,7 +134,7 @@ public class ParaCrystalSelectBar extends UIScrollView {
             }
             manager.removeAnimator(this.scrollAnimator);
         }
-        this.scrollAnimator = this.animate(
+        this.scrollAnimator = this.animateFloat(
                 start, this.viewOffset, 0.15f,
                 Interpolation::easeOutSine,
                 (interpolationValue -> this.viewOffset = interpolationValue)

@@ -3,6 +3,7 @@ package com.qwaecd.paramagic.ui.core;
 import com.qwaecd.paramagic.tools.anim.Interpolator;
 import com.qwaecd.paramagic.ui.animation.UIAnimator;
 import com.qwaecd.paramagic.ui.animation.ValueSetter;
+import com.qwaecd.paramagic.ui.animation.fast.FloatUIAnimator;
 import com.qwaecd.paramagic.ui.api.UIRenderContext;
 import com.qwaecd.paramagic.ui.api.event.UIEventContext;
 import com.qwaecd.paramagic.ui.api.event.UIEventKey;
@@ -233,6 +234,45 @@ public class UINode {
     ) {
         UIAnimator<T> animator = new UIAnimator<>(start, end, duration, interpolator, setter);
         this.replaceAnimation(key, animator);
+        return animator;
+    }
+
+    protected FloatUIAnimator replaceFloatAnimation(
+            @Nonnull String key,
+            FloatUIAnimator animator
+    ) {
+        if (this.manager != null) {
+            this.manager.replaceAnimator(this, key, animator);
+        }
+        return animator;
+    }
+
+    protected FloatUIAnimator animateFloat(
+            float start,
+            float end,
+            float duration,
+            FloatUIAnimator.FloatInterpolator interpolator,
+            FloatUIAnimator.FloatValueSetter setter
+    ) {
+        FloatUIAnimator animator = new FloatUIAnimator(start, end, duration, interpolator, setter);
+        if (this.manager != null) {
+            this.manager.addAnimator(this, animator);
+        }
+        return animator;
+    }
+
+    protected FloatUIAnimator animateFloat(
+            @Nonnull String key,
+            float start,
+            float end,
+            float duration,
+            FloatUIAnimator.FloatInterpolator interpolator,
+            FloatUIAnimator.FloatValueSetter setter
+    ) {
+        FloatUIAnimator animator = new FloatUIAnimator(start, end, duration, interpolator, setter);
+        if (this.manager != null) {
+            this.manager.addAnimator(this, key, animator);
+        }
         return animator;
     }
 
