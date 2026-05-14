@@ -1,6 +1,5 @@
 package com.qwaecd.paramagic.init;
 
-import com.qwaecd.paramagic.geo.item.ExplosionWandGeoFabric;
 import com.qwaecd.paramagic.tools.ModRL;
 import com.qwaecd.paramagic.world.item.ModItems;
 import com.qwaecd.paramagic.world.item.feat.ExplosionWand;
@@ -24,7 +23,7 @@ public class ModItemsFabric {
         ModItems.ItemFactories factories = new ModItems.ItemFactories() {
             @Override
             public Supplier<? extends ExplosionWand> explosionWand() {
-                return ExplosionWandGeoFabric::new;
+                return ExplosionWand::new;
             }
         };
         ModItems.init(provider, factories);
