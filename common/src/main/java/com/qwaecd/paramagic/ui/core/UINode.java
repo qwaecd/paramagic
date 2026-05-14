@@ -1,7 +1,6 @@
 package com.qwaecd.paramagic.ui.core;
 
 import com.qwaecd.paramagic.tools.anim.Interpolator;
-import com.qwaecd.paramagic.ui.animation.UIAnimationSystem;
 import com.qwaecd.paramagic.ui.animation.UIAnimator;
 import com.qwaecd.paramagic.ui.animation.ValueSetter;
 import com.qwaecd.paramagic.ui.api.UIRenderContext;
@@ -174,7 +173,17 @@ public class UINode {
             UIAnimator<T> animator
     ) {
         if (this.manager != null) {
-            this.manager.addAnimator(animator);
+            this.manager.addAnimator(this, animator);
+        }
+        return animator;
+    }
+
+    protected <T> UIAnimator<T> animate(
+            @Nonnull String key,
+            UIAnimator<T> animator
+    ) {
+        if (this.manager != null) {
+            this.manager.addAnimator(this, key, animator);
         }
         return animator;
     }
@@ -188,6 +197,42 @@ public class UINode {
     ) {
         UIAnimator<T> animator = new UIAnimator<>(start, end, duration, interpolator, setter);
         this.animate(animator);
+        return animator;
+    }
+
+    protected <T> UIAnimator<T> animate(
+            @Nonnull String key,
+            T start,
+            T end,
+            float duration,
+            Interpolator<T> interpolator,
+            ValueSetter<T> setter
+    ) {
+        UIAnimator<T> animator = new UIAnimator<>(start, end, duration, interpolator, setter);
+        this.animate(key, animator);
+        return animator;
+    }
+
+    protected <T> UIAnimator<T> replaceAnimation(
+            @Nonnull String key,
+            UIAnimator<T> animator
+    ) {
+        if (this.manager != null) {
+            this.manager.replaceAnimator(this, key, animator);
+        }
+        return animator;
+    }
+
+    protected <T> UIAnimator<T> replaceAnimation(
+            @Nonnull String key,
+            T start,
+            T end,
+            float duration,
+            Interpolator<T> interpolator,
+            ValueSetter<T> setter
+    ) {
+        UIAnimator<T> animator = new UIAnimator<>(start, end, duration, interpolator, setter);
+        this.replaceAnimation(key, animator);
         return animator;
     }
 

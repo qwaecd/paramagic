@@ -2,7 +2,6 @@ package com.qwaecd.paramagic.ui_project.edit_table;
 
 import com.qwaecd.paramagic.tools.anim.Interpolation;
 import com.qwaecd.paramagic.ui.MenuContent;
-import com.qwaecd.paramagic.ui.animation.UIAnimationSystem;
 import com.qwaecd.paramagic.ui.animation.UIAnimator;
 import com.qwaecd.paramagic.ui.api.UIRenderContext;
 import com.qwaecd.paramagic.ui.api.event.AllUIEvents;

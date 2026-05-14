@@ -503,6 +503,14 @@ public class UIManager {
         this.animationSystem.addAnimator(animator);
     }
 
+    public void addAnimator(@Nullable UINode owner, @Nonnull UIAnimator<?> animator) {
+        this.animationSystem.addAnimator(owner, animator);
+    }
+
+    public void addAnimator(@Nullable UINode owner, @Nullable String key, @Nonnull UIAnimator<?> animator) {
+        this.animationSystem.addAnimator(owner, key, animator);
+    }
+
     public void removeAnimator(UIAnimator<?> animator) {
         if (animator == null) {
             return;
@@ -510,7 +518,25 @@ public class UIManager {
         this.animationSystem.removeAnimator(animator);
     }
 
+    @Nullable
+    public UIAnimator<?> getAnimator(@Nonnull UINode owner, @Nonnull String key) {
+        return this.animationSystem.getAnimator(owner, key);
+    }
+
+    public void replaceAnimator(@Nonnull UINode owner, @Nonnull String key, @Nonnull UIAnimator<?> animator) {
+        this.animationSystem.replaceAnimator(owner, key, animator);
+    }
+
+    public void removeAnimators(@Nonnull UINode owner) {
+        this.animationSystem.removeNodeAnimators(owner);
+    }
+
+    public void removeAnimatorsInSubtree(@Nonnull UINode root) {
+        this.animationSystem.removeAnimatorsInSubtree(root);
+    }
+
     void onNodeDetached(@Nonnull UINode node) {
+        this.animationSystem.removeAnimatorsInSubtree(node);
         if (node.containsInSubtree(this.capturedNode)) {
             this.capturedNode = null;
         }
