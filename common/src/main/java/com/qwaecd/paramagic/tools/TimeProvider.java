@@ -1,10 +1,10 @@
 package com.qwaecd.paramagic.tools;
 
+import com.qwaecd.paramagic.compat.replay.ReplayCompat;
 import com.qwaecd.paramagic.mixin.accessor.MinecraftMixin;
 import com.qwaecd.paramagic.mixin.accessor.TimerMixin;
 import com.qwaecd.paramagic.platform.annotation.PlatformScope;
 import com.qwaecd.paramagic.platform.annotation.PlatformScopeType;
-import com.qwaecd.paramagic.compat.replay.ReplayCompat;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.Timer;
 

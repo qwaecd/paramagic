@@ -1,11 +1,11 @@
 package com.qwaecd.paramagic.spell.client;
 
+import com.qwaecd.paramagic.compat.replay.ReplayCompat;
 import com.qwaecd.paramagic.spell.core.EndSpellReason;
 import com.qwaecd.paramagic.spell.core.SessionState;
 import com.qwaecd.paramagic.spell.core.SpellSession;
 import com.qwaecd.paramagic.spell.view.CasterTransformSource;
 import com.qwaecd.paramagic.spell.view.HybridCasterSource;
-import com.qwaecd.paramagic.compat.replay.ReplayCompat;
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.entity.Entity;
 

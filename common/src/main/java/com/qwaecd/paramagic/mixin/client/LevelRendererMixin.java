@@ -2,11 +2,11 @@ package com.qwaecd.paramagic.mixin.client;
 
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.qwaecd.paramagic.compat.replay.ReplayCompat;
 import com.qwaecd.paramagic.core.particle.ParticleSystem;
 import com.qwaecd.paramagic.core.render.ModRenderSystem;
 import com.qwaecd.paramagic.core.render.RendererManager;
 import com.qwaecd.paramagic.core.render.context.RenderContextManager;
-import com.qwaecd.paramagic.compat.replay.ReplayCompat;
 import com.qwaecd.paramagic.tools.TimeProvider;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
