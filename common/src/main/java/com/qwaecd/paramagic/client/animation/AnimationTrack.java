@@ -1,5 +1,6 @@
 package com.qwaecd.paramagic.client.animation;
 
+import com.qwaecd.paramagic.tools.anim.EasingFunction;
 import com.qwaecd.paramagic.tools.anim.Interpolation;
 import lombok.Getter;
 import org.joml.Quaternionf;
@@ -73,7 +74,7 @@ public class AnimationTrack {
 
         // 根据插值类型调整 alpha
         if ("ease-in-out".equalsIgnoreCase(prevFrame.interpolation())) {
-            alpha = Interpolation.easeInOut(alpha);
+            alpha = EasingFunction.easeInOut(alpha);
         }
         // 可以添加更多 else if 来支持其他插值类型
 

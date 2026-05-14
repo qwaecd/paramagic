@@ -1,8 +1,8 @@
 package com.qwaecd.paramagic.ui.core;
 
 import com.qwaecd.paramagic.ui.MenuContent;
+import com.qwaecd.paramagic.ui.animation.BaseUIAnimator;
 import com.qwaecd.paramagic.ui.animation.UIAnimationSystem;
-import com.qwaecd.paramagic.ui.animation.UIAnimator;
 import com.qwaecd.paramagic.ui.api.TooltipRenderer;
 import com.qwaecd.paramagic.ui.api.UIRenderContext;
 import com.qwaecd.paramagic.ui.api.event.AllUIEvents;
@@ -499,19 +499,19 @@ public class UIManager {
         return this.nativeWidgetHost.forwardVanillaMouseRelease(mouseX, mouseY, button);
     }
 
-    public void addAnimator(@Nonnull UIAnimator<?> animator) {
+    public void addAnimator(@Nonnull BaseUIAnimator<?> animator) {
         this.animationSystem.addAnimator(animator);
     }
 
-    public void addAnimator(@Nullable UINode owner, @Nonnull UIAnimator<?> animator) {
+    public void addAnimator(@Nullable UINode owner, @Nonnull BaseUIAnimator<?> animator) {
         this.animationSystem.addAnimator(owner, animator);
     }
 
-    public void addAnimator(@Nullable UINode owner, @Nullable String key, @Nonnull UIAnimator<?> animator) {
+    public void addAnimator(@Nullable UINode owner, @Nullable String key, @Nonnull BaseUIAnimator<?> animator) {
         this.animationSystem.addAnimator(owner, key, animator);
     }
 
-    public void removeAnimator(UIAnimator<?> animator) {
+    public void removeAnimator(BaseUIAnimator<?> animator) {
         if (animator == null) {
             return;
         }
@@ -519,11 +519,11 @@ public class UIManager {
     }
 
     @Nullable
-    public UIAnimator<?> getAnimator(@Nonnull UINode owner, @Nonnull String key) {
+    public BaseUIAnimator<?> getAnimator(@Nonnull UINode owner, @Nonnull String key) {
         return this.animationSystem.getAnimator(owner, key);
     }
 
-    public void replaceAnimator(@Nonnull UINode owner, @Nonnull String key, @Nonnull UIAnimator<?> animator) {
+    public void replaceAnimator(@Nonnull UINode owner, @Nonnull String key, @Nonnull BaseUIAnimator<?> animator) {
         this.animationSystem.replaceAnimator(owner, key, animator);
     }
 

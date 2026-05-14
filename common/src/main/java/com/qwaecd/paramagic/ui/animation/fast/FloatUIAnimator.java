@@ -1,30 +1,41 @@
-package com.qwaecd.paramagic.ui.animation;
+package com.qwaecd.paramagic.ui.animation.fast;
 
 import com.qwaecd.paramagic.tools.anim.EasingFunction;
-import com.qwaecd.paramagic.tools.anim.Interpolator;
+import com.qwaecd.paramagic.ui.animation.BaseUIAnimator;
+import com.qwaecd.paramagic.ui.animation.UIAnimatorState;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.function.Consumer;
 
-public class UIAnimator<V> extends BaseUIAnimator<UIAnimator<V>> {
-    private V start;
-    private V end;
-    private V currentValue;
+public class FloatUIAnimator extends BaseUIAnimator<FloatUIAnimator> {
+    private float start;
+    private float end;
+    private float currentValue;
 
-    private final Interpolator<V> interpolator;
-    private final ValueSetter<V> setter;
+    private final FloatInterpolator interpolator;
+    private final FloatValueSetter setter;
 
     @Nullable
-    private Consumer<V> onUpdate;
+    private FloatUpdateConsumer onUpdate;
 
-    public UIAnimator(
-            V start,
-            V end,
+    public interface FloatValueSetter {
+        void set(float interpolationValue);
+    }
+
+    public interface FloatInterpolator {
+        float interpolate(float start, float end, float alpha);
+    }
+
+    public interface FloatUpdateConsumer {
+        void accept(float currentValue);
+    }
+
+    public FloatUIAnimator(
+            float start,
+            float end,
             float duration,
             EasingFunction easingFunction,
-            Interpolator<V> interpolator,
-            ValueSetter<V> setter
+            FloatInterpolator interpolator,
+            FloatValueSetter setter
     ) {
         super(duration, easingFunction);
         this.start = start;
@@ -34,12 +45,12 @@ public class UIAnimator<V> extends BaseUIAnimator<UIAnimator<V>> {
         this.setter = setter;
     }
 
-    public UIAnimator(
-            V start,
-            V end,
+    public FloatUIAnimator(
+            float start,
+            float end,
             float duration,
-            Interpolator<V> interpolator,
-            ValueSetter<V> setter
+            FloatInterpolator interpolator,
+            FloatValueSetter setter
     ) {
         super(duration);
         this.start = start;
@@ -59,7 +70,11 @@ public class UIAnimator<V> extends BaseUIAnimator<UIAnimator<V>> {
         }
     }
 
-    public UIAnimator<V> retarget(@Nonnull V newEnd, float newDuration) {
+    public float getCurrentValue() {
+        return this.currentValue;
+    }
+
+    public FloatUIAnimator retarget(float newEnd, float newDuration) {
         if (this.state == UIAnimatorState.REMOVED) {
             return this;
         }
@@ -72,18 +87,14 @@ public class UIAnimator<V> extends BaseUIAnimator<UIAnimator<V>> {
         return this;
     }
 
-    public UIAnimator<V> retarget(@Nonnull V newEnd, @Nonnull RetargetDurationProvider durationProvider) {
+    public FloatUIAnimator retarget(float newEnd, RetargetDurationProvider durationProvider) {
         float oldDuration = this.duration;
         float elapsed = Math.min(this.elapsedTime, oldDuration);
         float remaining = Math.max(0.0f, oldDuration - elapsed);
         return this.retarget(newEnd, durationProvider.getDuration(elapsed, oldDuration, remaining));
     }
 
-    public V getCurrentValue() {
-        return this.currentValue;
-    }
-
-    public UIAnimator<V> setOnUpdate(Consumer<V> callback) {
+    public FloatUIAnimator setOnUpdate(FloatUpdateConsumer callback) {
         this.onUpdate = callback;
         return this;
     }
