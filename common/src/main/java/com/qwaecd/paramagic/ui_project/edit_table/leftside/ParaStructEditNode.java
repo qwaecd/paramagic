@@ -5,6 +5,7 @@ import com.qwaecd.paramagic.data.para.struct.ParaComponentType;
 import com.qwaecd.paramagic.data.para.struct.ParaData;
 import com.qwaecd.paramagic.thaumaturgy.ParaCrystalData;
 import com.qwaecd.paramagic.tools.ModRL;
+import com.qwaecd.paramagic.tools.anim.EasingFunction;
 import com.qwaecd.paramagic.tools.anim.Interpolation;
 import com.qwaecd.paramagic.tools.nbt.CrystalComponentUtils;
 import com.qwaecd.paramagic.ui.animation.fast.FloatUIAnimator;
@@ -330,7 +331,8 @@ public class ParaStructEditNode extends UIScrollView {
         }
         this.scrollAnimator = this.animateFloat(
                 start, this.viewOffset, 0.1f,
-                Interpolation::easeOutSine,
+                EasingFunction.easeOutSine,
+                Interpolation::liner,
                 (interpolationValue -> this.viewOffset = interpolationValue)
         ).setOnUpdate(offset -> {
             manager.offerOveringTestTask();

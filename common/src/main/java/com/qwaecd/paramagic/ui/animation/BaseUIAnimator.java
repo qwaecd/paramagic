@@ -1,5 +1,7 @@
 package com.qwaecd.paramagic.ui.animation;
 
+import com.qwaecd.paramagic.tools.anim.EasingFunction;
+
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
@@ -12,6 +14,9 @@ public abstract class BaseUIAnimator<Self extends BaseUIAnimator<Self>> {
     protected boolean finished;
 
     protected boolean cycle = false;
+
+    @Nonnull
+    protected final EasingFunction easingFunction;
 
     /**
      * 在动画器被最终从动画系统中移除时被调用
@@ -31,11 +36,16 @@ public abstract class BaseUIAnimator<Self extends BaseUIAnimator<Self>> {
     @Nullable
     protected Runnable onCancel;
 
-    protected BaseUIAnimator(float duration) {
+    protected BaseUIAnimator(float duration, @Nonnull EasingFunction easingFunction) {
         this.state = UIAnimatorState.RUNNING;
         this.duration = sanitizeDuration(duration);
         this.elapsedTime = 0.0f;
         this.finished = false;
+        this.easingFunction = easingFunction;
+    }
+
+    protected BaseUIAnimator(float duration) {
+        this(duration, EasingFunction.linear);
     }
 
     @Nonnull
@@ -49,7 +59,14 @@ public abstract class BaseUIAnimator<Self extends BaseUIAnimator<Self>> {
         }
 
         this.elapsedTime += deltaTime;
-        float alpha = Math.min(this.elapsedTime / this.duration, 1.0f);
+
+        final float raw;
+        if (this.duration <= 0.0f) {
+            raw = 1.0f;
+        } else {
+            raw = this.elapsedTime / this.duration;
+        }
+        final float alpha = this.easingFunction.ease(raw);
         this.apply(alpha);
 
         if (alpha >= 1.0f) {

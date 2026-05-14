@@ -1,5 +1,9 @@
 package com.qwaecd.paramagic.tools.anim;
 
+/**
+ * 插值函数，决定了给定动画进度 alpha 的情况下如何获取 start 和 end 之间的值。
+ * @param <T> 被插值的类型。
+ */
 public interface Interpolator<T> {
     /**
      * 依据 alpha 值在 start 和 end 之间进行插值计算

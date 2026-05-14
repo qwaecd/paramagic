@@ -1,5 +1,6 @@
 package com.qwaecd.paramagic.ui.animation;
 
+import com.qwaecd.paramagic.tools.anim.EasingFunction;
 import com.qwaecd.paramagic.tools.anim.Interpolator;
 
 import javax.annotation.Nonnull;
@@ -16,6 +17,22 @@ public class UIAnimator<V> extends BaseUIAnimator<UIAnimator<V>> {
 
     @Nullable
     private Consumer<V> onUpdate;
+
+    public UIAnimator(
+            V start,
+            V end,
+            float duration,
+            EasingFunction easingFunction,
+            Interpolator<V> interpolator,
+            ValueSetter<V> setter
+    ) {
+        super(duration, easingFunction);
+        this.start = start;
+        this.end = end;
+        this.currentValue = start;
+        this.interpolator = interpolator;
+        this.setter = setter;
+    }
 
     public UIAnimator(
             V start,

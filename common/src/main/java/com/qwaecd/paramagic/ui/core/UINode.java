@@ -1,5 +1,6 @@
 package com.qwaecd.paramagic.ui.core;
 
+import com.qwaecd.paramagic.tools.anim.EasingFunction;
 import com.qwaecd.paramagic.tools.anim.Interpolator;
 import com.qwaecd.paramagic.ui.animation.UIAnimator;
 import com.qwaecd.paramagic.ui.animation.ValueSetter;
@@ -257,6 +258,37 @@ public class UINode {
         FloatUIAnimator animator = new FloatUIAnimator(start, end, duration, interpolator, setter);
         if (this.manager != null) {
             this.manager.addAnimator(this, animator);
+        }
+        return animator;
+    }
+
+    protected FloatUIAnimator animateFloat(
+            float start,
+            float end,
+            float duration,
+            EasingFunction easingFunction,
+            FloatUIAnimator.FloatInterpolator interpolator,
+            FloatUIAnimator.FloatValueSetter setter
+    ) {
+        FloatUIAnimator animator = new FloatUIAnimator(start, end, duration, easingFunction, interpolator, setter);
+        if (this.manager != null) {
+            this.manager.addAnimator(this, animator);
+        }
+        return animator;
+    }
+
+    protected FloatUIAnimator animateFloat(
+            @Nonnull String key,
+            float start,
+            float end,
+            float duration,
+            EasingFunction easingFunction,
+            FloatUIAnimator.FloatInterpolator interpolator,
+            FloatUIAnimator.FloatValueSetter setter
+    ) {
+        FloatUIAnimator animator = new FloatUIAnimator(start, end, duration, easingFunction, interpolator, setter);
+        if (this.manager != null) {
+            this.manager.addAnimator(this, key, animator);
         }
         return animator;
     }

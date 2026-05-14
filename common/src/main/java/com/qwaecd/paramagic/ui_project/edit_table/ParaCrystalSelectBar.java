@@ -1,5 +1,6 @@
 package com.qwaecd.paramagic.ui_project.edit_table;
 
+import com.qwaecd.paramagic.tools.anim.EasingFunction;
 import com.qwaecd.paramagic.tools.anim.Interpolation;
 import com.qwaecd.paramagic.ui.MenuContent;
 import com.qwaecd.paramagic.ui.animation.fast.FloatUIAnimator;
@@ -136,7 +137,8 @@ public class ParaCrystalSelectBar extends UIScrollView {
         }
         this.scrollAnimator = this.animateFloat(
                 start, this.viewOffset, 0.15f,
-                Interpolation::easeOutSine,
+                EasingFunction.easeOutSine,
+                Interpolation::liner,
                 (interpolationValue -> this.viewOffset = interpolationValue)
         ).setOnUpdate(offset -> {
             manager.offerOveringTestTask();

@@ -1,5 +1,6 @@
 package com.qwaecd.paramagic.ui.animation.fast;
 
+import com.qwaecd.paramagic.tools.anim.EasingFunction;
 import com.qwaecd.paramagic.ui.animation.BaseUIAnimator;
 import com.qwaecd.paramagic.ui.animation.UIAnimatorState;
 
@@ -26,6 +27,22 @@ public class FloatUIAnimator extends BaseUIAnimator<FloatUIAnimator> {
 
     public interface FloatUpdateConsumer {
         void accept(float currentValue);
+    }
+
+    public FloatUIAnimator(
+            float start,
+            float end,
+            float duration,
+            EasingFunction easingFunction,
+            FloatInterpolator interpolator,
+            FloatValueSetter setter
+    ) {
+        super(duration, easingFunction);
+        this.start = start;
+        this.end = end;
+        this.currentValue = start;
+        this.interpolator = interpolator;
+        this.setter = setter;
     }
 
     public FloatUIAnimator(
