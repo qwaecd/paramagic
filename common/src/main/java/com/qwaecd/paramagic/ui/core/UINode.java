@@ -173,7 +173,9 @@ public class UINode {
     protected <T> UIAnimator<T> animate(
             UIAnimator<T> animator
     ) {
-        UIAnimationSystem.getInstance().addAnimator(animator);
+        if (this.manager != null) {
+            this.manager.addAnimator(animator);
+        }
         return animator;
     }
 

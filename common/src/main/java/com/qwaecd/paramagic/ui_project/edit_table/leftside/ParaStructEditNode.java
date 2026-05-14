@@ -322,13 +322,13 @@ public class ParaStructEditNode extends UIScrollView {
     protected void onMouseScroll(UIEventContext<WheelEvent> context) {
         final float start = this.viewOffset;
         super.onMouseScroll(context);
+        UIManager manager = context.manager;
         if (this.scrollAnimator != null) {
             if (!this.scrollAnimator.isFinished()) {
                 return;
             }
-            UIAnimationSystem.getInstance().removeAnimator(this.scrollAnimator);
+            manager.removeAnimator(this.scrollAnimator);
         }
-        UIManager manager = context.manager;
         this.scrollAnimator = this.animate(
                 start, this.viewOffset, 0.1f,
                 Interpolation::easeOutSine,

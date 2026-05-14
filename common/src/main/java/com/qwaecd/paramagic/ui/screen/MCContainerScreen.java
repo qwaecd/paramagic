@@ -159,7 +159,10 @@ public abstract class MCContainerScreen<T extends AbstractContainerMenu> extends
 
     @Override
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
-        return !this.nativeWidgetHost.keyPressed(keyCode, scanCode, modifiers) && super.keyPressed(keyCode, scanCode, modifiers);
+        if (this.nativeWidgetHost.keyPressed(keyCode, scanCode, modifiers)) {
+            return true;
+        }
+        return super.keyPressed(keyCode, scanCode, modifiers);
     }
 
     @Override
