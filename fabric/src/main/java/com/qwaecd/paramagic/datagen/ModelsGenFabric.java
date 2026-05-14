@@ -20,18 +20,18 @@ public class ModelsGenFabric extends FabricModelProvider {
 
     @Override
     public void generateItemModels(ItemModelGenerators gen) {
-        gen.generateFlatItem(ModItems.VOID_OPERATOR, ModelTemplates.FLAT_ITEM);
-        gen.generateFlatItem(ModItems.ACCELERATE_OPERATOR, ModelTemplates.FLAT_ITEM);
-        gen.generateFlatItem(ModItems.GRADUAL_ACCELERATION_OPERATOR, ModelTemplates.FLAT_ITEM);
-        gen.generateFlatItem(ModItems.HEAVY_OPERATOR, ModelTemplates.FLAT_ITEM);
-        gen.generateFlatItem(ModItems.LASER_OPERATOR, ModelTemplates.FLAT_ITEM);
-        gen.generateFlatItem(ModItems.MAGIC_ARROW_OPERATOR, ModelTemplates.FLAT_ITEM);
-        gen.generateFlatItem(ModItems.PARA_CRYSTAL, ModelTemplates.FLAT_ITEM);
-        gen.generateFlatItem(ModItems.SHORT_TRACKING_OPERATOR, ModelTemplates.FLAT_ITEM);
-        gen.generateFlatItem(ModItems.TRACKING_OPERATOR, ModelTemplates.FLAT_ITEM);
-        gen.generateFlatItem(ModItems.WEIGHTLESS_OPERATOR, ModelTemplates.FLAT_ITEM);
-        gen.generateFlatItem(ModItems.GRAVITY_COLLAPSE_OPERATOR, ModelTemplates.FLAT_ITEM);
-        gen.generateFlatItem(ModItems.EXTEND_LIFETIME_OPERATOR, ModelTemplates.FLAT_ITEM);
-        gen.generateFlatItem(ModItems.SHORTEN_LIFETIME_OPERATOR, ModelTemplates.FLAT_ITEM);
+        gen.generateFlatItem(ModItems.VOID_OPERATOR.get(), ModelTemplates.FLAT_ITEM);
+        gen.generateFlatItem(ModItems.ACCELERATE_OPERATOR.get(), ModelTemplates.FLAT_ITEM);
+        gen.generateFlatItem(ModItems.GRADUAL_ACCELERATION_OPERATOR.get(), ModelTemplates.FLAT_ITEM);
+        gen.generateFlatItem(ModItems.HEAVY_OPERATOR.get(), ModelTemplates.FLAT_ITEM);
+        gen.generateFlatItem(ModItems.LASER_OPERATOR.get(), ModelTemplates.FLAT_ITEM);
+        gen.generateFlatItem(ModItems.MAGIC_ARROW_OPERATOR.get(), ModelTemplates.FLAT_ITEM);
+        gen.generateFlatItem(ModItems.PARA_CRYSTAL.get(), ModelTemplates.FLAT_ITEM);
+        gen.generateFlatItem(ModItems.SHORT_TRACKING_OPERATOR.get(), ModelTemplates.FLAT_ITEM);
+        gen.generateFlatItem(ModItems.TRACKING_OPERATOR.get(), ModelTemplates.FLAT_ITEM);
+        gen.generateFlatItem(ModItems.WEIGHTLESS_OPERATOR.get(), ModelTemplates.FLAT_ITEM);
+        gen.generateFlatItem(ModItems.GRAVITY_COLLAPSE_OPERATOR.get(), ModelTemplates.FLAT_ITEM);
+        gen.generateFlatItem(ModItems.EXTEND_LIFETIME_OPERATOR.get(), ModelTemplates.FLAT_ITEM);
+        gen.generateFlatItem(ModItems.SHORTEN_LIFETIME_OPERATOR.get(), ModelTemplates.FLAT_ITEM);
     }
 }

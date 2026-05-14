@@ -6,22 +6,26 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ItemLike;
 
 import javax.annotation.Nonnull;
+import java.util.function.Supplier;
 
 public abstract class ParaOperator {
     @Getter
     @Nonnull
     public final ParaOpId id;
     protected final OperatorItemProvider provider;
-    private final ItemStack renderStack;
+    private ItemStack renderStack;
 
     public ParaOperator(@Nonnull ParaOpId id, @Nonnull OperatorItemProvider provider) {
         this.id = id;
         this.provider = provider;
-        this.renderStack = this.provider.createOperatorItem();
+    }
+
+    public ParaOperator(@Nonnull ParaOpId id, @Nonnull Supplier<? extends ItemLike> item) {
+        this(id, () -> new ItemStack(item.get()));
     }
 
     public ParaOperator(@Nonnull ParaOpId id, @Nonnull ItemLike item) {
-        this(id, () -> new ItemStack(item));
+        this(id, () -> item);
     }
 
     public final OperatorType getType() {
@@ -29,6 +33,9 @@ public abstract class ParaOperator {
     }
 
     public ItemStack getRenderStack() {
+        if (this.renderStack == null) {
+            this.renderStack = this.provider.createOperatorItem();
+        }
         return this.renderStack;
     }
 

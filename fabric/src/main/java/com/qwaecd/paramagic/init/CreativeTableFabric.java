@@ -14,9 +14,9 @@ import net.minecraft.world.item.ItemStack;
 public class CreativeTableFabric {
     public static final ResourceKey<CreativeModeTab> CUSTOM_ITEM_GROUP_KEY = ResourceKey.create(Registries.CREATIVE_MODE_TAB, ModRL.inModSpace("item_group"));
     public static final CreativeModeTab CUSTOM_ITEM_GROUP = FabricItemGroup.builder()
-            .icon(() -> new ItemStack(ModItems.PARA_CRYSTAL))
+            .icon(() -> new ItemStack(ModItems.PARA_CRYSTAL.get()))
             .title(Component.translatable("item_group.paramagic.main"))
-            .displayItems((itemParameter, output) -> ModItems.ITEMS.forEach((path, item) -> output.accept(item)))
+            .displayItems((itemParameter, output) -> ModItems.ITEMS.forEach((path, item) -> output.accept(item.get())))
             .build();
 
     public static void registerAll() {

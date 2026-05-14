@@ -164,6 +164,24 @@ public class SpellEditTableUI extends UINode {
                 }
         );
         button.getLayoutParams().botton();
+        // 不同尺寸的按钮
+        // 5 行 3 列
+//        int y = 0;
+//        for (int i = 0; i < 5; i++) {
+//            int x = 0;
+//            int dy =10;
+//            for (int j = 0; j < 3; j++) {
+//                UIButton debugButton = new UIButton(new Rect(0, 0, 60 + i * 20, 20 + j * 10));
+//                debugButton.localRect.set(x, y, 60 + i * 20, 20 + j * 10);
+//                dy = (int) debugButton.localRect.h + 10;
+//                x += (int) (debugButton.localRect.w + 10);
+//                UILabel debugLabel = new UILabel((int) debugButton.localRect.w + "x" + (int) debugButton.localRect.h);
+//                debugLabel.getLayoutParams().center();
+//                debugButton.addChild(debugLabel);
+//                this.addChild(debugButton);
+//            }
+//            y += 20 * i + dy;
+//        }
         this.addChild(button);
     }
 }

@@ -1,5 +1,6 @@
 package com.qwaecd.paramagic.client;
 
+import com.qwaecd.paramagic.compat.replay.ReplayCompat;
 import com.qwaecd.paramagic.mixin.accessor.CameraAccessor;
 import com.qwaecd.paramagic.tools.TimeProvider;
 import net.minecraft.client.Camera;
@@ -31,7 +32,7 @@ public final class CameraShake {
         if (duration <= 0.0f || elapsedTime >= duration) {
             return;
         }
-        if (minecraft.isPaused()) {
+        if (ReplayCompat.shouldPauseVisuals(minecraft)) {
             return;
         }
         final float deltaTime = TimeProvider.getDeltaTime(minecraft);

@@ -27,6 +27,18 @@ public class UIButton extends UINode {
                     .slice(7, 16, 256, 32, 16)
                     .slice(8, 48, 256, 16, 16)
                     .build();
+    protected static final NineSliceSprite test =
+            NineSliceSprite.builder(ModRL.inModSpace("textures/gui/button_0.png"), 34, 22)
+                    .slice(0, 0, 0, 7, 8)
+                    .slice(1, 7, 0, 20, 8)
+                    .slice(2, 27, 0, 7, 8)
+                    .slice(3, 0, 8, 7, 6)
+                    .slice(4, 7, 8, 20, 6)
+                    .slice(5, 27, 8, 7, 6)
+                    .slice(6, 0, 14, 7, 8)
+                    .slice(7, 7, 14, 20, 8)
+                    .slice(8, 27, 14, 7, 8)
+                    .build();
     protected boolean pressed = false;
 
     public UIButton() {
@@ -83,7 +95,7 @@ public class UIButton extends UINode {
     @Override
     protected void renderBackGround(UIRenderContext context) {
         context.renderNineSliceSprite(
-                buttonSprite,
+                test,
                 (int) this.worldRect.x, (int) this.worldRect.y,
                 (int) this.worldRect.w, (int) this.worldRect.h
         );

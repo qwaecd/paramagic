@@ -2,6 +2,7 @@ package com.qwaecd.paramagic.mixin.client;
 
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.qwaecd.paramagic.compat.replay.ReplayCompat;
 import com.qwaecd.paramagic.core.particle.ParticleSystem;
 import com.qwaecd.paramagic.core.render.ModRenderSystem;
 import com.qwaecd.paramagic.core.render.RendererManager;
@@ -44,7 +45,7 @@ public abstract class LevelRendererMixin {
         ModRenderSystem rs = ModRenderSystem.getInstance();
         RendererManager rendererManager = rs.getRendererManager();
         ParticleSystem particleSystem = rs.getParticleSystem();
-        if (!minecraft.isPaused()) {
+        if (!ReplayCompat.shouldPauseVisuals(minecraft)) {
             float deltaTimeInSeconds = TimeProvider.getDeltaTime(minecraft);
             rendererManager.update(deltaTimeInSeconds);
             if (rs.canUseComputerShader()) {

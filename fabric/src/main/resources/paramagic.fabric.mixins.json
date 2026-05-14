@@ -8,11 +8,11 @@
     "EntityDataSerializersMixin"
   ],
   "client": [
+    "client.ReplayCompatMixin"
   ],
   "server": [
   ],
   "injectors": {
     "defaultRequire": 1
   }
-  }
-  
+}

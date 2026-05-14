@@ -7,10 +7,15 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ItemLike;
 
 import javax.annotation.Nonnull;
+import java.util.function.Supplier;
 
 public abstract class ProjectileOperator extends ParaOperator {
     public ProjectileOperator(@Nonnull ParaOpId id, @Nonnull OperatorItemProvider provider) {
         super(id, provider);
+    }
+
+    public ProjectileOperator(@Nonnull ParaOpId id, @Nonnull Supplier<? extends ItemLike> item) {
+        super(id, item);
     }
 
     public ProjectileOperator(@Nonnull ParaOpId id, @Nonnull ItemLike item) {

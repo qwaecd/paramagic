@@ -2,6 +2,7 @@ package com.qwaecd.paramagic.client.renderer.entity;
 
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.qwaecd.paramagic.compat.replay.ReplayCompat;
 import com.qwaecd.paramagic.tools.TimeProvider;
 import com.qwaecd.paramagic.world.entity.projectile.GravityCollapseEntity;
 import net.minecraft.client.Minecraft;
@@ -19,6 +20,7 @@ public class GravityCollapseEntityRenderer extends EmptyEntityRenderer<GravityCo
         super.render(entity, entityYaw, partialTick, poseStack, buffer, packedLight);
         Vec3 position = entity.getPosition(partialTick);
         entity.setDistortionPosition((float) position.x, (float) position.y, (float) position.z);
-        entity.renderEffect(partialTick, TimeProvider.getDeltaTime(Minecraft.getInstance()), Minecraft.getInstance().isPaused());
+        Minecraft minecraft = Minecraft.getInstance();
+        entity.renderEffect(partialTick, TimeProvider.getDeltaTime(minecraft), ReplayCompat.shouldPauseVisuals(minecraft));
     }
 }

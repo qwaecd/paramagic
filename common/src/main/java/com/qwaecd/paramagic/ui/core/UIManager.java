@@ -2,6 +2,7 @@ package com.qwaecd.paramagic.ui.core;
 
 import com.qwaecd.paramagic.ui.MenuContent;
 import com.qwaecd.paramagic.ui.animation.UIAnimationSystem;
+import com.qwaecd.paramagic.ui.animation.UIAnimator;
 import com.qwaecd.paramagic.ui.api.TooltipRenderer;
 import com.qwaecd.paramagic.ui.api.UIRenderContext;
 import com.qwaecd.paramagic.ui.api.event.AllUIEvents;
@@ -34,6 +35,10 @@ public class UIManager {
 
     @Nullable
     private static UIManager instance;
+
+    @Nonnull
+    private final UIAnimationSystem animationSystem;
+
     @Nullable
     private final MenuContent menuContent;
     private final MouseStateMachine mouseStateMachine;
@@ -63,6 +68,7 @@ public class UIManager {
     private final OverlayRoot overlayRoot;
 
     public UIManager(UINode rootNode, @Nonnull TooltipRenderer tooltipRenderer, @Nullable MenuContent menuContent) {
+        this.animationSystem = new UIAnimationSystem();
         this.menuContent = menuContent;
         this.rootNode = rootNode;
         this.mouseStateMachine = new MouseStateMachine();
@@ -72,6 +78,7 @@ public class UIManager {
     }
 
     public UIManager(UINode rootNode, @Nonnull TooltipRenderer tooltipRenderer, @Nullable MenuContent menuContent, @Nullable NativeWidgetHost nativeWidgetHost) {
+        this.animationSystem = new UIAnimationSystem();
         this.menuContent = menuContent;
         this.rootNode = rootNode;
         this.mouseStateMachine = new MouseStateMachine();
@@ -97,7 +104,7 @@ public class UIManager {
 
     public void prepareRender(UIRenderContext context) {
         this.processDeferredTasks(TaskStage.BEFORE_RENDER);
-        UIAnimationSystem.getInstance().updateAll(context.deltaTime);
+        this.animationSystem.updateAll(context.deltaTime);
     }
 
     public void render(UIRenderContext context) {
@@ -391,7 +398,7 @@ public class UIManager {
         if (instance == this) {
             instance = null;
         }
-        UIAnimationSystem.getInstance().close();
+        this.animationSystem.close();
         CursorType.setCursor(CursorType.ARROW);
     }
 
@@ -492,7 +499,44 @@ public class UIManager {
         return this.nativeWidgetHost.forwardVanillaMouseRelease(mouseX, mouseY, button);
     }
 
+    public void addAnimator(@Nonnull UIAnimator<?> animator) {
+        this.animationSystem.addAnimator(animator);
+    }
+
+    public void addAnimator(@Nullable UINode owner, @Nonnull UIAnimator<?> animator) {
+        this.animationSystem.addAnimator(owner, animator);
+    }
+
+    public void addAnimator(@Nullable UINode owner, @Nullable String key, @Nonnull UIAnimator<?> animator) {
+        this.animationSystem.addAnimator(owner, key, animator);
+    }
+
+    public void removeAnimator(UIAnimator<?> animator) {
+        if (animator == null) {
+            return;
+        }
+        this.animationSystem.removeAnimator(animator);
+    }
+
+    @Nullable
+    public UIAnimator<?> getAnimator(@Nonnull UINode owner, @Nonnull String key) {
+        return this.animationSystem.getAnimator(owner, key);
+    }
+
+    public void replaceAnimator(@Nonnull UINode owner, @Nonnull String key, @Nonnull UIAnimator<?> animator) {
+        this.animationSystem.replaceAnimator(owner, key, animator);
+    }
+
+    public void removeAnimators(@Nonnull UINode owner) {
+        this.animationSystem.removeNodeAnimators(owner);
+    }
+
+    public void removeAnimatorsInSubtree(@Nonnull UINode root) {
+        this.animationSystem.removeAnimatorsInSubtree(root);
+    }
+
     void onNodeDetached(@Nonnull UINode node) {
+        this.animationSystem.removeAnimatorsInSubtree(node);
         if (node.containsInSubtree(this.capturedNode)) {
             this.capturedNode = null;
         }

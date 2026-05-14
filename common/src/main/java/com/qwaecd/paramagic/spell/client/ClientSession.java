@@ -1,5 +1,6 @@
 package com.qwaecd.paramagic.spell.client;
 
+import com.qwaecd.paramagic.compat.replay.ReplayCompat;
 import com.qwaecd.paramagic.spell.core.EndSpellReason;
 import com.qwaecd.paramagic.spell.core.SessionState;
 import com.qwaecd.paramagic.spell.core.SpellSession;
@@ -28,7 +29,7 @@ public class ClientSession extends SpellSession implements AutoCloseable {
     }
 
     public void tick() {
-        if (Minecraft.getInstance().isPaused()) {
+        if (ReplayCompat.shouldPauseVisuals(Minecraft.getInstance())) {
             return;
         }
         if (!this.started) {
