@@ -3,7 +3,7 @@ package com.qwaecd.paramagic.ui.animation;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-public abstract class BaseUIAnimator<T extends BaseUIAnimator<T>> {
+public abstract class BaseUIAnimator<Self extends BaseUIAnimator<Self>> {
     protected static final float MIN_DURATION = 0.0001f;
     @Nonnull
     protected UIAnimatorState state;
@@ -100,24 +100,29 @@ public abstract class BaseUIAnimator<T extends BaseUIAnimator<T>> {
         return this.finished;
     }
 
-    public BaseUIAnimator<T> setCycle(boolean cycle) {
+    @SuppressWarnings("unchecked")
+    private Self self() {
+        return (Self) this;
+    }
+
+    public Self setCycle(boolean cycle) {
         this.cycle = cycle;
-        return this;
+        return this.self();
     }
 
-    public BaseUIAnimator<T> setOnRemove(Runnable callback) {
+    public Self setOnRemove(Runnable callback) {
         this.onRemove = callback;
-        return this;
+        return this.self();
     }
 
-    public BaseUIAnimator<T> setOnCancel(Runnable callback) {
+    public Self setOnCancel(Runnable callback) {
         this.onCancel = callback;
-        return this;
+        return this.self();
     }
 
-    public BaseUIAnimator<T> setOnComplete(Runnable callback) {
+    public Self setOnComplete(Runnable callback) {
         this.onComplete = callback;
-        return this;
+        return this.self();
     }
 
     @FunctionalInterface

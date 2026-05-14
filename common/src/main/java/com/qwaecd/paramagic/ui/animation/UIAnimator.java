@@ -6,23 +6,23 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.function.Consumer;
 
-public class UIAnimator<T> extends BaseUIAnimator<UIAnimator<T>> {
-    private T start;
-    private T end;
-    private T currentValue;
+public class UIAnimator<V> extends BaseUIAnimator<UIAnimator<V>> {
+    private V start;
+    private V end;
+    private V currentValue;
 
-    private final Interpolator<T> interpolator;
-    private final ValueSetter<T> setter;
+    private final Interpolator<V> interpolator;
+    private final ValueSetter<V> setter;
 
     @Nullable
-    private Consumer<T> onUpdate;
+    private Consumer<V> onUpdate;
 
     public UIAnimator(
-            T start,
-            T end,
+            V start,
+            V end,
             float duration,
-            Interpolator<T> interpolator,
-            ValueSetter<T> setter
+            Interpolator<V> interpolator,
+            ValueSetter<V> setter
     ) {
         super(duration);
         this.start = start;
@@ -42,7 +42,7 @@ public class UIAnimator<T> extends BaseUIAnimator<UIAnimator<T>> {
         }
     }
 
-    public UIAnimator<T> retarget(@Nonnull T newEnd, float newDuration) {
+    public UIAnimator<V> retarget(@Nonnull V newEnd, float newDuration) {
         if (this.state == UIAnimatorState.REMOVED) {
             return this;
         }
@@ -55,18 +55,18 @@ public class UIAnimator<T> extends BaseUIAnimator<UIAnimator<T>> {
         return this;
     }
 
-    public UIAnimator<T> retarget(@Nonnull T newEnd, @Nonnull RetargetDurationProvider durationProvider) {
+    public UIAnimator<V> retarget(@Nonnull V newEnd, @Nonnull RetargetDurationProvider durationProvider) {
         float oldDuration = this.duration;
         float elapsed = Math.min(this.elapsedTime, oldDuration);
         float remaining = Math.max(0.0f, oldDuration - elapsed);
         return this.retarget(newEnd, durationProvider.getDuration(elapsed, oldDuration, remaining));
     }
 
-    public T getCurrentValue() {
+    public V getCurrentValue() {
         return this.currentValue;
     }
 
-    public UIAnimator<T> setOnUpdate(Consumer<T> callback) {
+    public UIAnimator<V> setOnUpdate(Consumer<V> callback) {
         this.onUpdate = callback;
         return this;
     }
