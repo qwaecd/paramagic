@@ -162,7 +162,7 @@ public class UIManager {
     public void displayContextMenu(@Nonnull ContextMenu contextMenu) {
         this.cancelContextMenu();
         this.contextMenu = contextMenu;
-        this.contextMenu.measure(this.rootNode.layoutRect.w, this.rootNode.layoutRect.h);
+        this.contextMenu.measure(LayoutConstraints.loose(this.rootNode.layoutRect.w, this.rootNode.layoutRect.h));
         this.contextMenu.arrange(this.rootNode.layoutRect.x, this.rootNode.layoutRect.y, this.rootNode.layoutRect.w, this.rootNode.layoutRect.h);
     }
 
@@ -450,10 +450,11 @@ public class UIManager {
 
     public void layoutAll() {
         this.layoutTaskScheduled = false;
-        this.rootNode.measure(this.rootNode.layoutRect.w, this.rootNode.layoutRect.h);
+        LayoutConstraints rootConstraints = LayoutConstraints.loose(this.rootNode.layoutRect.w, this.rootNode.layoutRect.h);
+        this.rootNode.measure(rootConstraints);
         this.rootNode.arrange(this.rootNode.layoutRect.x, this.rootNode.layoutRect.y, this.rootNode.layoutRect.w, this.rootNode.layoutRect.h);
         if (this.contextMenu != null) {
-            this.contextMenu.measure(this.rootNode.layoutRect.w, this.rootNode.layoutRect.h);
+            this.contextMenu.measure(rootConstraints);
             this.contextMenu.arrange(this.rootNode.layoutRect.x, this.rootNode.layoutRect.y, this.rootNode.layoutRect.w, this.rootNode.layoutRect.h);
         }
         this.syncNativeWidgets();

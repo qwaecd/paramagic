@@ -2,11 +2,14 @@ package com.qwaecd.paramagic.ui.widget;
 
 import com.qwaecd.paramagic.ui.api.event.UIEventContext;
 import com.qwaecd.paramagic.ui.core.ClipMod;
+import com.qwaecd.paramagic.ui.core.LayoutConstraints;
+import com.qwaecd.paramagic.ui.core.MeasureResult;
 import com.qwaecd.paramagic.ui.core.UIManager;
 import com.qwaecd.paramagic.ui.core.UINode;
 import com.qwaecd.paramagic.ui.event.impl.WheelEvent;
 import com.qwaecd.paramagic.ui.util.UILayout;
 
+import javax.annotation.Nonnull;
 
 public class UIScrollView extends UINode {
     /**
@@ -91,14 +94,19 @@ public class UIScrollView extends UINode {
      * 先布局自身的 worldRect, 再 clamp viewOffset, 最后以偏移量布局子节点.
      */
     @Override
-    public void measure(float parentW, float parentH) {
-        this.measuredWidth = UILayout.resolveWidth(this.sizeMode, this.localRect, parentW);
-        this.measuredHeight = UILayout.resolveHeight(this.sizeMode, this.localRect, parentH);
+    protected MeasureResult measureSelf(@Nonnull LayoutConstraints constraints) {
+        float width = UILayout.resolveWidth(this.sizeMode, this.localRect, constraints.getMaxWidth());
+        float height = UILayout.resolveHeight(this.sizeMode, this.localRect, constraints.getMaxHeight());
+        return MeasureResult.of(width, height);
+    }
+
+    @Override
+    protected void measureChildren(@Nonnull LayoutConstraints constraints) {
+        LayoutConstraints childConstraints = LayoutConstraints.loose(this.measuredWidth, this.measuredHeight);
         for (UINode child : this.children) {
-            child.measure(this.measuredWidth, this.measuredHeight);
+            child.measure(childConstraints);
         }
         this.recalculateContentExtent();
-        this.measureDirty = false;
     }
 
     @Override

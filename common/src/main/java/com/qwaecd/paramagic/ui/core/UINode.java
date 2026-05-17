@@ -89,6 +89,9 @@ public class UINode {
     protected boolean layoutDirty = true;
     protected boolean measureDirty = true;
     @Getter
+    @Nonnull
+    protected MeasureResult measureResult = MeasureResult.ZERO;
+    @Getter
     protected float measuredWidth = 0.0f;
     @Getter
     protected float measuredHeight = 0.0f;
@@ -576,13 +579,26 @@ public class UINode {
      * @param parentH 父节点的高度
      */
     public void layout(float parentX, float parentY, float parentW, float parentH) {
-        UILayout.layout(this.layoutRect, this.finalRect, this.layoutParams, this.sizeMode, parentX, parentY, parentW, parentH);
+        this.arrangeSelf(parentX, parentY, parentW, parentH);
+        this.arrangeChildren();
+        this.markLayoutClean();
+    }
 
+    /**
+     * 计算当前节点自己的最终屏幕矩形，不处理子节点。
+     */
+    protected void arrangeSelf(float parentX, float parentY, float parentW, float parentH) {
+        UILayout.layout(this.layoutRect, this.finalRect, this.layoutParams, this.sizeMode, parentX, parentY, parentW, parentH);
+    }
+
+    /**
+     * 根据当前节点的最终矩形摆放子节点。默认行为保持旧的绝对布局语义。
+     */
+    protected void arrangeChildren() {
         // 布局可以不考虑同层级先后顺序
         for (UINode child : this.children) {
             child.layout(this.finalRect.x, this.finalRect.y, this.finalRect.w, this.finalRect.h);
         }
-        this.markLayoutClean();
     }
 
     /**
@@ -590,13 +606,45 @@ public class UINode {
      * 后续控件会逐步迁移到更细的 measure hook。
      */
     public void measure(float parentW, float parentH) {
-        this.measuredWidth = UILayout.resolveWidth(this.sizeMode, this.layoutRect, parentW);
-        this.measuredHeight = UILayout.resolveHeight(this.sizeMode, this.layoutRect, parentH);
+        this.measure(LayoutConstraints.loose(parentW, parentH));
+    }
 
-        for (UINode child : this.children) {
-            child.measure(this.measuredWidth, this.measuredHeight);
-        }
+    /**
+     * 计算节点在父级约束下的自然尺寸。
+     */
+    @Nonnull
+    public MeasureResult measure(@Nonnull LayoutConstraints constraints) {
+        MeasureResult result = this.measureSelf(constraints);
+        this.setMeasureResult(result);
+        this.measureChildren(constraints);
         this.measureDirty = false;
+        return this.measureResult;
+    }
+
+    /**
+     * 计算当前节点自己的自然尺寸，不处理子节点。
+     */
+    @Nonnull
+    protected MeasureResult measureSelf(@Nonnull LayoutConstraints constraints) {
+        float width = UILayout.resolveWidth(this.sizeMode, this.layoutRect, constraints.getMaxWidth());
+        float height = UILayout.resolveHeight(this.sizeMode, this.layoutRect, constraints.getMaxHeight());
+        return MeasureResult.of(width, height);
+    }
+
+    /**
+     * 根据当前节点测量结果继续测量子节点。默认行为保持旧的父尺寸传递语义。
+     */
+    protected void measureChildren(@Nonnull LayoutConstraints constraints) {
+        LayoutConstraints childConstraints = LayoutConstraints.loose(this.measuredWidth, this.measuredHeight);
+        for (UINode child : this.children) {
+            child.measure(childConstraints);
+        }
+    }
+
+    protected void setMeasureResult(@Nonnull MeasureResult result) {
+        this.measureResult = result;
+        this.measuredWidth = result.getWidth();
+        this.measuredHeight = result.getHeight();
     }
 
     /**
