@@ -1,27 +1,26 @@
 package com.qwaecd.paramagic.ui.util;
 
 import lombok.Getter;
-import lombok.Setter;
+
+import javax.annotation.Nullable;
 
 /**
  * 使用给定的锚点坐标 anchor 与给定的自身参考点 pivot 进行对齐处理, 如果 enable, 则将两个坐标进行对齐处理.
  */
 public class LayoutParams {
     private boolean enable;
+    @Nullable
+    private Runnable changeListener;
     // 锚点相对于父元素左上角矩形的坐标, 0.0 是原点, 1.0 是边长 (w/h)
     @Getter
-    @Setter
     private float anchorX;
     @Getter
-    @Setter
     private float anchorY;
 
     // 自身参考点, (0.0, 0.0) 表示自身左上角, (1.0, 1.0) 表示自身右下角, (0.5, 0.5) 表示自身中心点
     @Getter
-    @Setter
     private float pivotX;
     @Getter
-    @Setter
     private float pivotY;
 
     public LayoutParams() {
@@ -43,6 +42,7 @@ public class LayoutParams {
         this.anchorY = anchorY;
         this.pivotX = pivotX;
         this.pivotY = pivotY;
+        this.notifyChanged();
     }
 
     public boolean isEnabled() {
@@ -51,24 +51,49 @@ public class LayoutParams {
 
     public void enable() {
         this.enable = true;
+        this.notifyChanged();
     }
 
     public void disable() {
         this.enable = false;
+        this.notifyChanged();
     }
 
     public void setEnable(boolean enable) {
         this.enable = enable;
+        this.notifyChanged();
     }
 
     public void setAnchor(float anchorX, float anchorY) {
         this.anchorX = anchorX;
         this.anchorY = anchorY;
+        this.notifyChanged();
+    }
+
+    public void setAnchorX(float anchorX) {
+        this.anchorX = anchorX;
+        this.notifyChanged();
+    }
+
+    public void setAnchorY(float anchorY) {
+        this.anchorY = anchorY;
+        this.notifyChanged();
     }
 
     public void setPivot(float pivotX, float pivotY) {
         this.pivotX = pivotX;
         this.pivotY = pivotY;
+        this.notifyChanged();
+    }
+
+    public void setPivotX(float pivotX) {
+        this.pivotX = pivotX;
+        this.notifyChanged();
+    }
+
+    public void setPivotY(float pivotY) {
+        this.pivotY = pivotY;
+        this.notifyChanged();
     }
 
     /**
@@ -80,6 +105,7 @@ public class LayoutParams {
         this.pivotX = 0.5f;
         this.pivotY = 0.5f;
         this.enable = true;
+        this.notifyChanged();
     }
 
     /**
@@ -91,6 +117,7 @@ public class LayoutParams {
         this.pivotX = 0.5f;
         this.pivotY = 1.0f;
         this.enable = true;
+        this.notifyChanged();
     }
 
     /**
@@ -102,6 +129,7 @@ public class LayoutParams {
         this.pivotX = 0.5f;
         this.pivotY = 0.0f;
         this.enable = true;
+        this.notifyChanged();
     }
 
     /**
@@ -113,6 +141,7 @@ public class LayoutParams {
         this.pivotX = 0.0f;
         this.pivotY = 0.5f;
         this.enable = true;
+        this.notifyChanged();
     }
 
     /**
@@ -124,5 +153,16 @@ public class LayoutParams {
         this.pivotX = 1.0f;
         this.pivotY = 0.5f;
         this.enable = true;
+        this.notifyChanged();
+    }
+
+    public void setChangeListener(@Nullable Runnable changeListener) {
+        this.changeListener = changeListener;
+    }
+
+    private void notifyChanged() {
+        if (this.changeListener != null) {
+            this.changeListener.run();
+        }
     }
 }

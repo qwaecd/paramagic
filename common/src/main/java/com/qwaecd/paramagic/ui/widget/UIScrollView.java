@@ -43,6 +43,7 @@ public class UIScrollView extends UINode {
         this.viewOffset += (float) event.scrollDelta * this.getSensitivity();
         this.clampViewOffset();
         this.layoutChildren();
+        this.requestLayout();
         context.consume();
     }
 
@@ -90,10 +91,22 @@ public class UIScrollView extends UINode {
      * 先布局自身的 worldRect, 再 clamp viewOffset, 最后以偏移量布局子节点.
      */
     @Override
+    public void measure(float parentW, float parentH) {
+        this.measuredWidth = UILayout.resolveWidth(this.sizeMode, this.localRect, parentW);
+        this.measuredHeight = UILayout.resolveHeight(this.sizeMode, this.localRect, parentH);
+        for (UINode child : this.children) {
+            child.measure(this.measuredWidth, this.measuredHeight);
+        }
+        this.recalculateContentExtent();
+        this.measureDirty = false;
+    }
+
+    @Override
     public void layout(float parentX, float parentY, float parentW, float parentH) {
         UILayout.layout(this.localRect, this.worldRect, this.layoutParams, this.sizeMode, parentX, parentY, parentW, parentH);
         this.clampViewOffset();
         this.layoutChildren();
+        this.markLayoutClean();
     }
 
     /**
@@ -123,6 +136,7 @@ public class UIScrollView extends UINode {
 
     public void setViewOffset(float viewOffset) {
         this.viewOffset = viewOffset;
+        this.requestLayout();
     }
 
     /**

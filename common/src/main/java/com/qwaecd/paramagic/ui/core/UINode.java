@@ -20,7 +20,6 @@ import com.qwaecd.paramagic.ui.util.Rect;
 import com.qwaecd.paramagic.ui.util.UIColor;
 import com.qwaecd.paramagic.ui.util.UILayout;
 import lombok.Getter;
-import lombok.Setter;
 import net.minecraft.client.Minecraft;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,12 +41,10 @@ public class UINode {
     private UIManager manager;
     protected boolean visible;
     protected boolean hitTestable = true;
-    @Setter
     @Getter
     @Nonnull
     protected ClipMod clipMod;
 
-    @Setter
     @Getter
     @Nonnull
     protected SizeMode sizeMode;
@@ -57,15 +54,31 @@ public class UINode {
     protected final LayoutParams layoutParams;
     
     /**
-     * 相对父节点的位置和尺寸
+     * 布局输入矩形：描述节点在父级布局空间中的期望位置和尺寸。
      */
+    @Getter
+    @Nonnull
+    public final Rect layoutRect;
+
+    /**
+     * 布局输出矩形：由 arrange/layout 计算出的最终屏幕空间矩形。
+     */
+    @Getter
+    @Nonnull
+    public final Rect finalRect;
+
+    /**
+     * @deprecated 使用 {@link #layoutRect} 或 setLayout* 方法表达布局输入。
+     */
+    @Deprecated
     @Getter
     @Nonnull
     public final Rect localRect;
 
     /**
-     * 缓存的屏幕绝对矩形（layout 后写入）
+     * @deprecated 使用 {@link #finalRect} 读取布局输出。
      */
+    @Deprecated
     @Getter
     @Nonnull
     public final Rect worldRect;
@@ -73,6 +86,12 @@ public class UINode {
     protected boolean debugMod = false;
     @Nonnull
     protected UIColor backgroundColor = UIColor.TRANSPARENT;
+    protected boolean layoutDirty = true;
+    protected boolean measureDirty = true;
+    @Getter
+    protected float measuredWidth = 0.0f;
+    @Getter
+    protected float measuredHeight = 0.0f;
 
     public UINode() {
         this.children = new ArrayList<>();
@@ -82,8 +101,11 @@ public class UINode {
         this.clipMod = ClipMod.NONE;
         this.sizeMode = SizeMode.FIXED;
         this.layoutParams = new LayoutParams();
-        this.localRect = new Rect();
-        this.worldRect = new Rect();
+        this.layoutRect = new Rect();
+        this.finalRect = new Rect();
+        this.localRect = this.layoutRect;
+        this.worldRect = this.finalRect;
+        this.layoutParams.setChangeListener(this::requestLayout);
     }
 
     public UINode(@Nonnull UINode parent) {
@@ -94,8 +116,11 @@ public class UINode {
         this.clipMod = ClipMod.NONE;
         this.sizeMode = SizeMode.FIXED;
         this.layoutParams = new LayoutParams();
-        this.localRect = new Rect();
-        this.worldRect = new Rect();
+        this.layoutRect = new Rect();
+        this.finalRect = new Rect();
+        this.localRect = this.layoutRect;
+        this.worldRect = this.finalRect;
+        this.layoutParams.setChangeListener(this::requestLayout);
 
         parent.addChild(this);
     }
@@ -148,6 +173,7 @@ public class UINode {
         if (this.manager != null) {
             child.attachToManager(this.manager);
         }
+        this.requestMeasure();
     }
 
     public void addChild(Collection<UINode> child) {
@@ -162,6 +188,7 @@ public class UINode {
                 child.detachFromManager();
             }
             child.parent = null;
+            this.requestMeasure();
         }
     }
 
@@ -169,6 +196,72 @@ public class UINode {
         for (UINode node : child) {
             this.removeChild(node);
         }
+    }
+
+    public void requestLayout() {
+        this.layoutDirty = true;
+        if (this.parent != null) {
+            this.parent.requestLayout();
+            return;
+        }
+        if (this.manager != null) {
+            this.manager.requestLayout();
+        }
+    }
+
+    public void requestMeasure() {
+        this.measureDirty = true;
+        this.layoutDirty = true;
+        if (this.parent != null) {
+            this.parent.requestMeasure();
+            return;
+        }
+        if (this.manager != null) {
+            this.manager.requestLayout();
+        }
+    }
+
+    public boolean isLayoutDirty() {
+        return this.layoutDirty;
+    }
+
+    public boolean isMeasureDirty() {
+        return this.measureDirty;
+    }
+
+    protected void markLayoutClean() {
+        this.layoutDirty = false;
+        this.measureDirty = false;
+    }
+
+    public void setClipMod(@Nonnull ClipMod clipMod) {
+        this.clipMod = clipMod;
+        this.requestLayout();
+    }
+
+    public void setSizeMode(@Nonnull SizeMode sizeMode) {
+        this.sizeMode = sizeMode;
+        this.requestMeasure();
+    }
+
+    public void setLayoutRect(float x, float y, float w, float h) {
+        this.layoutRect.set(x, y, w, h);
+        this.requestMeasure();
+    }
+
+    public void setLayoutRect(@Nonnull Rect rect) {
+        this.layoutRect.set(rect);
+        this.requestMeasure();
+    }
+
+    public void setLayoutPosition(float x, float y) {
+        this.layoutRect.setXY(x, y);
+        this.requestLayout();
+    }
+
+    public void setLayoutSize(float w, float h) {
+        this.layoutRect.setWH(w, h);
+        this.requestMeasure();
     }
 
     protected <T> UIAnimator<T> animate(
@@ -483,12 +576,34 @@ public class UINode {
      * @param parentH 父节点的高度
      */
     public void layout(float parentX, float parentY, float parentW, float parentH) {
-        UILayout.layout(this.localRect, this.worldRect, this.layoutParams, this.sizeMode, parentX, parentY, parentW, parentH);
+        UILayout.layout(this.layoutRect, this.finalRect, this.layoutParams, this.sizeMode, parentX, parentY, parentW, parentH);
 
         // 布局可以不考虑同层级先后顺序
         for (UINode child : this.children) {
-            child.layout(this.worldRect.x, this.worldRect.y, this.worldRect.w, this.worldRect.h);
+            child.layout(this.finalRect.x, this.finalRect.y, this.finalRect.w, this.finalRect.h);
         }
+        this.markLayoutClean();
+    }
+
+    /**
+     * 计算节点在给定父级尺寸下的自然尺寸。当前版本先作为兼容入口，
+     * 后续控件会逐步迁移到更细的 measure hook。
+     */
+    public void measure(float parentW, float parentH) {
+        this.measuredWidth = UILayout.resolveWidth(this.sizeMode, this.layoutRect, parentW);
+        this.measuredHeight = UILayout.resolveHeight(this.sizeMode, this.layoutRect, parentH);
+
+        for (UINode child : this.children) {
+            child.measure(this.measuredWidth, this.measuredHeight);
+        }
+        this.measureDirty = false;
+    }
+
+    /**
+     * 将节点摆放到父级坐标系中。当前版本委托旧 layout()，用于保证现有页面兼容。
+     */
+    public void arrange(float parentX, float parentY, float parentW, float parentH) {
+        this.layout(parentX, parentY, parentW, parentH);
     }
 
     /**
@@ -499,7 +614,7 @@ public class UINode {
         if (!this.visible) {
             return;
         }
-        context.drawQuad(this.worldRect, this.backgroundColor);
+        context.drawQuad(this.finalRect, this.backgroundColor);
     }
 
     /**
@@ -512,7 +627,7 @@ public class UINode {
      * 在调试模式下调用该函数渲染调试信息.
      */
     public void renderDebug(@Nonnull UIRenderContext context) {
-        context.renderOutline(this.worldRect, UIColor.RED);
+        context.renderOutline(this.finalRect, UIColor.RED);
     }
 
     /**
@@ -544,7 +659,7 @@ public class UINode {
 
     @Nonnull
     protected Rect getClipRect() {
-        return this.worldRect;
+        return this.finalRect;
     }
 
     /**
@@ -562,11 +677,13 @@ public class UINode {
     public void enable() {
         this.visible = true;
         this.hitTestable = true;
+        this.requestLayout();
     }
 
     public void disable() {
         this.visible = false;
         this.hitTestable = false;
+        this.requestLayout();
     }
 
     public boolean isVisible() {
@@ -575,6 +692,7 @@ public class UINode {
 
     public void setVisible(boolean visible) {
         this.visible = visible;
+        this.requestLayout();
     }
 
     public boolean isHitTestable() {
@@ -583,14 +701,17 @@ public class UINode {
 
     public void setHitTestable(boolean hitTestable) {
         this.hitTestable = hitTestable;
+        this.requestLayout();
     }
 
     public void enableHitTest() {
         this.hitTestable = true;
+        this.requestLayout();
     }
 
     public void disableHitTest() {
         this.hitTestable = false;
+        this.requestLayout();
     }
 
     public List<UINode> getChildren() {
@@ -716,7 +837,7 @@ public class UINode {
     }
 
     protected void setToFullScreen() {
-        this.localRect.set(
+        this.setLayoutRect(
                 0.0f, 0.0f,
                 this.getWindowWidth() / this.getGuiScale(), this.getWindowHeight() / this.getGuiScale()
         );

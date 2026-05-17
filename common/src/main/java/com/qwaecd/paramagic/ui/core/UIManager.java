@@ -66,6 +66,8 @@ public class UIManager {
 
     @Getter
     private final OverlayRoot overlayRoot;
+    private boolean layoutTaskScheduled = false;
+    private boolean layoutTaskRunning = false;
 
     public UIManager(UINode rootNode, @Nonnull TooltipRenderer tooltipRenderer, @Nullable MenuContent menuContent) {
         this.animationSystem = new UIAnimationSystem();
@@ -98,8 +100,7 @@ public class UIManager {
     public void init() {
         instance = this;
         this.rootNode.attachToManager(this);
-        this.rootNode.layout(this.rootNode.localRect.x, this.rootNode.localRect.y, this.rootNode.localRect.w, this.rootNode.localRect.h);
-        this.syncNativeWidgets();
+        this.layoutAll();
     }
 
     public void prepareRender(UIRenderContext context) {
@@ -124,6 +125,24 @@ public class UIManager {
         this.deferredTasks.computeIfAbsent(task.taskStage, (k) -> new ArrayDeque<>()).offer(task);
     }
 
+    public void requestLayout() {
+        if (this.layoutTaskScheduled || this.layoutTaskRunning) {
+            return;
+        }
+        this.layoutTaskScheduled = true;
+        this.offerDeferredTask(UITask.create(UIManager::runScheduledLayout, TaskStage.BEFORE_RENDER));
+    }
+
+    private void runScheduledLayout() {
+        this.layoutTaskScheduled = false;
+        this.layoutTaskRunning = true;
+        try {
+            this.layoutAll();
+        } finally {
+            this.layoutTaskRunning = false;
+        }
+    }
+
     public void flushMouseOvering() {
         this.processMouseOverAndLeave(this.mouseStateMachine.mouseX(), this.mouseStateMachine.mouseY());
     }
@@ -143,7 +162,8 @@ public class UIManager {
     public void displayContextMenu(@Nonnull ContextMenu contextMenu) {
         this.cancelContextMenu();
         this.contextMenu = contextMenu;
-        this.contextMenu.layout(this.rootNode.localRect.x, this.rootNode.localRect.y, this.rootNode.localRect.w, this.rootNode.localRect.h);
+        this.contextMenu.measure(this.rootNode.layoutRect.w, this.rootNode.layoutRect.h);
+        this.contextMenu.arrange(this.rootNode.layoutRect.x, this.rootNode.layoutRect.y, this.rootNode.layoutRect.w, this.rootNode.layoutRect.h);
     }
 
     public void cancelContextMenu() {
@@ -429,7 +449,13 @@ public class UIManager {
     }
 
     public void layoutAll() {
-        this.rootNode.layout(this.rootNode.localRect.x, this.rootNode.localRect.y, this.rootNode.localRect.w, this.rootNode.localRect.h);
+        this.layoutTaskScheduled = false;
+        this.rootNode.measure(this.rootNode.layoutRect.w, this.rootNode.layoutRect.h);
+        this.rootNode.arrange(this.rootNode.layoutRect.x, this.rootNode.layoutRect.y, this.rootNode.layoutRect.w, this.rootNode.layoutRect.h);
+        if (this.contextMenu != null) {
+            this.contextMenu.measure(this.rootNode.layoutRect.w, this.rootNode.layoutRect.h);
+            this.contextMenu.arrange(this.rootNode.layoutRect.x, this.rootNode.layoutRect.y, this.rootNode.layoutRect.w, this.rootNode.layoutRect.h);
+        }
         this.syncNativeWidgets();
     }
 

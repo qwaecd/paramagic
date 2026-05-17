@@ -63,6 +63,7 @@ public class TypingBox extends NativeWidgetNode<MCEditBox, TypingBox> {
     public void setText(@Nonnull String text) {
         this.text = text;
         this.syncNativeWidget();
+        this.requestMeasure();
     }
 
     @Nonnull
@@ -73,11 +74,13 @@ public class TypingBox extends NativeWidgetNode<MCEditBox, TypingBox> {
     public void setEditable(boolean editable) {
         this.editable = editable;
         this.syncNativeWidget();
+        this.requestLayout();
     }
 
     public void setMaxLength(int maxLength) {
         this.maxLength = maxLength;
         this.syncNativeWidget();
+        this.requestMeasure();
     }
 
     public void setFocusChangeListener(@Nullable Consumer<Boolean> listener) {

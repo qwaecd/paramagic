@@ -59,6 +59,13 @@ public class UILabel extends UINode {
     }
 
     @Override
+    public void measure(float parentW, float parentH) {
+        this.measuredWidth = this.provider.getTextWidth(this.label);
+        this.measuredHeight = this.provider.getLineHeight();
+        this.measureDirty = false;
+    }
+
+    @Override
     public void layout(float parentX, float parentY, float parentW, float parentH) {
         final int textWidth = this.provider.getTextWidth(this.label);
         final int lineHeight = this.provider.getLineHeight();
@@ -85,10 +92,12 @@ public class UILabel extends UINode {
 
     public void setLabel(@Nonnull String label) {
         this.label = Component.literal(label);
+        this.requestMeasure();
     }
 
     public void setLabel(@Nonnull Component label) {
         this.label = label;
+        this.requestMeasure();
     }
 
     public void setColor(UIColor color) {

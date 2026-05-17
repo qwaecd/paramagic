@@ -81,6 +81,20 @@ public class UIPanel extends UINode {
     }
 
     @Override
+    public void measure(float parentW, float parentH) {
+        if (!this.items.isEmpty()) {
+            this.updatePanelSize();
+            this.layoutItemNodes();
+        }
+        this.measuredWidth = this.localRect.w;
+        this.measuredHeight = this.localRect.h;
+        for (UINode child : this.children) {
+            child.measure(this.measuredWidth, this.measuredHeight);
+        }
+        this.measureDirty = false;
+    }
+
+    @Override
     public void layout(float parentX, float parentY, float parentW, float parentH) {
         if (!this.items.isEmpty()) {
             this.updatePanelSize();
@@ -95,6 +109,7 @@ public class UIPanel extends UINode {
     public void updateContent() {
         this.updatePanelSize();
         this.layoutItemNodes();
+        this.requestMeasure();
     }
 
     protected void updatePanelSize() {
