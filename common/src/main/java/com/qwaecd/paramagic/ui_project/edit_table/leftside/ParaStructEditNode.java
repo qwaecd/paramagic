@@ -476,10 +476,7 @@ public class ParaStructEditNode extends UIScrollView {
 //            );
             context.renderNineSliceSprite(
                     headerBackGround,
-                    (int) this.worldRect.x,
-                    (int) this.worldRect.y,
-                    (int) (this.worldRect.x + this.worldRect.w),
-                    (int) (this.worldRect.y + this.worldRect.h)
+                    this.finalRect
             );
         }
 

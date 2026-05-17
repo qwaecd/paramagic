@@ -85,6 +85,6 @@ public class ItemNode extends UINode {
     }
 
     protected void renderSlotHighlight(UIRenderContext context) {
-        context.fill(this.worldRect.x, this.worldRect.y, this.worldRect.x + CELL_SIZE, this.worldRect.y + CELL_SIZE, this.highLightColor);
+        context.fillBounds(this.worldRect.x, this.worldRect.y, this.worldRect.x + CELL_SIZE, this.worldRect.y + CELL_SIZE, this.highLightColor);
     }
 }

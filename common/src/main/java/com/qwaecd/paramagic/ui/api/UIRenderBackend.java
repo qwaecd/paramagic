@@ -15,10 +15,6 @@ public interface UIRenderBackend {
     void vLine(int x, int minY, int maxY, int color);
     void hLine(int minX, int maxX, int y, int color);
 
-    default void drawQuad(Rect rect, UIColor color) {
-        drawQuad(rect, color.color);
-    }
-
     /**
      * Draws a component's visual order text at the specified coordinates using the given font, text component, color, and drop shadow.
      * <p>
@@ -62,7 +58,7 @@ public interface UIRenderBackend {
         this.blit(
                 sprite.texture,
                 x, y,
-                sprite.u, sprite.v,
+                sprite.width, sprite.height,
                 sprite.u, sprite.v,
                 sprite.width, sprite.height,
                 sprite.texWidth, sprite.texHeight
@@ -97,7 +93,19 @@ public interface UIRenderBackend {
 
     void renderItemDecorations(ItemStack stack, int x, int y, @Nullable String text);
 
-    void drawQuad(Rect rect, int color);
+    default void fillRect(Rect rect, int color) {
+        this.fillRect((int) rect.x, (int) rect.y, (int) rect.w, (int) rect.h, color);
+    }
+
+    default void fillRect(int x, int y, int width, int height, int color) {
+        this.fillBounds(x, y, x + width, y + height, color);
+    }
+
+    /**
+     * Fills a rectangle using two-corner bounds semantics.
+     */
+    void fillBounds(int minX, int minY, int maxX, int maxY, int color);
+
     void fillBilinearGradient(int x, int y, int w, int h, int topLeft, int topRight, int bottomRight, int bottomLeft);
     default void fillBilinearGradient(Rect rect, int topLeft, int topRight, int bottomRight, int bottomLeft) {
         this.fillBilinearGradient(
@@ -106,15 +114,6 @@ public interface UIRenderBackend {
         );
     }
 
-    /**
-     * 在指定的区域绘制纯色矩形
-     * @param minX 矩形左上角 X
-     * @param minY 矩形左上角 Y
-     * @param maxX 矩形右下角 X
-     * @param maxY 矩形右下角 Y
-     * @param color 矩形颜色
-     */
-    void fill(int minX, int minY, int maxX, int maxY, int color);
     int drawText(Component text, int x, int y, int color, boolean dropShadow);
     default int drawText(Component text, int x, int y, int color) {
         return drawText(text, x, y, color, false);

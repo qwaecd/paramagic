@@ -50,10 +50,7 @@ public class ContextMenu extends UINode {
     protected void renderBackGround(UIRenderContext context) {
         context.renderNineSliceSprite(
                 sprite,
-                (int) this.worldRect.x,
-                (int) this.worldRect.y,
-                (int) this.worldRect.w,
-                (int) this.worldRect.h
+                this.finalRect
         );
     }
 }

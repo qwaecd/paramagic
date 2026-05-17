@@ -69,7 +69,7 @@ public abstract class BaseUIAnimator<Self extends BaseUIAnimator<Self>> {
         final float alpha = this.easingFunction.ease(raw);
         this.apply(alpha);
 
-        if (alpha >= 1.0f) {
+        if (raw >= 1.0f) {
             if (this.cycle) {
                 this.elapsedTime = 0.0f;
                 return;

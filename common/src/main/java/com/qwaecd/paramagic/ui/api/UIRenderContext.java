@@ -105,8 +105,28 @@ public final class UIRenderContext {
         }
     }
 
-    public void drawQuad(Rect rect, UIColor color) {
-        this.backend.drawQuad(rect, color.color);
+    public void fillRect(Rect rect, UIColor color) {
+        this.backend.fillRect(rect, color.color);
+    }
+
+    public void fillRect(Rect rect, int color) {
+        this.backend.fillRect(rect, color);
+    }
+
+    public void fillRect(int x, int y, int width, int height, int color) {
+        this.backend.fillRect(x, y, width, height, color);
+    }
+
+    public void fillRect(float x, float y, float width, float height, int color) {
+        this.backend.fillRect((int) x, (int) y, (int) width, (int) height, color);
+    }
+
+    public void fillBounds(int minX, int minY, int maxX, int maxY, int color) {
+        this.backend.fillBounds(minX, minY, maxX, maxY, color);
+    }
+
+    public void fillBounds(float minX, float minY, float maxX, float maxY, int color) {
+        this.backend.fillBounds((int) minX, (int) minY, (int) maxX, (int) maxY, color);
     }
 
     public void fillBilinearGradient(Rect rect, int topLeft, int topRight, int bottomRight, int bottomLeft) {
@@ -123,14 +143,6 @@ public final class UIRenderContext {
 
     public void hLine(int minX, int maxX, int y, int color) {
         this.backend.hLine(minX, maxX, y, color);
-    }
-
-    public void fill(int minX, int minY, int maxX, int maxY, int color) {
-        this.backend.fill(minX, minY, maxX, maxY, color);
-    }
-
-    public void fill(float minX, float minY, float maxX, float maxY, int color) {
-        this.backend.fill( (int) minX,  (int) minY,  (int) maxX,  (int) maxY, color);
     }
 
     public void renderOutline(Rect rect, UIColor color) {
@@ -243,6 +255,16 @@ public final class UIRenderContext {
         }
     }
 
+    public void renderNineSliceSprite(NineSliceSprite sprite, Rect rect) {
+        this.renderNineSliceSprite(
+                sprite,
+                (int) rect.x,
+                (int) rect.y,
+                (int) rect.w,
+                (int) rect.h
+        );
+    }
+
     /**
      * Blits a portion of the texture specified by the atlas location onto the screen at the given position and dimensions with texture coordinates.<br>
      * 在指定位置和尺寸上将纹理图集中指定纹理的一部分绘制到屏幕上，并使用纹理坐标。
@@ -296,10 +318,6 @@ public final class UIRenderContext {
     }
 
     // ------------ 以下是使用 int color 的重载方法 ------------
-
-    public void drawQuad(Rect rect, int color) {
-        this.backend.drawQuad(rect, color);
-    }
 
     public void renderOutline(Rect rect, int color) {
         this.backend.renderOutline(rect, color);

@@ -83,7 +83,7 @@ public class UIButton extends UINode {
     public void render(@Nonnull UIRenderContext context) {
         super.render(context);
         if (this.pressed) {
-            context.renderOutline(this.worldRect, UIColor.fromRGBA(255, 255, 255, 200));
+            context.renderOutline(this.finalRect, UIColor.fromRGBA(255, 255, 255, 200));
         }
     }
 
@@ -96,8 +96,7 @@ public class UIButton extends UINode {
     protected void renderBackGround(UIRenderContext context) {
         context.renderNineSliceSprite(
                 test,
-                (int) this.worldRect.x, (int) this.worldRect.y,
-                (int) this.worldRect.w, (int) this.worldRect.h
+                this.finalRect
         );
     }
 }

@@ -662,7 +662,7 @@ public class UINode {
         if (!this.visible) {
             return;
         }
-        context.drawQuad(this.finalRect, this.backgroundColor);
+        context.fillRect(this.finalRect, this.backgroundColor);
     }
 
     /**

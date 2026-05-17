@@ -142,7 +142,7 @@ public class SideBar extends UINode {
             if (!this.visible) {
                 return;
             }
-            context.fill(worldRect.x, worldRect.y, worldRect.x + worldRect.w, worldRect.y + worldRect.h, 0x80FFFFFF);
+            context.fillBounds(worldRect.x, worldRect.y, worldRect.x + worldRect.w, worldRect.y + worldRect.h, 0x80FFFFFF);
         }
     }
 
@@ -215,7 +215,7 @@ public class SideBar extends UINode {
         if (!this.isVisible()) {
             return;
         }
-        context.fill(
+        context.fillBounds(
                 worldRect.x,
                 worldRect.y,
                 worldRect.x + worldRect.w, worldRect.y + worldRect.h,
