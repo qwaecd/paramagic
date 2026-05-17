@@ -149,6 +149,9 @@ public class SideBar extends UINode {
     @Override
     @Nullable
     public UINode getMouseOverNode(float mouseX, float mouseY) {
+        if (!this.isVisible()) {
+            return null;
+        }
         UINode node = this.resizeNode.getMouseOverNode(mouseX, mouseY);
         if (node != null) {
             return node;
@@ -159,6 +162,9 @@ public class SideBar extends UINode {
     @Override
     @Nullable
     public UINode getTopmostHitNode(float mouseX, float mouseY) {
+        if (!this.isVisible()) {
+            return null;
+        }
         UINode node = this.resizeNode.getTopmostHitNode(mouseX, mouseY);
         if (node != null) {
             return node;
