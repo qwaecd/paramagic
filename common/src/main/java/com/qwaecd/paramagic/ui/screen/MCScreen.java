@@ -2,52 +2,32 @@ package com.qwaecd.paramagic.ui.screen;
 
 import com.qwaecd.paramagic.tools.TimeProvider;
 import com.qwaecd.paramagic.ui.MCRenderBackend;
-import com.qwaecd.paramagic.ui.MenuContent;
 import com.qwaecd.paramagic.ui.api.TooltipRenderer;
 import com.qwaecd.paramagic.ui.api.UIRenderContext;
 import com.qwaecd.paramagic.ui.api.UIRenderContextCache;
 import com.qwaecd.paramagic.ui.core.UIManager;
-import com.qwaecd.paramagic.ui.core.UINode;
-import com.qwaecd.paramagic.ui.inventory.IContainerScreen;
-import com.qwaecd.paramagic.ui.inventory.slot.UISlot;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Renderable;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.narration.NarratableEntry;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
-import net.minecraft.client.gui.screens.inventory.MenuAccess;
 import net.minecraft.network.chat.Component;
-import net.minecraft.world.entity.player.Inventory;
-import net.minecraft.world.inventory.AbstractContainerMenu;
-import net.minecraft.world.inventory.ClickType;
-import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-@SuppressWarnings("RedundantMethodOverride")
-public abstract class MCContainerScreen<T extends AbstractContainerMenu> extends AbstractContainerScreen<T> implements MenuAccess<T>, IContainerScreen, NativeWidgetHostScreen {
-    protected final UIManager manager;
+public abstract class MCScreen extends Screen implements NativeWidgetHostScreen {
+    protected UIManager manager;
     @Nonnull
-    private final NativeWidgetHost nativeWidgetHost;
+    protected final NativeWidgetHost nativeWidgetHost;
 
     @Nonnull
     protected final UIRenderContextCache cache = new UIRenderContextCache();
 
-    public MCContainerScreen(T menu, Inventory playerInventory, Component title, UINode rootNode) {
-        super(menu, playerInventory, title);
-        TooltipRenderer tooltipRenderer = new TooltipRenderer() {
-            @Override
-            public void renderTooltipWithItem(@Nonnull ItemStack itemStack, GuiGraphics guiGraphics, int mouseX, int mouseY) {
-                MCContainerScreen.this.renderTooltipWithItem(itemStack, guiGraphics, mouseX, mouseY);
-            }
-        };
-
-        MenuContent content = new MenuContent(menu, this, playerInventory);
+    protected MCScreen(Component title) {
+        super(title);
         this.nativeWidgetHost = new NativeWidgetHost(this);
-        this.manager = new UIManager(rootNode, tooltipRenderer, content, this.nativeWidgetHost);
     }
 
     @Override
@@ -57,31 +37,11 @@ public abstract class MCContainerScreen<T extends AbstractContainerMenu> extends
         this.cache.setRenderContext(new UIRenderContext(this.manager, null, new MCRenderBackend(null, this.font), 0, 0, 0, 0));
     }
 
-    @Override
-    protected final void slotClicked(@Nullable Slot slot, int slotId, int mouseButton, ClickType type) {
-        if (slot instanceof UISlot uiSlot && !uiSlot.isSlotEnabled()) {
+    public void renderTooltipWithItem(@Nullable ItemStack itemStack, @Nonnull GuiGraphics guiGraphics, int mouseX, int mouseY) {
+        if (itemStack == null || this.minecraft == null) {
             return;
         }
-
-        //noinspection DataFlowIssue
-        super.slotClicked(slot, slotId, mouseButton, type);
-    }
-
-    @Override
-    public void slotClicked(@Nonnull UISlot slot, int mouseButton, ClickType type) {
-        this.slotClicked(slot, slot.getSlotId(), mouseButton, type);
-    }
-
-    @Override
-    public void renderTooltip(@Nonnull GuiGraphics guiGraphics, int x, int y) {
-        super.renderTooltip(guiGraphics, x, y);
-    }
-
-    protected void renderTooltipWithItem(@Nonnull ItemStack itemStack, GuiGraphics guiGraphics, int mouseX, int mouseY) {
-        if (this.minecraft == null || this.minecraft.screen == null) {
-            return;
-        }
-        guiGraphics.renderComponentTooltip(this.minecraft.font, Screen.getTooltipFromItem(this.minecraft, itemStack), mouseX, mouseY);
+        guiGraphics.renderTooltip(this.font, Screen.getTooltipFromItem(this.minecraft, itemStack), itemStack.getTooltipImage(), mouseX, mouseY);
     }
 
     @Override
@@ -94,10 +54,6 @@ public abstract class MCContainerScreen<T extends AbstractContainerMenu> extends
         this.manager.prepareRender(this.cache.getRenderContext());
         super.render(guiGraphics, mouseX, mouseY, partialTick);
         this.manager.render(cache.getRenderContext());
-    }
-
-    @Override
-    protected void renderLabels(@Nonnull GuiGraphics guiGraphics, int mouseX, int mouseY) {
     }
 
     @Override
@@ -205,5 +161,14 @@ public abstract class MCContainerScreen<T extends AbstractContainerMenu> extends
     @Override
     public void removeNativeWidget(GuiEventListener widget) {
         super.removeWidget(widget);
+    }
+
+    protected TooltipRenderer createTooltipRenderer() {
+        return new TooltipRenderer() {
+            @Override
+            public void renderTooltipWithItem(@Nonnull ItemStack itemStack, GuiGraphics guiGraphics, int mouseX, int mouseY) {
+                MCScreen.this.renderTooltipWithItem(itemStack, guiGraphics, mouseX, mouseY);
+            }
+        };
     }
 }

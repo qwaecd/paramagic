@@ -14,13 +14,13 @@ import java.util.Set;
 
 public final class NativeWidgetHost {
     @Nonnull
-    private final MCContainerScreen<?> screen;
+    private final NativeWidgetHostScreen screen;
     @Nonnull
     private final Set<NativeWidgetNode<?, ?>> attachedNodes = Collections.newSetFromMap(new IdentityHashMap<>());
     @Nullable
     private NativeWidgetNode<?, ?> focusedNode;
 
-    public NativeWidgetHost(@Nonnull MCContainerScreen<?> screen) {
+    public NativeWidgetHost(@Nonnull NativeWidgetHostScreen screen) {
         this.screen = screen;
     }
 
