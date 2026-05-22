@@ -4,7 +4,6 @@ import com.qwaecd.paramagic.tools.ModRL;
 import com.qwaecd.paramagic.ui.util.HorizontalSliceSprite;
 import com.qwaecd.paramagic.ui.util.NineSliceSprite;
 import com.qwaecd.paramagic.ui.util.Sprite;
-import com.qwaecd.paramagic.ui.util.VerticalSliceSprite;
 import net.minecraft.resources.ResourceLocation;
 
 public final class WEAssets {
