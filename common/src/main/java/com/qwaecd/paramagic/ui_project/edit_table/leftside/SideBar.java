@@ -38,7 +38,7 @@ public class SideBar extends UINode {
         this.clipMod = ClipMod.RECT;
         this.localRect.set(
                 0.0f, 0.0f,
-                120.0f, this.getWindowHeight() / this.getGuiScale()
+                120.0f, UIManager.getWindowHeight() / UIManager.getGuiScale()
         );
 
         this.structEditNode = new ParaStructEditNode(this);
@@ -202,7 +202,7 @@ public class SideBar extends UINode {
 
     @Override
     public void layout(float parentX, float parentY, float parentW, float parentH) {
-        this.localRect.h = this.getWindowHeight() / this.getGuiScale();
+        this.localRect.h = UIManager.getWindowHeight() / UIManager.getGuiScale();
         this.structEditNode.localRect.set(
                 this.localRect.x, this.localRect.y,
                 this.localRect.w - this.resizeNode.localRect.w, this.localRect.h

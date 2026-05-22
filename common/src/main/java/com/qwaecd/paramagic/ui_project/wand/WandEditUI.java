@@ -1,46 +1,51 @@
 package com.qwaecd.paramagic.ui_project.wand;
 
-import com.qwaecd.paramagic.Paramagic;
-import com.qwaecd.paramagic.ui.api.event.AllUIEvents;
 import com.qwaecd.paramagic.ui.core.UINode;
-import com.qwaecd.paramagic.ui.event.EventPhase;
 import com.qwaecd.paramagic.ui.util.Rect;
-import com.qwaecd.paramagic.ui.widget.UIButton;
-import com.qwaecd.paramagic.ui.widget.UILabel;
+import com.qwaecd.paramagic.ui_project.wand.content.head.HeaderUI;
+import com.qwaecd.paramagic.ui_project.wand.content.inventory.InventoryUI;
+import com.qwaecd.paramagic.ui_project.wand.content.tree.TreeContent;
 
-public class WandEditUI extends UINode {
+
+public final class WandEditUI extends UINode {
+    private final HeaderUI headerUI;
+    private final InventoryUI inventoryUI;
+    private final TreeContent treeContent;
 
     public WandEditUI() {
         super();
+        this.headerUI = new HeaderUI();
+        this.inventoryUI = new InventoryUI();
+        this.treeContent = new TreeContent();
 
-        if (Paramagic.isDevEnv()) {
-            this.addDebugButton();
-        }
+        this.addChild(this.headerUI);
+        this.addChild(this.inventoryUI);
+        this.addChild(this.treeContent);
     }
 
+    @Override
+    protected void arrangeChildren() {
+        final float w = this.layoutRect.w;
+        final float h = this.layoutRect.h;
+        // from HeaderUI
+        final float xPercent = 0.8f;
+        final float yPercent = 0.1f;
+        float x = w * (1.0f - xPercent) / 2.0f;
+        float y = h * yPercent;
 
-    private void addDebugButton() {
-        UIButton button = new UIButton(new Rect(0, 0, 60, 20));
-        UILabel label = new UILabel("outline");
-        label.getLayoutParams().center();
-        button.addChild(label);
-        button.addListener(
-                AllUIEvents.MOUSE_CLICK,
-                EventPhase.CAPTURING,
-                (context) -> {
-                    context.getManager().forEachUINode(node -> node.setDebugMod(!node.isDebugMod()));
-                    context.consume();
-                }
-        );
-        button.addListener(
-                AllUIEvents.MOUSE_DOUBLE_CLICK,
-                EventPhase.CAPTURING,
-                (context) -> {
-                    context.getManager().forEachUINode(node -> node.setDebugMod(!node.isDebugMod()));
-                    context.consume();
-                }
-        );
-        button.getLayoutParams().botton();
-        this.addChild(button);
+        Rect headerRect = this.headerUI.getLayoutRect();
+        headerRect.setXY(x, y);
+        headerRect.setWH(this.headerUI.getMeasuredWidth(), this.headerUI.getMeasuredHeight());
+
+        Rect invRect = this.inventoryUI.getLayoutRect();
+        invRect.setXY(x, y + 16.0f);
+        invRect.setWH(this.inventoryUI.getMeasuredWidth(), this.inventoryUI.getMeasuredHeight());
+
+        Rect treeRect = this.treeContent.getLayoutRect();
+        treeRect.setXY(w - this.treeContent.getMeasuredWidth() - x, y + 16.0f);
+        treeRect.setWH(this.treeContent.getMeasuredWidth(), this.treeContent.getMeasuredHeight());
+        for (UINode child : this.children) {
+            child.arrange(this.finalRect.x, this.finalRect.y, this.finalRect.w, this.finalRect.h);
+        }
     }
 }

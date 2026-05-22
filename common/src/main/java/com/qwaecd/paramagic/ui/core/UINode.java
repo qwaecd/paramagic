@@ -592,8 +592,7 @@ public class UINode {
     /**
      * 计算节点在父级约束下的自然尺寸。
      */
-    @Nonnull
-    public MeasureResult measure(@Nonnull LayoutConstraints constraints) {
+    public MeasureResult measure(LayoutConstraints constraints) {
         MeasureResult result = this.measureSelf(constraints);
         this.setMeasureResult(result);
         this.measureChildren(constraints);
@@ -604,8 +603,7 @@ public class UINode {
     /**
      * 计算当前节点自己的自然尺寸，不处理子节点。
      */
-    @Nonnull
-    protected MeasureResult measureSelf(@Nonnull LayoutConstraints constraints) {
+    protected MeasureResult measureSelf(LayoutConstraints constraints) {
         float width = UILayout.resolveWidth(this.sizeMode, this.layoutRect, constraints.getMaxWidth());
         float height = UILayout.resolveHeight(this.sizeMode, this.layoutRect, constraints.getMaxHeight());
         return MeasureResult.of(width, height);
@@ -864,22 +862,10 @@ public class UINode {
         this.manager = null;
     }
 
-    protected float getWindowWidth() {
-        return Minecraft.getInstance().getWindow().getWidth();
-    }
-
-    protected float getWindowHeight() {
-        return Minecraft.getInstance().getWindow().getHeight();
-    }
-
-    protected float getGuiScale() {
-        return (float) Minecraft.getInstance().getWindow().getGuiScale();
-    }
-
     protected void setToFullScreen() {
         this.setLayoutRect(
                 0.0f, 0.0f,
-                this.getWindowWidth() / this.getGuiScale(), this.getWindowHeight() / this.getGuiScale()
+                UIManager.getWindowWidth() / UIManager.getGuiScale(), UIManager.getWindowHeight() / UIManager.getGuiScale()
         );
     }
 }

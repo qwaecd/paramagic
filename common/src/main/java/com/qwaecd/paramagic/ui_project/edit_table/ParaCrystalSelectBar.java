@@ -189,8 +189,8 @@ public class ParaCrystalSelectBar extends UIScrollView {
     @Override
     @Nonnull
     protected MeasureResult measureSelf(@Nonnull LayoutConstraints constraints) {
-        float windowH = this.getWindowHeight() / this.getGuiScale();
-        float windowW = this.getWindowWidth() / this.getGuiScale();
+        float windowH = UIManager.getWindowHeight() / UIManager.getGuiScale();
+        float windowW = UIManager.getWindowWidth() / UIManager.getGuiScale();
         this.layoutRect.set(
                 windowW - BAR_WIDTH - RIGHT_MARGIN,
                 (windowH - BAR_HEIGHT) / 2.0f,

@@ -52,8 +52,14 @@ public abstract class MCScreen extends Screen implements NativeWidgetHostScreen 
         final float deltaTime = TimeProvider.getDeltaTime(this.minecraft);
         this.cache.getRenderContext().reset(guiGraphics, deltaTime, mouseX, mouseY, partialTick);
         this.manager.prepareRender(this.cache.getRenderContext());
+        this.renderBackground(guiGraphics);
         super.render(guiGraphics, mouseX, mouseY, partialTick);
         this.manager.render(cache.getRenderContext());
+    }
+
+    @Override
+    public void renderBackground(@Nonnull GuiGraphics guiGraphics) {
+        super.renderBackground(guiGraphics);
     }
 
     @Override

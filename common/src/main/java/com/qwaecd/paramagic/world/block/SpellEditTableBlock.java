@@ -1,6 +1,9 @@
 package com.qwaecd.paramagic.world.block;
 
+import com.qwaecd.paramagic.ui.inventory.PlayerInventoryHolder;
+import com.qwaecd.paramagic.ui_project.wand.WandEditScreen;
 import com.qwaecd.paramagic.world.block.entity.SpellEditTableBlockEntity;
+import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.*;
@@ -38,9 +41,11 @@ public class SpellEditTableBlock extends BaseEntityBlock {
     @Override
     public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
         if (level.isClientSide) {
+            // TODO: 记得把测试用的删掉
+            Minecraft.getInstance().setScreen(new WandEditScreen(new PlayerInventoryHolder(player.getInventory())));
             return InteractionResult.SUCCESS;
         } else {
-            player.openMenu(this.getMenuProvider(state, level, pos));
+//            player.openMenu(this.getMenuProvider(state, level, pos));
             return InteractionResult.CONSUME;
         }
     }

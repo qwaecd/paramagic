@@ -1,6 +1,7 @@
 package com.qwaecd.paramagic.ui_project.edit_table.leftside;
 
 import com.qwaecd.paramagic.ui.api.UIRenderContext;
+import com.qwaecd.paramagic.ui.core.UIManager;
 import com.qwaecd.paramagic.ui.core.UINode;
 import com.qwaecd.paramagic.ui.util.UIColor;
 import com.qwaecd.paramagic.ui.widget.UIPanel;
@@ -30,7 +31,7 @@ public class ParaSelectBar extends UINode {
     @Override
     public void layout(float parentX, float parentY, float parentW, float parentH) {
         // 将自己置于屏幕左边中间
-        float windowH = this.getWindowHeight() / this.getGuiScale();
+        float windowH = UIManager.getWindowHeight() / UIManager.getGuiScale();
         this.localRect.setXY(
                 8.0f,
                 (windowH - this.localRect.h) / 2.0f

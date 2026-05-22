@@ -18,6 +18,7 @@ import com.qwaecd.paramagic.ui.overlay.OverlayRoot;
 import com.qwaecd.paramagic.ui.screen.NativeWidgetHost;
 import com.qwaecd.paramagic.ui.widget.ContextMenu;
 import lombok.Getter;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,6 +36,8 @@ public class UIManager {
 
     @Nullable
     private static UIManager instance;
+
+    private boolean initialized = false;
 
     @Nonnull
     private final UIAnimationSystem animationSystem;
@@ -99,7 +102,21 @@ public class UIManager {
 
     public void init() {
         instance = this;
+        this.rootNode.setLayoutRect(
+                0.0f, 0.0f,
+                UIManager.getWindowWidth() / UIManager.getGuiScale(),
+                UIManager.getWindowHeight() / UIManager.getGuiScale()
+        );
+        if (this.initialized) {
+            this.onResize();
+            return;
+        }
+        this.initialized = true;
         this.rootNode.attachToManager(this);
+        this.layoutAll();
+    }
+
+    private void onResize() {
         this.layoutAll();
     }
 
@@ -560,6 +577,19 @@ public class UIManager {
 
     public void removeAnimatorsInSubtree(@Nonnull UINode root) {
         this.animationSystem.removeAnimatorsInSubtree(root);
+    }
+
+
+    public static float getWindowWidth() {
+        return Minecraft.getInstance().getWindow().getWidth();
+    }
+
+    public static float getWindowHeight() {
+        return Minecraft.getInstance().getWindow().getHeight();
+    }
+
+    public static float getGuiScale() {
+        return (float) Minecraft.getInstance().getWindow().getGuiScale();
     }
 
     void onNodeDetached(@Nonnull UINode node) {
