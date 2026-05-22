@@ -13,7 +13,7 @@ import com.qwaecd.paramagic.ui_project.wand.WandEditScreen;
 import javax.annotation.Nonnull;
 
 public final class HeaderUI extends UINode {
-    private float renderAlpha = 0.0f;
+    private float offsetAlpha = 0.0f;
 
     public HeaderUI() {
         super();
@@ -22,12 +22,12 @@ public final class HeaderUI extends UINode {
     @Override
     protected void onAttached(@Nonnull UIManager manager) {
         this.animateFloat(
-                this.renderAlpha,
+                this.offsetAlpha,
                 1.0f,
                 0.4f,
                 EasingFunction.easeOutSine,
-                Interpolation::liner,
-                (v -> this.renderAlpha = v)
+                Interpolation::linear,
+                (v -> this.offsetAlpha = v)
         );
     }
 
@@ -40,12 +40,12 @@ public final class HeaderUI extends UINode {
 
     @Override
     protected void render(@Nonnull UIRenderContext context) {
-        float x = this.finalRect.x + this.finalRect.w / 2.0f * (1.0f - this.renderAlpha);
+        float x = this.finalRect.x + this.finalRect.w / 2.0f * (1.0f - this.offsetAlpha);
         context.renderHorizontalSliceSpriteKeepEnds(
                 WEAssets.HEAD_LINE,
                 (int) x,
                 (int) this.finalRect.y,
-                (int) (this.finalRect.w * this.renderAlpha),
+                (int) (this.finalRect.w * this.offsetAlpha),
                 (int) this.finalRect.h
         );
     }

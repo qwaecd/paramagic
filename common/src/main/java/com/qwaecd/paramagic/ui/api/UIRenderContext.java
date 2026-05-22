@@ -198,6 +198,17 @@ public final class UIRenderContext {
     public void renderSprite(Sprite sprite, int x, int y) {
         this.backend.renderSprite(sprite, x, y);
     }
+    public void renderNineSliceSpriteWithAlpha(NineSliceSprite sprite, int x, int y, int width, int height, float alpha) {
+        if (alpha == 1.0f) {
+            this.renderNineSliceSprite(sprite, x, y, width, height);
+        } else {
+            this.backend.enableBlend();
+            this.guiGraphics.setColor(1.0f, 1.0f, 1.0f, alpha);
+            this.renderNineSliceSprite(sprite, x, y, width, height);
+            this.guiGraphics.setColor(1.0f, 1.0f, 1.0f, 1.0f);
+            this.backend.disableBlend();
+        }
+    }
 
     public void renderNineSliceSprite(NineSliceSprite sprite, int x, int y, int width, int height) {
         if (width <= 0 || height <= 0) {

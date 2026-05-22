@@ -332,7 +332,7 @@ public class ParaStructEditNode extends UIScrollView {
         this.scrollAnimator = this.animateFloat(
                 start, this.viewOffset, 0.1f,
                 EasingFunction.easeOutSine,
-                Interpolation::liner,
+                Interpolation::linear,
                 (interpolationValue -> this.viewOffset = interpolationValue)
         ).setOnUpdate(offset -> {
             manager.offerOveringTestTask();

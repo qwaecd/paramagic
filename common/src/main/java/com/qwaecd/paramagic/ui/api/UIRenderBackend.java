@@ -9,6 +9,8 @@ import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
 public interface UIRenderBackend {
+    void enableBlend();
+    void disableBlend();
     void pushClipRect(Rect rect);
     void popClipRect();
 

@@ -13,7 +13,8 @@ import org.jetbrains.annotations.NotNull;
 import javax.annotation.Nonnull;
 
 public final class InventoryUI extends UINode {
-    private float renderAlpha = 0.5f;
+    private float offsetAlpha = 0.6f;
+    private float renderAlpha = 0.1f;
 
     public InventoryUI() {
         super();
@@ -22,11 +23,19 @@ public final class InventoryUI extends UINode {
     @Override
     protected void onAttached(@Nonnull UIManager manager) {
         this.animateFloat(
-                this.renderAlpha,
+                this.offsetAlpha,
                 1.0f,
                 0.4f,
                 EasingFunction.easeOutSine,
-                Interpolation::liner,
+                Interpolation::linear,
+                (v -> this.offsetAlpha = v)
+        );
+        this.animateFloat(
+                this.renderAlpha,
+                1.0f,
+                0.4f,
+                EasingFunction.easeInOutQuad,
+                Interpolation::linear,
                 (v -> this.renderAlpha = v)
         );
     }
@@ -38,14 +47,15 @@ public final class InventoryUI extends UINode {
 
     @Override
     protected void render(@NotNull UIRenderContext context) {
-        float x = this.finalRect.x + this.finalRect.w / 2.0f * (1.0f - this.renderAlpha);
-        float y = this.finalRect.y + this.finalRect.h / 2.0f * (1.0f - this.renderAlpha);
-        context.renderNineSliceSprite(
+        float x = this.finalRect.x + this.finalRect.w / 2.0f * (1.0f - this.offsetAlpha);
+        float y = this.finalRect.y + this.finalRect.h / 2.0f * (1.0f - this.offsetAlpha);
+        context.renderNineSliceSpriteWithAlpha(
                 WEAssets.INVENTORY_RECT,
                 (int) x,
                 (int) y,
-                (int) (this.finalRect.w * this.renderAlpha),
-                (int) (this.finalRect.h * this.renderAlpha)
+                (int) (this.finalRect.w * this.offsetAlpha),
+                (int) (this.finalRect.h * this.offsetAlpha),
+                this.renderAlpha
         );
     }
 }

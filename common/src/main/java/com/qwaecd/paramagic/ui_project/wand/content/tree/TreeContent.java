@@ -12,7 +12,8 @@ import com.qwaecd.paramagic.ui_project.wand.WEAssets;
 import javax.annotation.Nonnull;
 
 public final class TreeContent extends UINode {
-    private float renderAlpha = 0.5f;
+    private float offsetAlpha = 0.6f;
+    private float renderAlpha = 0.1f;
 
     public TreeContent() {
         super();
@@ -21,11 +22,19 @@ public final class TreeContent extends UINode {
     @Override
     protected void onAttached(@Nonnull UIManager manager) {
         this.animateFloat(
-                this.renderAlpha,
+                this.offsetAlpha,
                 1.0f,
                 0.4f,
                 EasingFunction.easeOutSine,
-                Interpolation::liner,
+                Interpolation::linear,
+                (v -> this.offsetAlpha = v)
+        );
+        this.animateFloat(
+                this.renderAlpha,
+                1.0f,
+                0.4f,
+                EasingFunction.easeInOutQuad,
+                Interpolation::linear,
                 (v -> this.renderAlpha = v)
         );
     }
@@ -37,14 +46,15 @@ public final class TreeContent extends UINode {
 
     @Override
     protected void render(@Nonnull UIRenderContext context) {
-        float x = this.finalRect.x + this.finalRect.w / 2.0f * (1.0f - this.renderAlpha);
-        float y = this.finalRect.y + this.finalRect.h / 2.0f * (1.0f - this.renderAlpha);
-        context.renderNineSliceSprite(
+        float x = this.finalRect.x + this.finalRect.w / 2.0f * (1.0f - this.offsetAlpha);
+        float y = this.finalRect.y + this.finalRect.h / 2.0f * (1.0f - this.offsetAlpha);
+        context.renderNineSliceSpriteWithAlpha(
                 WEAssets.RECT_1,
                 (int) x,
                 (int) y,
-                (int) (this.finalRect.w * this.renderAlpha),
-                (int) (this.finalRect.h * this.renderAlpha)
+                (int) (this.finalRect.w * this.offsetAlpha),
+                (int) (this.finalRect.h * this.offsetAlpha),
+                this.renderAlpha
         );
     }
 }

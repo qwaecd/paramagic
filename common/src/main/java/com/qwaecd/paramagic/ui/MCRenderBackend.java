@@ -1,5 +1,6 @@
 package com.qwaecd.paramagic.ui;
 
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.qwaecd.paramagic.ui.api.UIRenderBackend;
 import com.qwaecd.paramagic.ui.util.Rect;
@@ -20,6 +21,16 @@ public class MCRenderBackend implements UIRenderBackend {
     public MCRenderBackend(GuiGraphics guiGraphics, Font font) {
         this.guiGraphics = guiGraphics;
         this.font = font;
+    }
+
+    @Override
+    public void enableBlend() {
+        RenderSystem.enableBlend();
+    }
+
+    @Override
+    public void disableBlend() {
+        RenderSystem.disableBlend();
     }
 
     @Override
