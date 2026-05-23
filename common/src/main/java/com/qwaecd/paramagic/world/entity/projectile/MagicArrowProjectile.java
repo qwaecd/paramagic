@@ -2,6 +2,8 @@ package com.qwaecd.paramagic.world.entity.projectile;
 
 import com.qwaecd.paramagic.core.particle.emitter.impl.CircleEmitter;
 import com.qwaecd.paramagic.core.particle.emitter.impl.PointEmitter;
+import com.qwaecd.paramagic.core.particle.emitter.property.type.ParticlePrimitiveTypeStates;
+import com.qwaecd.paramagic.core.particle.emitter.property.type.ParticleShapeFlags;
 import com.qwaecd.paramagic.core.particle.emitter.property.type.VelocityModeStates;
 import com.qwaecd.paramagic.particle.client.shared.BuiltinSharedGPUEffects;
 import com.qwaecd.paramagic.particle.client.shared.SharedGPUEffectRef;
@@ -78,7 +80,7 @@ public class MagicArrowProjectile extends ArrowLikeProjectileEntity implements P
         CircleEmitter emitter = new CircleEmitter(new Vector3f(), 320.0f);
         emitter.modifyProp(COLOR, v -> v.set(1.6f, 0.4f, 0.8f, 1.0f));
         emitter.modifyProp(LIFE_TIME_RANGE, v -> v.set(0.2f, 0.4f));
-        emitter.modifyProp(SIZE_RANGE, v -> v.set(1.4f, 2.2f));
+        emitter.modifyProp(SIZE_RANGE, v -> v.set(0.014f, 0.022f));
         emitter.getProperty(BLOOM_INTENSITY).set(0.3f);
         emitter.modifyProp(INNER_OUTER_RADIUS, v -> v.set(1.0f, 1.2f));
         emitter.getProperty(VELOCITY_MODE).set(VelocityModeStates.RADIAL_FROM_CENTER);
@@ -93,12 +95,12 @@ public class MagicArrowProjectile extends ArrowLikeProjectileEntity implements P
             return this.sharedTrailEmitter;
         }
 
-        PointEmitter emitter = new PointEmitter(new Vector3f(), 80.0f);
+        PointEmitter emitter = new PointEmitter(new Vector3f(), 200.0f);
         emitter.getProperty(VELOCITY_SPREAD).set(60.0f);
-        emitter.modifyProp(COLOR, v -> v.set(0.6f, 0.4f, 0.8f, 1.0f));
+        emitter.modifyProp(COLOR, v -> v.set(1.6f, 0.4f, 0.8f, 1.0f));
         emitter.modifyProp(LIFE_TIME_RANGE, v -> v.set(0.2f, 0.45f));
-        emitter.modifyProp(SIZE_RANGE, v -> v.set(2.8f, 3.2f));
-        emitter.getProperty(BLOOM_INTENSITY).set(0.4f);
+        emitter.modifyProp(SIZE_RANGE, v -> v.set(0.02f, 0.062f));
+        emitter.getProperty(BLOOM_INTENSITY).set(0.2f);
 
         this.sharedTrailEmitter = emitter;
         return emitter;

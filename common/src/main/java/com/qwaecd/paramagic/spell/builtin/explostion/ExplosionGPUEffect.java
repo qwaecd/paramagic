@@ -55,7 +55,7 @@ public final class ExplosionGPUEffect {
             SphereEmitter sphereEmitter = new SphereEmitter(new Vector3f(spawnPosition), 400.0f);
             sphereEmitter.modifyProp(COLOR, v -> v.set(1.2f, 0.5f, 0.8f, 1.0f));
             sphereEmitter.modifyProp(LIFE_TIME_RANGE, v -> v.set(3.1f, 8.4f));
-            sphereEmitter.modifyProp(SIZE_RANGE, v -> v.set(3.0f, 5.3f));
+            sphereEmitter.modifyProp(SIZE_RANGE, v -> v.set(0.030f, 0.053f));
             sphereEmitter.trySet(BLOOM_INTENSITY, 0.4f);
             sphereEmitter.trySet(SPHERE_RADIUS, 6.0f);
             sphereEmitter.trySet(EMIT_FROM_VOLUME, true);
@@ -177,7 +177,7 @@ public final class ExplosionGPUEffect {
         List<Emitter> emitters = new ArrayList<>();
         PhysicsParamBuilder builder = new PhysicsParamBuilder();
         builder.primaryForceEnabled(true)
-                .primaryForceParam(12.4f, -1.5f)
+                .primaryForceParam(22.4f, -1.5f)
                 .secondaryForceParam(-1.6f, -3.0f)
                 .secondaryForceEnabled(true)
                 .linearForceEnabled(true)
@@ -185,7 +185,7 @@ public final class ExplosionGPUEffect {
                 .dragCoefficient(0.8f);
         this.gatherEffect = new GPUParticleEffect(emitters, 10_0000, -1.0f, builder.build());
         this.gatherEffect.setConsumer(new GPUParticleEffect.EffectConsumer() {
-            private static final int MAX_EMITTERS = 3;
+            private static final int MAX_EMITTERS = 8;
             private static final float SPAWN_INTERVAL = 1.0f;
             private static final float SPAWN_CHANCE = 0.5f;
             private static final float EMITTER_SPHERE_RADIUS = 8.0f;
@@ -233,8 +233,8 @@ public final class ExplosionGPUEffect {
                 Vector4f color = colorPool[Math.abs(random.nextInt() % colorPool.length)];
                 emitter.modifyProp(COLOR, v -> v.set(color));
                 emitter.modifyProp(LIFE_TIME_RANGE, v -> v.set(4.5f, 15.0f));
-                emitter.modifyProp(SIZE_RANGE, v -> v.set(1.02f, 4.06f));
-                emitter.trySet(BLOOM_INTENSITY, 1.0f);
+                emitter.modifyProp(SIZE_RANGE, v -> v.set(0.006f, 0.009f));
+                emitter.trySet(BLOOM_INTENSITY, 2.0f);
                 emitter.trySet(SPHERE_RADIUS, EMISSION_RADIUS);
                 emitter.trySet(EMIT_FROM_VOLUME, true);
                 emitter.trySet(VELOCITY_MODE, VelocityModeStates.RANDOM);
@@ -242,7 +242,7 @@ public final class ExplosionGPUEffect {
                 emitter.modifyProp(BASE_VELOCITY, v -> v.set(0.05f));
 
                 emitters.add(emitter);
-                this.activeEmitters.add(new GatherEmitterState(emitter, random.nextFloat(2.0f, 5.0f)));
+                this.activeEmitters.add(new GatherEmitterState(emitter, random.nextFloat(6.0f, 12.0f)));
             }
 
             private void updateWind(GPUParticleEffect effect, float deltaTime) {

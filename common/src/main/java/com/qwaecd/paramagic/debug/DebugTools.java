@@ -13,6 +13,7 @@ import com.qwaecd.paramagic.core.particle.builder.PhysicsParamBuilder;
 import com.qwaecd.paramagic.core.particle.effect.GPUParticleEffect;
 import com.qwaecd.paramagic.core.particle.emitter.ParticleBurst;
 import com.qwaecd.paramagic.core.particle.emitter.impl.*;
+import com.qwaecd.paramagic.core.particle.emitter.property.type.ParticlePrimitiveTypeStates;
 import com.qwaecd.paramagic.core.particle.emitter.property.type.VelocityModeStates;
 import com.qwaecd.paramagic.core.render.ModRenderSystem;
 import com.qwaecd.paramagic.core.render.Transform;
@@ -55,16 +56,16 @@ public class DebugTools {
         ball.getTransform().getModelMatrix().translate(0, 100, 0).scale(4.0f, 4.0f, 4.0f);
 //        ModRenderSystem.getInstance().addRenderable(ball);
 
-        spawnDebugLaserSphere();
+//        spawnDebugLaserSphere();
 
         IRenderable sun = new Sun(ShaderManager.getInstance().getShader("sun"));
         sun.getTransform().setPosition(0, 80, 10).setScale(5.0f, 5.0f, 5.0f);
 //        ModRenderSystem.getInstance().addRenderable(sun);
 
 //        spawnDebugBlackHole();
-        testGpuMagicCircleEffect();
+//        testGpuMagicCircleEffect();
 //        paraTest();
-//        effectTest();
+        effectTest();
     }
 
     private static void spawnDebugLaserSphere() {
@@ -154,82 +155,64 @@ public class DebugTools {
                 .sinusoidalForceParam(40.0f, 1.0f, -2.0f).sinusoidalExtraParam(0.0f).sinusoidalForceMaxRadius(10000.0f)
                 .linearForceEnabled(false)
                 .linearForce(0.01f, -0.0981f / 1000.0f, 0.0f)
-                .dragCoefficient(0.0f);
-
-        // Point Emitter
-        PointEmitter pointEmitter = new PointEmitter(
-                new Vector3f(0, 80, 10),
-                10.0f
-        );
-
-        pointEmitter.getProperty(BLOOM_INTENSITY).set(1.8f);
-
-        // Line Emitter
-        LineEmitter lineEmitter = new LineEmitter(
-                new Vector3f(0.0f, 130.0f, 0.0f),
-                0.0f
-        );
-        lineEmitter.getProperty(POSITION).modify(v -> v.set(-10.0f, 130.0f, 1.0f));
-        lineEmitter.getProperty(END_POSITION).modify(v -> v.set(10.0f, 130.0f, 1.0f));
-        lineEmitter.getProperty(BASE_VELOCITY).modify(v -> v.set(0.0f, 0.05f, 0.0f));
-        lineEmitter.getProperty(LIFE_TIME_RANGE).modify(v -> v.set(0.1f, 1.3f));
-        lineEmitter.getProperty(COLOR).modify(v -> v.set(0.4f, 0.5f, 1.0f, 1.0f));
-        lineEmitter.getProperty(BLOOM_INTENSITY).set(0.5f);
-        lineEmitter.getProperty(VELOCITY_MODE).set(VelocityModeStates.RANDOM);
-        lineEmitter.addBurst(new ParticleBurst(0.1f, 3000));
-
-        // Sphere Emitter
-        SphereEmitter sphereEmitter = new SphereEmitter(
-                new Vector3f(centerForcePos),
-                1000.0f
-        );
-        sphereEmitter.getProperty(SPHERE_RADIUS).set(20.0f);
-        sphereEmitter.getProperty(BASE_VELOCITY).modify(v -> v.set(0.0f, 0.0f, 0.0f));
-        sphereEmitter.getProperty(LIFE_TIME_RANGE).modify(v -> v.set(30.0f, 60.0f));
-        sphereEmitter.getProperty(COLOR).modify(v -> v.set(1.0f, 0.0f, 0.4f, 1.0f));
-        sphereEmitter.getProperty(BLOOM_INTENSITY).set(1.0f);
-        sphereEmitter.getProperty(EMIT_FROM_VOLUME).set(true);
-        sphereEmitter.getProperty(VELOCITY_SPREAD).set(1.0f);
-        sphereEmitter.getProperty(VELOCITY_MODE).set(VelocityModeStates.DIRECT);
-
-
-        // Cube Emitter
-        CubeEmitter cubeEmitter = new CubeEmitter(
-                new Vector3f(0.0f),
-                100.0f
-        );
-        cubeEmitter.getProperty(CUBE_AABB).modify(v -> v.setAABB(
-                20.0f, 120.0f, 3.0f,
-                20.0f + 0.5f, 120.0f + 0.5f, 3.0f + 0.5f
-        ));
-        cubeEmitter.getProperty(BASE_VELOCITY).modify(v -> v.set(0.0f, -0.3f, 1.91f));
-        cubeEmitter.getProperty(LIFE_TIME_RANGE).modify(v -> v.set(5.0f, 7.0f).add(40.0f, 40.0f));
-        cubeEmitter.getProperty(COLOR).modify(v -> v.set(0.2f, 1.0f, 0.5f, 1.0f));
-        cubeEmitter.getProperty(BLOOM_INTENSITY).set(1.8f);
-        cubeEmitter.getProperty(EMIT_FROM_VOLUME).set(true);
-        cubeEmitter.getProperty(VELOCITY_MODE).set(VelocityModeStates.DIRECT);
+                .dragCoefficient(1.6f);
 
         // circle emitter
         CircleEmitter circleEmitter = new CircleEmitter(
                 centerForcePos,
-                1000.0f
+                0.0f
         );
-        circleEmitter.getProperty(BASE_VELOCITY).modify(v -> v.set(1.0f, 0.0f, 0.0f));
-        circleEmitter.getProperty(LIFE_TIME_RANGE).modify(v -> v.set(0.2f, 1.6f));
-        circleEmitter.getProperty(COLOR).modify(v -> v.set(1.0f, 0.0f, 0.4f, 1.0f));
-        circleEmitter.getProperty(SIZE_RANGE).modify(v -> v.set(1.1f, 2.3f));
-        circleEmitter.getProperty(BLOOM_INTENSITY).set(2.0f);
-        circleEmitter.getProperty(VELOCITY_MODE).set(VelocityModeStates.RADIAL_FROM_CENTER);
-        circleEmitter.getProperty(NORMAL).modify(v -> v.set(0.0f, 1.0f, 0.0f));
-        circleEmitter.getProperty(INNER_OUTER_RADIUS).modify(v -> v.set(0.5f, 1.0f));
+        circleEmitter.modifyProp(BASE_VELOCITY, v -> v.set(4.0f, 0.0f, 0.0f));
+        circleEmitter.modifyProp(LIFE_TIME_RANGE, v -> v.set(0.2f, 1.6f));
+        circleEmitter.modifyProp(COLOR, v -> v.set(1.0f, 0.0f, 0.4f, 1.0f));
+        circleEmitter.modifyProp(SIZE_RANGE, v -> v.set(0.011f, 0.023f));
+        circleEmitter.trySet(BLOOM_INTENSITY, 1.0f);
+        circleEmitter.trySet(VELOCITY_MODE, VelocityModeStates.RADIAL_FROM_CENTER);
+        circleEmitter.modifyProp(NORMAL, v -> v.set(0.0f, 1.0f, 0.0f));
+        circleEmitter.modifyProp(INNER_OUTER_RADIUS, v -> v.set(0.4f, 0.5f));
+
+        LineEmitter lineEmitter = new LineEmitter(new Vector3f(20.0f, 90.0f, 0.0f), 1300.0f);
+        lineEmitter.modifyProp(END_POSITION, v -> v.set(20.0f, 90.0f, -300.0f));
+        lineEmitter.modifyProp(BASE_VELOCITY, v -> v.set(0.0f, 0.0f, 0.0f));
+        lineEmitter.modifyProp(LIFE_TIME_RANGE, v -> v.set(0.2f, 1.6f));
+        lineEmitter.modifyProp(COLOR, v -> v.set(0.3f, 0.1f, 0.8f, 1.0f));
+        lineEmitter.modifyProp(SIZE_RANGE, v -> v.set(0.1f, 0.3f));
+        lineEmitter.trySet(BLOOM_INTENSITY, 1.0f);
+        lineEmitter.trySet(PARTICLE_PRIMITIVE_TYPE, ParticlePrimitiveTypeStates.TRIANGLE);
+
+        LineEmitter lineEmitterPoint = new LineEmitter(new Vector3f(30.0f, 90.0f, 0.0f), 1300.0f);
+        lineEmitterPoint.modifyProp(END_POSITION, v -> v.set(20.0f, 90.0f, 300.0f));
+        lineEmitterPoint.modifyProp(BASE_VELOCITY, v -> v.set(0.0f, 0.0f, 0.0f));
+        lineEmitterPoint.modifyProp(LIFE_TIME_RANGE, v -> v.set(0.2f, 1.6f));
+        lineEmitterPoint.modifyProp(COLOR, v -> v.set(0.3f, 0.1f, 0.8f, 1.0f));
+        lineEmitterPoint.modifyProp(SIZE_RANGE, v -> v.set(0.01f, 0.03f));
+        lineEmitterPoint.trySet(BLOOM_INTENSITY, 1.0f);
+        lineEmitterPoint.trySet(PARTICLE_PRIMITIVE_TYPE, ParticlePrimitiveTypeStates.POINT);
 
         // effect
         GPUParticleEffect effect = new GPUParticleEffect(
-                List.of(circleEmitter),
+                List.of(circleEmitter, lineEmitter, lineEmitterPoint),
                 100_0000,
-                600.0f,
+                60.0f,
                 physicsParamBuilder.build()
         );
+
+        effect.setConsumer(new GPUParticleEffect.EffectConsumer() {
+            float time = 0.0f;
+            @Override
+            public void accept(GPUParticleEffect effect, float deltaTime) {
+                this.time += deltaTime;
+                if (this.time >= 0.2f) {
+                    this.time = 0.0f;
+                    effect.forEachEmitter(emitter -> {
+                        if (emitter instanceof CircleEmitter ce) {
+                            ce.addBurst(new ParticleBurst(0.0f, 300));
+                        }
+                    });
+                }
+            }
+        });
+
         if (ParticleSystem.getInstance().spawnEffect(effect)) {
             testEffects.add(effect);
         }
