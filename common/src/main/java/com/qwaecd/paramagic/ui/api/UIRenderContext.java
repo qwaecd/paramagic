@@ -523,6 +523,18 @@ public final class UIRenderContext {
         this.renderSprite(sprite, (int) x, (int) y);
     }
 
+    public void renderSpriteWithAlpha(Sprite sprite, float x, float y, float alpha) {
+        if (alpha == 1.0f) {
+            this.renderSprite(sprite, x, y);
+        } else {
+            this.backend.enableBlend();
+            this.guiGraphics.setColor(1.0f, 1.0f, 1.0f, alpha);
+            this.renderSprite(sprite, x, y);
+            this.guiGraphics.setColor(1.0f, 1.0f, 1.0f, 1.0f);
+            this.backend.disableBlend();
+        }
+    }
+
     public void renderItem(ItemStack stack, int x, int y) {
         this.backend.renderItem(stack, x, y);
     }

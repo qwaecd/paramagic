@@ -30,7 +30,7 @@ public class WandEditScreen extends MCScreen {
         this.rootNode = new UINode();
         this.playerInv = playerInv;
 
-        this.editUI = new WandEditUI();
+        this.editUI = new WandEditUI(playerInv);
         this.manager = new UIManager(rootNode, super.createTooltipRenderer(), null, this.nativeWidgetHost);
         this.rootNode.addChild(this.editUI);
         if (Paramagic.isDevEnv()) {

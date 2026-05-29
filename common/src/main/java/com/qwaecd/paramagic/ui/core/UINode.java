@@ -581,14 +581,6 @@ public class UINode {
     }
 
     /**
-     * 计算节点在给定父级尺寸下的自然尺寸。当前版本先作为兼容入口，
-     * 后续控件会逐步迁移到更细的 measure hook。
-     */
-    public void measure(float parentW, float parentH) {
-        this.measure(LayoutConstraints.loose(parentW, parentH));
-    }
-
-    /**
      * 计算节点在父级约束下的自然尺寸。
      */
     public MeasureResult measure(LayoutConstraints constraints) {
