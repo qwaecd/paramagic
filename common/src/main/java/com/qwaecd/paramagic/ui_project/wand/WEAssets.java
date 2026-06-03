@@ -64,19 +64,19 @@ public final class WEAssets {
 
     public static final NineSliceSprite SLIDER_LINE =
             NineSliceSprite.builder(WAND_EDIT_RL, texW, texH)
-                    .slice(0, 53, 28, 2, 13)
-                    .slice(1, 55, 28, 11, 13)
+                    .slice(0, 53, 28, 11, 13)
+                    .slice(1, 64, 28, 2, 13)
                     .slice(2, 66, 28, 13, 13)
-                    .slice(3, 53, 41, 2, 11)
-                    .slice(4, 55, 41, 11, 11)
-                    .slice(5, 66, 41, 13, 11)
-                    .slice(6, 53, 52, 2, 2)
-                    .slice(7, 55, 52, 11, 2)
-                    .slice(8, 66, 52, 13, 2)
+                    .slice(3, 53, 41, 11, 2)
+                    .slice(4, 64, 41, 2, 2)
+                    .slice(5, 66, 41, 13, 2)
+                    .slice(6, 53, 43, 11, 11)
+                    .slice(7, 64, 43, 2, 11)
+                    .slice(8, 66, 43, 13, 11)
                     .build();
 
-    public static final Sprite SLIDER_HOR = new Sprite(WAND_EDIT_RL, 83, 58, 7, 12, texW, texH);
-    public static final Sprite SLIDER_VER = new Sprite(WAND_EDIT_RL, 91, 58, 12, 7, texW, texH);
+    public static final Sprite SLIDER_HOR = new Sprite(WAND_EDIT_RL, 91, 58, 12, 7, texW, texH);
+    public static final Sprite SLIDER_VER = new Sprite(WAND_EDIT_RL, 83, 58, 7, 12, texW, texH);
 
     public static final Sprite ARROW_UP = new Sprite(WAND_EDIT_RL, 45, 56, 35, 9, texW, texH);
     public static final Sprite ARROW_DOWN = new Sprite(WAND_EDIT_RL, 45, 66, 35, 9, texW, texH);

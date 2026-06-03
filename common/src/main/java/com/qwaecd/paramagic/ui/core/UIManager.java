@@ -122,7 +122,7 @@ public class UIManager {
 
     public void prepareRender(UIRenderContext context) {
         this.processDeferredTasks(TaskStage.BEFORE_RENDER);
-        this.animationSystem.updateAll(context.deltaTime);
+        this.animationSystem.updateAll(context.getDeltaTime());
     }
 
     public void render(UIRenderContext context) {

@@ -77,14 +77,14 @@ public final class InventoryItemNode extends UINode {
         }
         context.renderSpriteWithAlpha(
                 WEAssets.ITEM_RECT,
-                this.finalRect.x + SLOT_BACKGROUND_OFFSET_X,
-                this.finalRect.y + SLOT_BACKGROUND_OFFSET_Y,
+                Math.round(this.finalRect.x + SLOT_BACKGROUND_OFFSET_X),
+                Math.round(this.finalRect.y + SLOT_BACKGROUND_OFFSET_Y),
                 this.renderAlpha
         );
 
         ItemStack itemStack = this.getRenderingItem();
-        context.renderItem(itemStack, (int) this.finalRect.x, (int) this.finalRect.y);
-        context.renderItemDecorations(itemStack, (int) this.finalRect.x, (int) this.finalRect.y);
+        context.renderItem(itemStack, Math.round(this.finalRect.x), Math.round(this.finalRect.y));
+        context.renderItemDecorations(itemStack, Math.round(this.finalRect.x), Math.round(this.finalRect.y));
         if (this.isHovering) {
             this.renderSlotHighlight(context);
         }
@@ -96,6 +96,10 @@ public final class InventoryItemNode extends UINode {
     }
 
     private void renderSlotHighlight(UIRenderContext context) {
-        context.fillRect(this.finalRect, highLightColor);
+        context.fillRect(
+                Math.round(this.finalRect.x), Math.round(this.finalRect.y),
+                Math.round(this.finalRect.w), Math.round(this.finalRect.h),
+                highLightColor
+        );
     }
 }

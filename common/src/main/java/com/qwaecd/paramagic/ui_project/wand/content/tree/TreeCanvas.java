@@ -11,18 +11,27 @@ import org.jetbrains.annotations.NotNull;
 import javax.annotation.Nonnull;
 
 public final class TreeCanvas extends UINode {
+    private static final float PANEL_PADDING = 10.0f;
+    private static final float SCROLLBAR_THICKNESS = 7.0f;
+
     private float offsetAlpha = 0.6f;
     private float renderAlpha = 0.1f;
 
     private final TreeContent treeContent;
+    private final TreeScrollViewport viewport;
+    private final TreeScrollbarLayer scrollbarLayer;
 
-    private final Rect clipRect = new Rect();
+    private final Rect topScrollbarRect = new Rect();
+    private final Rect rightScrollbarRect = new Rect();
 
     public TreeCanvas() {
         super();
-        this.clipMod = ClipMod.RECT;
-        this.treeContent = new TreeContent();
-        this.addChild(this.treeContent);
+        this.viewport = new TreeScrollViewport();
+        this.scrollbarLayer = new TreeScrollbarLayer();
+
+        this.treeContent = this.viewport.getTreeContent();
+        this.addChild(this.viewport);
+        this.addChild(this.scrollbarLayer);
     }
 
     @Override
@@ -51,26 +60,44 @@ public final class TreeCanvas extends UINode {
     }
 
     @Override
-    protected void arrangeSelf(float parentX, float parentY, float parentW, float parentH) {
-        super.arrangeSelf(parentX, parentY, parentW, parentH);
-        this.clipRect.set(
-                this.finalRect.x + 8.0f, this.finalRect.y + 8.0f,
-                this.finalRect.w - 16.0f, this.finalRect.h - 16.0f
-        );
-    }
-
-    @Override
     protected void arrangeChildren() {
-        Rect rect = this.treeContent.getLayoutRect();
-        rect.setWH(this.treeContent.getMeasuredWidth(), this.treeContent.getMeasuredHeight());
-        rect.setXY(8.0f, 8.0f);
-        this.treeContent.arrange(this.finalRect.x, this.finalRect.y, this.finalRect.w, this.finalRect.h);
-    }
+        final float scrollbarLayerX = PANEL_PADDING;
+        final float scrollbarLayerY = PANEL_PADDING;
+        final float scrollbarLayerW = Math.max(0.0f, this.finalRect.w - PANEL_PADDING * 2.0f);
+        final float scrollbarLayerH = Math.max(0.0f, this.finalRect.h - PANEL_PADDING * 2.0f);
 
-    @Override
-    @Nonnull
-    public Rect getClipRect() {
-        return this.clipRect;
+        float viewportWidth = Math.max(0.0f, scrollbarLayerW - SCROLLBAR_THICKNESS);
+        float viewportHeight = Math.max(0.0f, scrollbarLayerH - SCROLLBAR_THICKNESS);
+        this.topScrollbarRect.set(
+                0.0f,
+                0.0f,
+                viewportWidth,
+                SCROLLBAR_THICKNESS
+        );
+        this.rightScrollbarRect.set(
+                viewportWidth,
+                SCROLLBAR_THICKNESS,
+                SCROLLBAR_THICKNESS,
+                viewportHeight
+        );
+
+        this.scrollbarLayer.updateTrackRectsForLayout(this.topScrollbarRect, this.rightScrollbarRect);
+        this.scrollbarLayer.updateMetricsForLayout(
+                viewportWidth,
+                viewportHeight,
+                this.viewport.getContentWidth(),
+                this.viewport.getContentHeight(),
+                this.viewport.getScrollX(),
+                this.viewport.getScrollY()
+        );
+        this.scrollbarLayer.getLayoutRect().set(scrollbarLayerX, scrollbarLayerY, scrollbarLayerW, scrollbarLayerH);
+        this.scrollbarLayer.arrange(this.finalRect.x, this.finalRect.y, this.finalRect.w, this.finalRect.h);
+
+        final float viewportX = PANEL_PADDING;
+        final float viewportY = PANEL_PADDING + SCROLLBAR_THICKNESS;
+        Rect viewportRect = this.viewport.getLayoutRect();
+        viewportRect.set(viewportX, viewportY, viewportWidth, viewportHeight);
+        this.viewport.arrange(this.finalRect.x, this.finalRect.y, this.finalRect.w, this.finalRect.h);
     }
 
     @Override
@@ -82,12 +109,16 @@ public final class TreeCanvas extends UINode {
         float x = this.finalRect.x + this.finalRect.w / 2.0f * (1.0f - this.offsetAlpha);
         float y = this.finalRect.y + this.finalRect.h / 2.0f * (1.0f - this.offsetAlpha);
         context.renderNineSliceSpriteWithAlpha(
-                WEAssets.RECT_1,
+                WEAssets.SPELL_EDIT_RECT,
                 (int) x,
                 (int) y,
                 (int) (this.finalRect.w * this.offsetAlpha),
                 (int) (this.finalRect.h * this.offsetAlpha),
                 this.renderAlpha
         );
+
+        if (this.isDebugMod()) {
+            this.renderDebug(context);
+        }
     }
 }

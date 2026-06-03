@@ -24,7 +24,7 @@ public final class UIRenderContext {
 
     private final UIRenderBackend backend;
 
-    public float deltaTime;
+    private float deltaTime;
 
     private final Deque<Rect> clipStack;
 
@@ -70,6 +70,10 @@ public final class UIRenderContext {
 
     public GuiGraphics getNative() {
         return this.guiGraphics;
+    }
+
+    public float getDeltaTime() {
+        return this.deltaTime;
     }
 
     public void pushClipRect(@Nonnull Rect rect) {

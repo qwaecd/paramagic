@@ -59,4 +59,32 @@ public final class Rect {
         this.w = w;
         this.h = h;
     }
+
+    public Rect inset(float inset) {
+        return this.inset(inset, new Rect());
+    }
+
+    public Rect inset(float inset, Rect dest) {
+        dest.set(
+                this.x + inset,
+                this.y + inset,
+                Math.max(0.0f, this.w - inset * 2.0f),
+                Math.max(0.0f, this.h - inset * 2.0f)
+        );
+        return dest;
+    }
+
+    public Rect inset(float insetX, float insetY, Rect dest) {
+        dest.set(
+                this.x + insetX,
+                this.y + insetY,
+                Math.max(0.0f, this.w - insetX * 2.0f),
+                Math.max(0.0f, this.h - insetY * 2.0f)
+        );
+        return dest;
+    }
+
+    public Rect inset(float insetX, float insetY) {
+        return this.inset(insetX, insetY, new Rect());
+    }
 }
