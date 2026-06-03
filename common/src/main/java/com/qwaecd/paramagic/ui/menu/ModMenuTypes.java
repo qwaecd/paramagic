@@ -5,10 +5,10 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.MenuType;
 
 public class ModMenuTypes {
-    public static MenuType<SpellEditTableMenu> SPELL_EDIT_TABLE_MENU_TYPE;
+    public static MenuType<SpellEditMenu> SPELL_EDIT_TABLE_MENU_TYPE;
 
     public static void init(RegistryProvider registry) {
-        SPELL_EDIT_TABLE_MENU_TYPE = registry.register("spell_edit_table_menu", SpellEditTableMenu::new);
+        SPELL_EDIT_TABLE_MENU_TYPE = registry.register("spell_edit_table_menu", SpellEditMenu::new);
     }
 
     public interface RegistryProvider {

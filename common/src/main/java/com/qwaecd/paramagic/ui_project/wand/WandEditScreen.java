@@ -6,15 +6,19 @@ import com.qwaecd.paramagic.ui.core.UIManager;
 import com.qwaecd.paramagic.ui.core.UINode;
 import com.qwaecd.paramagic.ui.event.EventPhase;
 import com.qwaecd.paramagic.ui.inventory.InventoryHolder;
-import com.qwaecd.paramagic.ui.screen.MCScreen;
+import com.qwaecd.paramagic.ui.inventory.PlayerInventoryHolder;
+import com.qwaecd.paramagic.ui.menu.SpellEditMenu;
+import com.qwaecd.paramagic.ui.screen.MCContainerScreen;
 import com.qwaecd.paramagic.ui.util.Rect;
 import com.qwaecd.paramagic.ui.widget.UIButton;
 import com.qwaecd.paramagic.ui.widget.UILabel;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.entity.player.Inventory;
 
 import javax.annotation.Nonnull;
 
-public class WandEditScreen extends MCScreen {
+public class WandEditScreen extends MCContainerScreen<SpellEditMenu> {
     private static final Component TITLE = Component.literal("Wand Edit");
 
     @Nonnull
@@ -25,13 +29,21 @@ public class WandEditScreen extends MCScreen {
     public static final float WIDTH = 510.0f;
     public static final float HEIGHT = 300.0f;
 
-    public WandEditScreen(@Nonnull InventoryHolder playerInv) {
-        super(TITLE);
-        this.rootNode = new UINode();
-        this.playerInv = playerInv;
+    public WandEditScreen(@Nonnull SpellEditMenu menu, @Nonnull Inventory inventory, @Nonnull Component title) {
+        this(menu, inventory, title, new PlayerInventoryHolder(inventory), new UINode());
+    }
 
-        this.editUI = new WandEditUI(playerInv);
-        this.manager = new UIManager(rootNode, super.createTooltipRenderer(), null, this.nativeWidgetHost);
+    private WandEditScreen(
+            @Nonnull SpellEditMenu menu,
+            @Nonnull Inventory inventory,
+            @Nonnull Component title,
+            @Nonnull InventoryHolder playerInv,
+            @Nonnull UINode rootNode
+    ) {
+        super(menu, inventory, title, rootNode);
+        this.rootNode = rootNode;
+        this.playerInv = playerInv;
+        this.editUI = new WandEditUI(this.playerInv);
         this.rootNode.addChild(this.editUI);
         if (Paramagic.isDevEnv()) {
             this.addDebugButton(this.rootNode);
@@ -46,6 +58,16 @@ public class WandEditScreen extends MCScreen {
         float y = (windowH - HEIGHT) / 2.0f;
         this.editUI.setLayoutRect(x, y, WIDTH, HEIGHT);
         super.init();
+    }
+
+    @Override
+    protected void renderBg(GuiGraphics guiGraphics, float partialTick, int mouseX, int mouseY) {
+        super.renderBackground(guiGraphics);
+    }
+
+    @Override
+    public SpellEditMenu getMenu() {
+        return this.menu;
     }
 
     private void addDebugButton(UINode rootNode) {

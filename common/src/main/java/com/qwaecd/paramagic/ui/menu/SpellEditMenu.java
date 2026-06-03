@@ -4,11 +4,17 @@ import com.qwaecd.paramagic.Paramagic;
 import com.qwaecd.paramagic.data.para.struct.ParaComponentData;
 import com.qwaecd.paramagic.data.para.struct.ParaData;
 import com.qwaecd.paramagic.network.Networking;
+import com.qwaecd.paramagic.network.packet.inventory.SetOperatorAction;
 import com.qwaecd.paramagic.network.packet.inventory.S2CSubmitEditedParaDataResultPacket;
 import com.qwaecd.paramagic.thaumaturgy.ParaCrystalData;
 import com.qwaecd.paramagic.thaumaturgy.node.ParaTree;
 import com.qwaecd.paramagic.thaumaturgy.operator.OperatorMap;
 import com.qwaecd.paramagic.thaumaturgy.operator.ParaOpId;
+import com.qwaecd.paramagic.thaumaturgy.spelltree.ParaSpellTreeData;
+import com.qwaecd.paramagic.thaumaturgy.spelltree.PlayerOffhandSpellTreeEditTarget;
+import com.qwaecd.paramagic.thaumaturgy.spelltree.SpellNodeData;
+import com.qwaecd.paramagic.thaumaturgy.spelltree.SpellTreeDeletionHandler;
+import com.qwaecd.paramagic.thaumaturgy.spelltree.SpellTreeEditTarget;
 import com.qwaecd.paramagic.tools.nbt.CrystalComponentUtils;
 import com.qwaecd.paramagic.ui.inventory.ContainerHolder;
 import com.qwaecd.paramagic.ui.inventory.PlayerInventoryHolder;
@@ -30,29 +36,60 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.util.ArrayList;
 import java.util.List;
 
-public class SpellEditTableMenu extends AbstractContainerMenu implements SlotActionHandler {
+public class SpellEditMenu extends AbstractContainerMenu implements SlotActionHandler, SpellTreeEditTarget {
     private final ContainerLevelAccess access;
     @Getter
     private final PlayerInventoryHolder playerInventory;
     private final ContainerHolder container;
+    @Nonnull
+    private final SpellTreeEditTarget editTarget;
+    private final SpellTreeDeletionHandler deletionHandler = SpellTreeDeletionHandler.NO_OP;
 
-    public SpellEditTableMenu(int containerId, Inventory inv) {
-        this(containerId, inv, ContainerLevelAccess.NULL, new SimpleContainer(1));
+    public SpellEditMenu(int containerId, Inventory inv) {
+        this(containerId, inv, PlayerOffhandSpellTreeEditTarget.INSTANCE);
     }
 
-    public SpellEditTableMenu(int containerId, Inventory inv, ContainerLevelAccess access, Container container) {
+    public SpellEditMenu(int containerId, Inventory inv, @Nonnull SpellTreeEditTarget editTarget) {
+        this(containerId, inv, ContainerLevelAccess.NULL, new SimpleContainer(1), editTarget);
+    }
+
+    public SpellEditMenu(int containerId, Inventory inv, ContainerLevelAccess access, Container container) {
+        this(containerId, inv, access, container, new SpellTreeEditTarget() {
+            @Override
+            @Nonnull
+            public ItemStack getCrystalStack(@Nonnull ServerPlayer player) {
+                return container.getItem(0);
+            }
+
+            @Override
+            public void markChanged(@Nonnull ServerPlayer player) {
+                container.setChanged();
+            }
+        });
+    }
+
+    private SpellEditMenu(
+            int containerId,
+            Inventory inv,
+            ContainerLevelAccess access,
+            Container container,
+            @Nonnull SpellTreeEditTarget editTarget
+    ) {
         super(ModMenuTypes.SPELL_EDIT_TABLE_MENU_TYPE, containerId);
         this.access = access;
         this.playerInventory = new PlayerInventoryHolder(inv);
+        this.editTarget = editTarget;
 
         container.startOpen(inv.player);
         this.container = new ContainerHolder(container);
         for (int i = 0; i < 4 * 9; i++) {
             this.addSlot(new UISlot(this.playerInventory, i));
         }
-        this.addSlot(new UISlot(this.container, 0, 4 * 9));
+        this.addSlot(new UISlot(this.playerInventory, Inventory.SLOT_OFFHAND, 4 * 9));
     }
 
     @Override
@@ -62,6 +99,18 @@ public class SpellEditTableMenu extends AbstractContainerMenu implements SlotAct
 
     public ContainerHolder getContainer() {
         return this.container;
+    }
+
+    @Override
+    @Nonnull
+    public ItemStack getCrystalStack(@Nonnull ServerPlayer player) {
+        return this.editTarget.getCrystalStack(player);
+    }
+
+    @Override
+    public void markChanged(@Nonnull ServerPlayer player) {
+        this.editTarget.markChanged(player);
+        this.broadcastChanges();
     }
 
     @Override
@@ -80,7 +129,7 @@ public class SpellEditTableMenu extends AbstractContainerMenu implements SlotAct
     @Override
     public void clickNode(ServerPlayer player, String nodePath) {
         ItemStack carried = this.getCarried();
-        ItemStack crystal = this.container.getStackInSlot(0);
+        ItemStack crystal = this.getCrystalStack(player);
 
         boolean success;
         if (CrystalComponentUtils.containsParaOperatorInPath(nodePath, crystal)) {
@@ -90,7 +139,7 @@ public class SpellEditTableMenu extends AbstractContainerMenu implements SlotAct
         }
 
         if (success) {
-            this.container.getContainer().setChanged();
+            this.markChanged(player);
         }
     }
 
@@ -100,7 +149,7 @@ public class SpellEditTableMenu extends AbstractContainerMenu implements SlotAct
     }
 
     public void submitEditedParaData(ServerPlayer player, ParaData paraData, long cacheToken, int cacheVersion) {
-        ItemStack crystal = this.container.getStackInSlot(0);
+        ItemStack crystal = this.getCrystalStack(player);
         if (!(crystal.getItem() instanceof ParaCrystalItem)) {
             this.sendSubmitResult(player, false, cacheToken, cacheVersion);
             return;
@@ -125,9 +174,130 @@ public class SpellEditTableMenu extends AbstractContainerMenu implements SlotAct
         }
 
         CrystalComponentUtils.writeComponentToItemStack(crystal, crystalData);
-        this.container.getContainer().setChanged();
-        this.broadcastChanges();
+        this.markChanged(player);
         this.sendSubmitResult(player, true, cacheToken, cacheVersion);
+    }
+
+    public boolean addSpellTreeNode(
+            @Nonnull ServerPlayer player,
+            int version,
+            @Nonnull String parentNodeId,
+            int childIndex,
+            boolean useCarriedOperator
+    ) {
+        ParaOpId carriedOperatorId = null;
+        if (useCarriedOperator) {
+            carriedOperatorId = this.getCarriedOperatorId();
+            if (carriedOperatorId == null) {
+                return false;
+            }
+        }
+
+        ParaCrystalData crystalData = this.getOrCreateCrystalData(player);
+        if (crystalData == null || !this.isExpectedVersion(crystalData, version)) {
+            return false;
+        }
+
+        try {
+            crystalData.getSpellTreeData().addNode(parentNodeId, childIndex, carriedOperatorId);
+        } catch (IllegalArgumentException e) {
+            Paramagic.LOG.warn("Rejected AddSpellTreeNode from player {}: {}", player.getName().getString(), e.getMessage());
+            return false;
+        }
+
+        if (useCarriedOperator) {
+            this.getCarried().shrink(1);
+        }
+        return this.writeCrystalData(player, crystalData);
+    }
+
+    public boolean deleteSpellTreeSubtree(@Nonnull ServerPlayer player, int version, @Nonnull String nodeId) {
+        ParaCrystalData crystalData = this.getOrCreateCrystalData(player);
+        if (crystalData == null || !this.isExpectedVersion(crystalData, version)) {
+            return false;
+        }
+
+        ParaSpellTreeData treeData = crystalData.getSpellTreeData();
+        if (treeData.getRoot().getNodeId().equals(nodeId)) {
+            return false;
+        }
+        List<SpellNodeData> removedNodes;
+        try {
+            removedNodes = treeData.collectSubtree(nodeId);
+        } catch (IllegalArgumentException e) {
+            return false;
+        }
+
+        this.deletionHandler.onDeleteSubtree(player, player.level(), removedNodes);
+
+        List<SpellNodeData> removedDuringDelete = new ArrayList<>();
+        if (!treeData.deleteSubtree(nodeId, removedDuringDelete)) {
+            return false;
+        }
+        return this.writeCrystalData(player, crystalData);
+    }
+
+    public boolean setSpellTreeNodeOperator(
+            @Nonnull ServerPlayer player,
+            int version,
+            @Nonnull String nodeId,
+            @Nonnull SetOperatorAction action
+    ) {
+        ParaCrystalData crystalData = this.getOrCreateCrystalData(player);
+        if (crystalData == null || !this.isExpectedVersion(crystalData, version)) {
+            return false;
+        }
+
+        ParaOpId operatorId;
+        if (action == SetOperatorAction.CLEAR) {
+            operatorId = null;
+        } else {
+            operatorId = this.getCarriedOperatorId();
+            if (operatorId == null) {
+                return false;
+            }
+        }
+
+        if (!crystalData.getSpellTreeData().setOperator(nodeId, operatorId)) {
+            return false;
+        }
+        if (action == SetOperatorAction.FROM_CARRIED) {
+            this.getCarried().shrink(1);
+        }
+        return this.writeCrystalData(player, crystalData);
+    }
+
+    @Nullable
+    private ParaCrystalData getOrCreateCrystalData(@Nonnull ServerPlayer player) {
+        ItemStack crystal = this.getCrystalStack(player);
+        if (!(crystal.getItem() instanceof ParaCrystalItem)) {
+            return null;
+        }
+        ParaCrystalData crystalData = CrystalComponentUtils.getComponentFromItemStack(crystal);
+        return crystalData == null ? new ParaCrystalData() : crystalData;
+    }
+
+    private boolean writeCrystalData(@Nonnull ServerPlayer player, @Nonnull ParaCrystalData crystalData) {
+        ItemStack crystal = this.getCrystalStack(player);
+        if (!(crystal.getItem() instanceof ParaCrystalItem)) {
+            return false;
+        }
+        CrystalComponentUtils.writeComponentToItemStack(crystal, crystalData);
+        this.markChanged(player);
+        return true;
+    }
+
+    private boolean isExpectedVersion(@Nonnull ParaCrystalData crystalData, int version) {
+        return version == crystalData.getSpellTreeData().getVersion();
+    }
+
+    @Nullable
+    private ParaOpId getCarriedOperatorId() {
+        ItemStack carried = this.getCarried();
+        if (!(carried.getItem() instanceof ParaOperatorItem operatorItem)) {
+            return null;
+        }
+        return operatorItem.getOperatorId();
     }
 
     private boolean targetHasNoItem(String nodePath, ItemStack crystal, ItemStack carried) {

@@ -1,6 +1,7 @@
 package com.qwaecd.paramagic.ui.screen;
 
 import com.qwaecd.paramagic.ui.menu.ModMenuTypes;
+import com.qwaecd.paramagic.ui_project.wand.WandEditScreen;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.MenuAccess;
 import net.minecraft.network.chat.Component;
@@ -10,7 +11,7 @@ import net.minecraft.world.inventory.MenuType;
 
 public final class ModScreens {
     public static void init(RegistryProvider provider) {
-        provider.register(ModMenuTypes.SPELL_EDIT_TABLE_MENU_TYPE, SpellEditTableScreen::new);
+        provider.register(ModMenuTypes.SPELL_EDIT_TABLE_MENU_TYPE, WandEditScreen::new);
     }
 
 
