@@ -3,11 +3,7 @@ package com.qwaecd.paramagic.network;
 import com.qwaecd.paramagic.network.api.PlatformNetworking;
 import com.qwaecd.paramagic.network.handler.ServerSessionHandlers;
 import com.qwaecd.paramagic.network.handler.ServerSlotActionHandler;
-import com.qwaecd.paramagic.network.packet.inventory.C2SAddSpellTreeNodePacket;
-import com.qwaecd.paramagic.network.packet.inventory.C2SClickTreeNodePacket;
-import com.qwaecd.paramagic.network.packet.inventory.C2SDeleteSpellTreeSubtreePacket;
-import com.qwaecd.paramagic.network.packet.inventory.C2SSetSpellTreeNodeOperatorPacket;
-import com.qwaecd.paramagic.network.packet.inventory.C2SSubmitEditedParaDataPacket;
+import com.qwaecd.paramagic.network.packet.inventory.*;
 import com.qwaecd.paramagic.network.packet.session.C2SSessionAttachPacket;
 
 public class Networking {

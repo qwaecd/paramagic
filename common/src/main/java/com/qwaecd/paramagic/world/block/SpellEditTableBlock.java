@@ -2,8 +2,8 @@ package com.qwaecd.paramagic.world.block;
 
 import com.qwaecd.paramagic.thaumaturgy.spelltree.PlayerOffhandSpellTreeEditTarget;
 import com.qwaecd.paramagic.ui.menu.SpellEditMenu;
-import com.qwaecd.paramagic.world.item.content.ParaCrystalItem;
 import com.qwaecd.paramagic.world.block.entity.SpellEditTableBlockEntity;
+import com.qwaecd.paramagic.world.item.content.ParaCrystalItem;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;

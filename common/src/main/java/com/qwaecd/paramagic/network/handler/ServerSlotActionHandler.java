@@ -1,11 +1,7 @@
 package com.qwaecd.paramagic.network.handler;
 
 import com.qwaecd.paramagic.network.api.NetworkContext;
-import com.qwaecd.paramagic.network.packet.inventory.C2SAddSpellTreeNodePacket;
-import com.qwaecd.paramagic.network.packet.inventory.C2SClickTreeNodePacket;
-import com.qwaecd.paramagic.network.packet.inventory.C2SDeleteSpellTreeSubtreePacket;
-import com.qwaecd.paramagic.network.packet.inventory.C2SSetSpellTreeNodeOperatorPacket;
-import com.qwaecd.paramagic.network.packet.inventory.C2SSubmitEditedParaDataPacket;
+import com.qwaecd.paramagic.network.packet.inventory.*;
 import com.qwaecd.paramagic.ui.inventory.slot.SlotActionHandler;
 import com.qwaecd.paramagic.ui.menu.SpellEditMenu;
 import net.minecraft.server.level.ServerPlayer;

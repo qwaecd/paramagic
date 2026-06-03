@@ -2,8 +2,6 @@ package com.qwaecd.paramagic.world.entity.projectile;
 
 import com.qwaecd.paramagic.core.particle.emitter.impl.CircleEmitter;
 import com.qwaecd.paramagic.core.particle.emitter.impl.PointEmitter;
-import com.qwaecd.paramagic.core.particle.emitter.property.type.ParticlePrimitiveTypeStates;
-import com.qwaecd.paramagic.core.particle.emitter.property.type.ParticleShapeFlags;
 import com.qwaecd.paramagic.core.particle.emitter.property.type.VelocityModeStates;
 import com.qwaecd.paramagic.particle.client.shared.BuiltinSharedGPUEffects;
 import com.qwaecd.paramagic.particle.client.shared.SharedGPUEffectRef;

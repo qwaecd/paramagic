@@ -5,10 +5,10 @@ import com.qwaecd.paramagic.network.DataCodec;
 import com.qwaecd.paramagic.network.IDataSerializable;
 import com.qwaecd.paramagic.network.codec.NBTCodec;
 import com.qwaecd.paramagic.thaumaturgy.node.ParaSpellTree;
-import com.qwaecd.paramagic.thaumaturgy.spelltree.ParaSpellTreeData;
 import com.qwaecd.paramagic.thaumaturgy.operator.OperatorMap;
 import com.qwaecd.paramagic.thaumaturgy.operator.ParaOpId;
 import com.qwaecd.paramagic.thaumaturgy.operator.ParaOperator;
+import com.qwaecd.paramagic.thaumaturgy.spelltree.ParaSpellTreeData;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;

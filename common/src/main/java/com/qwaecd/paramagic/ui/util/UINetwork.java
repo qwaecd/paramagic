@@ -2,12 +2,7 @@ package com.qwaecd.paramagic.ui.util;
 
 import com.qwaecd.paramagic.data.para.struct.ParaData;
 import com.qwaecd.paramagic.network.Networking;
-import com.qwaecd.paramagic.network.packet.inventory.C2SAddSpellTreeNodePacket;
-import com.qwaecd.paramagic.network.packet.inventory.C2SClickTreeNodePacket;
-import com.qwaecd.paramagic.network.packet.inventory.C2SDeleteSpellTreeSubtreePacket;
-import com.qwaecd.paramagic.network.packet.inventory.C2SSetSpellTreeNodeOperatorPacket;
-import com.qwaecd.paramagic.network.packet.inventory.C2SSubmitEditedParaDataPacket;
-import com.qwaecd.paramagic.network.packet.inventory.SetOperatorAction;
+import com.qwaecd.paramagic.network.packet.inventory.*;
 import com.qwaecd.paramagic.ui_project.edit_table.cache.ParaEditCache;
 
 import javax.annotation.Nonnull;
