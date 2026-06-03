@@ -55,18 +55,12 @@ public final class InventoryItemNode extends UINode {
     protected void onAttached(@NotNull UIManager manager) {
         this.animateFloat(
                 this.renderAlpha,
-                1.3f,
+                1.0f,
                 0.6f + this.slot * 0.02f,
                 EasingFunction.smoothstep,
                 Interpolation::linear,
-                (v) -> {
-                    if (v >= 0.3f) {
-                        this.renderAlpha = v - 0.3f;
-                    } else {
-                        this.renderAlpha = 0.0f;
-                    }
-                }
-        );
+                (v) -> this.renderAlpha = v <= 0.3f ? 0.0f : v
+        ).setDelay(0.2f);
     }
 
     @Override

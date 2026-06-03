@@ -11,6 +11,7 @@ public abstract class BaseUIAnimator<Self extends BaseUIAnimator<Self>> {
     protected UIAnimatorState state;
     protected float duration;
     protected float elapsedTime;
+    protected float delay = 0.0f;
     protected boolean finished;
 
     protected boolean cycle = false;
@@ -58,6 +59,11 @@ public abstract class BaseUIAnimator<Self extends BaseUIAnimator<Self>> {
             return;
         }
 
+        if (this.delay > 0.0f) {
+            this.delay -= deltaTime;
+            return;
+        }
+
         this.elapsedTime += deltaTime;
 
         final float raw;
@@ -66,7 +72,7 @@ public abstract class BaseUIAnimator<Self extends BaseUIAnimator<Self>> {
         } else {
             raw = this.elapsedTime / this.duration;
         }
-        final float alpha = this.easingFunction.ease(raw);
+        final float alpha = this.easingFunction.ease(Math.min(1.0f, raw));
         this.apply(alpha);
 
         if (raw >= 1.0f) {
@@ -76,6 +82,11 @@ public abstract class BaseUIAnimator<Self extends BaseUIAnimator<Self>> {
             }
             this.complete();
         }
+    }
+
+    public Self setDelay(float delay) {
+        this.delay = Math.max(0.0f, delay);
+        return this.self();
     }
 
     protected abstract void apply(float alpha);

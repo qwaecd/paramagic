@@ -28,11 +28,8 @@ public final class TreeScrollbarLayer extends UINode {
     private float scrollX;
     private float scrollY;
 
-    private float offsetAlpha = 0.2f;
+    private float offsetAlpha = 0.0f;
     private float renderAlpha = 0.0f;
-
-    private float escapedTime = 0.0f;
-    private boolean animatedAlpha = false;
 
     public TreeScrollbarLayer() {
         super();
@@ -42,6 +39,26 @@ public final class TreeScrollbarLayer extends UINode {
 
     @Override
     protected void onAttached(@NotNull UIManager manager) {
+        this.animateFloat(
+                this.offsetAlpha,
+                1.0f,
+                0.8f,
+                EasingFunction.easeOutCubic,
+                Interpolation::linear,
+                (v -> this.offsetAlpha = v)
+        ).setDelay(0.35f);
+        this.animateFloat(
+                this.renderAlpha,
+                1.0f,
+                0.5f,
+                EasingFunction.easeInOutQuad,
+                Interpolation::linear,
+                (v -> {
+                    this.renderAlpha = v;
+                    this.horizontalThumb.setRenderAlpha(v);
+                    this.verticalThumb.setRenderAlpha(v);
+                })
+        ).setDelay(0.35f);
         this.horizontalThumb.setRenderAlpha(this.renderAlpha);
         this.verticalThumb.setRenderAlpha(this.renderAlpha);
     }
@@ -131,30 +148,6 @@ public final class TreeScrollbarLayer extends UINode {
 
     @Override
     protected void renderBackGround(@Nonnull UIRenderContext context) {
-        this.escapedTime += context.getDeltaTime();
-        if (!animatedAlpha && this.escapedTime > 0.35f) {
-            this.animatedAlpha = true;
-            this.animateFloat(
-                    this.offsetAlpha,
-                    1.0f,
-                    0.4f,
-                    EasingFunction.easeOutSine,
-                    Interpolation::linear,
-                    (v -> this.offsetAlpha = v)
-            );
-            this.animateFloat(
-                    this.renderAlpha,
-                    1.0f,
-                    0.4f,
-                    EasingFunction.easeInOutQuad,
-                    Interpolation::linear,
-                    (v -> {
-                        this.renderAlpha = v;
-                        this.horizontalThumb.setRenderAlpha(v);
-                        this.verticalThumb.setRenderAlpha(v);
-                    })
-            );
-        }
         final float x = this.finalRect.x + this.finalRect.w * (1.0f - this.offsetAlpha);
         context.renderNineSliceSpriteWithAlpha(
                 WEAssets.SLIDER_LINE,
