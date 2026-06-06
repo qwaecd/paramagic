@@ -2,6 +2,7 @@ package com.qwaecd.paramagic.tools.anim;
 
 import lombok.experimental.UtilityClass;
 import org.joml.Quaternionf;
+import org.joml.Vector2f;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
 
@@ -26,6 +27,10 @@ public final class Interpolation {
      */
     public static Vector4f linear(Vector4f start, Vector4f end, float alpha, Vector4f dest) {
         return start.lerp(end, alpha, dest);
+    }
+
+    public static Vector2f linear(Vector2f start, Vector2f end, float alpha) {
+        return start.lerp(end, alpha, new Vector2f());
     }
 
     /**

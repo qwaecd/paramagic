@@ -43,7 +43,7 @@ public class WandEditScreen extends MCContainerScreen<SpellEditMenu> {
         super(menu, inventory, title, rootNode);
         this.rootNode = rootNode;
         this.playerInv = playerInv;
-        this.editUI = new WandEditUI(this.playerInv);
+        this.editUI = new WandEditUI(this.playerInv, menu);
         this.rootNode.addChild(this.editUI);
         if (Paramagic.isDevEnv()) {
             this.addDebugButton(this.rootNode);

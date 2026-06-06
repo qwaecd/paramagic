@@ -1,5 +1,6 @@
 package com.qwaecd.paramagic.ui_project.wand.content.tree;
 
+import com.qwaecd.paramagic.thaumaturgy.spelltree.SpellTreeEditTarget;
 import com.qwaecd.paramagic.tools.anim.EasingFunction;
 import com.qwaecd.paramagic.tools.anim.Interpolation;
 import com.qwaecd.paramagic.ui.api.UIRenderContext;
@@ -27,14 +28,14 @@ public final class TreeCanvas extends UINode {
     private final Rect topScrollbarRect = new Rect();
     private final Rect rightScrollbarRect = new Rect();
 
-    public TreeCanvas() {
+    public TreeCanvas(SpellTreeEditTarget editTarget) {
         super();
-        this.viewport = new TreeScrollViewport();
+        this.viewport = new TreeScrollViewport(editTarget);
         this.scrollbarLayer = new TreeScrollbarLayer();
 
         this.treeContent = this.viewport.getTreeContent();
-        this.addChild(this.viewport);
         this.addChild(this.scrollbarLayer);
+        this.addChild(this.viewport);
     }
 
     @Override

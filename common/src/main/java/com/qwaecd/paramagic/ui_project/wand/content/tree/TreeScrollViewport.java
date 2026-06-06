@@ -1,10 +1,20 @@
 package com.qwaecd.paramagic.ui_project.wand.content.tree;
 
-import com.qwaecd.paramagic.ui.core.ClipMod;
-import com.qwaecd.paramagic.ui.core.LayoutConstraints;
-import com.qwaecd.paramagic.ui.core.MeasureResult;
-import com.qwaecd.paramagic.ui.core.UINode;
+import com.qwaecd.paramagic.thaumaturgy.spelltree.SpellTreeEditTarget;
+import com.qwaecd.paramagic.tools.anim.EasingFunction;
+import com.qwaecd.paramagic.tools.anim.Interpolation;
+import com.qwaecd.paramagic.ui.animation.UIAnimator;
+import com.qwaecd.paramagic.ui.api.UIRenderContext;
+import com.qwaecd.paramagic.ui.api.event.AllUIEvents;
+import com.qwaecd.paramagic.ui.api.event.UIEventContext;
+import com.qwaecd.paramagic.ui.core.*;
+import com.qwaecd.paramagic.ui.event.EventPhase;
+import com.qwaecd.paramagic.ui.event.impl.MouseClick;
+import com.qwaecd.paramagic.ui.event.impl.MouseRelease;
+import com.qwaecd.paramagic.ui.io.mouse.MouseStateMachine;
 import com.qwaecd.paramagic.ui.util.Rect;
+import org.jetbrains.annotations.NotNull;
+import org.joml.Vector2f;
 
 import javax.annotation.Nonnull;
 
@@ -15,11 +25,19 @@ public final class TreeScrollViewport extends UINode {
     private float scrollX = 0.0f;
     private float scrollY = 0.0f;
 
-    public TreeScrollViewport() {
+    private static final float MAX_SCROLL_VELOCITY = 30.0f;
+    private static final float SCROLL_STRENGTH = 20.5f;
+    private final Vector2f scrollVelocity = new Vector2f(0.0f, 0.0f);
+
+    private boolean captured = false;
+
+    public TreeScrollViewport(SpellTreeEditTarget editTarget) {
         super();
-        this.treeContent = new TreeContent();
+        this.treeContent = new TreeContent(editTarget);
         this.clipMod = ClipMod.RECT;
-        this.addChild(treeContent);
+        this.addChild(this.treeContent);
+        this.addListener(AllUIEvents.MOUSE_CLICK, EventPhase.BUBBLING, this::onMouseClick);
+        this.addListener(AllUIEvents.MOUSE_RELEASE, EventPhase.BUBBLING, this::onMouseRelease);
     }
 
     @Nonnull
@@ -44,9 +62,64 @@ public final class TreeScrollViewport extends UINode {
     }
 
     public void setScroll(float scrollX, float scrollY) {
-        this.scrollX = Math.max(0.0f, scrollX);
-        this.scrollY = Math.max(0.0f, scrollY);
+        this.scrollX = scrollX;
+        this.scrollY = scrollY;
         this.requestLayout();
+    }
+
+    void setScrollWithAnim(float scrollX, float scrollY, float duration) {
+        UIManager manager = this.getManager();
+        if (manager == null) {
+            return;
+        }
+        manager.removeAnimator(manager.getAnimator(this, "TreeScroll"));
+        UIAnimator<Vector2f> animator = new UIAnimator<>(
+                new Vector2f(this.scrollX, this.scrollY),
+                new Vector2f(scrollX, scrollY),
+                duration,
+                EasingFunction.easeOutSine,
+                Interpolation::linear,
+                v -> this.setScroll(v.x, v.y)
+        );
+        this.animate("TreeScroll", animator);
+    }
+
+    @Override
+    protected void onMouseClick(UIEventContext<MouseClick> context) {
+        if (context.isConsumed()) {
+            return;
+        }
+        UIManager manager = this.getManager();
+        if (manager == null || this.captured) {
+            return;
+        }
+        this.scrollVelocity.set(0.0f);
+        manager.captureNode(this);
+        this.captured = true;
+        context.consume();
+    }
+
+    @Override
+    protected void onMouseRelease(UIEventContext<MouseRelease> context) {
+        if (context.isConsumed()) {
+            return;
+        }
+        UIManager manager = this.getManager();
+        if (manager == null || !this.captured) {
+            return;
+        }
+        manager.releaseCapture();
+        this.captured = false;
+        float x = this.scrollX + Math.min(MAX_SCROLL_VELOCITY, this.scrollVelocity.x) * SCROLL_STRENGTH;
+        float y = this.scrollY + Math.min(MAX_SCROLL_VELOCITY, this.scrollVelocity.y) * SCROLL_STRENGTH;
+        this.setScrollWithAnim(x, y, 0.5f);
+        context.consume();
+    }
+
+    @Override
+    public void onMouseMove(double mouseX, double mouseY, MouseStateMachine mouseState) {
+        this.scrollVelocity.set((float) -mouseState.deltaX(), (float) -mouseState.deltaY());
+        this.setScroll((float) (this.scrollX - mouseState.deltaX()), (float) (this.scrollY - mouseState.deltaY()));
     }
 
     @Override
@@ -65,10 +138,10 @@ public final class TreeScrollViewport extends UINode {
 
     @Override
     protected void arrangeChildren() {
-        float maxScrollX = Math.max(0.0f, this.treeContent.getMeasuredWidth() - this.finalRect.w);
-        float maxScrollY = Math.max(0.0f, this.treeContent.getMeasuredHeight() - this.finalRect.h);
-        this.scrollX = Math.min(this.scrollX, maxScrollX);
-        this.scrollY = Math.min(this.scrollY, maxScrollY);
+//        float maxScrollX = Math.max(0.0f, this.treeContent.getMeasuredWidth() - this.finalRect.w);
+//        float maxScrollY = Math.max(0.0f, this.treeContent.getMeasuredHeight() - this.finalRect.h);
+//        this.scrollX = Math.min(this.scrollX, maxScrollX);
+//        this.scrollY = Math.min(this.scrollY, maxScrollY);
 
         Rect contentRect = this.treeContent.getLayoutRect();
         contentRect.set(
@@ -84,5 +157,9 @@ public final class TreeScrollViewport extends UINode {
     @Nonnull
     protected Rect getClipRect() {
         return this.clipRect;
+    }
+
+    @Override
+    protected void render(@NotNull UIRenderContext context) {
     }
 }
