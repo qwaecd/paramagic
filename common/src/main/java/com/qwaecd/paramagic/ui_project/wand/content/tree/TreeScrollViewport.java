@@ -25,7 +25,6 @@ public final class TreeScrollViewport extends UINode {
     private float scrollX = 0.0f;
     private float scrollY = 0.0f;
 
-    private static final float MAX_SCROLL_VELOCITY = 30.0f;
     private static final float SCROLL_STRENGTH = 20.5f;
     private final Vector2f scrollVelocity = new Vector2f(0.0f, 0.0f);
 
@@ -94,6 +93,7 @@ public final class TreeScrollViewport extends UINode {
             return;
         }
         this.scrollVelocity.set(0.0f);
+        manager.removeAnimator(manager.getAnimator(this, "TreeScroll"));
         manager.captureNode(this);
         this.captured = true;
         context.consume();
@@ -110,9 +110,25 @@ public final class TreeScrollViewport extends UINode {
         }
         manager.releaseCapture();
         this.captured = false;
-        float x = this.scrollX + Math.min(MAX_SCROLL_VELOCITY, this.scrollVelocity.x) * SCROLL_STRENGTH;
-        float y = this.scrollY + Math.min(MAX_SCROLL_VELOCITY, this.scrollVelocity.y) * SCROLL_STRENGTH;
-        this.setScrollWithAnim(x, y, 0.5f);
+        float targetX = this.scrollX + this.scrollVelocity.x * SCROLL_STRENGTH;
+        float targetY = this.scrollY + this.scrollVelocity.y * SCROLL_STRENGTH;
+        float minScrollX = -55.0f;
+        float minScrollY = -45.0f;
+        float maxScrollX = this.treeContent.getMeasuredWidth() + (-minScrollX) - this.finalRect.w;
+        float maxScrollY = this.treeContent.getMeasuredHeight() + (-minScrollY) - this.finalRect.h;
+        targetX = Math.max(minScrollX, Math.min(maxScrollX, targetX));
+        targetY = Math.max(minScrollY, Math.min(maxScrollY, targetY));
+//        if (targetX < minScrollX) {
+//            targetX = minScrollX;
+//        } else if (targetX > maxScrollX) {
+//            targetX = maxScrollX;
+//        }
+//        if (targetY < minScrollY) {
+//            targetY = minScrollY;
+//        } else if (targetY > maxScrollY) {
+//            targetY = maxScrollY;
+//        }
+        this.setScrollWithAnim(targetX, targetY, 0.5f);
         context.consume();
     }
 
