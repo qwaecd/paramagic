@@ -1,6 +1,5 @@
 package com.qwaecd.paramagic.ui_project.wand.content.tree;
 
-import com.qwaecd.paramagic.thaumaturgy.spelltree.SpellTreeEditTarget;
 import com.qwaecd.paramagic.tools.anim.EasingFunction;
 import com.qwaecd.paramagic.tools.anim.Interpolation;
 import com.qwaecd.paramagic.ui.api.UIRenderContext;
@@ -10,6 +9,7 @@ import com.qwaecd.paramagic.ui.core.UIManager;
 import com.qwaecd.paramagic.ui.core.UINode;
 import com.qwaecd.paramagic.ui.util.Rect;
 import com.qwaecd.paramagic.ui_project.wand.WEAssets;
+import com.qwaecd.paramagic.ui_project.wand.SpellTreeEditClientState;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
@@ -28,14 +28,18 @@ public final class TreeCanvas extends UINode {
     private final Rect topScrollbarRect = new Rect();
     private final Rect rightScrollbarRect = new Rect();
 
-    public TreeCanvas(SpellTreeEditTarget editTarget) {
+    public TreeCanvas(@Nonnull SpellTreeEditClientState editState) {
         super();
-        this.viewport = new TreeScrollViewport(editTarget);
+        this.viewport = new TreeScrollViewport(editState);
         this.scrollbarLayer = new TreeScrollbarLayer();
 
         this.treeContent = this.viewport.getTreeContent();
         this.addChild(this.scrollbarLayer);
         this.addChild(this.viewport);
+    }
+
+    public void onTreeDataRebuilt() {
+        this.treeContent.onTreeDataRebuilt();
     }
 
     @Override

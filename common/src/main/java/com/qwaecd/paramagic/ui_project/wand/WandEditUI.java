@@ -1,6 +1,5 @@
 package com.qwaecd.paramagic.ui_project.wand;
 
-import com.qwaecd.paramagic.thaumaturgy.spelltree.SpellTreeEditTarget;
 import com.qwaecd.paramagic.ui.core.UINode;
 import com.qwaecd.paramagic.ui.inventory.InventoryHolder;
 import com.qwaecd.paramagic.ui.util.Rect;
@@ -17,19 +16,23 @@ public final class WandEditUI extends UINode {
     private final HeaderUI headerUI;
     private final InventoryUI inventoryUI;
     private final TreeCanvas treeCanvas;
-    private final SpellTreeEditTarget editTarget;
+    private final SpellTreeEditClientState editState;
 
-    public WandEditUI(@Nonnull InventoryHolder playerInv, SpellTreeEditTarget editTarget) {
+    public WandEditUI(@Nonnull InventoryHolder playerInv, @Nonnull SpellTreeEditClientState editState) {
         super();
         this.playerInv = playerInv;
-        this.editTarget = editTarget;
+        this.editState = editState;
         this.headerUI = new HeaderUI();
         this.inventoryUI = new InventoryUI(this.playerInv);
-        this.treeCanvas = new TreeCanvas(editTarget);
+        this.treeCanvas = new TreeCanvas(editState);
 
         this.addChild(this.headerUI);
         this.addChild(this.inventoryUI);
         this.addChild(this.treeCanvas);
+    }
+
+    public void onTreeDataRebuilt() {
+        this.treeCanvas.onTreeDataRebuilt();
     }
 
     @Override

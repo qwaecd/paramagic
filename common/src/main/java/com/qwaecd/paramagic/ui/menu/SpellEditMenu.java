@@ -4,8 +4,10 @@ import com.qwaecd.paramagic.Paramagic;
 import com.qwaecd.paramagic.data.para.struct.ParaComponentData;
 import com.qwaecd.paramagic.data.para.struct.ParaData;
 import com.qwaecd.paramagic.network.Networking;
+import com.qwaecd.paramagic.network.packet.inventory.S2CSpellTreeEditRejectedPacket;
 import com.qwaecd.paramagic.network.packet.inventory.S2CSubmitEditedParaDataResultPacket;
 import com.qwaecd.paramagic.network.packet.inventory.SetOperatorAction;
+import com.qwaecd.paramagic.network.packet.inventory.SpellTreeEditRejectReason;
 import com.qwaecd.paramagic.thaumaturgy.ParaCrystalData;
 import com.qwaecd.paramagic.thaumaturgy.node.ParaTree;
 import com.qwaecd.paramagic.thaumaturgy.operator.OperatorMap;
@@ -44,6 +46,7 @@ public class SpellEditMenu extends AbstractContainerMenu implements SlotActionHa
     @Nonnull
     private final SpellTreeEditTarget editTarget;
     private final SpellTreeDeletionHandler deletionHandler = SpellTreeDeletionHandler.NO_OP;
+    private int editEpoch = 0;
 
     public SpellEditMenu(int containerId, Inventory inv) {
         this(containerId, inv, PlayerOffhandSpellTreeEditTarget.INSTANCE);
@@ -95,6 +98,16 @@ public class SpellEditMenu extends AbstractContainerMenu implements SlotActionHa
 
     public ContainerHolder getContainer() {
         return this.container;
+    }
+
+    public int getEditEpoch() {
+        return this.editEpoch;
+    }
+
+    public void acceptServerEditEpoch(int editEpoch) {
+        if (editEpoch > this.editEpoch) {
+            this.editEpoch = editEpoch;
+        }
     }
 
     @Override
@@ -176,21 +189,41 @@ public class SpellEditMenu extends AbstractContainerMenu implements SlotActionHa
 
     public boolean addSpellTreeNode(
             @Nonnull ServerPlayer player,
-            int version,
+            int editEpoch,
+            int baseVersion,
+            @Nonnull String expectedNodeId,
             @Nonnull String parentNodeId,
             int childIndex,
             boolean useCarriedOperator
     ) {
+        if (!this.isExpectedEpoch(player, editEpoch)) {
+            return false;
+        }
+
         ParaOpId carriedOperatorId = null;
         if (useCarriedOperator) {
             carriedOperatorId = this.getCarriedOperatorId();
             if (carriedOperatorId == null) {
+                this.rejectSpellTreeEdit(player, SpellTreeEditRejectReason.INVALID_RESOURCE, -1);
                 return false;
             }
         }
 
         ParaCrystalData crystalData = this.getOrCreateCrystalData(player);
-        if (crystalData == null || !this.isExpectedVersion(crystalData, version)) {
+        if (crystalData == null) {
+            this.rejectSpellTreeEdit(player, SpellTreeEditRejectReason.INVALID_TARGET, -1);
+            return false;
+        }
+        if (!this.isExpectedVersion(crystalData, baseVersion)) {
+            this.rejectSpellTreeEdit(player, SpellTreeEditRejectReason.STALE_VERSION, crystalData.getSpellTreeData().getVersion());
+            return false;
+        }
+        if (!crystalData.getSpellTreeData().peekNextNodeId().equals(expectedNodeId)) {
+            this.rejectSpellTreeEdit(
+                    player,
+                    SpellTreeEditRejectReason.PREDICTED_NODE_ID_MISMATCH,
+                    crystalData.getSpellTreeData().getVersion()
+            );
             return false;
         }
 
@@ -198,29 +231,50 @@ public class SpellEditMenu extends AbstractContainerMenu implements SlotActionHa
             crystalData.getSpellTreeData().addNode(parentNodeId, childIndex, carriedOperatorId);
         } catch (IllegalArgumentException e) {
             Paramagic.LOG.warn("Rejected AddSpellTreeNode from player {}: {}", player.getName().getString(), e.getMessage());
+            this.rejectSpellTreeEdit(player, SpellTreeEditRejectReason.INVALID_NODE, crystalData.getSpellTreeData().getVersion());
             return false;
         }
 
         if (useCarriedOperator) {
             this.getCarried().shrink(1);
         }
-        return this.writeCrystalData(player, crystalData);
+        boolean success = this.writeCrystalData(player, crystalData);
+        if (!success) {
+            this.rejectSpellTreeEdit(player, SpellTreeEditRejectReason.INVALID_TARGET, -1);
+        }
+        return success;
     }
 
-    public boolean deleteSpellTreeSubtree(@Nonnull ServerPlayer player, int version, @Nonnull String nodeId) {
+    public boolean deleteSpellTreeSubtree(
+            @Nonnull ServerPlayer player,
+            int editEpoch,
+            int baseVersion,
+            @Nonnull String nodeId
+    ) {
+        if (!this.isExpectedEpoch(player, editEpoch)) {
+            return false;
+        }
+
         ParaCrystalData crystalData = this.getOrCreateCrystalData(player);
-        if (crystalData == null || !this.isExpectedVersion(crystalData, version)) {
+        if (crystalData == null) {
+            this.rejectSpellTreeEdit(player, SpellTreeEditRejectReason.INVALID_TARGET, -1);
+            return false;
+        }
+        if (!this.isExpectedVersion(crystalData, baseVersion)) {
+            this.rejectSpellTreeEdit(player, SpellTreeEditRejectReason.STALE_VERSION, crystalData.getSpellTreeData().getVersion());
             return false;
         }
 
         ParaSpellTreeData treeData = crystalData.getSpellTreeData();
         if (treeData.getRoot().getNodeId().equals(nodeId)) {
+            this.rejectSpellTreeEdit(player, SpellTreeEditRejectReason.INVALID_NODE, treeData.getVersion());
             return false;
         }
         List<SpellNodeData> removedNodes;
         try {
             removedNodes = treeData.collectSubtree(nodeId);
         } catch (IllegalArgumentException e) {
+            this.rejectSpellTreeEdit(player, SpellTreeEditRejectReason.INVALID_NODE, treeData.getVersion());
             return false;
         }
 
@@ -228,19 +282,34 @@ public class SpellEditMenu extends AbstractContainerMenu implements SlotActionHa
 
         List<SpellNodeData> removedDuringDelete = new ArrayList<>();
         if (!treeData.deleteSubtree(nodeId, removedDuringDelete)) {
+            this.rejectSpellTreeEdit(player, SpellTreeEditRejectReason.INVALID_NODE, treeData.getVersion());
             return false;
         }
-        return this.writeCrystalData(player, crystalData);
+        boolean success = this.writeCrystalData(player, crystalData);
+        if (!success) {
+            this.rejectSpellTreeEdit(player, SpellTreeEditRejectReason.INVALID_TARGET, -1);
+        }
+        return success;
     }
 
     public boolean setSpellTreeNodeOperator(
             @Nonnull ServerPlayer player,
-            int version,
+            int editEpoch,
+            int baseVersion,
             @Nonnull String nodeId,
             @Nonnull SetOperatorAction action
     ) {
+        if (!this.isExpectedEpoch(player, editEpoch)) {
+            return false;
+        }
+
         ParaCrystalData crystalData = this.getOrCreateCrystalData(player);
-        if (crystalData == null || !this.isExpectedVersion(crystalData, version)) {
+        if (crystalData == null) {
+            this.rejectSpellTreeEdit(player, SpellTreeEditRejectReason.INVALID_TARGET, -1);
+            return false;
+        }
+        if (!this.isExpectedVersion(crystalData, baseVersion)) {
+            this.rejectSpellTreeEdit(player, SpellTreeEditRejectReason.STALE_VERSION, crystalData.getSpellTreeData().getVersion());
             return false;
         }
 
@@ -250,17 +319,23 @@ public class SpellEditMenu extends AbstractContainerMenu implements SlotActionHa
         } else {
             operatorId = this.getCarriedOperatorId();
             if (operatorId == null) {
+                this.rejectSpellTreeEdit(player, SpellTreeEditRejectReason.INVALID_RESOURCE, crystalData.getSpellTreeData().getVersion());
                 return false;
             }
         }
 
         if (!crystalData.getSpellTreeData().setOperator(nodeId, operatorId)) {
+            this.rejectSpellTreeEdit(player, SpellTreeEditRejectReason.INVALID_NODE, crystalData.getSpellTreeData().getVersion());
             return false;
         }
         if (action == SetOperatorAction.FROM_CARRIED) {
             this.getCarried().shrink(1);
         }
-        return this.writeCrystalData(player, crystalData);
+        boolean success = this.writeCrystalData(player, crystalData);
+        if (!success) {
+            this.rejectSpellTreeEdit(player, SpellTreeEditRejectReason.INVALID_TARGET, -1);
+        }
+        return success;
     }
 
     @Nullable
@@ -285,6 +360,28 @@ public class SpellEditMenu extends AbstractContainerMenu implements SlotActionHa
 
     private boolean isExpectedVersion(@Nonnull ParaCrystalData crystalData, int version) {
         return version == crystalData.getSpellTreeData().getVersion();
+    }
+
+    private boolean isExpectedEpoch(@Nonnull ServerPlayer player, int editEpoch) {
+        if (editEpoch == this.editEpoch) {
+            return true;
+        }
+        Paramagic.LOG.debug(
+                "Dropped stale spell tree edit packet from player {}: packetEpoch={}, currentEpoch={}.",
+                player.getName().getString(),
+                editEpoch,
+                this.editEpoch
+        );
+        return false;
+    }
+
+    private void rejectSpellTreeEdit(
+            @Nonnull ServerPlayer player,
+            @Nonnull SpellTreeEditRejectReason reason,
+            int serverVersion
+    ) {
+        this.editEpoch++;
+        Networking.get().sendToPlayer(player, new S2CSpellTreeEditRejectedPacket(this.editEpoch, serverVersion, reason));
     }
 
     @Nullable

@@ -10,17 +10,29 @@ import javax.annotation.Nonnull;
 public class C2SDeleteSpellTreeSubtreePacket implements Packet<C2SDeleteSpellTreeSubtreePacket> {
     public static final PacketIdentifier IDENTIFIER = PacketIdentifier.handledInServer(ModRL.inModSpace("delete_spell_tree_subtree"));
 
-    private final int version;
+    private final int editEpoch;
+    private final int seq;
+    private final int baseVersion;
     @Nonnull
     private final String nodeId;
 
-    public C2SDeleteSpellTreeSubtreePacket(int version, @Nonnull String nodeId) {
-        this.version = version;
+    public C2SDeleteSpellTreeSubtreePacket(int editEpoch, int seq, int baseVersion, @Nonnull String nodeId) {
+        this.editEpoch = editEpoch;
+        this.seq = seq;
+        this.baseVersion = baseVersion;
         this.nodeId = nodeId;
     }
 
-    public int getVersion() {
-        return this.version;
+    public int getEditEpoch() {
+        return this.editEpoch;
+    }
+
+    public int getSeq() {
+        return this.seq;
+    }
+
+    public int getBaseVersion() {
+        return this.baseVersion;
     }
 
     @Nonnull
@@ -30,14 +42,18 @@ public class C2SDeleteSpellTreeSubtreePacket implements Packet<C2SDeleteSpellTre
 
     @Override
     public void encode(DataCodec codec) {
-        codec.writeInt("version", this.version);
+        codec.writeInt("editEpoch", this.editEpoch);
+        codec.writeInt("seq", this.seq);
+        codec.writeInt("baseVersion", this.baseVersion);
         codec.writeString("nodeId", this.nodeId);
     }
 
     public static C2SDeleteSpellTreeSubtreePacket decode(DataCodec codec) {
-        int version = codec.readInt("version");
+        int editEpoch = codec.readInt("editEpoch");
+        int seq = codec.readInt("seq");
+        int baseVersion = codec.readInt("baseVersion");
         String nodeId = codec.readString("nodeId");
-        return new C2SDeleteSpellTreeSubtreePacket(version, nodeId);
+        return new C2SDeleteSpellTreeSubtreePacket(editEpoch, seq, baseVersion, nodeId);
     }
 
     @Override

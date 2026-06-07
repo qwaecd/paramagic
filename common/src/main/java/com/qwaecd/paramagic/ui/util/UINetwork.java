@@ -18,28 +18,36 @@ public final class UINetwork {
     }
 
     public static void sendAddSpellTreeNode(
-            int version,
+            int editEpoch,
+            int seq,
+            int baseVersion,
+            @Nonnull String expectedNodeId,
             @Nonnull String parentNodeId,
             int childIndex,
             boolean useCarriedOperator
     ) {
         Networking.get().sendToServer(new C2SAddSpellTreeNodePacket(
-                version,
+                editEpoch,
+                seq,
+                baseVersion,
+                expectedNodeId,
                 parentNodeId,
                 childIndex,
                 useCarriedOperator
         ));
     }
 
-    public static void sendDeleteSpellTreeSubtree(int version, @Nonnull String nodeId) {
-        Networking.get().sendToServer(new C2SDeleteSpellTreeSubtreePacket(version, nodeId));
+    public static void sendDeleteSpellTreeSubtree(int editEpoch, int seq, int baseVersion, @Nonnull String nodeId) {
+        Networking.get().sendToServer(new C2SDeleteSpellTreeSubtreePacket(editEpoch, seq, baseVersion, nodeId));
     }
 
     public static void sendSetSpellTreeNodeOperator(
-            int version,
+            int editEpoch,
+            int seq,
+            int baseVersion,
             @Nonnull String nodeId,
             @Nonnull SetOperatorAction action
     ) {
-        Networking.get().sendToServer(new C2SSetSpellTreeNodeOperatorPacket(version, nodeId, action));
+        Networking.get().sendToServer(new C2SSetSpellTreeNodeOperatorPacket(editEpoch, seq, baseVersion, nodeId, action));
     }
 }

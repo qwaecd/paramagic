@@ -58,7 +58,9 @@ public class ServerSlotActionHandler {
         if (Objects.requireNonNull(player).containerMenu instanceof SpellEditMenu menu) {
             menu.addSpellTreeNode(
                     player,
-                    packet.getVersion(),
+                    packet.getEditEpoch(),
+                    packet.getBaseVersion(),
+                    packet.getExpectedNodeId(),
                     packet.getParentNodeId(),
                     packet.getChildIndex(),
                     packet.isUseCarriedOperator()
@@ -72,7 +74,7 @@ public class ServerSlotActionHandler {
             return;
         }
         if (Objects.requireNonNull(player).containerMenu instanceof SpellEditMenu menu) {
-            menu.deleteSpellTreeSubtree(player, packet.getVersion(), packet.getNodeId());
+            menu.deleteSpellTreeSubtree(player, packet.getEditEpoch(), packet.getBaseVersion(), packet.getNodeId());
         }
     }
 
@@ -82,7 +84,13 @@ public class ServerSlotActionHandler {
             return;
         }
         if (Objects.requireNonNull(player).containerMenu instanceof SpellEditMenu menu) {
-            menu.setSpellTreeNodeOperator(player, packet.getVersion(), packet.getNodeId(), packet.getAction());
+            menu.setSpellTreeNodeOperator(
+                    player,
+                    packet.getEditEpoch(),
+                    packet.getBaseVersion(),
+                    packet.getNodeId(),
+                    packet.getAction()
+            );
         }
     }
 }

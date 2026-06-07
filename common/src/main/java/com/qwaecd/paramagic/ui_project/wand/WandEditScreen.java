@@ -12,6 +12,7 @@ import com.qwaecd.paramagic.ui.screen.MCContainerScreen;
 import com.qwaecd.paramagic.ui.util.Rect;
 import com.qwaecd.paramagic.ui.widget.UIButton;
 import com.qwaecd.paramagic.ui.widget.UILabel;
+import com.qwaecd.paramagic.network.packet.inventory.S2CSpellTreeEditRejectedPacket;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
@@ -19,11 +20,10 @@ import net.minecraft.world.entity.player.Inventory;
 import javax.annotation.Nonnull;
 
 public class WandEditScreen extends MCContainerScreen<SpellEditMenu> {
-    private static final Component TITLE = Component.literal("Wand Edit");
-
     @Nonnull
     private final InventoryHolder playerInv;
     private final UINode rootNode;
+    private final SpellTreeEditClientState editState;
     private final WandEditUI editUI;
 
     public static final float WIDTH = 510.0f;
@@ -43,7 +43,8 @@ public class WandEditScreen extends MCContainerScreen<SpellEditMenu> {
         super(menu, inventory, title, rootNode);
         this.rootNode = rootNode;
         this.playerInv = playerInv;
-        this.editUI = new WandEditUI(this.playerInv, menu);
+        this.editState = new SpellTreeEditClientState(this.playerInv, menu.getEditEpoch());
+        this.editUI = new WandEditUI(this.playerInv, this.editState);
         this.rootNode.addChild(this.editUI);
         if (Paramagic.isDevEnv()) {
             this.addDebugButton(this.rootNode);
@@ -65,9 +66,15 @@ public class WandEditScreen extends MCContainerScreen<SpellEditMenu> {
         super.renderBackground(guiGraphics);
     }
 
-    @Override
-    public SpellEditMenu getMenu() {
-        return this.menu;
+    @Nonnull
+    public SpellTreeEditClientState getEditState() {
+        return this.editState;
+    }
+
+    public void handleSpellTreeEditRejected(@Nonnull S2CSpellTreeEditRejectedPacket packet) {
+        if (this.editState.acceptRejectedEdit(packet.getEditEpoch())) {
+            this.editUI.onTreeDataRebuilt();
+        }
     }
 
     private void addDebugButton(UINode rootNode) {

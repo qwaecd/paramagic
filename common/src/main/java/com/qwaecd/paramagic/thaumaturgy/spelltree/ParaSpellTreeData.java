@@ -51,6 +51,11 @@ public class ParaSpellTreeData implements IDataSerializable {
     }
 
     @Nonnull
+    public String peekNextNodeId() {
+        return "n" + this.nextNodeSeq;
+    }
+
+    @Nonnull
     public SpellNodeData addNode(@Nonnull String parentNodeId, int childIndex, @Nullable ParaOpId operatorId) {
         SpellNodeData parent = this.requireNode(parentNodeId);
         SpellNodeData child = new SpellNodeData(this.nextNodeId(), operatorId, List.of());

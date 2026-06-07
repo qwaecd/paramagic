@@ -1,6 +1,5 @@
 package com.qwaecd.paramagic.ui_project.wand.content.tree;
 
-import com.qwaecd.paramagic.thaumaturgy.spelltree.SpellTreeEditTarget;
 import com.qwaecd.paramagic.tools.anim.EasingFunction;
 import com.qwaecd.paramagic.tools.anim.Interpolation;
 import com.qwaecd.paramagic.ui.animation.UIAnimator;
@@ -13,6 +12,7 @@ import com.qwaecd.paramagic.ui.event.impl.MouseClick;
 import com.qwaecd.paramagic.ui.event.impl.MouseRelease;
 import com.qwaecd.paramagic.ui.io.mouse.MouseStateMachine;
 import com.qwaecd.paramagic.ui.util.Rect;
+import com.qwaecd.paramagic.ui_project.wand.SpellTreeEditClientState;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Vector2f;
 
@@ -30,9 +30,9 @@ public final class TreeScrollViewport extends UINode {
 
     private boolean captured = false;
 
-    public TreeScrollViewport(SpellTreeEditTarget editTarget) {
+    public TreeScrollViewport(@Nonnull SpellTreeEditClientState editState) {
         super();
-        this.treeContent = new TreeContent(editTarget);
+        this.treeContent = new TreeContent(editState);
         this.clipMod = ClipMod.RECT;
         this.addChild(this.treeContent);
         this.addListener(AllUIEvents.MOUSE_CLICK, EventPhase.BUBBLING, this::onMouseClick);
