@@ -26,7 +26,7 @@ public class TreeNode extends UINode {
     protected SubTreeState state;
 
     @Nullable
-    protected TreeNode expendedSubNode = null;
+    protected TreeNode expandedSubNode = null;
 
     protected final HiddenSubTreeNode hiddenSubTreeNode;
 
@@ -54,8 +54,6 @@ public class TreeNode extends UINode {
     public void createSubTree(TreeNode subNode) {
         this.subNode.add(subNode);
         this.addChild(subNode);
-        this.expendedSubNode = subNode;
-        this.expandSubTree();
     }
 
     public void appendTreeNode(TreeNode node) {
@@ -75,7 +73,7 @@ public class TreeNode extends UINode {
 
         this.hiddenSubTreeNode.disable();
         if (this.subNode.isEmpty()) {
-            this.expendedSubNode = null;
+            this.expandedSubNode = null;
             this.state = SubTreeState.ADDABLE;
             return;
         }
@@ -85,7 +83,7 @@ public class TreeNode extends UINode {
             nextExpandedNode = expandedPath.get(pathIndex + 1);
         }
 
-        this.expendedSubNode = nextExpandedNode;
+        this.expandedSubNode = nextExpandedNode;
         this.state = SubTreeState.EXPANDED;
 
         for (TreeNode child : this.subNode) {
@@ -99,7 +97,7 @@ public class TreeNode extends UINode {
     }
 
     protected void collapseForSingleExpandedPath() {
-        this.expendedSubNode = null;
+        this.expandedSubNode = null;
 
         if (this.subNode.isEmpty()) {
             this.state = SubTreeState.ADDABLE;
@@ -122,27 +120,6 @@ public class TreeNode extends UINode {
 
     public boolean isLastNode() {
         return this.isLastNode;
-    }
-
-    public void expandSubTree() {
-        this.hiddenSubTreeNode.disable();
-        for (TreeNode node : this.subNode) {
-            node.enableWithoutLayout();
-        }
-        this.state = SubTreeState.EXPANDED;
-    }
-
-    public void foldSubTree() {
-        if (this.state == SubTreeState.ADDABLE) {
-            return;
-        }
-        for (TreeNode node : this.subNode) {
-            node.foldSubTree();
-            node.disableWithoutLayout();
-        }
-        this.expendedSubNode = null;
-        this.state = SubTreeState.HIDDEN;
-        this.hiddenSubTreeNode.enable();
     }
 
     protected void enableWithoutLayout() {

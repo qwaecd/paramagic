@@ -1,10 +1,13 @@
 package com.qwaecd.paramagic.ui_project.wand.content.tree;
 
+import com.qwaecd.paramagic.tools.anim.EasingFunction;
+import com.qwaecd.paramagic.tools.anim.Interpolation;
 import com.qwaecd.paramagic.ui.api.UIRenderContext;
 import com.qwaecd.paramagic.ui.api.event.AllUIEvents;
 import com.qwaecd.paramagic.ui.api.event.UIEventContext;
 import com.qwaecd.paramagic.ui.core.LayoutConstraints;
 import com.qwaecd.paramagic.ui.core.MeasureResult;
+import com.qwaecd.paramagic.ui.core.UIManager;
 import com.qwaecd.paramagic.ui.core.UINode;
 import com.qwaecd.paramagic.ui.event.EventPhase;
 import com.qwaecd.paramagic.ui.event.impl.DoubleClick;
@@ -19,12 +22,26 @@ import java.util.List;
 
 public final class RootTreeNode extends TreeNode {
 
+    private float renderAlpha = 0.0f;
+
     public RootTreeNode() {
         super();
         this.state = SubTreeState.EXPANDED;
 
         this.addListener(AllUIEvents.MOUSE_CLICK, EventPhase.BUBBLING, this::handleChildClick);
         this.addListener(AllUIEvents.MOUSE_DOUBLE_CLICK, EventPhase.BUBBLING, this::handleChildDoubleClick);
+    }
+
+    @Override
+    protected void onAttached(@NotNull UIManager manager) {
+        this.animateFloat(
+                this.renderAlpha,
+                1.0f,
+                0.4f,
+                EasingFunction.easeInOutQuad,
+                Interpolation::linear,
+                (v -> this.renderAlpha = v)
+        ).setDelay(0.3f);
     }
 
     @Override
@@ -101,14 +118,6 @@ public final class RootTreeNode extends TreeNode {
     }
 
     @Override
-    public void expandSubTree() {
-    }
-
-    @Override
-    public void foldSubTree() {
-    }
-
-    @Override
     protected MeasureResult measureSelf(LayoutConstraints constraints) {
         float w = WEAssets.ITEM_RECT.width;
         float h = WEAssets.ITEM_RECT.height;
@@ -134,12 +143,16 @@ public final class RootTreeNode extends TreeNode {
 
     @Override
     protected void render(@NotNull UIRenderContext context) {
-        context.renderSprite(WEAssets.ITEM_RECT, this.finalRect.x, this.finalRect.y);
+        if (this.renderAlpha <= 0.0f) {
+            return;
+        }
+        context.renderSpriteWithAlpha(WEAssets.ITEM_RECT, this.finalRect.x, this.finalRect.y, this.renderAlpha);
         if (this.isLastNode()) {
-            context.renderSprite(
+            context.renderSpriteWithAlpha(
                     WEAssets.ADD_NODE_RIGHT,
                     this.finalRect.x + WEAssets.ITEM_RECT.width + ADD_NODE_GAP,
-                    this.finalRect.y + (WEAssets.ITEM_RECT.height - WEAssets.ADD_NODE_RIGHT.height) / 2.0f
+                    this.finalRect.y + (WEAssets.ITEM_RECT.height - WEAssets.ADD_NODE_RIGHT.height) / 2.0f,
+                    this.renderAlpha
             );
         }
     }
