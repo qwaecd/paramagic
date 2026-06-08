@@ -29,6 +29,10 @@ public final class Rect {
         return new Rect(v.x, v.y, v.z, v.w);
     }
 
+    public boolean contains(float px, float py) {
+        return px >= this.x && px < this.x + this.w && py >= this.y && py < this.y + this.h;
+    }
+
     public void set(float x, float y, float w, float h) {
         this.x = x;
         this.y = y;

@@ -82,4 +82,9 @@ public final class WEAssets {
     public static final Sprite ARROW_DOWN = new Sprite(WAND_EDIT_RL, 45, 66, 35, 9, texW, texH);
 
     public static final Sprite ITEM_RECT = new Sprite(WAND_EDIT_RL, 1, 53, 20, 20, texW, texH);
+
+    public static final Sprite CHAIN = new Sprite(WAND_EDIT_RL, 106, 57, 6, 10, texW, texH);
+    public static final Sprite ADD_NODE_DOWN = new Sprite(WAND_EDIT_RL, 25, 52, 16, 11, texW, texH);
+    public static final Sprite ADD_NODE_RIGHT = new Sprite(WAND_EDIT_RL, 106, 34, 11, 16, texW, texH);
+    public static final Sprite HIDDEN_NODE = new Sprite(WAND_EDIT_RL, 23, 65, 20, 10, texW, texH);
 }

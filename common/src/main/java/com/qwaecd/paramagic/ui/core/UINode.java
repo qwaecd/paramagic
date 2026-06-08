@@ -614,6 +614,7 @@ public class UINode {
         this.measureResult = result;
         this.measuredWidth = result.getWidth();
         this.measuredHeight = result.getHeight();
+        this.layoutRect.setWH(this.measuredWidth, this.measuredHeight);
     }
 
     /**
@@ -667,12 +668,16 @@ public class UINode {
             this.renderDebug(context);
         }
 
-        for (UINode child : this.children) {
-            child.renderTree(context);
-        }
+        this.renderChildrenTree(context);
 
         if (hasClip) {
             context.popClipRect();
+        }
+    }
+
+    protected void renderChildrenTree(UIRenderContext context) {
+        for (UINode child : this.children) {
+            child.renderTree(context);
         }
     }
 

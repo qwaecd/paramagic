@@ -16,9 +16,14 @@ public final class TreeContent extends UINode {
     @Nonnull
     private final SpellTreeEditClientState editState;
 
+    private final RootTreeNode rootTreeNode;
+
     public TreeContent(@Nonnull SpellTreeEditClientState editState) {
         super();
         this.editState = editState;
+        this.rootTreeNode = new RootTreeNode();
+
+        this.addChild(this.rootTreeNode);
     }
 
     public void onTreeDataRebuilt() {
@@ -31,7 +36,12 @@ public final class TreeContent extends UINode {
     }
 
     @Override
+    protected void arrangeChildren() {
+        super.arrangeChildren();
+    }
+
+    @Override
     protected void render(@NotNull UIRenderContext context) {
-        context.fillRect(this.finalRect, UIColor.WHITE);
+//        context.fillRect(this.finalRect, UIColor.WHITE);
     }
 }
