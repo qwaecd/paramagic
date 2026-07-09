@@ -160,7 +160,7 @@ public class ColorRgbaEditorNode extends UINode {
         int pureHue = UIColor.fromRGBA4f(hueColor.x, hueColor.y, hueColor.z, 1.0f);
 
         // SV 主选色面板：先画当前 hue 的纯色底图。
-        context.drawQuad(worldSv, pureHue);
+        context.fillRect(worldSv, pureHue);
         // 再叠加一层从左到右的白色 -> 透明渐变，用来降低 saturation。
         context.fillBilinearGradient(
                 worldSv,
@@ -195,7 +195,7 @@ public class ColorRgbaEditorNode extends UINode {
         // 预览块底部的棋盘格背景。
         renderCheckerboard(context, worldPreview, 4);
         // 当前颜色预览块本体。
-        context.drawQuad(worldPreview, UIColor.fromRGBA4f(this.rgba.x, this.rgba.y, this.rgba.z, this.rgba.w));
+        context.fillRect(worldPreview, UIColor.fromRGBA4f(this.rgba.x, this.rgba.y, this.rgba.z, this.rgba.w));
         context.renderOutline(worldPreview, OUTLINE_COLOR);
 
         // 三处交互指示器：SV 圆框、Hue 横线、Alpha 竖线。
@@ -386,7 +386,7 @@ public class ColorRgbaEditorNode extends UINode {
                 float y = rect.y + row * cellSize;
                 float w = Math.min(cellSize, rect.x + rect.w - x);
                 float h = Math.min(cellSize, rect.y + rect.h - y);
-                context.fill(x, y, x + w, y + h, color);
+                context.fillBounds(x, y, x + w, y + h, color);
             }
         }
     }

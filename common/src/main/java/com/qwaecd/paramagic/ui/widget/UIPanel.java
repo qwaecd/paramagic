@@ -1,8 +1,11 @@
 package com.qwaecd.paramagic.ui.widget;
 
+import com.qwaecd.paramagic.ui.core.LayoutConstraints;
+import com.qwaecd.paramagic.ui.core.MeasureResult;
 import com.qwaecd.paramagic.ui.core.UINode;
 import com.qwaecd.paramagic.ui.widget.node.ItemNode;
 
+import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -81,6 +84,15 @@ public class UIPanel extends UINode {
     }
 
     @Override
+    protected MeasureResult measureSelf(@Nonnull LayoutConstraints constraints) {
+        if (!this.items.isEmpty()) {
+            this.updatePanelSize();
+            this.layoutItemNodes();
+        }
+        return MeasureResult.of(this.localRect.w, this.localRect.h);
+    }
+
+    @Override
     public void layout(float parentX, float parentY, float parentW, float parentH) {
         if (!this.items.isEmpty()) {
             this.updatePanelSize();
@@ -95,6 +107,7 @@ public class UIPanel extends UINode {
     public void updateContent() {
         this.updatePanelSize();
         this.layoutItemNodes();
+        this.requestMeasure();
     }
 
     protected void updatePanelSize() {

@@ -12,7 +12,7 @@ import com.qwaecd.paramagic.ui.event.EventPhase;
 import com.qwaecd.paramagic.ui.inventory.ContainerHolder;
 import com.qwaecd.paramagic.ui.inventory.InventoryHolder;
 import com.qwaecd.paramagic.ui.inventory.slot.UISlot;
-import com.qwaecd.paramagic.ui.menu.SpellEditTableMenu;
+import com.qwaecd.paramagic.ui.menu.SpellEditMenu;
 import com.qwaecd.paramagic.ui.util.Rect;
 import com.qwaecd.paramagic.ui.widget.UIButton;
 import com.qwaecd.paramagic.ui.widget.UILabel;
@@ -61,7 +61,7 @@ public class SpellEditTableUI extends UINode {
         InventoryHolder inventory = Objects.requireNonNull(menu, "menu couldn't be null.").getPlayerInventory();
         int inventorySize = this.crystalSelectBar.initInventory(inventory);
 
-        ContainerHolder tableContainer = ((SpellEditTableMenu) menu.getMenu()).getContainer();
+        ContainerHolder tableContainer = ((SpellEditMenu) menu.getMenu()).getContainer();
         tableContainer.registerListener(this::onContainerChanged);
         UISlot containerUISlot = new UISlot(tableContainer, 0, inventorySize + tableContainer.size() - 1);
         SlotNode containerSlot = new SlotNode(containerUISlot);

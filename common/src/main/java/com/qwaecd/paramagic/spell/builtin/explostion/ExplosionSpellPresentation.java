@@ -135,7 +135,7 @@ public class ExplosionSpellPresentation implements SpellPresentation {
                 CircleEmitter circleEmitter = new CircleEmitter(new Vector3f(sample.position), 0.0f);
                 circleEmitter.modifyProp(COLOR, v -> v.set(1.8f, 1.3f, 0.8f, 1.0f));
                 circleEmitter.modifyProp(LIFE_TIME_RANGE, v -> v.set(1.1f, 8.4f));
-                circleEmitter.modifyProp(SIZE_RANGE, v -> v.set(1.6f, 3.7f));
+                circleEmitter.modifyProp(SIZE_RANGE, v -> v.set(0.016f, 0.037f));
                 circleEmitter.trySet(BLOOM_INTENSITY, 0.3f);
                 circleEmitter.trySet(VELOCITY_MODE, VelocityModeStates.RANDOM);
                 circleEmitter.modifyProp(INNER_OUTER_RADIUS, v -> v.set(4.0f, 4.3f));
@@ -244,7 +244,7 @@ public class ExplosionSpellPresentation implements SpellPresentation {
             LineEmitter lineEmitter = new LineEmitter(new Vector3f(0.0f), 1000.0f);
             lineEmitter.modifyProp(COLOR, v -> v.set(1.2f, 0.5f, 0.8f, 1.0f));
             lineEmitter.modifyProp(LIFE_TIME_RANGE, v -> v.set(1.1f, 3.4f));
-            lineEmitter.modifyProp(SIZE_RANGE, v -> v.set(1.04f, 4.16f));
+            lineEmitter.modifyProp(SIZE_RANGE, v -> v.set(0.01f, 0.0416f));
             lineEmitter.modifyProp(END_POSITION, v -> v.set(0.0f, 10.0f * 3.2f, 0.0f));
             lineEmitter.trySet(BLOOM_INTENSITY, 0.4f);
             lineEmitter.trySet(VELOCITY_MODE, VelocityModeStates.RANDOM);
@@ -256,7 +256,7 @@ public class ExplosionSpellPresentation implements SpellPresentation {
             CircleEmitter circleEmitter = new CircleEmitter(new Vector3f(0.0f, 5.0f, 0.0f), 0.0f);
             circleEmitter.modifyProp(COLOR, v -> v.set(1.8f, 0.7f, 0.8f, 1.0f));
             circleEmitter.modifyProp(LIFE_TIME_RANGE, v -> v.set(1.1f, 3.4f));
-            circleEmitter.modifyProp(SIZE_RANGE, v -> v.set(1.6f, 3.7f));
+            circleEmitter.modifyProp(SIZE_RANGE, v -> v.set(0.016f, 0.037f));
             circleEmitter.trySet(BLOOM_INTENSITY, 0.4f);
             circleEmitter.trySet(VELOCITY_MODE, VelocityModeStates.RANDOM);
             final float r = 12.0f + 8.0f;
@@ -268,7 +268,7 @@ public class ExplosionSpellPresentation implements SpellPresentation {
             CircleEmitter circleEmitter = new CircleEmitter(new Vector3f(0.0f, 12.0f, 0.0f), 0.0f);
             circleEmitter.modifyProp(COLOR, v -> v.set(1.8f, 0.7f, 0.8f, 1.0f));
             circleEmitter.modifyProp(LIFE_TIME_RANGE, v -> v.set(1.1f, 3.4f));
-            circleEmitter.modifyProp(SIZE_RANGE, v -> v.set(1.6f, 3.7f));
+            circleEmitter.modifyProp(SIZE_RANGE, v -> v.set(0.016f, 0.037f));
             circleEmitter.trySet(BLOOM_INTENSITY, 0.4f);
             circleEmitter.trySet(VELOCITY_MODE, VelocityModeStates.RANDOM);
             final float r = 8.0f + 8.0f;
@@ -280,7 +280,7 @@ public class ExplosionSpellPresentation implements SpellPresentation {
             CircleEmitter circleEmitter = new CircleEmitter(new Vector3f(0.0f, 21.0f, 0.0f), 0.0f);
             circleEmitter.modifyProp(COLOR, v -> v.set(1.8f, 0.7f, 0.8f, 1.0f));
             circleEmitter.modifyProp(LIFE_TIME_RANGE, v -> v.set(1.1f, 3.4f));
-            circleEmitter.modifyProp(SIZE_RANGE, v -> v.set(1.6f, 3.7f));
+            circleEmitter.modifyProp(SIZE_RANGE, v -> v.set(0.016f, 0.037f));
             circleEmitter.trySet(BLOOM_INTENSITY, 0.4f);
             circleEmitter.trySet(VELOCITY_MODE, VelocityModeStates.RANDOM);
             final float r = 4.0f + 8.0f;
@@ -292,7 +292,7 @@ public class ExplosionSpellPresentation implements SpellPresentation {
             CircleEmitter circleEmitter = new CircleEmitter(new Vector3f(0.0f, 30.0f, 0.0f), 0.0f);
             circleEmitter.modifyProp(COLOR, v -> v.set(1.8f, 0.7f, 0.8f, 1.0f));
             circleEmitter.modifyProp(LIFE_TIME_RANGE, v -> v.set(1.1f, 3.4f));
-            circleEmitter.modifyProp(SIZE_RANGE, v -> v.set(1.6f, 3.7f));
+            circleEmitter.modifyProp(SIZE_RANGE, v -> v.set(0.016f, 0.037f));
             circleEmitter.trySet(BLOOM_INTENSITY, 0.4f);
             circleEmitter.trySet(VELOCITY_MODE, VelocityModeStates.RANDOM);
             final float r = 2.0f + 8.0f;

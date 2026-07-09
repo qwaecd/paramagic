@@ -96,6 +96,7 @@ public class CanvasNode extends MouseCaptureNode {
                 this.applyZoom(child, ox, oy);
             }
         }
+        this.markLayoutClean();
     }
 
     /**
@@ -119,6 +120,7 @@ public class CanvasNode extends MouseCaptureNode {
         this.panX += (float) mouseState.deltaX();
         this.panY += (float) mouseState.deltaY();
         this.relayout();
+        this.requestLayout();
     }
 
     /**
@@ -137,6 +139,7 @@ public class CanvasNode extends MouseCaptureNode {
         this.panX = mouseX - this.worldRect.x - canvasX * this.zoom;
         this.panY = mouseY - this.worldRect.y - canvasY * this.zoom;
         this.relayout();
+        this.requestLayout();
     }
 
     private void relayout() {

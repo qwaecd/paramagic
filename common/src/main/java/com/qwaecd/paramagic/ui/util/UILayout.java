@@ -10,8 +10,8 @@ public final class UILayout {
 
     /**
      * 进行一次元素布局.
-     * @param localRect 本元素的局部矩形
-     * @param worldRect 本元素的屏幕矩形
+     * @param layoutRect 本元素的布局输入矩形
+     * @param finalRect 本元素的最终屏幕矩形
      * @param layoutParams 布局参数
      * @param parentX 父节点的屏幕X坐标
      * @param parentY 父节点的屏幕Y坐标
@@ -19,8 +19,8 @@ public final class UILayout {
      * @param parentH 父节点矩形的高度
      */
     public static void layout(
-            @Nonnull Rect localRect,
-            @Nonnull Rect worldRect,
+            @Nonnull Rect layoutRect,
+            @Nonnull Rect finalRect,
             @Nonnull LayoutParams layoutParams,
             @Nonnull SizeMode sizeMode,
             float parentX,
@@ -30,34 +30,34 @@ public final class UILayout {
     ) {
         if (layoutParams.isEnabled()) {
             // 将自身锚点强制与父锚点相对齐
-            // 会直接无视初始设定的 localRect 的 xy 并重新设置
-            localRect.setXY(
-                    parentW * layoutParams.getAnchorX() - localRect.w * layoutParams.getPivotX(),
-                    parentH * layoutParams.getAnchorY() - localRect.h * layoutParams.getPivotY()
+            // 会直接无视初始设定的 layoutRect 的 xy 并重新设置
+            layoutRect.setXY(
+                    parentW * layoutParams.getAnchorX() - layoutRect.w * layoutParams.getPivotX(),
+                    parentH * layoutParams.getAnchorY() - layoutRect.h * layoutParams.getPivotY()
             );
         }
 
-        float width = computeWidth(sizeMode, localRect, parentW);
-        float height = computeHeight(sizeMode, localRect, parentH);
+        float width = resolveWidth(sizeMode, layoutRect, parentW);
+        float height = resolveHeight(sizeMode, layoutRect, parentH);
 
-        worldRect.set(
-                parentX + localRect.x,
-                parentY + localRect.y,
+        finalRect.set(
+                parentX + layoutRect.x,
+                parentY + layoutRect.y,
                 width,
                 height
         );
     }
 
-    private static float computeWidth(SizeMode sizeMode, Rect localRect, float baseW) {
+    public static float resolveWidth(SizeMode sizeMode, Rect layoutRect, float baseW) {
         return switch (sizeMode) {
-            case FIXED, FILL_HEIGHT -> localRect.w;
+            case FIXED, FILL_HEIGHT -> layoutRect.w;
             case FILL, FILL_WIDTH -> baseW;
         };
     }
 
-    private static float computeHeight(SizeMode sizeMode, Rect localRect, float baseH) {
+    public static float resolveHeight(SizeMode sizeMode, Rect layoutRect, float baseH) {
         return switch (sizeMode) {
-            case FIXED, FILL_WIDTH -> localRect.h;
+            case FIXED, FILL_WIDTH -> layoutRect.h;
             case FILL, FILL_HEIGHT -> baseH;
         };
     }

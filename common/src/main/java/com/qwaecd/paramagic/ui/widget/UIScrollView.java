@@ -1,12 +1,11 @@
 package com.qwaecd.paramagic.ui.widget;
 
 import com.qwaecd.paramagic.ui.api.event.UIEventContext;
-import com.qwaecd.paramagic.ui.core.ClipMod;
-import com.qwaecd.paramagic.ui.core.UIManager;
-import com.qwaecd.paramagic.ui.core.UINode;
+import com.qwaecd.paramagic.ui.core.*;
 import com.qwaecd.paramagic.ui.event.impl.WheelEvent;
 import com.qwaecd.paramagic.ui.util.UILayout;
 
+import javax.annotation.Nonnull;
 
 public class UIScrollView extends UINode {
     /**
@@ -43,6 +42,7 @@ public class UIScrollView extends UINode {
         this.viewOffset += (float) event.scrollDelta * this.getSensitivity();
         this.clampViewOffset();
         this.layoutChildren();
+        this.requestLayout();
         context.consume();
     }
 
@@ -90,10 +90,27 @@ public class UIScrollView extends UINode {
      * 先布局自身的 worldRect, 再 clamp viewOffset, 最后以偏移量布局子节点.
      */
     @Override
+    protected MeasureResult measureSelf(@Nonnull LayoutConstraints constraints) {
+        float width = UILayout.resolveWidth(this.sizeMode, this.localRect, constraints.getMaxWidth());
+        float height = UILayout.resolveHeight(this.sizeMode, this.localRect, constraints.getMaxHeight());
+        return MeasureResult.of(width, height);
+    }
+
+    @Override
+    protected void measureChildren(@Nonnull LayoutConstraints constraints) {
+        LayoutConstraints childConstraints = LayoutConstraints.loose(this.measuredWidth, this.measuredHeight);
+        for (UINode child : this.children) {
+            child.measure(childConstraints);
+        }
+        this.recalculateContentExtent();
+    }
+
+    @Override
     public void layout(float parentX, float parentY, float parentW, float parentH) {
         UILayout.layout(this.localRect, this.worldRect, this.layoutParams, this.sizeMode, parentX, parentY, parentW, parentH);
         this.clampViewOffset();
         this.layoutChildren();
+        this.markLayoutClean();
     }
 
     /**
@@ -123,6 +140,7 @@ public class UIScrollView extends UINode {
 
     public void setViewOffset(float viewOffset) {
         this.viewOffset = viewOffset;
+        this.requestLayout();
     }
 
     /**

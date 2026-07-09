@@ -1,9 +1,9 @@
 package com.qwaecd.paramagic.network.handler;
 
 import com.qwaecd.paramagic.network.api.NetworkContext;
-import com.qwaecd.paramagic.network.packet.inventory.C2SClickTreeNodePacket;
-import com.qwaecd.paramagic.network.packet.inventory.C2SSubmitEditedParaDataPacket;
+import com.qwaecd.paramagic.network.packet.inventory.*;
 import com.qwaecd.paramagic.ui.inventory.slot.SlotActionHandler;
+import com.qwaecd.paramagic.ui.menu.SpellEditMenu;
 import net.minecraft.server.level.ServerPlayer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,10 +43,54 @@ public class ServerSlotActionHandler {
         }
 
         SlotActionHandler handler = (SlotActionHandler) Objects.requireNonNull(player).containerMenu;
-        if (handler instanceof com.qwaecd.paramagic.ui.menu.SpellEditTableMenu menu) {
+        if (handler instanceof SpellEditMenu menu) {
             menu.submitEditedParaData(player, packet.getParaData(), packet.getCacheToken(), packet.getCacheVersion());
             return;
         }
         handler.submitEditedParaData(player, packet.getParaData());
+    }
+
+    public static void addSpellTreeNode(C2SAddSpellTreeNodePacket packet, NetworkContext context) {
+        ServerPlayer player = context.getPlayer();
+        if (!validatePlayerAndHandler(player)) {
+            return;
+        }
+        if (Objects.requireNonNull(player).containerMenu instanceof SpellEditMenu menu) {
+            menu.addSpellTreeNode(
+                    player,
+                    packet.getEditEpoch(),
+                    packet.getBaseVersion(),
+                    packet.getExpectedNodeId(),
+                    packet.getParentNodeId(),
+                    packet.getChildIndex(),
+                    packet.isUseCarriedOperator()
+            );
+        }
+    }
+
+    public static void deleteSpellTreeSubtree(C2SDeleteSpellTreeSubtreePacket packet, NetworkContext context) {
+        ServerPlayer player = context.getPlayer();
+        if (!validatePlayerAndHandler(player)) {
+            return;
+        }
+        if (Objects.requireNonNull(player).containerMenu instanceof SpellEditMenu menu) {
+            menu.deleteSpellTreeSubtree(player, packet.getEditEpoch(), packet.getBaseVersion(), packet.getNodeId());
+        }
+    }
+
+    public static void setSpellTreeNodeOperator(C2SSetSpellTreeNodeOperatorPacket packet, NetworkContext context) {
+        ServerPlayer player = context.getPlayer();
+        if (!validatePlayerAndHandler(player)) {
+            return;
+        }
+        if (Objects.requireNonNull(player).containerMenu instanceof SpellEditMenu menu) {
+            menu.setSpellTreeNodeOperator(
+                    player,
+                    packet.getEditEpoch(),
+                    packet.getBaseVersion(),
+                    packet.getNodeId(),
+                    packet.getAction()
+            );
+        }
     }
 }

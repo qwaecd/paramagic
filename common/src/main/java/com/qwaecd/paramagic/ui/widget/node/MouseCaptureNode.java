@@ -61,9 +61,11 @@ public class MouseCaptureNode extends UINode {
                     parent.getWorldRect().w, parent.getWorldRect().h
             );
         }
+        this.requestLayout();
     }
 
     public void setIgnoreTransform(boolean ignored) {
         this.ignoreTransform = ignored;
+        this.requestLayout();
     }
 }

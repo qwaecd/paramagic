@@ -267,8 +267,11 @@ public class PTTreeNode extends UINode {
     @Override
     @Nullable
     public UINode getMouseOverNode(float mouseX, float mouseY) {
+        if (!this.isVisible()) {
+            return null;
+        }
         UINode overNode = super.getMouseOverNode(mouseX, mouseY);
-        if (overNode == null && this.itemNode.contains(mouseX, mouseY)) {
+        if (overNode == null && this.itemNode.hitTest(mouseX, mouseY)) {
             return this.itemNode;
         }
         return overNode;

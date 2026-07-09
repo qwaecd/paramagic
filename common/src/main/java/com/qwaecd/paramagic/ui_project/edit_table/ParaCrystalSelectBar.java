@@ -7,9 +7,7 @@ import com.qwaecd.paramagic.ui.animation.fast.FloatUIAnimator;
 import com.qwaecd.paramagic.ui.api.UIRenderContext;
 import com.qwaecd.paramagic.ui.api.event.AllUIEvents;
 import com.qwaecd.paramagic.ui.api.event.UIEventContext;
-import com.qwaecd.paramagic.ui.core.ClipMod;
-import com.qwaecd.paramagic.ui.core.UIManager;
-import com.qwaecd.paramagic.ui.core.UINode;
+import com.qwaecd.paramagic.ui.core.*;
 import com.qwaecd.paramagic.ui.event.EventPhase;
 import com.qwaecd.paramagic.ui.event.impl.DoubleClick;
 import com.qwaecd.paramagic.ui.event.impl.MouseClick;
@@ -24,11 +22,16 @@ import com.qwaecd.paramagic.ui.widget.node.ItemNode;
 import com.qwaecd.paramagic.ui.widget.node.SlotNode;
 import net.minecraft.world.inventory.ClickType;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
 public class ParaCrystalSelectBar extends UIScrollView {
+    private static final float BAR_WIDTH = 32.0f;
+    private static final float BAR_HEIGHT = 180.0f;
+    private static final float RIGHT_MARGIN = 8.0f;
+
     private InventoryHolder inventory;
 
     // List 的索引并不代表着 inventory 的槽位索引，槽位索引由 SlotNode 内部维护
@@ -47,7 +50,7 @@ public class ParaCrystalSelectBar extends UIScrollView {
 
     public ParaCrystalSelectBar() {
         super(false);
-        this.localRect.setWH(32, 180);
+        this.setLayoutSize(BAR_WIDTH, BAR_HEIGHT);
         this.layoutParams.disable();
         this.clipMod = ClipMod.RECT;
 
@@ -138,7 +141,7 @@ public class ParaCrystalSelectBar extends UIScrollView {
         this.scrollAnimator = this.animateFloat(
                 start, this.viewOffset, 0.15f,
                 EasingFunction.easeOutSine,
-                Interpolation::liner,
+                Interpolation::linear,
                 (interpolationValue -> this.viewOffset = interpolationValue)
         ).setOnUpdate(offset -> {
             manager.offerOveringTestTask();
@@ -163,7 +166,7 @@ public class ParaCrystalSelectBar extends UIScrollView {
         }
 
         this.panel = new UIPanel(
-                inv.size(), 1, this.localRect.w, true, 4, 8, ItemNode.CELL_SIZE
+                inv.size(), 1, BAR_WIDTH, true, 4, 8, ItemNode.CELL_SIZE
         );
         for (int i = 0; i < 4 * 9; i++) {
             SlotNode slotNode = new SlotNode(new UISlot(inv, i));
@@ -180,21 +183,31 @@ public class ParaCrystalSelectBar extends UIScrollView {
     }
 
     @Override
-    public void layout(float parentX, float parentY, float parentW, float parentH) {
-        // 将自己置于屏幕右边中间
-        float windowH = this.getWindowHeight() / this.getGuiScale();
-        float windowW = this.getWindowWidth() / this.getGuiScale();
-        this.localRect.setXY(
-                windowW - this.localRect.w - 8.0f,
-                (windowH - this.localRect.h) / 2.0f
+    @Nonnull
+    protected MeasureResult measureSelf(@Nonnull LayoutConstraints constraints) {
+        float windowH = UIManager.getWindowHeight() / UIManager.getGuiScale();
+        float windowW = UIManager.getWindowWidth() / UIManager.getGuiScale();
+        this.layoutRect.set(
+                windowW - BAR_WIDTH - RIGHT_MARGIN,
+                (windowH - BAR_HEIGHT) / 2.0f,
+                BAR_WIDTH,
+                BAR_HEIGHT
         );
+        return MeasureResult.of(BAR_WIDTH, BAR_HEIGHT);
+    }
 
-        // 内部面板置于中央偏下
-        this.panel.localRect.setXY(
-                (this.localRect.w - ItemNode.CELL_SIZE) / 2.0f,
+    @Override
+    protected void measureChildren(@Nonnull LayoutConstraints constraints) {
+        if (this.panel == null) {
+            this.contentExtent = 0.0f;
+            return;
+        }
+        this.panel.getLayoutRect().setXY(
+                (BAR_WIDTH - ItemNode.CELL_SIZE) / 2.0f,
                 this.panelOffsetY
         );
-        super.layout(parentX, parentY, parentW, parentH);
+        this.panel.measure(LayoutConstraints.loose(BAR_WIDTH, BAR_HEIGHT));
+        this.recalculateContentExtent();
     }
 
     @Override

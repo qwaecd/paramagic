@@ -45,6 +45,7 @@ layout(std430, binding = BINDING_BUCKET_QUAD_INDICES) buffer QuadBucket {
 uniform mat4 u_projectionMatrix;
 uniform mat4 u_viewMatrix;
 uniform vec3 u_cameraPosition;
+uniform float u_pointSizeScale;
 uniform int u_bucketType; // 0=point,1=triangle,2=quad
 
 out ParticleVaryings {
@@ -109,5 +110,6 @@ void main() {
     particleOut.normalView = (nLen > 1e-6) ? (viewNormal / nLen) : vec3(0.0);
 
     gl_Position = u_projectionMatrix * centerView;
-    gl_PointSize = max(particleOut.size, 0.0);
+    float depth = max(-centerView.z, 1e-6);
+    gl_PointSize = max(particleOut.size * u_pointSizeScale / depth, 0.0);
 }

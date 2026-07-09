@@ -92,7 +92,7 @@ public class LaserProjectile extends BaseProjectile implements ProjectileEntity,
         Emitter emitter = new PointEmitter(new Vector3f(), 160.0f);
         emitter.modifyProp(COLOR, v -> v.set(0.9f, 0.35f, 1.95f, 1.0f));
         emitter.modifyProp(LIFE_TIME_RANGE, v -> v.set(0.5f, 0.9f));
-        emitter.modifyProp(SIZE_RANGE, v -> v.set(1.4f, 2.8f));
+        emitter.modifyProp(SIZE_RANGE, v -> v.set(0.0014f, 0.0028f));
         emitter.getProperty(BLOOM_INTENSITY).set(1.8f);
         emitter.getProperty(VELOCITY_SPREAD).set(180.0f);
         this.sharedBeamEmitter = emitter;

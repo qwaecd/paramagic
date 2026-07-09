@@ -5,6 +5,7 @@ import com.qwaecd.paramagic.ui.MCRenderBackend;
 import com.qwaecd.paramagic.ui.MenuContent;
 import com.qwaecd.paramagic.ui.api.TooltipRenderer;
 import com.qwaecd.paramagic.ui.api.UIRenderContext;
+import com.qwaecd.paramagic.ui.api.UIRenderContextCache;
 import com.qwaecd.paramagic.ui.core.UIManager;
 import com.qwaecd.paramagic.ui.core.UINode;
 import com.qwaecd.paramagic.ui.inventory.IContainerScreen;
@@ -27,33 +28,17 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 @SuppressWarnings("RedundantMethodOverride")
-public abstract class MCContainerScreen<T extends AbstractContainerMenu> extends AbstractContainerScreen<T> implements MenuAccess<T>, IContainerScreen {
+public abstract class MCContainerScreen<T extends AbstractContainerMenu> extends AbstractContainerScreen<T> implements MenuAccess<T>, IContainerScreen, NativeWidgetHostScreen {
     protected final UIManager manager;
     @Nonnull
     private final NativeWidgetHost nativeWidgetHost;
 
-    protected static final class ContextCache {
-        protected UIRenderContext renderContext;
-
-        protected void setRenderContext(UIRenderContext context) {
-            this.renderContext = context;
-        }
-
-        protected UIRenderContext getRenderContext() {
-            return this.renderContext;
-        }
-    }
-
     @Nonnull
-    protected final ContextCache cache = new ContextCache();
+    protected final UIRenderContextCache cache = new UIRenderContextCache();
 
     public MCContainerScreen(T menu, Inventory playerInventory, Component title, UINode rootNode) {
         super(menu, playerInventory, title);
         TooltipRenderer tooltipRenderer = new TooltipRenderer() {
-            @Override
-            public void renderTooltip(GuiGraphics guiGraphics, int mouseX, int mouseY) {
-                MCContainerScreen.this.renderTooltip(guiGraphics, mouseX, mouseY);
-            }
             @Override
             public void renderTooltipWithItem(@Nonnull ItemStack itemStack, GuiGraphics guiGraphics, int mouseX, int mouseY) {
                 MCContainerScreen.this.renderTooltipWithItem(itemStack, guiGraphics, mouseX, mouseY);
@@ -105,10 +90,10 @@ public abstract class MCContainerScreen<T extends AbstractContainerMenu> extends
             return;
         }
         final float deltaTime = TimeProvider.getDeltaTime(this.minecraft);
-        this.cache.renderContext.reset(guiGraphics, deltaTime, mouseX, mouseY, partialTick);
-        this.manager.prepareRender(this.cache.renderContext);
+        this.cache.getRenderContext().reset(guiGraphics, deltaTime, mouseX, mouseY, partialTick);
+        this.manager.prepareRender(this.cache.getRenderContext());
         super.render(guiGraphics, mouseX, mouseY, partialTick);
-        this.manager.render(cache.renderContext);
+        this.manager.render(cache.getRenderContext());
     }
 
     @Override
@@ -202,19 +187,23 @@ public abstract class MCContainerScreen<T extends AbstractContainerMenu> extends
         this.manager.onClose();
     }
 
-    boolean forwardVanillaMouseClicked(double mouseX, double mouseY, int button) {
+    @Override
+    public boolean forwardVanillaMouseClicked(double mouseX, double mouseY, int button) {
         return super.mouseClicked(mouseX, mouseY, button);
     }
 
-    boolean forwardVanillaMouseReleased(double mouseX, double mouseY, int button) {
+    @Override
+    public boolean forwardVanillaMouseReleased(double mouseX, double mouseY, int button) {
         return super.mouseReleased(mouseX, mouseY, button);
     }
 
-    <W extends GuiEventListener & Renderable & NarratableEntry> void addNativeRenderableWidget(W widget) {
+    @Override
+    public <W extends GuiEventListener & Renderable & NarratableEntry> void addNativeRenderableWidget(W widget) {
         super.addRenderableWidget(widget);
     }
 
-    void removeNativeWidget(GuiEventListener widget) {
+    @Override
+    public void removeNativeWidget(GuiEventListener widget) {
         super.removeWidget(widget);
     }
 }

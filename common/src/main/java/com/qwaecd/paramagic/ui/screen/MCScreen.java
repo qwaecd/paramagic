@@ -1,0 +1,180 @@
+package com.qwaecd.paramagic.ui.screen;
+
+import com.qwaecd.paramagic.tools.TimeProvider;
+import com.qwaecd.paramagic.ui.MCRenderBackend;
+import com.qwaecd.paramagic.ui.api.TooltipRenderer;
+import com.qwaecd.paramagic.ui.api.UIRenderContext;
+import com.qwaecd.paramagic.ui.api.UIRenderContextCache;
+import com.qwaecd.paramagic.ui.core.UIManager;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.Renderable;
+import net.minecraft.client.gui.components.events.GuiEventListener;
+import net.minecraft.client.gui.narration.NarratableEntry;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.item.ItemStack;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
+public abstract class MCScreen extends Screen implements NativeWidgetHostScreen {
+    protected UIManager manager;
+    @Nonnull
+    protected final NativeWidgetHost nativeWidgetHost;
+
+    @Nonnull
+    protected final UIRenderContextCache cache = new UIRenderContextCache();
+
+    protected MCScreen(Component title) {
+        super(title);
+        this.nativeWidgetHost = new NativeWidgetHost(this);
+    }
+
+    @Override
+    protected void init() {
+        super.init();
+        this.manager.init();
+        this.cache.setRenderContext(new UIRenderContext(this.manager, null, new MCRenderBackend(null, this.font), 0, 0, 0, 0));
+    }
+
+    public void renderTooltipWithItem(@Nullable ItemStack itemStack, @Nonnull GuiGraphics guiGraphics, int mouseX, int mouseY) {
+        if (itemStack == null || this.minecraft == null) {
+            return;
+        }
+        guiGraphics.renderTooltip(this.font, Screen.getTooltipFromItem(this.minecraft, itemStack), itemStack.getTooltipImage(), mouseX, mouseY);
+    }
+
+    @Override
+    public void render(@Nonnull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+        if (this.minecraft == null) {
+            return;
+        }
+        final float deltaTime = TimeProvider.getDeltaTime(this.minecraft);
+        this.cache.getRenderContext().reset(guiGraphics, deltaTime, mouseX, mouseY, partialTick);
+        this.manager.prepareRender(this.cache.getRenderContext());
+        this.renderBackground(guiGraphics);
+        super.render(guiGraphics, mouseX, mouseY, partialTick);
+        this.manager.render(cache.getRenderContext());
+    }
+
+    @Override
+    public void renderBackground(@Nonnull GuiGraphics guiGraphics) {
+        super.renderBackground(guiGraphics);
+    }
+
+    @Override
+    public boolean isPauseScreen() {
+        return false;
+    }
+
+    @Override
+    public boolean mouseClicked(double mouseX, double mouseY, int button) {
+        if (this.manager.onMouseClick(mouseX, mouseY, button)) {
+            return true;
+        }
+        this.manager.clearNativeWidgetFocus();
+        return super.mouseClicked(mouseX, mouseY, button);
+    }
+
+    @Override
+    public boolean mouseDragged(double mouseX, double mouseY, int button, double dragX, double dragY) {
+        // 调用该函数的同时还会调用 mouseMoved() 所以对框架不需要进行处理.
+        return super.mouseDragged(mouseX, mouseY, button, dragX, dragY);
+    }
+
+    @Override
+    public boolean mouseReleased(double mouseX, double mouseY, int button) {
+        if (this.manager.onMouseRelease(mouseX, mouseY, button)) {
+            return true;
+        }
+        return super.mouseReleased(mouseX, mouseY, button);
+    }
+
+    @Override
+    public void mouseMoved(double mouseX, double mouseY) {
+        this.manager.onMouseMove(mouseX, mouseY);
+        super.mouseMoved(mouseX, mouseY);
+    }
+
+    @Override
+    public boolean mouseScrolled(double mouseX, double mouseY, double delta) {
+        if (this.manager.onMouseScroll(mouseX, mouseY, delta)) {
+            return true;
+        }
+        return super.mouseScrolled(mouseX, mouseY, delta);
+    }
+
+    @Override
+    public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+        if (this.nativeWidgetHost.keyPressed(keyCode, scanCode, modifiers)) {
+            return true;
+        }
+        return super.keyPressed(keyCode, scanCode, modifiers);
+    }
+
+    @Override
+    public boolean keyReleased(int keyCode, int scanCode, int modifiers) {
+        return super.keyReleased(keyCode, scanCode, modifiers);
+    }
+
+    @Override
+    public boolean charTyped(char codePoint, int modifiers) {
+        return super.charTyped(codePoint, modifiers);
+    }
+
+    @Override
+    public boolean isFocused() {
+        return super.isFocused();
+    }
+
+    @Override
+    @Nullable
+    public GuiEventListener getFocused() {
+        return super.getFocused();
+    }
+
+    @Override
+    public void setFocused(@Nullable GuiEventListener listener) {
+        super.setFocused(listener);
+    }
+
+    @Override
+    public void setFocused(boolean focused) {
+        super.setFocused(focused);
+    }
+
+    @Override
+    public void onClose() {
+        super.onClose();
+        this.manager.onClose();
+    }
+
+    @Override
+    public boolean forwardVanillaMouseClicked(double mouseX, double mouseY, int button) {
+        return super.mouseClicked(mouseX, mouseY, button);
+    }
+
+    @Override
+    public boolean forwardVanillaMouseReleased(double mouseX, double mouseY, int button) {
+        return super.mouseReleased(mouseX, mouseY, button);
+    }
+
+    @Override
+    public <W extends GuiEventListener & Renderable & NarratableEntry> void addNativeRenderableWidget(W widget) {
+        super.addRenderableWidget(widget);
+    }
+
+    @Override
+    public void removeNativeWidget(GuiEventListener widget) {
+        super.removeWidget(widget);
+    }
+
+    protected TooltipRenderer createTooltipRenderer() {
+        return new TooltipRenderer() {
+            @Override
+            public void renderTooltipWithItem(@Nonnull ItemStack itemStack, GuiGraphics guiGraphics, int mouseX, int mouseY) {
+                MCScreen.this.renderTooltipWithItem(itemStack, guiGraphics, mouseX, mouseY);
+            }
+        };
+    }
+}

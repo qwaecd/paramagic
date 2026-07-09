@@ -332,7 +332,7 @@ public class ParaStructEditNode extends UIScrollView {
         this.scrollAnimator = this.animateFloat(
                 start, this.viewOffset, 0.1f,
                 EasingFunction.easeOutSine,
-                Interpolation::liner,
+                Interpolation::linear,
                 (interpolationValue -> this.viewOffset = interpolationValue)
         ).setOnUpdate(offset -> {
             manager.offerOveringTestTask();
@@ -476,10 +476,7 @@ public class ParaStructEditNode extends UIScrollView {
 //            );
             context.renderNineSliceSprite(
                     headerBackGround,
-                    (int) this.worldRect.x,
-                    (int) this.worldRect.y,
-                    (int) (this.worldRect.x + this.worldRect.w),
-                    (int) (this.worldRect.y + this.worldRect.h)
+                    this.finalRect
             );
         }
 

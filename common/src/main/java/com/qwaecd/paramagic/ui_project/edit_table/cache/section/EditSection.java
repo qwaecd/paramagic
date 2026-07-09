@@ -1,11 +1,14 @@
 package com.qwaecd.paramagic.ui_project.edit_table.cache.section;
 
+import com.qwaecd.paramagic.ui.core.LayoutConstraints;
+import com.qwaecd.paramagic.ui.core.MeasureResult;
 import com.qwaecd.paramagic.ui.core.UINode;
 import com.qwaecd.paramagic.ui.widget.UILabel;
 import com.qwaecd.paramagic.ui.widget.node.TypingBox;
 import com.qwaecd.paramagic.ui_project.edit_table.cache.ParaEditCache;
 import com.qwaecd.paramagic.ui_project.edit_table.cache.ParaStruct;
 import com.qwaecd.paramagic.ui_project.edit_table.util.EditInputRules;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.network.chat.Component;
 
@@ -32,6 +35,15 @@ public abstract class EditSection extends UINode {
     public abstract void layoutContent(Font font, float contentW);
 
     public abstract void syncFromStruct();
+
+    @Override
+    @Nonnull
+    protected MeasureResult measureSelf(@Nonnull LayoutConstraints constraints) {
+        float contentW = this.layoutRect.w > 0.0f ? this.layoutRect.w : constraints.getMaxWidth();
+        this.layoutContent(Minecraft.getInstance().font, contentW);
+        this.layoutRect.setWH(contentW, this.layoutRect.h);
+        return MeasureResult.of(contentW, this.layoutRect.h);
+    }
 
     protected UILabel createLabel(Component text) {
         UILabel label = new UILabel(text);

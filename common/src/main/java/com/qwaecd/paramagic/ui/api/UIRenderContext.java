@@ -2,10 +2,7 @@ package com.qwaecd.paramagic.ui.api;
 
 import com.qwaecd.paramagic.ui.MCRenderBackend;
 import com.qwaecd.paramagic.ui.core.UIManager;
-import com.qwaecd.paramagic.ui.util.NineSliceSprite;
-import com.qwaecd.paramagic.ui.util.Rect;
-import com.qwaecd.paramagic.ui.util.Sprite;
-import com.qwaecd.paramagic.ui.util.UIColor;
+import com.qwaecd.paramagic.ui.util.*;
 import lombok.Getter;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
@@ -27,7 +24,7 @@ public final class UIRenderContext {
 
     private final UIRenderBackend backend;
 
-    public float deltaTime;
+    private float deltaTime;
 
     private final Deque<Rect> clipStack;
 
@@ -75,6 +72,10 @@ public final class UIRenderContext {
         return this.guiGraphics;
     }
 
+    public float getDeltaTime() {
+        return this.deltaTime;
+    }
+
     public void pushClipRect(@Nonnull Rect rect) {
         Rect clipRect;
         if (this.clipStack.peek() != null) {
@@ -105,8 +106,28 @@ public final class UIRenderContext {
         }
     }
 
-    public void drawQuad(Rect rect, UIColor color) {
-        this.backend.drawQuad(rect, color.color);
+    public void fillRect(Rect rect, UIColor color) {
+        this.backend.fillRect(rect, color.color);
+    }
+
+    public void fillRect(Rect rect, int color) {
+        this.backend.fillRect(rect, color);
+    }
+
+    public void fillRect(int x, int y, int width, int height, int color) {
+        this.backend.fillRect(x, y, width, height, color);
+    }
+
+    public void fillRect(float x, float y, float width, float height, int color) {
+        this.backend.fillRect((int) x, (int) y, (int) width, (int) height, color);
+    }
+
+    public void fillBounds(int minX, int minY, int maxX, int maxY, int color) {
+        this.backend.fillBounds(minX, minY, maxX, maxY, color);
+    }
+
+    public void fillBounds(float minX, float minY, float maxX, float maxY, int color) {
+        this.backend.fillBounds((int) minX, (int) minY, (int) maxX, (int) maxY, color);
     }
 
     public void fillBilinearGradient(Rect rect, int topLeft, int topRight, int bottomRight, int bottomLeft) {
@@ -123,14 +144,6 @@ public final class UIRenderContext {
 
     public void hLine(int minX, int maxX, int y, int color) {
         this.backend.hLine(minX, maxX, y, color);
-    }
-
-    public void fill(int minX, int minY, int maxX, int maxY, int color) {
-        this.backend.fill(minX, minY, maxX, maxY, color);
-    }
-
-    public void fill(float minX, float minY, float maxX, float maxY, int color) {
-        this.backend.fill( (int) minX,  (int) minY,  (int) maxX,  (int) maxY, color);
     }
 
     public void renderOutline(Rect rect, UIColor color) {
@@ -183,6 +196,17 @@ public final class UIRenderContext {
 
     public void renderSprite(Sprite sprite, int x, int y) {
         this.backend.renderSprite(sprite, x, y);
+    }
+    public void renderNineSliceSpriteWithAlpha(NineSliceSprite sprite, int x, int y, int width, int height, float alpha) {
+        if (alpha == 1.0f) {
+            this.renderNineSliceSprite(sprite, x, y, width, height);
+        } else {
+            this.backend.enableBlend();
+            this.guiGraphics.setColor(1.0f, 1.0f, 1.0f, alpha);
+            this.renderNineSliceSprite(sprite, x, y, width, height);
+            this.guiGraphics.setColor(1.0f, 1.0f, 1.0f, 1.0f);
+            this.backend.disableBlend();
+        }
     }
 
     public void renderNineSliceSprite(NineSliceSprite sprite, int x, int y, int width, int height) {
@@ -243,6 +267,230 @@ public final class UIRenderContext {
         }
     }
 
+    public void renderNineSliceSprite(NineSliceSprite sprite, Rect rect) {
+        this.renderNineSliceSprite(
+                sprite,
+                (int) rect.x,
+                (int) rect.y,
+                (int) rect.w,
+                (int) rect.h
+        );
+    }
+
+    /**
+     * 绘制横向三切片，并优先保持中心切片的原始宽度；目标宽度变化时，左右两端按原始比例缩放。
+     * 如果目标宽度小于中心切片宽度，则只绘制被压缩后的中心切片，左右两端不绘制。
+     */
+    public void renderHorizontalSliceSpriteKeepCenter(HorizontalSliceSprite sprite, int x, int y, int width) {
+        this.renderHorizontalSliceSpriteKeepCenter(sprite, x, y, width, sprite.getHeight());
+    }
+
+    /**
+     * 绘制横向三切片，并优先保持中心切片的原始宽度；目标宽高变化时，中心切片高度随目标高度缩放，
+     * 左右两端按剩余宽度等比例缩放。
+     */
+    public void renderHorizontalSliceSpriteKeepCenter(HorizontalSliceSprite sprite, int x, int y, int width, int height) {
+        if (width <= 0 || height <= 0) {
+            return;
+        }
+
+        Sprite[] slices = sprite.getSlices();
+        int left = slices[HorizontalSliceSprite.LEFT].width;
+        int center = slices[HorizontalSliceSprite.CENTER].width;
+        int right = slices[HorizontalSliceSprite.RIGHT].width;
+
+        if (width >= center) {
+            int sideWidth = width - center;
+            float ratio = (float) sideWidth / (left + right);
+            left = Math.round(left * ratio);
+            right = sideWidth - left;
+        } else {
+            left = 0;
+            center = width;
+            right = 0;
+        }
+
+        this.blitSlicePart(slices[HorizontalSliceSprite.LEFT], x, y, left, height);
+        this.blitSlicePart(slices[HorizontalSliceSprite.CENTER], x + left, y, center, height);
+        this.blitSlicePart(slices[HorizontalSliceSprite.RIGHT], x + left + center, y, right, height);
+    }
+
+    /**
+     * 使用矩形区域绘制横向三切片，并优先保持中心切片的原始宽度。
+     */
+    public void renderHorizontalSliceSpriteKeepCenter(HorizontalSliceSprite sprite, Rect rect) {
+        this.renderHorizontalSliceSpriteKeepCenter(
+                sprite,
+                (int) rect.x,
+                (int) rect.y,
+                (int) rect.w,
+                (int) rect.h
+        );
+    }
+
+    /**
+     * 绘制横向三切片，并优先保持左右两端的原始宽度；目标宽度变化时，仅中心切片缩放。
+     * 如果目标宽度小于左右两端宽度之和，则中心切片不绘制，左右两端按原始比例压缩。
+     */
+    public void renderHorizontalSliceSpriteKeepEnds(HorizontalSliceSprite sprite, int x, int y, int width) {
+        this.renderHorizontalSliceSpriteKeepEnds(sprite, x, y, width, sprite.getHeight());
+    }
+
+    /**
+     * 绘制横向三切片，并优先保持左右两端的原始宽度；目标宽高变化时，三段高度都随目标高度缩放，
+     * 中心切片承担横向缩放。
+     */
+    public void renderHorizontalSliceSpriteKeepEnds(HorizontalSliceSprite sprite, int x, int y, int width, int height) {
+        if (width <= 0 || height <= 0) {
+            return;
+        }
+
+        Sprite[] slices = sprite.getSlices();
+        int left = slices[HorizontalSliceSprite.LEFT].width;
+        int right = slices[HorizontalSliceSprite.RIGHT].width;
+
+        int centerWidth;
+        if (width >= left + right) {
+            centerWidth = width - left - right;
+        } else {
+            float ratio = (float) width / (left + right);
+            left = Math.round(left * ratio);
+            right = width - left;
+            centerWidth = 0;
+        }
+
+        this.blitSlicePart(slices[HorizontalSliceSprite.LEFT], x, y, left, height);
+        this.blitSlicePart(slices[HorizontalSliceSprite.CENTER], x + left, y, centerWidth, height);
+        this.blitSlicePart(slices[HorizontalSliceSprite.RIGHT], x + left + centerWidth, y, right, height);
+    }
+
+    /**
+     * 使用矩形区域绘制横向三切片，并优先保持左右两端的原始宽度。
+     */
+    public void renderHorizontalSliceSpriteKeepEnds(HorizontalSliceSprite sprite, Rect rect) {
+        this.renderHorizontalSliceSpriteKeepEnds(
+                sprite,
+                (int) rect.x,
+                (int) rect.y,
+                (int) rect.w,
+                (int) rect.h
+        );
+    }
+
+    /**
+     * 绘制纵向三切片，并优先保持中心切片的原始高度；目标高度变化时，上下两端按原始比例缩放。
+     * 如果目标高度小于中心切片高度，则只绘制被压缩后的中心切片，上下两端不绘制。
+     */
+    public void renderVerticalSliceSpriteKeepCenter(VerticalSliceSprite sprite, int x, int y, int height) {
+        this.renderVerticalSliceSpriteKeepCenter(sprite, x, y, sprite.getWidth(), height);
+    }
+
+    /**
+     * 绘制纵向三切片，并优先保持中心切片的原始高度；目标宽高变化时，中心切片宽度随目标宽度缩放，
+     * 上下两端按剩余高度等比例缩放。
+     */
+    public void renderVerticalSliceSpriteKeepCenter(VerticalSliceSprite sprite, int x, int y, int width, int height) {
+        if (width <= 0 || height <= 0) {
+            return;
+        }
+
+        Sprite[] slices = sprite.getSlices();
+        int top = slices[VerticalSliceSprite.TOP].height;
+        int center = slices[VerticalSliceSprite.CENTER].height;
+        int bottom = slices[VerticalSliceSprite.BOTTOM].height;
+
+        if (height >= center) {
+            int sideHeight = height - center;
+            float ratio = (float) sideHeight / (top + bottom);
+            top = Math.round(top * ratio);
+            bottom = sideHeight - top;
+        } else {
+            top = 0;
+            center = height;
+            bottom = 0;
+        }
+
+        this.blitSlicePart(slices[VerticalSliceSprite.TOP], x, y, width, top);
+        this.blitSlicePart(slices[VerticalSliceSprite.CENTER], x, y + top, width, center);
+        this.blitSlicePart(slices[VerticalSliceSprite.BOTTOM], x, y + top + center, width, bottom);
+    }
+
+    /**
+     * 使用矩形区域绘制纵向三切片，并优先保持中心切片的原始高度。
+     */
+    public void renderVerticalSliceSpriteKeepCenter(VerticalSliceSprite sprite, Rect rect) {
+        this.renderVerticalSliceSpriteKeepCenter(
+                sprite,
+                (int) rect.x,
+                (int) rect.y,
+                (int) rect.w,
+                (int) rect.h
+        );
+    }
+
+    /**
+     * 绘制纵向三切片，并优先保持上下两端的原始高度；目标高度变化时，仅中心切片缩放。
+     * 如果目标高度小于上下两端高度之和，则中心切片不绘制，上下两端按原始比例压缩。
+     */
+    public void renderVerticalSliceSpriteKeepEnds(VerticalSliceSprite sprite, int x, int y, int height) {
+        this.renderVerticalSliceSpriteKeepEnds(sprite, x, y, sprite.getWidth(), height);
+    }
+
+    /**
+     * 绘制纵向三切片，并优先保持上下两端的原始高度；目标宽高变化时，三段宽度都随目标宽度缩放，
+     * 中心切片承担纵向缩放。
+     */
+    public void renderVerticalSliceSpriteKeepEnds(VerticalSliceSprite sprite, int x, int y, int width, int height) {
+        if (width <= 0 || height <= 0) {
+            return;
+        }
+
+        Sprite[] slices = sprite.getSlices();
+        int top = slices[VerticalSliceSprite.TOP].height;
+        int bottom = slices[VerticalSliceSprite.BOTTOM].height;
+
+        int centerHeight;
+        if (height >= top + bottom) {
+            centerHeight = height - top - bottom;
+        } else {
+            float ratio = (float) height / (top + bottom);
+            top = Math.round(top * ratio);
+            bottom = height - top;
+            centerHeight = 0;
+        }
+
+        this.blitSlicePart(slices[VerticalSliceSprite.TOP], x, y, width, top);
+        this.blitSlicePart(slices[VerticalSliceSprite.CENTER], x, y + top, width, centerHeight);
+        this.blitSlicePart(slices[VerticalSliceSprite.BOTTOM], x, y + top + centerHeight, width, bottom);
+    }
+
+    /**
+     * 使用矩形区域绘制纵向三切片，并优先保持上下两端的原始高度。
+     */
+    public void renderVerticalSliceSpriteKeepEnds(VerticalSliceSprite sprite, Rect rect) {
+        this.renderVerticalSliceSpriteKeepEnds(
+                sprite,
+                (int) rect.x,
+                (int) rect.y,
+                (int) rect.w,
+                (int) rect.h
+        );
+    }
+
+    private void blitSlicePart(Sprite slice, int x, int y, int width, int height) {
+        if (width <= 0 || height <= 0) {
+            return;
+        }
+        this.blit(
+                slice.texture,
+                x, y,
+                width, height,
+                slice.u, slice.v,
+                slice.width, slice.height,
+                slice.texWidth, slice.texHeight
+        );
+    }
+
     /**
      * Blits a portion of the texture specified by the atlas location onto the screen at the given position and dimensions with texture coordinates.<br>
      * 在指定位置和尺寸上将纹理图集中指定纹理的一部分绘制到屏幕上，并使用纹理坐标。
@@ -279,6 +527,18 @@ public final class UIRenderContext {
         this.renderSprite(sprite, (int) x, (int) y);
     }
 
+    public void renderSpriteWithAlpha(Sprite sprite, float x, float y, float alpha) {
+        if (alpha == 1.0f) {
+            this.renderSprite(sprite, x, y);
+        } else {
+            this.backend.enableBlend();
+            this.guiGraphics.setColor(1.0f, 1.0f, 1.0f, alpha);
+            this.renderSprite(sprite, x, y);
+            this.guiGraphics.setColor(1.0f, 1.0f, 1.0f, 1.0f);
+            this.backend.disableBlend();
+        }
+    }
+
     public void renderItem(ItemStack stack, int x, int y) {
         this.backend.renderItem(stack, x, y);
     }
@@ -296,10 +556,6 @@ public final class UIRenderContext {
     }
 
     // ------------ 以下是使用 int color 的重载方法 ------------
-
-    public void drawQuad(Rect rect, int color) {
-        this.backend.drawQuad(rect, color);
-    }
 
     public void renderOutline(Rect rect, int color) {
         this.backend.renderOutline(rect, color);

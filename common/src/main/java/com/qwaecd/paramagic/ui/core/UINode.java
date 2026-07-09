@@ -20,8 +20,6 @@ import com.qwaecd.paramagic.ui.util.Rect;
 import com.qwaecd.paramagic.ui.util.UIColor;
 import com.qwaecd.paramagic.ui.util.UILayout;
 import lombok.Getter;
-import lombok.Setter;
-import net.minecraft.client.Minecraft;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,14 +38,20 @@ public class UINode {
     protected UINode parent;
     @Nullable
     private UIManager manager;
+    /**
+     * 控制节点是否可见，当为 false 时，节点会截断整棵子树：不渲染、不命中、不参与 mouse over
+     */
     protected boolean visible;
+
+    /**
+     * 控制本节点是否可以被命中，只表示当前节点自身不能成为事件目标，不阻断可见子节点命中
+     */
     protected boolean hitTestable = true;
-    @Setter
+
     @Getter
     @Nonnull
     protected ClipMod clipMod;
 
-    @Setter
     @Getter
     @Nonnull
     protected SizeMode sizeMode;
@@ -57,15 +61,37 @@ public class UINode {
     protected final LayoutParams layoutParams;
     
     /**
-     * 相对父节点的位置和尺寸
+     * 布局输入矩形：描述节点在父级布局空间中的期望位置和尺寸。
      */
+    @Getter
+    @Nonnull
+    public final Rect layoutRect;
+
+    /**
+     * 布局输出矩形：由 arrange/layout 计算出的最终屏幕空间矩形。
+     */
+    @Getter
+    @Nonnull
+    public final Rect finalRect;
+
+    /**
+     * 用于渲染内容的矩形，渲染节点各项内容的时候应当使用该矩形来进行渲染，以兼容动画
+     */
+    @Nonnull
+    public final Rect presentationRect;
+
+    /**
+     * @deprecated 使用 {@link #layoutRect} 或 setLayout* 方法表达布局输入。
+     */
+    @Deprecated
     @Getter
     @Nonnull
     public final Rect localRect;
 
     /**
-     * 缓存的屏幕绝对矩形（layout 后写入）
+     * @deprecated 使用 {@link #finalRect} 读取布局输出。
      */
+    @Deprecated
     @Getter
     @Nonnull
     public final Rect worldRect;
@@ -73,6 +99,15 @@ public class UINode {
     protected boolean debugMod = false;
     @Nonnull
     protected UIColor backgroundColor = UIColor.TRANSPARENT;
+    protected boolean layoutDirty = true;
+    protected boolean measureDirty = true;
+    @Getter
+    @Nonnull
+    protected MeasureResult measureResult = MeasureResult.ZERO;
+    @Getter
+    protected float measuredWidth = 0.0f;
+    @Getter
+    protected float measuredHeight = 0.0f;
 
     public UINode() {
         this.children = new ArrayList<>();
@@ -82,8 +117,12 @@ public class UINode {
         this.clipMod = ClipMod.NONE;
         this.sizeMode = SizeMode.FIXED;
         this.layoutParams = new LayoutParams();
-        this.localRect = new Rect();
-        this.worldRect = new Rect();
+        this.layoutRect = new Rect();
+        this.finalRect = new Rect();
+        this.presentationRect = new Rect(this.finalRect);
+        this.localRect = this.layoutRect;
+        this.worldRect = this.finalRect;
+        this.layoutParams.setChangeListener(this::requestLayout);
     }
 
     public UINode(@Nonnull UINode parent) {
@@ -94,8 +133,12 @@ public class UINode {
         this.clipMod = ClipMod.NONE;
         this.sizeMode = SizeMode.FIXED;
         this.layoutParams = new LayoutParams();
-        this.localRect = new Rect();
-        this.worldRect = new Rect();
+        this.layoutRect = new Rect();
+        this.finalRect = new Rect();
+        this.presentationRect = new Rect(this.finalRect);
+        this.localRect = this.layoutRect;
+        this.worldRect = this.finalRect;
+        this.layoutParams.setChangeListener(this::requestLayout);
 
         parent.addChild(this);
     }
@@ -148,6 +191,7 @@ public class UINode {
         if (this.manager != null) {
             child.attachToManager(this.manager);
         }
+        this.requestMeasure();
     }
 
     public void addChild(Collection<UINode> child) {
@@ -162,6 +206,7 @@ public class UINode {
                 child.detachFromManager();
             }
             child.parent = null;
+            this.requestMeasure();
         }
     }
 
@@ -169,6 +214,72 @@ public class UINode {
         for (UINode node : child) {
             this.removeChild(node);
         }
+    }
+
+    public void requestLayout() {
+        this.layoutDirty = true;
+        if (this.parent != null) {
+            this.parent.requestLayout();
+            return;
+        }
+        if (this.manager != null) {
+            this.manager.requestLayout();
+        }
+    }
+
+    public void requestMeasure() {
+        this.measureDirty = true;
+        this.layoutDirty = true;
+        if (this.parent != null) {
+            this.parent.requestMeasure();
+            return;
+        }
+        if (this.manager != null) {
+            this.manager.requestLayout();
+        }
+    }
+
+    public boolean isLayoutDirty() {
+        return this.layoutDirty;
+    }
+
+    public boolean isMeasureDirty() {
+        return this.measureDirty;
+    }
+
+    protected void markLayoutClean() {
+        this.layoutDirty = false;
+        this.measureDirty = false;
+    }
+
+    public void setClipMod(@Nonnull ClipMod clipMod) {
+        this.clipMod = clipMod;
+        this.requestLayout();
+    }
+
+    public void setSizeMode(@Nonnull SizeMode sizeMode) {
+        this.sizeMode = sizeMode;
+        this.requestMeasure();
+    }
+
+    public void setLayoutRect(float x, float y, float w, float h) {
+        this.layoutRect.set(x, y, w, h);
+        this.requestMeasure();
+    }
+
+    public void setLayoutRect(@Nonnull Rect rect) {
+        this.layoutRect.set(rect);
+        this.requestMeasure();
+    }
+
+    public void setLayoutPosition(float x, float y) {
+        this.layoutRect.setXY(x, y);
+        this.requestLayout();
+    }
+
+    public void setLayoutSize(float w, float h) {
+        this.layoutRect.setWH(w, h);
+        this.requestMeasure();
     }
 
     protected <T> UIAnimator<T> animate(
@@ -397,7 +508,11 @@ public class UINode {
 
     @Nullable
     public UINode getTopmostHitNode(float mouseX, float mouseY) {
-        if (this.clipMod == ClipMod.RECT && !this.hitTest(mouseX, mouseY)) {
+        if (!this.visible) {
+            return null;
+        }
+        // 如果 clipMod == ClipMod.RECT, 那么裁切区域之外的子树不会继续命中。
+        if (this.clipMod == ClipMod.RECT && !this.isPointInside(mouseX, mouseY)) {
             return null;
         }
 
@@ -416,48 +531,16 @@ public class UINode {
     }
 
     /**
-     * 获取命中的节点，优先返回最上层的子节点
-     * @return 命中的节点，未命中返回 null
-     */
-    @Nullable
-    public UINode getHitNode(float mouseX, float mouseY) {
-        // 如果 Code clipMod != ClipMod.RECT, 那么后续的 hitTest 也不会执行了
-        if (this.clipMod == ClipMod.RECT && !this.hitTest(mouseX, mouseY)) {
-            return null;
-        }
-
-        for (int i = this.children.size() - 1; i >= 0 ; --i) {
-            UINode hitNode = this.children.get(i).getHitNode(mouseX, mouseY);
-            if (hitNode != null) {
-                return hitNode;
-            }
-        }
-
-        if (!this.hitTest(mouseX, mouseY)) {
-            return null;
-        }
-
-        return this;
-    }
-
-    /**
-     * 判断鼠标坐标是否在当前元素的范围内, 该函数用于每帧进行 mouseover 判定, 需要使用时间复杂度较低的算法.<br>
-     *
-     * 当元素不可见时, 该操作不应该成功.
-     * @see #hitTest(float mouseX, float mouseY)
-     */
-    public boolean contains(float mouseX, float mouseY) {
-        return this.visible && this.hitTest(mouseX, mouseY);
-    }
-
-    /**
      * 递归获取鼠标当前位置下的最上层的元素, 由于每次鼠标移动都有可能进行一次判定, 需要使用时间复杂度较低的算法.
      * @return 鼠标位置下最上层的节点, 为 null 则表示不存在.
      */
     @Nullable
     public UINode getMouseOverNode(float mouseX, float mouseY) {
-        // 如果 Code clipMod != ClipMod.RECT, 那么后续的 contains 也不会执行了
-        if (this.clipMod == ClipMod.RECT && !this.contains(mouseX, mouseY)) {
+        if (!this.visible) {
+            return null;
+        }
+        // 如果 clipMod == ClipMod.RECT, 那么裁切区域之外的子树不会继续 mouseover。
+        if (this.clipMod == ClipMod.RECT && !this.isPointInside(mouseX, mouseY)) {
             return null;
         }
 
@@ -468,7 +551,7 @@ public class UINode {
             }
         }
 
-        if (!this.contains(mouseX, mouseY)) {
+        if (!this.hitTest(mouseX, mouseY)) {
             return null;
         }
 
@@ -483,12 +566,71 @@ public class UINode {
      * @param parentH 父节点的高度
      */
     public void layout(float parentX, float parentY, float parentW, float parentH) {
-        UILayout.layout(this.localRect, this.worldRect, this.layoutParams, this.sizeMode, parentX, parentY, parentW, parentH);
+        this.arrangeSelf(parentX, parentY, parentW, parentH);
+        this.arrangeChildren();
+        this.markLayoutClean();
+    }
 
+    /**
+     * 计算当前节点自己的最终屏幕矩形，不处理子节点。
+     */
+    protected void arrangeSelf(float parentX, float parentY, float parentW, float parentH) {
+        UILayout.layout(this.layoutRect, this.finalRect, this.layoutParams, this.sizeMode, parentX, parentY, parentW, parentH);
+        this.presentationRect.set(this.finalRect);
+    }
+
+    /**
+     * 根据当前节点的最终矩形摆放子节点。默认行为保持旧的绝对布局语义。
+     */
+    protected void arrangeChildren() {
         // 布局可以不考虑同层级先后顺序
         for (UINode child : this.children) {
-            child.layout(this.worldRect.x, this.worldRect.y, this.worldRect.w, this.worldRect.h);
+            child.layout(this.finalRect.x, this.finalRect.y, this.finalRect.w, this.finalRect.h);
         }
+    }
+
+    /**
+     * 计算节点在父级约束下的自然尺寸。
+     */
+    public MeasureResult measure(LayoutConstraints constraints) {
+        MeasureResult result = this.measureSelf(constraints);
+        this.setMeasureResult(result);
+        this.measureChildren(constraints);
+        this.measureDirty = false;
+        return this.measureResult;
+    }
+
+    /**
+     * 计算当前节点自己的自然尺寸，不处理子节点。
+     */
+    protected MeasureResult measureSelf(LayoutConstraints constraints) {
+        float width = UILayout.resolveWidth(this.sizeMode, this.layoutRect, constraints.getMaxWidth());
+        float height = UILayout.resolveHeight(this.sizeMode, this.layoutRect, constraints.getMaxHeight());
+        return MeasureResult.of(width, height);
+    }
+
+    /**
+     * 根据当前节点测量结果继续测量子节点。默认行为保持旧的父尺寸传递语义。
+     */
+    protected void measureChildren(@Nonnull LayoutConstraints constraints) {
+        LayoutConstraints childConstraints = LayoutConstraints.loose(this.measuredWidth, this.measuredHeight);
+        for (UINode child : this.children) {
+            child.measure(childConstraints);
+        }
+    }
+
+    protected void setMeasureResult(@Nonnull MeasureResult result) {
+        this.measureResult = result;
+        this.measuredWidth = result.getWidth();
+        this.measuredHeight = result.getHeight();
+        this.layoutRect.setWH(this.measuredWidth, this.measuredHeight);
+    }
+
+    /**
+     * 将节点摆放到父级坐标系中。当前版本委托旧 layout()，用于保证现有页面兼容。
+     */
+    public void arrange(float parentX, float parentY, float parentW, float parentH) {
+        this.layout(parentX, parentY, parentW, parentH);
     }
 
     /**
@@ -499,7 +641,7 @@ public class UINode {
         if (!this.visible) {
             return;
         }
-        context.drawQuad(this.worldRect, this.backgroundColor);
+        context.fillRect(this.finalRect, this.backgroundColor);
     }
 
     /**
@@ -512,49 +654,70 @@ public class UINode {
      * 在调试模式下调用该函数渲染调试信息.
      */
     public void renderDebug(@Nonnull UIRenderContext context) {
-        context.renderOutline(this.worldRect, UIColor.RED);
+        context.renderOutline(this.finalRect, UIColor.RED);
     }
 
     /**
      * 渲染节点及其子节点的树
      */
     public void renderTree(UIRenderContext context) {
+        if (!this.visible) {
+            return;
+        }
+
         this.renderBackGround(context);
         boolean hasClip = (this.clipMod == ClipMod.RECT);
         if (hasClip) {
             context.pushClipRect(this.getClipRect());
         }
 
-        if (this.isVisible()) {
-            this.render(context);
-        }
+        this.render(context);
 
         if (this.debugMod) {
             this.renderDebug(context);
         }
 
-        for (UINode child : this.children) {
-            child.renderTree(context);
-        }
+        this.renderChildrenTree(context);
 
         if (hasClip) {
             context.popClipRect();
         }
     }
 
+    protected void renderChildrenTree(UIRenderContext context) {
+        for (UINode child : this.children) {
+            child.renderTree(context);
+        }
+    }
+
     @Nonnull
     protected Rect getClipRect() {
-        return this.worldRect;
+        return this.finalRect;
+    }
+
+    @Nonnull
+    protected Rect getpresentationRect() {
+        return this.presentationRect;
     }
 
     /**
-     * 检查鼠标是否可以命中该元素, 元素不可见的情况下也可能命中.
-     * @see #contains(float mouseX, float mouseY)
+     * 检查鼠标是否可以命中该元素自身。
+     *
+     * <p>该方法只判断当前节点是否能作为事件目标。父节点用于裁切子树时应使用
+     * {@link #isPointInside(float, float)}，避免 {@code hitTestable=false}
+     * 的父节点阻断子节点命中。
      */
     public boolean hitTest(float x, float y) {
-        if (!this.hitTestable) {
+        if (!this.visible || !this.hitTestable) {
             return false;
         }
+        return this.isPointInside(x, y);
+    }
+
+    /**
+     * 只检查坐标是否落在当前节点裁切矩形内，不考虑 visible / hitTestable。
+     */
+    protected boolean isPointInside(float x, float y) {
         return x >= this.getClipRect().x && x < this.getClipRect().x + this.getClipRect().w
             && y >= this.getClipRect().y && y < this.getClipRect().y + this.getClipRect().h;
     }
@@ -562,11 +725,13 @@ public class UINode {
     public void enable() {
         this.visible = true;
         this.hitTestable = true;
+        this.requestLayout();
     }
 
     public void disable() {
         this.visible = false;
         this.hitTestable = false;
+        this.requestLayout();
     }
 
     public boolean isVisible() {
@@ -575,6 +740,7 @@ public class UINode {
 
     public void setVisible(boolean visible) {
         this.visible = visible;
+        this.requestLayout();
     }
 
     public boolean isHitTestable() {
@@ -583,14 +749,17 @@ public class UINode {
 
     public void setHitTestable(boolean hitTestable) {
         this.hitTestable = hitTestable;
+        this.requestLayout();
     }
 
     public void enableHitTest() {
         this.hitTestable = true;
+        this.requestLayout();
     }
 
     public void disableHitTest() {
         this.hitTestable = false;
+        this.requestLayout();
     }
 
     public List<UINode> getChildren() {
@@ -703,22 +872,10 @@ public class UINode {
         this.manager = null;
     }
 
-    protected float getWindowWidth() {
-        return Minecraft.getInstance().getWindow().getWidth();
-    }
-
-    protected float getWindowHeight() {
-        return Minecraft.getInstance().getWindow().getHeight();
-    }
-
-    protected float getGuiScale() {
-        return (float) Minecraft.getInstance().getWindow().getGuiScale();
-    }
-
     protected void setToFullScreen() {
-        this.localRect.set(
+        this.setLayoutRect(
                 0.0f, 0.0f,
-                this.getWindowWidth() / this.getGuiScale(), this.getWindowHeight() / this.getGuiScale()
+                UIManager.getWindowWidth() / UIManager.getGuiScale(), UIManager.getWindowHeight() / UIManager.getGuiScale()
         );
     }
 }

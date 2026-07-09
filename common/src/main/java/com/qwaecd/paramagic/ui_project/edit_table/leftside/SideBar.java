@@ -38,7 +38,7 @@ public class SideBar extends UINode {
         this.clipMod = ClipMod.RECT;
         this.localRect.set(
                 0.0f, 0.0f,
-                120.0f, this.getWindowHeight() / this.getGuiScale()
+                120.0f, UIManager.getWindowHeight() / UIManager.getGuiScale()
         );
 
         this.structEditNode = new ParaStructEditNode(this);
@@ -142,13 +142,16 @@ public class SideBar extends UINode {
             if (!this.visible) {
                 return;
             }
-            context.fill(worldRect.x, worldRect.y, worldRect.x + worldRect.w, worldRect.y + worldRect.h, 0x80FFFFFF);
+            context.fillBounds(worldRect.x, worldRect.y, worldRect.x + worldRect.w, worldRect.y + worldRect.h, 0x80FFFFFF);
         }
     }
 
     @Override
     @Nullable
     public UINode getMouseOverNode(float mouseX, float mouseY) {
+        if (!this.isVisible()) {
+            return null;
+        }
         UINode node = this.resizeNode.getMouseOverNode(mouseX, mouseY);
         if (node != null) {
             return node;
@@ -159,6 +162,9 @@ public class SideBar extends UINode {
     @Override
     @Nullable
     public UINode getTopmostHitNode(float mouseX, float mouseY) {
+        if (!this.isVisible()) {
+            return null;
+        }
         UINode node = this.resizeNode.getTopmostHitNode(mouseX, mouseY);
         if (node != null) {
             return node;
@@ -196,7 +202,7 @@ public class SideBar extends UINode {
 
     @Override
     public void layout(float parentX, float parentY, float parentW, float parentH) {
-        this.localRect.h = this.getWindowHeight() / this.getGuiScale();
+        this.localRect.h = UIManager.getWindowHeight() / UIManager.getGuiScale();
         this.structEditNode.localRect.set(
                 this.localRect.x, this.localRect.y,
                 this.localRect.w - this.resizeNode.localRect.w, this.localRect.h
@@ -215,7 +221,7 @@ public class SideBar extends UINode {
         if (!this.isVisible()) {
             return;
         }
-        context.fill(
+        context.fillBounds(
                 worldRect.x,
                 worldRect.y,
                 worldRect.x + worldRect.w, worldRect.y + worldRect.h,

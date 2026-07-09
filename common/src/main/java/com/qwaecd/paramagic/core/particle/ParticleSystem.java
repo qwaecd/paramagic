@@ -17,6 +17,7 @@ import com.qwaecd.paramagic.core.render.shader.Shader;
 import com.qwaecd.paramagic.core.render.shader.ShaderManager;
 import com.qwaecd.paramagic.platform.annotation.PlatformScope;
 import com.qwaecd.paramagic.platform.annotation.PlatformScopeType;
+import net.minecraft.client.Minecraft;
 import org.joml.Matrix4f;
 import org.joml.Vector3d;
 import org.lwjgl.BufferUtils;
@@ -162,7 +163,7 @@ public class ParticleSystem implements AutoCloseable {
 
         // Point bucket
         this.pointRenderShader.bind();
-        this.setCommonRenderUniforms(this.pointRenderShader, projectionMatrix, viewMatrix, cameraPos);
+        this.setCommonRenderUniforms(this.pointRenderShader, projectionMatrix, viewMatrix, cameraPos, this.computePointSizeScale(projectionMatrix));
         this.pointRenderShader.setUniformValue1i("u_bucketType", BUCKET_TYPE_POINT);
         glDrawArraysIndirect(GL_POINTS, 0L);
         this.pointRenderShader.unbind();
@@ -170,7 +171,7 @@ public class ParticleSystem implements AutoCloseable {
         // Triangle + Quad buckets share one geometry shader, selected by uniform branch.
         if (this.shapeRenderShader != null) {
             this.shapeRenderShader.bind();
-            this.setCommonRenderUniforms(this.shapeRenderShader, projectionMatrix, viewMatrix, cameraPos);
+            this.setCommonRenderUniforms(this.shapeRenderShader, projectionMatrix, viewMatrix, cameraPos, this.computePointSizeScale(projectionMatrix));
 
             this.shapeRenderShader.setUniformValue1i("u_bucketType", BUCKET_TYPE_TRIANGLE);
             glDrawArraysIndirect(GL_POINTS, (long) INDIRECT_COMMAND_STRIDE_BYTES);
@@ -374,10 +375,16 @@ public class ParticleSystem implements AutoCloseable {
         }
     }
 
-    private void setCommonRenderUniforms(Shader shader, Matrix4f projectionMatrix, Matrix4f viewMatrix, Vector3d cameraPos) {
+    private void setCommonRenderUniforms(Shader shader, Matrix4f projectionMatrix, Matrix4f viewMatrix, Vector3d cameraPos, float pointSizeScale) {
         shader.setUniformMatrix4f("u_projectionMatrix", projectionMatrix);
         shader.setUniformMatrix4f("u_viewMatrix", viewMatrix);
         shader.setUniformValue3f("u_cameraPosition", (float) cameraPos.x, (float) cameraPos.y, (float) cameraPos.z);
+        shader.setUniformValue1f("u_pointSizeScale", pointSizeScale);
+    }
+
+    private float computePointSizeScale(Matrix4f projectionMatrix) {
+        int viewportHeight = Minecraft.getInstance().getWindow().getHeight();
+        return 0.5f * viewportHeight * projectionMatrix.m11();
     }
 
     private void uploadPhysicsParams(GPUParticleEffect activeEffect, ByteBuffer singleEffectBuffer) {

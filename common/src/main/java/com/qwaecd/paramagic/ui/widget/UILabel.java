@@ -1,6 +1,8 @@
 package com.qwaecd.paramagic.ui.widget;
 
 import com.qwaecd.paramagic.ui.api.UIRenderContext;
+import com.qwaecd.paramagic.ui.core.LayoutConstraints;
+import com.qwaecd.paramagic.ui.core.MeasureResult;
 import com.qwaecd.paramagic.ui.core.UINode;
 import com.qwaecd.paramagic.ui.util.Rect;
 import com.qwaecd.paramagic.ui.util.UIColor;
@@ -59,6 +61,11 @@ public class UILabel extends UINode {
     }
 
     @Override
+    protected MeasureResult measureSelf(@Nonnull LayoutConstraints constraints) {
+        return MeasureResult.of(this.provider.getTextWidth(this.label), this.provider.getLineHeight());
+    }
+
+    @Override
     public void layout(float parentX, float parentY, float parentW, float parentH) {
         final int textWidth = this.provider.getTextWidth(this.label);
         final int lineHeight = this.provider.getLineHeight();
@@ -85,10 +92,12 @@ public class UILabel extends UINode {
 
     public void setLabel(@Nonnull String label) {
         this.label = Component.literal(label);
+        this.requestMeasure();
     }
 
     public void setLabel(@Nonnull Component label) {
         this.label = label;
+        this.requestMeasure();
     }
 
     public void setColor(UIColor color) {

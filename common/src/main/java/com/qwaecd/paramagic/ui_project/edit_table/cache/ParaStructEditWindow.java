@@ -5,7 +5,8 @@ import com.qwaecd.paramagic.tools.ModRL;
 import com.qwaecd.paramagic.ui.api.UIRenderContext;
 import com.qwaecd.paramagic.ui.api.event.AllUIEvents;
 import com.qwaecd.paramagic.ui.api.event.UIEventContext;
-import com.qwaecd.paramagic.ui.core.UINode;
+import com.qwaecd.paramagic.ui.core.LayoutConstraints;
+import com.qwaecd.paramagic.ui.core.MeasureResult;
 import com.qwaecd.paramagic.ui.event.EventPhase;
 import com.qwaecd.paramagic.ui.event.impl.DoubleClick;
 import com.qwaecd.paramagic.ui.event.impl.MouseClick;
@@ -14,8 +15,6 @@ import com.qwaecd.paramagic.ui.util.NineSliceSprite;
 import com.qwaecd.paramagic.ui.widget.node.MouseCaptureNode;
 import com.qwaecd.paramagic.ui_project.edit_table.EditTableSprite;
 import com.qwaecd.paramagic.ui_project.edit_table.cache.section.*;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.Font;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -49,8 +48,7 @@ public class ParaStructEditWindow extends MouseCaptureNode {
 
     public ParaStructEditWindow(@Nonnull ParaStruct struct) {
         this.struct = struct;
-        this.localRect.setWH(WINDOW_WIDTH, 0);
-        this.localRect.setXY(50.0f, 40.0f);
+        this.setLayoutRect(50.0f, 40.0f, WINDOW_WIDTH, 0.0f);
         this.installBubblingFallbacks();
 
         this.baseSections = new EditSection[]{
@@ -106,17 +104,7 @@ public class ParaStructEditWindow extends MouseCaptureNode {
         }
         this.updateTypeSection(struct);
         this.syncFromStruct();
-        this.relayout();
-    }
-
-    private void relayout() {
-        UINode parent = this.getParent();
-        if (parent != null) {
-            this.layout(
-                    parent.getWorldRect().x, parent.getWorldRect().y,
-                    parent.getWorldRect().w, parent.getWorldRect().h
-            );
-        }
+        this.requestMeasure();
     }
 
     private void updateTypeSection(@Nonnull ParaStruct struct) {
@@ -157,20 +145,33 @@ public class ParaStructEditWindow extends MouseCaptureNode {
         }
         this.updateTypeSection(this.struct);
         this.syncFromStruct();
-        this.relayout();
+        this.requestMeasure();
     }
 
     @Override
-    public void layout(float parentX, float parentY, float parentW, float parentH) {
-        Font font = Minecraft.getInstance().font;
-        float contentW = this.localRect.w - PADDING * 2;
+    @Nonnull
+    protected MeasureResult measureSelf(@Nonnull LayoutConstraints constraints) {
+        float height = this.measureSections(constraints);
+        this.layoutRect.setWH(WINDOW_WIDTH, height);
+        return MeasureResult.of(WINDOW_WIDTH, height);
+    }
+
+    @Override
+    protected void measureChildren(@Nonnull LayoutConstraints constraints) {
+        // Sections are measured in order by measureSections(), because each
+        // section's height determines the next section's y offset.
+    }
+
+    private float measureSections(@Nonnull LayoutConstraints constraints) {
+        float contentW = WINDOW_WIDTH - PADDING * 2;
         float y = PADDING;
+        LayoutConstraints sectionConstraints = LayoutConstraints.loose(contentW, constraints.getMaxHeight());
 
         for (int i = 0; i < this.baseSections.length; i++) {
             EditSection section = this.baseSections[i];
-            section.localRect.set(PADDING, y, contentW, 0);
-            section.layoutContent(font, contentW);
-            y += section.localRect.h;
+            section.getLayoutRect().set(PADDING, y, contentW, 0.0f);
+            MeasureResult sectionSize = section.measure(sectionConstraints);
+            y += sectionSize.getHeight();
             if (i < this.baseSections.length - 1) {
                 y += SECTION_GAP;
             }
@@ -178,13 +179,12 @@ public class ParaStructEditWindow extends MouseCaptureNode {
 
         if (this.typeSection != null) {
             y += SECTION_GAP;
-            this.typeSection.localRect.set(PADDING, y, contentW, 0);
-            this.typeSection.layoutContent(font, contentW);
-            y += this.typeSection.localRect.h;
+            this.typeSection.getLayoutRect().set(PADDING, y, contentW, 0.0f);
+            MeasureResult sectionSize = this.typeSection.measure(sectionConstraints);
+            y += sectionSize.getHeight();
         }
 
-        this.localRect.h = y + PADDING;
-        super.layout(parentX, parentY, parentW, parentH);
+        return y + PADDING;
     }
 
     @Override

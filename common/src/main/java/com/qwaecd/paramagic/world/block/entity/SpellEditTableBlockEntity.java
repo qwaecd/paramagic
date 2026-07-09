@@ -1,6 +1,6 @@
 package com.qwaecd.paramagic.world.block.entity;
 
-import com.qwaecd.paramagic.ui.menu.SpellEditTableMenu;
+import com.qwaecd.paramagic.ui.menu.SpellEditMenu;
 import com.qwaecd.paramagic.world.block.ModBlockEntityTypes;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.NonNullList;
@@ -119,6 +119,6 @@ public class SpellEditTableBlockEntity extends BlockEntity implements Container,
 
     @Override
     public AbstractContainerMenu createMenu(int containerId, Inventory playerInventory, Player player) {
-        return new SpellEditTableMenu(containerId, playerInventory, ContainerLevelAccess.create(this.level, this.worldPosition), this);
+        return new SpellEditMenu(containerId, playerInventory, ContainerLevelAccess.create(this.level, this.worldPosition), this);
     }
 }

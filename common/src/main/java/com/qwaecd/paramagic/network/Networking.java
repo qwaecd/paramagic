@@ -3,8 +3,7 @@ package com.qwaecd.paramagic.network;
 import com.qwaecd.paramagic.network.api.PlatformNetworking;
 import com.qwaecd.paramagic.network.handler.ServerSessionHandlers;
 import com.qwaecd.paramagic.network.handler.ServerSlotActionHandler;
-import com.qwaecd.paramagic.network.packet.inventory.C2SClickTreeNodePacket;
-import com.qwaecd.paramagic.network.packet.inventory.C2SSubmitEditedParaDataPacket;
+import com.qwaecd.paramagic.network.packet.inventory.*;
 import com.qwaecd.paramagic.network.packet.session.C2SSessionAttachPacket;
 
 public class Networking {
@@ -22,6 +21,9 @@ public class Networking {
     private static void registerAll(PlatformNetworking networking) {
         networking.register(C2SClickTreeNodePacket.IDENTIFIER, C2SClickTreeNodePacket.class, C2SClickTreeNodePacket::decode, ServerSlotActionHandler::clickNode);
         networking.register(C2SSubmitEditedParaDataPacket.IDENTIFIER, C2SSubmitEditedParaDataPacket.class, C2SSubmitEditedParaDataPacket::decode, ServerSlotActionHandler::submitEditedParaData);
+        networking.register(C2SAddSpellTreeNodePacket.IDENTIFIER, C2SAddSpellTreeNodePacket.class, C2SAddSpellTreeNodePacket::decode, ServerSlotActionHandler::addSpellTreeNode);
+        networking.register(C2SDeleteSpellTreeSubtreePacket.IDENTIFIER, C2SDeleteSpellTreeSubtreePacket.class, C2SDeleteSpellTreeSubtreePacket::decode, ServerSlotActionHandler::deleteSpellTreeSubtree);
+        networking.register(C2SSetSpellTreeNodeOperatorPacket.IDENTIFIER, C2SSetSpellTreeNodeOperatorPacket.class, C2SSetSpellTreeNodeOperatorPacket::decode, ServerSlotActionHandler::setSpellTreeNodeOperator);
         networking.register(C2SSessionAttachPacket.IDENTIFIER, C2SSessionAttachPacket.class, C2SSessionAttachPacket::decode, ServerSessionHandlers::attachSession);
     }
 

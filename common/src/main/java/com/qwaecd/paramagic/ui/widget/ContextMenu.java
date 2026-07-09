@@ -3,6 +3,7 @@ package com.qwaecd.paramagic.ui.widget;
 import com.qwaecd.paramagic.tools.ModRL;
 import com.qwaecd.paramagic.ui.api.UIRenderContext;
 import com.qwaecd.paramagic.ui.api.event.UIEventContext;
+import com.qwaecd.paramagic.ui.core.UIManager;
 import com.qwaecd.paramagic.ui.core.UINode;
 import com.qwaecd.paramagic.ui.event.impl.MouseClick;
 import com.qwaecd.paramagic.ui.util.NineSliceSprite;
@@ -30,8 +31,8 @@ public class ContextMenu extends UINode {
 
     @Override
     public void layout(float parentX, float parentY, float parentW, float parentH) {
-        final float screenW = this.getWindowWidth() / this.getGuiScale();
-        final float screenH = this.getWindowHeight() / this.getGuiScale();
+        final float screenW = UIManager.getWindowWidth() / UIManager.getGuiScale();
+        final float screenH = UIManager.getWindowHeight() / UIManager.getGuiScale();
         if (this.localRect.x + this.localRect.w > screenW) {
             this.localRect.x = screenW - this.localRect.w;
         }
@@ -50,10 +51,7 @@ public class ContextMenu extends UINode {
     protected void renderBackGround(UIRenderContext context) {
         context.renderNineSliceSprite(
                 sprite,
-                (int) this.worldRect.x,
-                (int) this.worldRect.y,
-                (int) this.worldRect.w,
-                (int) this.worldRect.h
+                this.finalRect
         );
     }
 }

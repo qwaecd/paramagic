@@ -18,6 +18,13 @@ public final class Rect {
         this.h = 0.0f;
     }
 
+    public Rect(Rect other) {
+        this.x = other.x;
+        this.y = other.y;
+        this.w = other.w;
+        this.h = other.h;
+    }
+
     public Rect(float x, float y, float w, float h) {
         this.x = x;
         this.y = y;
@@ -27,6 +34,10 @@ public final class Rect {
 
     public static Rect fromVec4f(Vector4f v) {
         return new Rect(v.x, v.y, v.z, v.w);
+    }
+
+    public boolean contains(float px, float py) {
+        return px >= this.x && px < this.x + this.w && py >= this.y && py < this.y + this.h;
     }
 
     public void set(float x, float y, float w, float h) {
@@ -58,5 +69,33 @@ public final class Rect {
     public void setWH(float w, float h) {
         this.w = w;
         this.h = h;
+    }
+
+    public Rect inset(float inset) {
+        return this.inset(inset, new Rect());
+    }
+
+    public Rect inset(float inset, Rect dest) {
+        dest.set(
+                this.x + inset,
+                this.y + inset,
+                Math.max(0.0f, this.w - inset * 2.0f),
+                Math.max(0.0f, this.h - inset * 2.0f)
+        );
+        return dest;
+    }
+
+    public Rect inset(float insetX, float insetY, Rect dest) {
+        dest.set(
+                this.x + insetX,
+                this.y + insetY,
+                Math.max(0.0f, this.w - insetX * 2.0f),
+                Math.max(0.0f, this.h - insetY * 2.0f)
+        );
+        return dest;
+    }
+
+    public Rect inset(float insetX, float insetY) {
+        return this.inset(insetX, insetY, new Rect());
     }
 }

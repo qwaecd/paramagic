@@ -2,7 +2,7 @@ package com.qwaecd.paramagic.ui.core;
 
 public enum SizeMode {
     /**
-     * 固定尺寸：使用localRect的w/h
+     * 固定尺寸：使用 layoutRect 的 w/h。
      */
     FIXED,
     /**
@@ -10,11 +10,11 @@ public enum SizeMode {
      */
     FILL,
     /**
-     * 仅宽度填充：w等于父容器，h使用localRect.h
+     * 仅宽度填充：w 等于父容器，h 使用 layoutRect.h。
      */
     FILL_WIDTH,
     /**
-     * 仅高度填充：h等于父容器，w使用localRect.w
+     * 仅高度填充：h 等于父容器，w 使用 layoutRect.w。
      */
     FILL_HEIGHT;
 }

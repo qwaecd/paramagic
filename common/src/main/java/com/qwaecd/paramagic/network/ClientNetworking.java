@@ -6,6 +6,7 @@ import com.qwaecd.paramagic.network.handler.ClientEffectHandlers;
 import com.qwaecd.paramagic.network.handler.ClientSessionDataHandlers;
 import com.qwaecd.paramagic.network.packet.effect.S2CEffectKill;
 import com.qwaecd.paramagic.network.packet.effect.S2CEffectSpawn;
+import com.qwaecd.paramagic.network.packet.inventory.S2CSpellTreeEditRejectedPacket;
 import com.qwaecd.paramagic.network.packet.inventory.S2CSubmitEditedParaDataResultPacket;
 import com.qwaecd.paramagic.network.packet.session.S2CSessionDataSyncPacket;
 import com.qwaecd.paramagic.network.packet.session.S2CSessionStopPacket;
@@ -20,5 +21,6 @@ public class ClientNetworking {
         networking.register(S2CSessionDataSyncPacket.IDENTIFIER, S2CSessionDataSyncPacket.class, S2CSessionDataSyncPacket::decode, ClientSessionDataHandlers::syncSessionData);
         networking.register(S2CSessionStopPacket.IDENTIFIER, S2CSessionStopPacket.class, S2CSessionStopPacket::decode, ClientSessionDataHandlers::stopSession);
         networking.register(S2CSubmitEditedParaDataResultPacket.IDENTIFIER, S2CSubmitEditedParaDataResultPacket.class, S2CSubmitEditedParaDataResultPacket::decode, ClientEditTableHandlers::submitEditedParaDataResult);
+        networking.register(S2CSpellTreeEditRejectedPacket.IDENTIFIER, S2CSpellTreeEditRejectedPacket.class, S2CSpellTreeEditRejectedPacket::decode, ClientEditTableHandlers::spellTreeEditRejected);
     }
 }

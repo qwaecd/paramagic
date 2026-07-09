@@ -1,10 +1,15 @@
 package com.qwaecd.paramagic.world.block;
 
+import com.qwaecd.paramagic.thaumaturgy.spelltree.PlayerOffhandSpellTreeEditTarget;
+import com.qwaecd.paramagic.ui.menu.SpellEditMenu;
 import com.qwaecd.paramagic.world.block.entity.SpellEditTableBlockEntity;
+import com.qwaecd.paramagic.world.item.content.ParaCrystalItem;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.*;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
@@ -37,12 +42,22 @@ public class SpellEditTableBlock extends BaseEntityBlock {
 
     @Override
     public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
-        if (level.isClientSide) {
-            return InteractionResult.SUCCESS;
-        } else {
-            player.openMenu(this.getMenuProvider(state, level, pos));
-            return InteractionResult.CONSUME;
+        ItemStack offhandItem = player.getOffhandItem();
+        if (!(offhandItem.getItem() instanceof ParaCrystalItem)) {
+            return InteractionResult.PASS;
         }
+
+        if (!level.isClientSide) {
+            player.openMenu(new SimpleMenuProvider(
+                    (containerId, inventory, menuPlayer) -> new SpellEditMenu(
+                            containerId,
+                            inventory,
+                            PlayerOffhandSpellTreeEditTarget.INSTANCE
+                    ),
+                    Component.literal("Spell Edit")
+            ));
+        }
+        return level.isClientSide ? InteractionResult.SUCCESS : InteractionResult.CONSUME;
     }
 
     @Override
