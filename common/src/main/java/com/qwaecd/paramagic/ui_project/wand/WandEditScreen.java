@@ -1,6 +1,7 @@
 package com.qwaecd.paramagic.ui_project.wand;
 
 import com.qwaecd.paramagic.Paramagic;
+import com.qwaecd.paramagic.network.packet.inventory.S2CSpellTreeEditRejectedPacket;
 import com.qwaecd.paramagic.ui.api.event.AllUIEvents;
 import com.qwaecd.paramagic.ui.core.UIManager;
 import com.qwaecd.paramagic.ui.core.UINode;
@@ -12,7 +13,6 @@ import com.qwaecd.paramagic.ui.screen.MCContainerScreen;
 import com.qwaecd.paramagic.ui.util.Rect;
 import com.qwaecd.paramagic.ui.widget.UIButton;
 import com.qwaecd.paramagic.ui.widget.UILabel;
-import com.qwaecd.paramagic.network.packet.inventory.S2CSpellTreeEditRejectedPacket;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;

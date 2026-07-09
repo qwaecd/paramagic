@@ -7,8 +7,8 @@ import com.qwaecd.paramagic.network.packet.inventory.S2CSubmitEditedParaDataResu
 import com.qwaecd.paramagic.platform.annotation.PlatformScope;
 import com.qwaecd.paramagic.platform.annotation.PlatformScopeType;
 import com.qwaecd.paramagic.ui.menu.SpellEditMenu;
-import com.qwaecd.paramagic.ui_project.wand.WandEditScreen;
 import com.qwaecd.paramagic.ui_project.edit_table.cache.ParaEditCache;
+import com.qwaecd.paramagic.ui_project.wand.WandEditScreen;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.world.entity.player.Player;

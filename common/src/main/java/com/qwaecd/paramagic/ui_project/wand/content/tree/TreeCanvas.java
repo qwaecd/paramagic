@@ -8,8 +8,8 @@ import com.qwaecd.paramagic.ui.core.MeasureResult;
 import com.qwaecd.paramagic.ui.core.UIManager;
 import com.qwaecd.paramagic.ui.core.UINode;
 import com.qwaecd.paramagic.ui.util.Rect;
-import com.qwaecd.paramagic.ui_project.wand.WEAssets;
 import com.qwaecd.paramagic.ui_project.wand.SpellTreeEditClientState;
+import com.qwaecd.paramagic.ui_project.wand.WEAssets;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
