@@ -25,6 +25,7 @@ public final class TreeScrollViewport extends UINode {
     private float scrollX = 0.0f;
     private float scrollY = 0.0f;
 
+    // 松手后的惯性强度，数值越大回弹前会滑得越远。
     private static final float SCROLL_STRENGTH = 20.5f;
     private final Vector2f scrollVelocity = new Vector2f(0.0f, 0.0f);
 
@@ -112,22 +113,8 @@ public final class TreeScrollViewport extends UINode {
         this.captured = false;
         float targetX = this.scrollX + this.scrollVelocity.x * SCROLL_STRENGTH;
         float targetY = this.scrollY + this.scrollVelocity.y * SCROLL_STRENGTH;
-        float minScrollX = -55.0f;
-        float minScrollY = -45.0f;
-        float maxScrollX = this.treeContent.getMeasuredWidth() + (-minScrollX) - this.finalRect.w;
-        float maxScrollY = this.treeContent.getMeasuredHeight() + (-minScrollY) - this.finalRect.h;
-        targetX = Math.max(minScrollX, Math.min(maxScrollX, targetX));
-        targetY = Math.max(minScrollY, Math.min(maxScrollY, targetY));
-//        if (targetX < minScrollX) {
-//            targetX = minScrollX;
-//        } else if (targetX > maxScrollX) {
-//            targetX = maxScrollX;
-//        }
-//        if (targetY < minScrollY) {
-//            targetY = minScrollY;
-//        } else if (targetY > maxScrollY) {
-//            targetY = maxScrollY;
-//        }
+        targetX = this.clampScrollX(targetX);
+        targetY = this.clampScrollY(targetY);
         this.setScrollWithAnim(targetX, targetY, 0.5f);
         context.consume();
     }
@@ -154,10 +141,10 @@ public final class TreeScrollViewport extends UINode {
 
     @Override
     protected void arrangeChildren() {
-//        float maxScrollX = Math.max(0.0f, this.treeContent.getMeasuredWidth() - this.finalRect.w);
-//        float maxScrollY = Math.max(0.0f, this.treeContent.getMeasuredHeight() - this.finalRect.h);
-//        this.scrollX = Math.min(this.scrollX, maxScrollX);
-//        this.scrollY = Math.min(this.scrollY, maxScrollY);
+        if (!this.isScrollFreeMoving()) {
+            this.scrollX = this.clampScrollX(this.scrollX);
+            this.scrollY = this.clampScrollY(this.scrollY);
+        }
 
         Rect contentRect = this.treeContent.getLayoutRect();
         contentRect.set(
@@ -177,5 +164,26 @@ public final class TreeScrollViewport extends UINode {
 
     @Override
     protected void render(@NotNull UIRenderContext context) {
+    }
+
+    private float clampScrollX(float scrollX) {
+        return Math.max(0.0f, Math.min(this.getMaxScrollX(), scrollX));
+    }
+
+    private float clampScrollY(float scrollY) {
+        return Math.max(0.0f, Math.min(this.getMaxScrollY(), scrollY));
+    }
+
+    private float getMaxScrollX() {
+        return Math.max(0.0f, this.treeContent.getMeasuredWidth() - this.finalRect.w);
+    }
+
+    private float getMaxScrollY() {
+        return Math.max(0.0f, this.treeContent.getMeasuredHeight() - this.finalRect.h);
+    }
+
+    private boolean isScrollFreeMoving() {
+        UIManager manager = this.getManager();
+        return this.captured || (manager != null && manager.getAnimator(this, "TreeScroll") != null);
     }
 }

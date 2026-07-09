@@ -15,7 +15,9 @@ import org.jetbrains.annotations.NotNull;
 import javax.annotation.Nonnull;
 
 public final class TreeCanvas extends UINode {
+    // 面板内边距，留出边框和滚动条区域。
     private static final float PANEL_PADDING = 10.0f;
+    // 滚动条轨道厚度，同时会从视口可用空间里扣除。
     private static final float SCROLLBAR_THICKNESS = 7.0f;
 
     private float offsetAlpha = 0.6f;
@@ -64,6 +66,7 @@ public final class TreeCanvas extends UINode {
 
     @Override
     protected MeasureResult measureSelf(LayoutConstraints constraints) {
+        // 右侧法术树面板的固定显示窗口大小。
         return MeasureResult.of(260.0f, 210.0f);
     }
 
@@ -89,6 +92,12 @@ public final class TreeCanvas extends UINode {
                 viewportHeight
         );
 
+        final float viewportX = PANEL_PADDING;
+        final float viewportY = PANEL_PADDING + SCROLLBAR_THICKNESS;
+        Rect viewportRect = this.viewport.getLayoutRect();
+        viewportRect.set(viewportX, viewportY, viewportWidth, viewportHeight);
+        this.viewport.arrange(this.finalRect.x, this.finalRect.y, this.finalRect.w, this.finalRect.h);
+
         this.scrollbarLayer.updateTrackRectsForLayout(this.topScrollbarRect, this.rightScrollbarRect);
         this.scrollbarLayer.updateMetricsForLayout(
                 viewportWidth,
@@ -100,12 +109,6 @@ public final class TreeCanvas extends UINode {
         );
         this.scrollbarLayer.getLayoutRect().set(scrollbarLayerX, scrollbarLayerY, scrollbarLayerW, scrollbarLayerH);
         this.scrollbarLayer.arrange(this.finalRect.x, this.finalRect.y, this.finalRect.w, this.finalRect.h);
-
-        final float viewportX = PANEL_PADDING;
-        final float viewportY = PANEL_PADDING + SCROLLBAR_THICKNESS;
-        Rect viewportRect = this.viewport.getLayoutRect();
-        viewportRect.set(viewportX, viewportY, viewportWidth, viewportHeight);
-        this.viewport.arrange(this.finalRect.x, this.finalRect.y, this.finalRect.w, this.finalRect.h);
     }
 
     @Override

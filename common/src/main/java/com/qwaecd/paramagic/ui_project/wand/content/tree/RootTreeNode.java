@@ -16,6 +16,7 @@ import com.qwaecd.paramagic.ui.util.Rect;
 import com.qwaecd.paramagic.ui_project.wand.WEAssets;
 import org.jetbrains.annotations.NotNull;
 
+import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -151,26 +152,32 @@ public final class RootTreeNode extends TreeNode {
     }
 
     @Override
-    protected MeasureResult measureSelf(LayoutConstraints constraints) {
-        float w = WEAssets.ITEM_RECT.width;
-        float h = WEAssets.ITEM_RECT.height;
+    @Nonnull
+    protected MeasureResult measureTreeNode() {
+        float ownWidth = this.getOwnNodeWidth();
         if (this.subNode.isEmpty()) {
-            w += WEAssets.ADD_NODE_RIGHT.width + ADD_NODE_GAP;
+            return MeasureResult.of(ownWidth, WEAssets.ITEM_RECT.height);
         }
-        return MeasureResult.of(w, h);
+
+        float childrenWidth = this.getVisibleChildrenExtentWidth();
+        float childrenHeight = this.getVisibleChildrenMaxHeight();
+        return MeasureResult.of(
+                ownWidth + ITEM_RECT_GAP + childrenWidth,
+                Math.max(WEAssets.ITEM_RECT.height, childrenHeight)
+        );
     }
 
     @Override
     protected void arrangeChildren() {
-        float offsetX = this.getMeasuredWidth() + ITEM_RECT_GAP;
+        float offsetX = this.getOwnNodeWidth() + ITEM_RECT_GAP;
         for (TreeNode node : this.subNode) {
             Rect rect = node.getLayoutRect();
             rect.set(
                     offsetX, 0.0f,
-                    node.getMeasuredWidth(), node.getMeasuredHeight()
+                    node.getOwnNodeWidth(), node.getMeasuredHeight()
             );
             node.arrange(this.finalRect.x, this.finalRect.y, this.finalRect.w, this.finalRect.h);
-            offsetX += rect.w + ITEM_RECT_GAP;
+            offsetX += node.getOwnNodeWidth() + ITEM_RECT_GAP;
         }
     }
 

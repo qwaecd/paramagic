@@ -173,7 +173,7 @@ public class TreeNode extends UINode {
     protected void setSubTreeExpanded() {
         boolean shouldAnimate = this.state != SubTreeState.EXPANDED || this.collapseAnimating || this.revealProgress < 1.0f;
         if (shouldAnimate) {
-            if (this.state != SubTreeState.EXPANDED) {
+            if (this.state != SubTreeState.EXPANDED && !this.collapseAnimating) {
                 this.setRevealProgress(0.0f);
             }
             UIManager m = this.getManager();
@@ -187,18 +187,20 @@ public class TreeNode extends UINode {
         this.collapseAnimating = false;
         this.hiddenSubTreeNode.disable();
         this.state = SubTreeState.EXPANDED;
+        this.requestMeasure();
     }
 
     protected void setSubTreeHidden() {
         if (this.state == SubTreeState.EXPANDED) {
             this.onSubTreeCollapsing();
-            if (this.collapseAnimating) {
-                return;
-            }
+            this.state = SubTreeState.HIDDEN;
+            this.requestMeasure();
+            return;
         }
         this.state = SubTreeState.HIDDEN;
         this.revealProgress = 0.0f;
         this.renderAlpha = MIN_REVEAL_ALPHA;
+        this.requestMeasure();
     }
 
     protected void setSubTreeAddable() {
@@ -318,35 +320,86 @@ public class TreeNode extends UINode {
     }
 
     @Override
-    public MeasureResult measure(LayoutConstraints constraints) {
-        return super.measure(constraints);
+    public MeasureResult measure(@Nonnull LayoutConstraints constraints) {
+        LayoutConstraints childConstraints = LayoutConstraints.loose(constraints.getMaxWidth(), constraints.getMaxHeight());
+        this.hiddenSubTreeNode.measure(childConstraints);
+        for (TreeNode treeNode : this.subNode) {
+            treeNode.measure(childConstraints);
+        }
+
+        MeasureResult result = this.measureTreeNode();
+        this.setMeasureResult(result);
+        this.measureDirty = false;
+        return result;
     }
 
-    @Override
-    protected MeasureResult measureSelf(LayoutConstraints constraints) {
-        float w, h;
+    @Nonnull
+    protected MeasureResult measureTreeNode() {
+        float w;
+        float h;
         switch (this.state) {
             case HIDDEN -> {
-                w = WEAssets.ITEM_RECT.width;
-                h = WEAssets.ITEM_RECT.height + CHAIN_Y_GAP * 2 + WEAssets.CHAIN.height + WEAssets.HIDDEN_NODE.height;
+                w = Math.max(this.getOwnNodeWidth(), this.hiddenSubTreeNode.getMeasuredWidth());
+                h = this.getHiddenChildOffsetY() + this.hiddenSubTreeNode.getMeasuredHeight();
             }
             case EXPANDED -> {
-                w = WEAssets.ITEM_RECT.width;
-                h = WEAssets.ITEM_RECT.height + CHAIN_Y_GAP * 2 + WEAssets.CHAIN.height * 3 + BETWEEN_NODE_GAP * 2;
+                float childrenWidth = this.getVisibleChildrenExtentWidth();
+                float childrenHeight = this.getVisibleChildrenMaxHeight();
+                w = Math.max(this.getOwnNodeWidth(), childrenWidth);
+                h = this.getExpandedChildOffsetY() + childrenHeight;
             }
             case ADDABLE -> {
-                w = WEAssets.ITEM_RECT.width;
-                h = WEAssets.ITEM_RECT.height + WEAssets.ADD_NODE_DOWN.height + ADD_NODE_GAP;
+                w = Math.max(this.getOwnNodeWidth(), WEAssets.ADD_NODE_DOWN.width);
+                h = this.getAddableChildOffsetY() + WEAssets.ADD_NODE_DOWN.height;
             }
             default -> {
-                w = WEAssets.ITEM_RECT.width;
+                w = this.getOwnNodeWidth();
                 h = WEAssets.ITEM_RECT.height;
             }
         }
+        return MeasureResult.of(w, h);
+    }
+
+    protected float getOwnNodeWidth() {
+        float w = WEAssets.ITEM_RECT.width;
         if (this.isLastNode()) {
             w += WEAssets.ADD_NODE_RIGHT.width + ADD_NODE_GAP;
         }
-        return MeasureResult.of(w, h);
+        return w;
+    }
+
+    protected float getVisibleChildrenExtentWidth() {
+        if (this.subNode.isEmpty()) {
+            return 0.0f;
+        }
+
+        float offsetX = 0.0f;
+        float maxRight = 0.0f;
+        for (TreeNode treeNode : this.subNode) {
+            maxRight = Math.max(maxRight, offsetX + treeNode.getMeasuredWidth());
+            offsetX += treeNode.getOwnNodeWidth() + ITEM_RECT_GAP;
+        }
+        return maxRight;
+    }
+
+    protected float getVisibleChildrenMaxHeight() {
+        float height = 0.0f;
+        for (TreeNode treeNode : this.subNode) {
+            height = Math.max(height, treeNode.getMeasuredHeight());
+        }
+        return height;
+    }
+
+    protected float getHiddenChildOffsetY() {
+        return WEAssets.ITEM_RECT.height + CHAIN_Y_GAP * 2.0f + WEAssets.CHAIN.height;
+    }
+
+    protected float getExpandedChildOffsetY() {
+        return WEAssets.ITEM_RECT.height + CHAIN_Y_GAP * 2.0f + WEAssets.CHAIN.height * 3.0f + BETWEEN_NODE_GAP * 2.0f;
+    }
+
+    protected float getAddableChildOffsetY() {
+        return WEAssets.ITEM_RECT.height + CHAIN_Y_GAP;
     }
 
     @Override
@@ -387,10 +440,14 @@ public class TreeNode extends UINode {
     protected void arrangeChildren() {
         float offsetX = 0.0f;
         float offsetY = 0.0f;
-        switch (this.state) {
-            case HIDDEN -> offsetY = WEAssets.ITEM_RECT.height + CHAIN_Y_GAP * 2 + WEAssets.CHAIN.height;
-            case EXPANDED -> offsetY = WEAssets.ITEM_RECT.height + CHAIN_Y_GAP * 2 + WEAssets.CHAIN.height * 3 + BETWEEN_NODE_GAP * 2;
-            case ADDABLE -> offsetY = WEAssets.ITEM_RECT.height + CHAIN_Y_GAP + WEAssets.ADD_NODE_DOWN.height;
+        if (this.collapseAnimating) {
+            offsetY = this.getExpandedChildOffsetY();
+        } else {
+            switch (this.state) {
+                case HIDDEN -> offsetY = this.getHiddenChildOffsetY();
+                case EXPANDED -> offsetY = this.getExpandedChildOffsetY();
+                case ADDABLE -> offsetY = this.getAddableChildOffsetY() + WEAssets.ADD_NODE_DOWN.height;
+            }
         }
 
         Rect rect = this.hiddenSubTreeNode.getLayoutRect();
@@ -399,9 +456,9 @@ public class TreeNode extends UINode {
 
         for (TreeNode treeNode : this.subNode) {
             Rect layoutRect = treeNode.getLayoutRect();
-            layoutRect.set(offsetX, offsetY, treeNode.getMeasuredWidth(), treeNode.getMeasuredHeight());
+            layoutRect.set(offsetX, offsetY, treeNode.getOwnNodeWidth(), treeNode.getMeasuredHeight());
             treeNode.arrange(this.finalRect.x, this.finalRect.y, this.finalRect.w, this.finalRect.h);
-            offsetX += treeNode.getMeasuredWidth() + ITEM_RECT_GAP;
+            offsetX += treeNode.getOwnNodeWidth() + ITEM_RECT_GAP;
         }
     }
 
@@ -466,7 +523,11 @@ public class TreeNode extends UINode {
             }
             case HIDDEN -> {
                 x += (WEAssets.ITEM_RECT.width - WEAssets.CHAIN.width) / 2.0f;
-                context.renderSprite(WEAssets.CHAIN, x, y);
+                if (this.collapseAnimating) {
+                    this.renderExpandedChain(context, x, y);
+                } else {
+                    context.renderSprite(WEAssets.CHAIN, x, y);
+                }
             }
             case ADDABLE -> {
                 x += (WEAssets.ITEM_RECT.width - WEAssets.ADD_NODE_DOWN.width) / 2.0f;
