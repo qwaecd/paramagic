@@ -18,6 +18,13 @@ public final class Rect {
         this.h = 0.0f;
     }
 
+    public Rect(Rect other) {
+        this.x = other.x;
+        this.y = other.y;
+        this.w = other.w;
+        this.h = other.h;
+    }
+
     public Rect(float x, float y, float w, float h) {
         this.x = x;
         this.y = y;

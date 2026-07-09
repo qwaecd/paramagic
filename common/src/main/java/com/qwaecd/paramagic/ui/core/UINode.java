@@ -75,6 +75,12 @@ public class UINode {
     public final Rect finalRect;
 
     /**
+     * 用于渲染内容的矩形，渲染节点各项内容的时候应当使用该矩形来进行渲染，以兼容动画
+     */
+    @Nonnull
+    public final Rect presentationRect;
+
+    /**
      * @deprecated 使用 {@link #layoutRect} 或 setLayout* 方法表达布局输入。
      */
     @Deprecated
@@ -113,6 +119,7 @@ public class UINode {
         this.layoutParams = new LayoutParams();
         this.layoutRect = new Rect();
         this.finalRect = new Rect();
+        this.presentationRect = new Rect(this.finalRect);
         this.localRect = this.layoutRect;
         this.worldRect = this.finalRect;
         this.layoutParams.setChangeListener(this::requestLayout);
@@ -128,6 +135,7 @@ public class UINode {
         this.layoutParams = new LayoutParams();
         this.layoutRect = new Rect();
         this.finalRect = new Rect();
+        this.presentationRect = new Rect(this.finalRect);
         this.localRect = this.layoutRect;
         this.worldRect = this.finalRect;
         this.layoutParams.setChangeListener(this::requestLayout);
@@ -504,7 +512,7 @@ public class UINode {
             return null;
         }
         // 如果 clipMod == ClipMod.RECT, 那么裁切区域之外的子树不会继续命中。
-        if (this.clipMod == ClipMod.RECT && !this.isPointInsideClipRect(mouseX, mouseY)) {
+        if (this.clipMod == ClipMod.RECT && !this.isPointInside(mouseX, mouseY)) {
             return null;
         }
 
@@ -532,7 +540,7 @@ public class UINode {
             return null;
         }
         // 如果 clipMod == ClipMod.RECT, 那么裁切区域之外的子树不会继续 mouseover。
-        if (this.clipMod == ClipMod.RECT && !this.isPointInsideClipRect(mouseX, mouseY)) {
+        if (this.clipMod == ClipMod.RECT && !this.isPointInside(mouseX, mouseY)) {
             return null;
         }
 
@@ -568,6 +576,7 @@ public class UINode {
      */
     protected void arrangeSelf(float parentX, float parentY, float parentW, float parentH) {
         UILayout.layout(this.layoutRect, this.finalRect, this.layoutParams, this.sizeMode, parentX, parentY, parentW, parentH);
+        this.presentationRect.set(this.finalRect);
     }
 
     /**
@@ -686,24 +695,29 @@ public class UINode {
         return this.finalRect;
     }
 
+    @Nonnull
+    protected Rect getpresentationRect() {
+        return this.presentationRect;
+    }
+
     /**
      * 检查鼠标是否可以命中该元素自身。
      *
      * <p>该方法只判断当前节点是否能作为事件目标。父节点用于裁切子树时应使用
-     * {@link #isPointInsideClipRect(float, float)}，避免 {@code hitTestable=false}
+     * {@link #isPointInside(float, float)}，避免 {@code hitTestable=false}
      * 的父节点阻断子节点命中。
      */
     public boolean hitTest(float x, float y) {
         if (!this.visible || !this.hitTestable) {
             return false;
         }
-        return this.isPointInsideClipRect(x, y);
+        return this.isPointInside(x, y);
     }
 
     /**
      * 只检查坐标是否落在当前节点裁切矩形内，不考虑 visible / hitTestable。
      */
-    protected boolean isPointInsideClipRect(float x, float y) {
+    protected boolean isPointInside(float x, float y) {
         return x >= this.getClipRect().x && x < this.getClipRect().x + this.getClipRect().w
             && y >= this.getClipRect().y && y < this.getClipRect().y + this.getClipRect().h;
     }

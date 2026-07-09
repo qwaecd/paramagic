@@ -22,11 +22,10 @@ import java.util.List;
 
 public final class RootTreeNode extends TreeNode {
 
-    private float renderAlpha = 0.0f;
-
     public RootTreeNode() {
         super();
         this.state = SubTreeState.EXPANDED;
+        this.renderAlpha = 0.0f;
 
         this.addListener(AllUIEvents.MOUSE_CLICK, EventPhase.BUBBLING, this::handleChildClick);
         this.addListener(AllUIEvents.MOUSE_DOUBLE_CLICK, EventPhase.BUBBLING, this::handleChildDoubleClick);
@@ -35,7 +34,7 @@ public final class RootTreeNode extends TreeNode {
     @Override
     protected void onAttached(@NotNull UIManager manager) {
         this.animateFloat(
-                this.renderAlpha,
+                0.0f,
                 1.0f,
                 0.4f,
                 EasingFunction.easeInOutQuad,
@@ -60,7 +59,10 @@ public final class RootTreeNode extends TreeNode {
 
     private void clickedTreeNode(TreeNode targetNode, UIEventContext<MouseClick> context) {
         MouseClick event = context.event;
-        if (targetNode.canHitAppendNodeRight((float) event.mouseX, (float) event.mouseY)) {
+        if (targetNode.canHitDeleteNode((float) event.mouseX, (float) event.mouseY)) {
+            this.deleteNode(targetNode);
+            context.consume();
+        } else if (targetNode.canHitAppendNodeRight((float) event.mouseX, (float) event.mouseY)) {
             if (targetNode.getParent() instanceof TreeNode treeNode) {
                 TreeNode newNode = new TreeNode();
                 treeNode.appendTreeNode(newNode);
@@ -73,6 +75,9 @@ public final class RootTreeNode extends TreeNode {
             TreeNode newNode = new TreeNode();
             targetNode.createSubTree(newNode);
             this.expandToNode(targetNode);
+            context.consume();
+        } else if (targetNode.canHitDeleteSubTree((float) event.mouseX, (float) event.mouseY)) {
+            this.deleteSubTreeOf(targetNode instanceof TreeNode ? targetNode : null);
             context.consume();
         }
     }
@@ -115,6 +120,34 @@ public final class RootTreeNode extends TreeNode {
 
         this.applyExpandedPath(expandedPath, 0);
         this.requestMeasure();
+    }
+
+    boolean deleteSubTreeOf(TreeNode parent) {
+        if (!this.containsInSubtree(parent)) {
+            return false;
+        }
+        if (!parent.deleteSubTree()) {
+            return false;
+        }
+        this.expandToNode(parent);
+        return true;
+    }
+
+    boolean deleteNode(TreeNode node) {
+        if (node == this || !this.containsInSubtree(node) || !(node.getParent() instanceof TreeNode parent)) {
+            return false;
+        }
+        if (!node.deleteFromParent()) {
+            return false;
+        }
+        this.expandToNode(parent);
+        return true;
+    }
+
+    @Override
+    protected void setSubTreeAddable() {
+        // root 不应该变成 addable 状态
+        this.state = SubTreeState.EXPANDED;
     }
 
     @Override

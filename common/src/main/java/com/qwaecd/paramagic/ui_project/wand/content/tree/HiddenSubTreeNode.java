@@ -26,6 +26,6 @@ public final class HiddenSubTreeNode extends UINode {
 
     @Override
     protected void render(@NotNull UIRenderContext context) {
-        context.renderSprite(WEAssets.HIDDEN_NODE, this.finalRect.x, this.finalRect.y);
+        context.renderSprite(WEAssets.HIDDEN_NODE, this.presentationRect.x, this.presentationRect.y);
     }
 }
