@@ -2,17 +2,19 @@ package com.qwaecd.paramagic.ui_project.wand.content.inventory;
 
 import com.qwaecd.paramagic.tools.anim.EasingFunction;
 import com.qwaecd.paramagic.tools.anim.Interpolation;
+import com.qwaecd.paramagic.ui.MenuContent;
 import com.qwaecd.paramagic.ui.api.UIRenderContext;
 import com.qwaecd.paramagic.ui.api.event.UIEventContext;
 import com.qwaecd.paramagic.ui.core.LayoutConstraints;
 import com.qwaecd.paramagic.ui.core.MeasureResult;
 import com.qwaecd.paramagic.ui.core.UIManager;
 import com.qwaecd.paramagic.ui.core.UINode;
-import com.qwaecd.paramagic.ui.event.impl.MouseLeave;
-import com.qwaecd.paramagic.ui.event.impl.MouseOver;
+import com.qwaecd.paramagic.ui.event.impl.*;
+import com.qwaecd.paramagic.ui.inventory.slot.UISlot;
 import com.qwaecd.paramagic.ui.inventory.InventoryHolder;
 import com.qwaecd.paramagic.ui_project.wand.WEAssets;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.inventory.ClickType;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
@@ -49,6 +51,35 @@ public final class InventoryItemNode extends UINode {
     @Override
     protected void onMouseLeave(UIEventContext<MouseLeave> context) {
         this.isHovering = false;
+    }
+
+    @Override
+    protected void onMouseClick(UIEventContext<MouseClick> context) {
+        MenuContent menuContent = context.manager.getMenuContentOrThrow();
+        for (var menuSlot : menuContent.getMenu().slots) {
+            if (menuSlot instanceof UISlot uiSlot && uiSlot.getSlotId() == this.slot) {
+                menuContent.getScreen().slotClicked(uiSlot, context.event.button, ClickType.PICKUP);
+                context.consume();
+                return;
+            }
+        }
+    }
+
+    @Override
+    protected void onDoubleClick(UIEventContext<DoubleClick> context) {
+        MenuContent menuContent = context.manager.getMenuContentOrThrow();
+        for (var menuSlot : menuContent.getMenu().slots) {
+            if (menuSlot instanceof UISlot uiSlot && uiSlot.getSlotId() == this.slot) {
+                menuContent.getScreen().slotClicked(uiSlot, context.event.button, ClickType.PICKUP_ALL);
+                context.consume();
+                return;
+            }
+        }
+    }
+
+    @Override
+    protected void onMouseRelease(UIEventContext<MouseRelease> context) {
+        context.consume();
     }
 
     @Override

@@ -43,7 +43,7 @@ public class WandEditScreen extends MCContainerScreen<SpellEditMenu> {
         super(menu, inventory, title, rootNode);
         this.rootNode = rootNode;
         this.playerInv = playerInv;
-        this.editState = new SpellTreeEditClientState(this.playerInv, menu.getEditEpoch());
+        this.editState = new SpellTreeEditClientState(this.playerInv, menu::getCarried, menu.getEditEpoch());
         this.editUI = new WandEditUI(this.playerInv, this.editState);
         this.rootNode.addChild(this.editUI);
         if (Paramagic.isDevEnv()) {
@@ -72,7 +72,7 @@ public class WandEditScreen extends MCContainerScreen<SpellEditMenu> {
     }
 
     public void handleSpellTreeEditRejected(@Nonnull S2CSpellTreeEditRejectedPacket packet) {
-        if (this.editState.acceptRejectedEdit(packet.getEditEpoch())) {
+        if (this.editState.acceptRejectedEdit(packet.getEditEpoch(), packet.getTreeData())) {
             this.editUI.onTreeDataRebuilt();
         }
     }

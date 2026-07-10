@@ -3,10 +3,12 @@ package com.qwaecd.paramagic.ui_project.wand.content.tree;
 import com.qwaecd.paramagic.tools.anim.EasingFunction;
 import com.qwaecd.paramagic.tools.anim.Interpolation;
 import com.qwaecd.paramagic.ui.api.UIRenderContext;
+import com.qwaecd.paramagic.ui.api.event.UIEventContext;
 import com.qwaecd.paramagic.ui.core.LayoutConstraints;
 import com.qwaecd.paramagic.ui.core.MeasureResult;
 import com.qwaecd.paramagic.ui.core.UIManager;
 import com.qwaecd.paramagic.ui.core.UINode;
+import com.qwaecd.paramagic.ui.event.impl.MouseRelease;
 import com.qwaecd.paramagic.ui.util.Rect;
 import com.qwaecd.paramagic.ui_project.wand.SpellTreeEditClientState;
 import com.qwaecd.paramagic.ui_project.wand.WEAssets;
@@ -62,6 +64,11 @@ public final class TreeCanvas extends UINode {
                 Interpolation::linear,
                 (v -> this.renderAlpha = v)
         );
+    }
+
+    @Override
+    protected void onMouseRelease(UIEventContext<MouseRelease> context) {
+        context.consume();
     }
 
     @Override

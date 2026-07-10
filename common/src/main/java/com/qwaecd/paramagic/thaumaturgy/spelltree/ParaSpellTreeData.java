@@ -92,6 +92,22 @@ public class ParaSpellTreeData implements IDataSerializable {
         return true;
     }
 
+    public boolean clearChildren(@Nonnull String nodeId, @Nonnull List<SpellNodeData> removedNodes) {
+        SpellNodeData node = this.findNode(nodeId);
+        if (node == null) {
+            return false;
+        }
+        for (SpellNodeData child : List.copyOf(node.getChildren())) {
+            child.forEachSubtreeNode(removedNodes::add);
+        }
+        if (removedNodes.isEmpty()) {
+            return true;
+        }
+        node.getChildren().clear();
+        this.bumpVersion();
+        return true;
+    }
+
     @Nullable
     public SpellNodeData findNode(@Nonnull String nodeId) {
         return this.findNode(this.root, nodeId);

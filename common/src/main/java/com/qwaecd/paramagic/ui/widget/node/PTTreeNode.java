@@ -12,7 +12,6 @@ import com.qwaecd.paramagic.ui.core.UINode;
 import com.qwaecd.paramagic.ui.event.impl.*;
 import com.qwaecd.paramagic.ui.io.mouse.MouseStateMachine;
 import com.qwaecd.paramagic.ui.util.UIColor;
-import com.qwaecd.paramagic.ui.util.UINetwork;
 import com.qwaecd.paramagic.world.item.ParaOperatorItem;
 import net.minecraft.world.item.ItemStack;
 
@@ -70,7 +69,6 @@ public class PTTreeNode extends UINode {
             return;
         }
         entry.setDebugClicked(!entry.isDebugClicked());
-        UINetwork.sendClickTreeNode(entry.node.getNodePath());
 
         MenuContent menu = context.manager.getMenuContentOrThrow();
         ItemStack carried = menu.getCarried();
