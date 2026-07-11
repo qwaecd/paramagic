@@ -1,18 +1,20 @@
 package com.qwaecd.paramagic.thaumaturgy.runtime;
 
 import com.qwaecd.paramagic.thaumaturgy.node.NodeState;
-import com.qwaecd.paramagic.thaumaturgy.node.ParaNode;
-import com.qwaecd.paramagic.thaumaturgy.node.ParaTree;
+import com.qwaecd.paramagic.thaumaturgy.node.ParaSpellTree;
+import com.qwaecd.paramagic.thaumaturgy.node.SpellNode;
 import com.qwaecd.paramagic.thaumaturgy.operator.ParaOperator;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.ArrayDeque;
 import java.util.Deque;
+import java.util.IdentityHashMap;
+import java.util.Map;
 
 public class ArcaneProcessor {
     @Nonnull
-    private final ParaTree tree;
+    private final ParaSpellTree tree;
     @Nonnull
     private final ParaContext context;
 
@@ -27,19 +29,20 @@ public class ArcaneProcessor {
 
     private boolean isCycleCoolingDown;
 
-    private final Deque<ParaNode> executionStack = new ArrayDeque<>();
+    private final Deque<SpellNode> executionStack = new ArrayDeque<>();
+    private final Map<SpellNode, NodeState> nodeStates = new IdentityHashMap<>();
 
-    public ArcaneProcessor(@Nonnull ParaTree tree, @Nonnull ParaContext context) {
+    public ArcaneProcessor(@Nonnull ParaSpellTree tree, @Nonnull ParaContext context) {
         this.tree = tree;
         this.context = context;
     }
 
     public void init() {
-        ParaNode root = this.tree.getRootNode();
+        SpellNode root = this.tree.getRoot();
         ParaOperator operator = root.getOperator();
         // 如果根节点都没有操作符，那么栈理论上应该是空的，也就是什么都不会执行
         if (operator != null) {
-            root.setState(NodeState.EVALUATING);
+            this.setState(root, NodeState.EVALUATING);
             // 这里不考虑传导延迟
             this.cycleCooldown += operator.getCycleCooldown();
             this.context.addOperator(operator);
@@ -66,7 +69,7 @@ public class ArcaneProcessor {
 
         int depthBudget = 1;
         while (depthBudget > 0) {
-            ParaNode stackTop = this.peekNode();
+            SpellNode stackTop = this.peekNode();
             if (stackTop == null) {
                 // 说明已经执行完成
                 // 进行回转判定
@@ -80,34 +83,34 @@ public class ArcaneProcessor {
                 this.cycleCooldown -= deltaTime;
                 break;
             }
-            ParaNode targetNode = this.findNextCandidate(stackTop);
+            SpellNode targetNode = this.findNextCandidate(stackTop);
             if (targetNode != null) {
 
-                for (ParaNode child : stackTop.getChildren()) {
+                for (SpellNode child : stackTop.getChildren()) {
                     ParaOperator operator = child.getOperator();
                     if (operator == null) {
                         continue;
                     }
-                    if (child.getState() == NodeState.PENDING) {
+                    if (this.getState(child) == NodeState.PENDING) {
                         this.addTime(operator);
-                        child.setState(NodeState.VISITED);
+                        this.setState(child, NodeState.VISITED);
                         this.context.addOperator(operator);
                     }
                 }
 
                 if (targetNode.getChildren().isEmpty()) {
                     // 叶子节点
-                    targetNode.setState(NodeState.RESOLVED);
+                    this.setState(targetNode, NodeState.RESOLVED);
                     continue;
                 }
 
                 // 深度++
                 --depthBudget;
-                targetNode.setState(NodeState.EVALUATING);
+                this.setState(targetNode, NodeState.EVALUATING);
                 this.pushNode(targetNode);
             } else {
                 // 回溯
-                stackTop.setState(NodeState.RESOLVED);
+                this.setState(stackTop, NodeState.RESOLVED);
                 this.popNode();
             }
         }
@@ -124,22 +127,22 @@ public class ArcaneProcessor {
         this.transmissionDelay = 0.0f;
         this.cycleCooldown = 0.0f;
         this.executionStack.clear();
-        this.tree.forEachNode(node -> node.setState(NodeState.PENDING));
+        this.nodeStates.clear();
         this.init();
     }
 
-    private void pushNode(@Nonnull ParaNode node) {
+    private void pushNode(@Nonnull SpellNode node) {
         this.executionStack.push(node);
     }
 
     @Nullable
     @SuppressWarnings("UnusedReturnValue")
-    private ParaNode popNode() {
+    private SpellNode popNode() {
         return this.executionStack.pop();
     }
 
     @Nullable
-    private ParaNode peekNode() {
+    private SpellNode peekNode() {
         return this.executionStack.peek();
     }
 
@@ -148,10 +151,11 @@ public class ArcaneProcessor {
     }
 
     @Nullable
-    private ParaNode findNextCandidate(@Nonnull ParaNode parent) {
-        ParaNode candidate = null;
-        for (ParaNode item : parent.getChildren()) {
-            if (item.getState() == NodeState.EVALUATING || item.getState() == NodeState.RESOLVED) {
+    private SpellNode findNextCandidate(@Nonnull SpellNode parent) {
+        SpellNode candidate = null;
+        for (SpellNode item : parent.getChildren()) {
+            NodeState state = this.getState(item);
+            if (state == NodeState.EVALUATING || state == NodeState.RESOLVED) {
                 continue;
             }
 
@@ -169,6 +173,15 @@ public class ArcaneProcessor {
         }
 
         return candidate;
+    }
+
+    @Nonnull
+    private NodeState getState(@Nonnull SpellNode node) {
+        return this.nodeStates.getOrDefault(node, NodeState.PENDING);
+    }
+
+    private void setState(@Nonnull SpellNode node, @Nonnull NodeState state) {
+        this.nodeStates.put(node, state);
     }
 
     private void addTime(@Nonnull ParaOperator operator) {

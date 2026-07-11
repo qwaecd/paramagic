@@ -5,14 +5,9 @@ import com.qwaecd.paramagic.network.DataCodec;
 import com.qwaecd.paramagic.network.IDataSerializable;
 import com.qwaecd.paramagic.network.codec.NBTCodec;
 import com.qwaecd.paramagic.thaumaturgy.node.ParaSpellTree;
-import com.qwaecd.paramagic.thaumaturgy.operator.OperatorMap;
-import com.qwaecd.paramagic.thaumaturgy.operator.ParaOpId;
-import com.qwaecd.paramagic.thaumaturgy.operator.ParaOperator;
 import com.qwaecd.paramagic.thaumaturgy.spelltree.ParaSpellTreeData;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import java.util.List;
 
 public class ParaCrystalData implements IDataSerializable {
     private static final String SPELL_TREE_DATA_KEY = "spellTreeData";
@@ -28,17 +23,12 @@ public class ParaCrystalData implements IDataSerializable {
         this.spellTreeData = spellTreeData;
     }
 
-    public ParaCrystalData(@Nonnull ParaData paraData) {
-        this(ParaSpellTreeData.empty());
-    }
-
+    /**
+     * Reserved for a future presentation-data extension. Crystal spell logic is stored only in {@link #spellTreeData}.
+     */
     @Nonnull
     public ParaData getParaData() {
-        return this.createParaData();
-    }
-
-    public void setParaData(@Nonnull ParaData paraData) {
-        this.spellTreeData = ParaSpellTreeData.empty();
+        return ParaData.EMPTY;
     }
 
     @Nonnull
@@ -53,35 +43,6 @@ public class ParaCrystalData implements IDataSerializable {
     @Nonnull
     public ParaSpellTree createRuntimeTree() {
         return new ParaSpellTree(this.spellTreeData);
-    }
-
-    @Nonnull
-    public ParaData createParaData() {
-        return ParaData.EMPTY;
-    }
-
-    @Nonnull
-    public OperatorMap createOperatorMap() {
-        return new OperatorMap();
-    }
-
-    @Nullable
-    public ParaOpId getOperatorId(String path) {
-        return this.createOperatorMap().get(path);
-    }
-
-    public void putOperator(String path, @Nonnull ParaOperator op) {
-    }
-
-    public void removeOperator(String path) {
-    }
-
-    @Nonnull
-    public List<OperatorMap.Entry> getOperatorEntriesSnapshot() {
-        return this.createOperatorMap().getEntriesSnapshot();
-    }
-
-    public void clearOperators() {
     }
 
     @Override

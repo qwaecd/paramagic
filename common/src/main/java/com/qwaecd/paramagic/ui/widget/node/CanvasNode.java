@@ -12,7 +12,6 @@ import com.qwaecd.paramagic.ui.event.impl.MouseClick;
 import com.qwaecd.paramagic.ui.event.impl.MouseRelease;
 import com.qwaecd.paramagic.ui.event.impl.WheelEvent;
 import com.qwaecd.paramagic.ui.io.mouse.MouseStateMachine;
-import com.qwaecd.paramagic.ui.util.UILayout;
 
 import javax.annotation.Nonnull;
 
@@ -81,14 +80,12 @@ public class CanvasNode extends MouseCaptureNode {
     }
 
     @Override
-    public void layout(float parentX, float parentY, float parentW, float parentH) {
-        UILayout.layout(this.localRect, this.worldRect, this.layoutParams, this.sizeMode, parentX, parentY, parentW, parentH);
-
-        float ox = this.worldRect.x + this.panX;
-        float oy = this.worldRect.y + this.panY;
+    protected void arrangeChildren() {
+        float ox = this.finalRect.x + this.panX;
+        float oy = this.finalRect.y + this.panY;
 
         for (UINode child : this.children) {
-            child.layout(ox, oy, this.worldRect.w, this.worldRect.h);
+            child.arrange(ox, oy, this.finalRect.w, this.finalRect.h);
         }
 
         if (this.zoom != 1.0f) {
@@ -96,17 +93,21 @@ public class CanvasNode extends MouseCaptureNode {
                 this.applyZoom(child, ox, oy);
             }
         }
-        this.markLayoutClean();
     }
 
     /**
-     * 递归地将缩放应用到节点及其所有子节点的 worldRect 上.
+     * 递归地将缩放应用到节点及其所有子节点的最终几何与表现几何上。
+     * 缩放后的 finalRect 同时驱动渲染和命中测试。
      */
     private void applyZoom(UINode node, float originX, float originY) {
-        node.worldRect.x = originX + (node.worldRect.x - originX) * this.zoom;
-        node.worldRect.y = originY + (node.worldRect.y - originY) * this.zoom;
-        node.worldRect.w *= this.zoom;
-        node.worldRect.h *= this.zoom;
+        node.finalRect.x = originX + (node.finalRect.x - originX) * this.zoom;
+        node.finalRect.y = originY + (node.finalRect.y - originY) * this.zoom;
+        node.finalRect.w *= this.zoom;
+        node.finalRect.h *= this.zoom;
+        node.presentationRect.x = originX + (node.presentationRect.x - originX) * this.zoom;
+        node.presentationRect.y = originY + (node.presentationRect.y - originY) * this.zoom;
+        node.presentationRect.w *= this.zoom;
+        node.presentationRect.h *= this.zoom;
         for (UINode child : node.getChildren()) {
             this.applyZoom(child, originX, originY);
         }
@@ -119,7 +120,6 @@ public class CanvasNode extends MouseCaptureNode {
         }
         this.panX += (float) mouseState.deltaX();
         this.panY += (float) mouseState.deltaY();
-        this.relayout();
         this.requestLayout();
     }
 
@@ -133,38 +133,27 @@ public class CanvasNode extends MouseCaptureNode {
         if (this.ignoreTransform) {
             return;
         }
-        float canvasX = (mouseX - this.worldRect.x - this.panX) / this.zoom;
-        float canvasY = (mouseY - this.worldRect.y - this.panY) / this.zoom;
+        float canvasX = (mouseX - this.finalRect.x - this.panX) / this.zoom;
+        float canvasY = (mouseY - this.finalRect.y - this.panY) / this.zoom;
         this.zoom = newZoom;
-        this.panX = mouseX - this.worldRect.x - canvasX * this.zoom;
-        this.panY = mouseY - this.worldRect.y - canvasY * this.zoom;
-        this.relayout();
+        this.panX = mouseX - this.finalRect.x - canvasX * this.zoom;
+        this.panY = mouseY - this.finalRect.y - canvasY * this.zoom;
         this.requestLayout();
     }
 
-    private void relayout() {
-        UINode parent = this.getParent();
-        if (parent != null) {
-            this.layout(parent.getWorldRect().x, parent.getWorldRect().y,
-                    parent.getWorldRect().w, parent.getWorldRect().h);
-        } else {
-            this.layout(0, 0, this.localRect.w, this.localRect.h);
-        }
-    }
-
     public float screenToCanvasX(float screenX) {
-        return (screenX - this.worldRect.x - this.panX) / this.zoom;
+        return (screenX - this.finalRect.x - this.panX) / this.zoom;
     }
 
     public float screenToCanvasY(float screenY) {
-        return (screenY - this.worldRect.y - this.panY) / this.zoom;
+        return (screenY - this.finalRect.y - this.panY) / this.zoom;
     }
 
     public float canvasToScreenX(float canvasX) {
-        return canvasX * this.zoom + this.worldRect.x + this.panX;
+        return canvasX * this.zoom + this.finalRect.x + this.panX;
     }
 
     public float canvasToScreenY(float canvasY) {
-        return canvasY * this.zoom + this.worldRect.y + this.panY;
+        return canvasY * this.zoom + this.finalRect.y + this.panY;
     }
 }

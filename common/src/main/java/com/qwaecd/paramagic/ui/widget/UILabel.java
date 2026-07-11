@@ -48,16 +48,16 @@ public class UILabel extends UINode {
         this.label = Component.literal(label);
     }
 
-    public UILabel(@Nonnull Component label, Rect local) {
+    public UILabel(@Nonnull Component label, Rect layout) {
         super();
         this.label = label;
-        this.localRect.set(local);
+        this.layoutRect.set(layout);
     }
 
-    public UILabel(@Nonnull String label, Rect local) {
+    public UILabel(@Nonnull String label, Rect layout) {
         super();
         this.label = Component.literal(label);
-        this.localRect.set(local);
+        this.layoutRect.set(layout);
     }
 
     @Override
@@ -66,25 +66,17 @@ public class UILabel extends UINode {
     }
 
     @Override
-    public void layout(float parentX, float parentY, float parentW, float parentH) {
-        final int textWidth = this.provider.getTextWidth(this.label);
-        final int lineHeight = this.provider.getLineHeight();
-        this.localRect.setWH(textWidth, lineHeight);
-        super.layout(parentX, parentY, parentW, parentH);
-    }
-
-    @Override
     public void render(@Nonnull UIRenderContext context) {
         if (!this.visible) {
             return;
         }
-        context.drawText(this.label, this.worldRect.x, this.worldRect.y, this.color, this.dropShadow);
+        context.drawText(this.label, this.finalRect.x, this.finalRect.y, this.color, this.dropShadow);
     }
 
     @Override
     public void renderDebug(@Nonnull UIRenderContext context) {
         context.renderOutline(
-                (int) this.worldRect.x - 1, (int) this.worldRect.y - 1,
+                (int) this.finalRect.x - 1, (int) this.finalRect.y - 1,
                 context.getTextWidth(this.label) + 1, context.getLineHeight() + 1,
                 UIColor.RED
         );

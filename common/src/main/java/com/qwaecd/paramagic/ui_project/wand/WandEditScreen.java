@@ -7,7 +7,6 @@ import com.qwaecd.paramagic.ui.core.UIManager;
 import com.qwaecd.paramagic.ui.core.UINode;
 import com.qwaecd.paramagic.ui.event.EventPhase;
 import com.qwaecd.paramagic.ui.inventory.InventoryHolder;
-import com.qwaecd.paramagic.ui.inventory.PlayerInventoryHolder;
 import com.qwaecd.paramagic.ui.menu.SpellEditMenu;
 import com.qwaecd.paramagic.ui.screen.MCContainerScreen;
 import com.qwaecd.paramagic.ui.util.Rect;
@@ -30,7 +29,7 @@ public class WandEditScreen extends MCContainerScreen<SpellEditMenu> {
     public static final float HEIGHT = 300.0f;
 
     public WandEditScreen(@Nonnull SpellEditMenu menu, @Nonnull Inventory inventory, @Nonnull Component title) {
-        this(menu, inventory, title, new PlayerInventoryHolder(inventory), new UINode());
+        this(menu, inventory, title, menu.getPlayerInventory(), new UINode());
     }
 
     private WandEditScreen(
@@ -43,7 +42,7 @@ public class WandEditScreen extends MCContainerScreen<SpellEditMenu> {
         super(menu, inventory, title, rootNode);
         this.rootNode = rootNode;
         this.playerInv = playerInv;
-        this.editState = new SpellTreeEditClientState(this.playerInv, menu.getEditEpoch());
+        this.editState = new SpellTreeEditClientState(this.playerInv, menu::getCarried, menu.getEditEpoch());
         this.editUI = new WandEditUI(this.playerInv, this.editState);
         this.rootNode.addChild(this.editUI);
         if (Paramagic.isDevEnv()) {
@@ -72,7 +71,7 @@ public class WandEditScreen extends MCContainerScreen<SpellEditMenu> {
     }
 
     public void handleSpellTreeEditRejected(@Nonnull S2CSpellTreeEditRejectedPacket packet) {
-        if (this.editState.acceptRejectedEdit(packet.getEditEpoch())) {
+        if (this.editState.acceptRejectedEdit(packet.getEditEpoch(), packet.getTreeData())) {
             this.editUI.onTreeDataRebuilt();
         }
     }

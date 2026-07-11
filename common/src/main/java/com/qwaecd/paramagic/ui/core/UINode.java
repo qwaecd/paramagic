@@ -5,6 +5,8 @@ import com.qwaecd.paramagic.tools.anim.Interpolator;
 import com.qwaecd.paramagic.ui.animation.UIAnimator;
 import com.qwaecd.paramagic.ui.animation.ValueSetter;
 import com.qwaecd.paramagic.ui.animation.fast.FloatUIAnimator;
+import com.qwaecd.paramagic.ui.api.TooltipContent;
+import com.qwaecd.paramagic.ui.api.TooltipQuery;
 import com.qwaecd.paramagic.ui.api.UIRenderContext;
 import com.qwaecd.paramagic.ui.api.event.UIEventContext;
 import com.qwaecd.paramagic.ui.api.event.UIEventKey;
@@ -20,6 +22,9 @@ import com.qwaecd.paramagic.ui.util.Rect;
 import com.qwaecd.paramagic.ui.util.UIColor;
 import com.qwaecd.paramagic.ui.util.UILayout;
 import lombok.Getter;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.world.item.ItemStack;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -80,22 +85,6 @@ public class UINode {
     @Nonnull
     public final Rect presentationRect;
 
-    /**
-     * @deprecated 使用 {@link #layoutRect} 或 setLayout* 方法表达布局输入。
-     */
-    @Deprecated
-    @Getter
-    @Nonnull
-    public final Rect localRect;
-
-    /**
-     * @deprecated 使用 {@link #finalRect} 读取布局输出。
-     */
-    @Deprecated
-    @Getter
-    @Nonnull
-    public final Rect worldRect;
-
     protected boolean debugMod = false;
     @Nonnull
     protected UIColor backgroundColor = UIColor.TRANSPARENT;
@@ -120,8 +109,6 @@ public class UINode {
         this.layoutRect = new Rect();
         this.finalRect = new Rect();
         this.presentationRect = new Rect(this.finalRect);
-        this.localRect = this.layoutRect;
-        this.worldRect = this.finalRect;
         this.layoutParams.setChangeListener(this::requestLayout);
     }
 
@@ -136,8 +123,6 @@ public class UINode {
         this.layoutRect = new Rect();
         this.finalRect = new Rect();
         this.presentationRect = new Rect(this.finalRect);
-        this.localRect = this.layoutRect;
-        this.worldRect = this.finalRect;
         this.layoutParams.setChangeListener(this::requestLayout);
 
         parent.addChild(this);
@@ -461,6 +446,27 @@ public class UINode {
     protected void onDetached(@Nonnull UIManager manager) {
     }
 
+    /**
+     * 获取当前鼠标位置与节点状态下的 tooltip 内容。返回 {@code null} 时，UIManager 会继续查询父节点；
+     * 返回 {@link TooltipContent#EMPTY} 时，会阻止父节点 tooltip 的回溯但不绘制内容。
+     */
+    @Nullable
+    public TooltipContent getTooltip(@Nonnull TooltipQuery query) {
+        return null;
+    }
+
+    @Nullable
+    public static TooltipContent getTooltipFromItem(@Nullable ItemStack itemStack) {
+        if (itemStack == null) {
+            return null;
+        }
+        if (itemStack.isEmpty()) {
+            return TooltipContent.EMPTY;
+        }
+        Minecraft minecraft = Minecraft.getInstance();
+        return new TooltipContent(Screen.getTooltipFromItem(minecraft, itemStack), itemStack.getTooltipImage());
+    }
+
 
     @SuppressWarnings("unchecked")
     protected final void dispatchTargetEvent(UIEventContext<? extends UIEvent> context) {
@@ -559,19 +565,6 @@ public class UINode {
     }
 
     /**
-     * 计算此节点及其子节点的屏幕绝对坐标
-     * @param parentX 父节点的屏幕X坐标
-     * @param parentY 父节点的屏幕Y坐标
-     * @param parentW 父节点的宽度
-     * @param parentH 父节点的高度
-     */
-    public void layout(float parentX, float parentY, float parentW, float parentH) {
-        this.arrangeSelf(parentX, parentY, parentW, parentH);
-        this.arrangeChildren();
-        this.markLayoutClean();
-    }
-
-    /**
      * 计算当前节点自己的最终屏幕矩形，不处理子节点。
      */
     protected void arrangeSelf(float parentX, float parentY, float parentW, float parentH) {
@@ -580,12 +573,12 @@ public class UINode {
     }
 
     /**
-     * 根据当前节点的最终矩形摆放子节点。默认行为保持旧的绝对布局语义。
+     * 根据当前节点的最终矩形摆放子节点。默认行为为绝对布局。
      */
     protected void arrangeChildren() {
         // 布局可以不考虑同层级先后顺序
         for (UINode child : this.children) {
-            child.layout(this.finalRect.x, this.finalRect.y, this.finalRect.w, this.finalRect.h);
+            child.arrange(this.finalRect.x, this.finalRect.y, this.finalRect.w, this.finalRect.h);
         }
     }
 
@@ -627,10 +620,12 @@ public class UINode {
     }
 
     /**
-     * 将节点摆放到父级坐标系中。当前版本委托旧 layout()，用于保证现有页面兼容。
+     * 将节点摆放到父级坐标系中。
      */
     public void arrange(float parentX, float parentY, float parentW, float parentH) {
-        this.layout(parentX, parentY, parentW, parentH);
+        this.arrangeSelf(parentX, parentY, parentW, parentH);
+        this.arrangeChildren();
+        this.markLayoutClean();
     }
 
     /**

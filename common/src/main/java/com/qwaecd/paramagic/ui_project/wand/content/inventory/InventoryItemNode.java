@@ -2,6 +2,8 @@ package com.qwaecd.paramagic.ui_project.wand.content.inventory;
 
 import com.qwaecd.paramagic.tools.anim.EasingFunction;
 import com.qwaecd.paramagic.tools.anim.Interpolation;
+import com.qwaecd.paramagic.ui.api.TooltipContent;
+import com.qwaecd.paramagic.ui.api.TooltipQuery;
 import com.qwaecd.paramagic.ui.api.UIRenderContext;
 import com.qwaecd.paramagic.ui.api.event.UIEventContext;
 import com.qwaecd.paramagic.ui.core.LayoutConstraints;
@@ -19,6 +21,7 @@ import javax.annotation.Nonnull;
 
 public final class InventoryItemNode extends UINode {
     private final InventoryHolder playerInv;
+    private final InventoryInteractionController interactionController;
     private final int slot;
 
     public static final int SLOT_SIZE = 16;
@@ -29,11 +32,16 @@ public final class InventoryItemNode extends UINode {
     private boolean isHovering = false;
     private float renderAlpha = 0.0f;
 
-    public InventoryItemNode(int slot, InventoryHolder playerInv) {
+    public InventoryItemNode(int slot, InventoryHolder playerInv, InventoryInteractionController interactionController) {
         super();
         this.slot = slot;
         this.playerInv = playerInv;
+        this.interactionController = interactionController;
         this.layoutRect.setWH(SLOT_SIZE, SLOT_SIZE);
+    }
+
+    public int getSlotId() {
+        return this.slot;
     }
 
     @Override
@@ -76,10 +84,15 @@ public final class InventoryItemNode extends UINode {
                 this.renderAlpha
         );
 
-        ItemStack itemStack = this.getRenderingItem();
+        ItemStack previewStack = this.interactionController.getQuickCraftPreview(this.slot);
+        boolean isQuickCraftPreview = previewStack != null;
+        ItemStack itemStack = isQuickCraftPreview ? previewStack : this.getRenderingItem();
+        if (isQuickCraftPreview) {
+            this.renderSlotHighlight(context);
+        }
         context.renderItem(itemStack, Math.round(this.finalRect.x), Math.round(this.finalRect.y));
         context.renderItemDecorations(itemStack, Math.round(this.finalRect.x), Math.round(this.finalRect.y));
-        if (this.isHovering) {
+        if (this.isHovering && !isQuickCraftPreview) {
             this.renderSlotHighlight(context);
         }
     }
@@ -87,6 +100,11 @@ public final class InventoryItemNode extends UINode {
     @Nonnull
     private ItemStack getRenderingItem() {
         return this.playerInv.getStackInSlot(this.slot);
+    }
+
+    @Override
+    public TooltipContent getTooltip(@Nonnull TooltipQuery query) {
+        return UINode.getTooltipFromItem(this.getRenderingItem());
     }
 
     private void renderSlotHighlight(UIRenderContext context) {

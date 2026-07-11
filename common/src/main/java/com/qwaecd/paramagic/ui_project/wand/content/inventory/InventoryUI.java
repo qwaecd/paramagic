@@ -3,10 +3,14 @@ package com.qwaecd.paramagic.ui_project.wand.content.inventory;
 import com.qwaecd.paramagic.tools.anim.EasingFunction;
 import com.qwaecd.paramagic.tools.anim.Interpolation;
 import com.qwaecd.paramagic.ui.api.UIRenderContext;
+import com.qwaecd.paramagic.ui.api.event.AllUIEvents;
+import com.qwaecd.paramagic.ui.api.event.UIEventContext;
 import com.qwaecd.paramagic.ui.core.LayoutConstraints;
 import com.qwaecd.paramagic.ui.core.MeasureResult;
 import com.qwaecd.paramagic.ui.core.UIManager;
 import com.qwaecd.paramagic.ui.core.UINode;
+import com.qwaecd.paramagic.ui.event.EventPhase;
+import com.qwaecd.paramagic.ui.event.impl.MouseRelease;
 import com.qwaecd.paramagic.ui.inventory.InventoryHolder;
 import com.qwaecd.paramagic.ui.util.Rect;
 import com.qwaecd.paramagic.ui_project.wand.WEAssets;
@@ -32,24 +36,39 @@ public final class InventoryUI extends UINode {
             + (ROW_COUNT - 1) * SLOT_GAP;
 
     private final InventoryHolder playerInv;
+    private final InventoryInteractionController interactionController;
     private float offsetAlpha = 0.6f;
     private float renderAlpha = 0.1f;
 
     public InventoryUI(InventoryHolder playerInv) {
         super();
         this.playerInv = playerInv;
+        this.interactionController = new InventoryInteractionController(this, playerInv);
+        this.addListener(AllUIEvents.MOUSE_CLICK, EventPhase.CAPTURING, this.interactionController::onMouseClick);
+        this.addListener(AllUIEvents.MOUSE_DOUBLE_CLICK, EventPhase.CAPTURING, this.interactionController::onDoubleClick);
+        this.addListener(AllUIEvents.MOUSE_RELEASE, EventPhase.BUBBLING, this.interactionController::consumeMouseRelease);
         this.addInventoryItems();
     }
 
     private void addInventoryItems() {
         for (int i = 0; i < SLOT_COUNT; i++) {
-            InventoryItemNode itemNode = new InventoryItemNode(i, this.playerInv);
+            InventoryItemNode itemNode = new InventoryItemNode(i, this.playerInv, this.interactionController);
             this.addChild(itemNode);
         }
     }
 
     @Override
+    protected void onMouseRelease(UIEventContext<MouseRelease> context) {
+        if (this.interactionController.onMouseRelease(context)) {
+            context.consumeAndStopPropagation();
+            return;
+        }
+        context.consume();
+    }
+
+    @Override
     protected void onAttached(@Nonnull UIManager manager) {
+        this.interactionController.attach(manager);
         this.animateFloat(
                 this.offsetAlpha,
                 1.0f,
@@ -66,6 +85,16 @@ public final class InventoryUI extends UINode {
                 Interpolation::linear,
                 (v -> this.renderAlpha = v)
         );
+    }
+
+    @Override
+    protected void onDetached(@Nonnull UIManager manager) {
+        this.interactionController.detach(manager);
+    }
+
+    @Override
+    public void onMouseMove(double mouseX, double mouseY, com.qwaecd.paramagic.ui.io.mouse.MouseStateMachine mouseState) {
+        this.interactionController.onMouseMove(mouseX, mouseY);
     }
 
     @Override

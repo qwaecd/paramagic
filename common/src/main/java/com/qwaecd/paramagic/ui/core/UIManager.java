@@ -3,6 +3,8 @@ package com.qwaecd.paramagic.ui.core;
 import com.qwaecd.paramagic.ui.MenuContent;
 import com.qwaecd.paramagic.ui.animation.BaseUIAnimator;
 import com.qwaecd.paramagic.ui.animation.UIAnimationSystem;
+import com.qwaecd.paramagic.ui.api.TooltipContent;
+import com.qwaecd.paramagic.ui.api.TooltipQuery;
 import com.qwaecd.paramagic.ui.api.TooltipRenderer;
 import com.qwaecd.paramagic.ui.api.UIRenderContext;
 import com.qwaecd.paramagic.ui.api.event.AllUIEvents;
@@ -60,12 +62,18 @@ public class UIManager {
     private ContextMenu contextMenu;
 
     private final Set<UINode> mouseMovingListeners = new HashSet<>();
+    private final Set<UIKeyListener> keyListeners = new LinkedHashSet<>();
 
     @Getter
     public final UINode rootNode;
 
     @Nullable
     private UINode mouseOver = null;
+
+    @Nullable
+    public UINode getMouseOverNode() {
+        return this.mouseOver;
+    }
 
     @Getter
     private final OverlayRoot overlayRoot;
@@ -79,7 +87,7 @@ public class UIManager {
         this.mouseStateMachine = new MouseStateMachine();
         this.tooltipRenderer = tooltipRenderer;
         this.nativeWidgetHost = null;
-        this.overlayRoot = new OverlayRoot(this);
+        this.overlayRoot = new OverlayRoot();
     }
 
     public UIManager(UINode rootNode, @Nonnull TooltipRenderer tooltipRenderer, @Nullable MenuContent menuContent, @Nullable NativeWidgetHost nativeWidgetHost) {
@@ -89,7 +97,7 @@ public class UIManager {
         this.mouseStateMachine = new MouseStateMachine();
         this.tooltipRenderer = tooltipRenderer;
         this.nativeWidgetHost = nativeWidgetHost;
-        this.overlayRoot = new OverlayRoot(this);
+        this.overlayRoot = new OverlayRoot();
     }
 
     /**
@@ -131,8 +139,37 @@ public class UIManager {
         if (this.contextMenu != null) {
             this.contextMenu.renderTree(context);
         }
+        this.renderTooltip(context);
 
         this.processDeferredTasks(TaskStage.AFTER_RENDER);
+    }
+
+    private void renderTooltip(@Nonnull UIRenderContext context) {
+        TooltipQuery.Trigger trigger = this.capturedNode == null
+                ? TooltipQuery.Trigger.HOVER
+                : TooltipQuery.Trigger.CAPTURED;
+        TooltipContent tooltip = this.resolveTooltip(new TooltipQuery(context.mouseX, context.mouseY, trigger));
+        if (tooltip == null || tooltip.isEmpty()) {
+            return;
+        }
+        context.renderTooltip(tooltip, context.mouseX, context.mouseY);
+    }
+
+    /**
+     * 拖拽期间由 captured 节点决定 tooltip；其余时候使用当前 mouse over 节点。
+     * 当前节点之外最多向上回溯三层父节点。
+     */
+    @Nullable
+    private TooltipContent resolveTooltip(@Nonnull TooltipQuery query) {
+        UINode node = this.capturedNode != null ? this.capturedNode : this.mouseOver;
+        for (int depth = 0; node != null && depth <= 3; depth++) {
+            TooltipContent tooltip = node.getTooltip(query);
+            if (tooltip != null) {
+                return tooltip;
+            }
+            node = node.getParent();
+        }
+        return null;
     }
 
     /**
@@ -400,6 +437,26 @@ public class UIManager {
         this.mouseMovingListeners.remove(node);
     }
 
+    public void registerKeyListener(@Nonnull UIKeyListener listener) {
+        this.keyListeners.add(listener);
+    }
+
+    public void unregisterKeyListener(@Nonnull UIKeyListener listener) {
+        this.keyListeners.remove(listener);
+    }
+
+    /**
+     * 依注册顺序分发键盘按下事件，首个消费事件的监听器终止分发。
+     */
+    public boolean onKeyPressed(int keyCode, int scanCode, int modifiers) {
+        for (UIKeyListener listener : List.copyOf(this.keyListeners)) {
+            if (listener.onKeyPressed(this, keyCode, scanCode, modifiers)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     /**
      * 遍历所有 UI 节点, 包括根节点, 请不要在该 lambda 内修改节点树的结构.
      * @throws ConcurrentModificationException 如果在遍历过程中修改了节点树结构.
@@ -432,6 +489,7 @@ public class UIManager {
 
     public void onClose() {
         this.rootNode.detachFromManager();
+        this.keyListeners.clear();
         if (instance == this) {
             instance = null;
         }

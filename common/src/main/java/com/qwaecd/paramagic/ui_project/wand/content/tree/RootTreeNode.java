@@ -1,17 +1,17 @@
 package com.qwaecd.paramagic.ui_project.wand.content.tree;
 
-import com.qwaecd.paramagic.tools.anim.EasingFunction;
-import com.qwaecd.paramagic.tools.anim.Interpolation;
+import com.qwaecd.paramagic.network.packet.inventory.SpellTreeEditOperation;
+import com.qwaecd.paramagic.thaumaturgy.spelltree.SpellNodeData;
 import com.qwaecd.paramagic.ui.api.UIRenderContext;
 import com.qwaecd.paramagic.ui.api.event.AllUIEvents;
 import com.qwaecd.paramagic.ui.api.event.UIEventContext;
 import com.qwaecd.paramagic.ui.core.MeasureResult;
-import com.qwaecd.paramagic.ui.core.UIManager;
 import com.qwaecd.paramagic.ui.core.UINode;
 import com.qwaecd.paramagic.ui.event.EventPhase;
 import com.qwaecd.paramagic.ui.event.impl.DoubleClick;
 import com.qwaecd.paramagic.ui.event.impl.MouseClick;
 import com.qwaecd.paramagic.ui.util.Rect;
+import com.qwaecd.paramagic.ui_project.wand.SpellTreeEditClientState;
 import com.qwaecd.paramagic.ui_project.wand.WEAssets;
 import org.jetbrains.annotations.NotNull;
 
@@ -19,33 +19,46 @@ import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.Consumer;
 
 public final class RootTreeNode extends TreeNode {
+    @Nonnull
+    private final SpellTreeEditClientState editState;
+    @Nonnull
+    private final Consumer<SpellTreeEditOperation> treeChanged;
+    private final boolean playEntranceAnimation;
 
-    public RootTreeNode() {
-        super();
+    public RootTreeNode(
+            @Nonnull SpellTreeEditClientState editState,
+            @Nonnull Consumer<SpellTreeEditOperation> treeChanged,
+            boolean playEntranceAnimation
+    ) {
+        super(editState.getTreeData().getRoot().getNodeId(), editState.getTreeData().getRoot().getOperatorId(), playEntranceAnimation);
+        this.editState = editState;
+        this.treeChanged = treeChanged;
+        this.playEntranceAnimation = playEntranceAnimation;
         this.state = SubTreeState.EXPANDED;
-        this.renderAlpha = 0.0f;
+
+        this.appendDataChildren(editState.getTreeData().getRoot());
+        this.applyExpandedPath(List.of(this), 0);
 
         this.addListener(AllUIEvents.MOUSE_CLICK, EventPhase.BUBBLING, this::handleChildClick);
         this.addListener(AllUIEvents.MOUSE_DOUBLE_CLICK, EventPhase.BUBBLING, this::handleChildDoubleClick);
     }
 
-    @Override
-    protected void onAttached(@NotNull UIManager manager) {
-        this.animateFloat(
-                0.0f,
-                1.0f,
-                0.4f,
-                EasingFunction.easeInOutQuad,
-                Interpolation::linear,
-                (v -> this.renderAlpha = v)
-        ).setDelay(0.3f);
+    private void appendDataChildren(@Nonnull SpellNodeData parentData) {
+        for (SpellNodeData childData : parentData.getChildren()) {
+            this.appendTreeNode(this.createNode(childData));
+        }
     }
 
-    @Override
-    protected void onMouseClick(UIEventContext<MouseClick> context) {
-        this.handleChildClick(context);
+    @Nonnull
+    private TreeNode createNode(@Nonnull SpellNodeData data) {
+        TreeNode node = new TreeNode(data.getNodeId(), data.getOperatorId(), this.playEntranceAnimation);
+        for (SpellNodeData childData : data.getChildren()) {
+            node.appendTreeNode(this.createNode(childData));
+        }
+        return node;
     }
 
     private void handleChildClick(UIEventContext<MouseClick> context) {
@@ -60,25 +73,30 @@ public final class RootTreeNode extends TreeNode {
     private void clickedTreeNode(TreeNode targetNode, UIEventContext<MouseClick> context) {
         MouseClick event = context.event;
         if (targetNode.canHitDeleteNode((float) event.mouseX, (float) event.mouseY)) {
-            this.deleteNode(targetNode);
+            this.submit(SpellTreeEditOperation.DELETE_SUBTREE, targetNode.getNodeId(), 0);
             context.consume();
         } else if (targetNode.canHitAppendNodeRight((float) event.mouseX, (float) event.mouseY)) {
             if (targetNode.getParent() instanceof TreeNode treeNode) {
-                TreeNode newNode = new TreeNode();
-                treeNode.appendTreeNode(newNode);
+                this.submit(SpellTreeEditOperation.ADD_CHILD, treeNode.getNodeId(), treeNode.getChildCount());
             } else if (targetNode == this) {
-                TreeNode newNode = new TreeNode();
-                this.appendTreeNode(newNode);
+                this.submit(SpellTreeEditOperation.ADD_CHILD, this.getNodeId(), this.getChildCount());
             }
             context.consume();
         } else if (targetNode.canHitAppendNodeDown((float) event.mouseX, (float) event.mouseY)) {
-            TreeNode newNode = new TreeNode();
-            targetNode.createSubTree(newNode);
-            this.expandToNode(targetNode);
+            this.submit(SpellTreeEditOperation.ADD_CHILD, targetNode.getNodeId(), 0);
             context.consume();
         } else if (targetNode.canHitDeleteSubTree((float) event.mouseX, (float) event.mouseY)) {
-            this.deleteSubTreeOf(targetNode instanceof TreeNode ? targetNode : null);
+            this.submit(SpellTreeEditOperation.CLEAR_CHILDREN, targetNode.getNodeId(), 0);
             context.consume();
+        } else if (targetNode.canHitInteractNode((float) event.mouseX, (float) event.mouseY) && targetNode.getNodeId() != null) {
+            this.submit(SpellTreeEditOperation.INTERACT_NODE_OPERATOR, targetNode.getNodeId(), 0);
+            context.consume();
+        }
+    }
+
+    private void submit(@Nonnull SpellTreeEditOperation operation, String nodeId, int childIndex) {
+        if (nodeId != null && this.editState.submit(operation, nodeId, childIndex)) {
+            this.treeChanged.accept(operation);
         }
     }
 
@@ -119,6 +137,46 @@ public final class RootTreeNode extends TreeNode {
         }
 
         this.applyExpandedPath(expandedPath, 0);
+        this.requestMeasure();
+    }
+
+    @Nonnull
+    List<String> captureExpandedPathNodeIds() {
+        List<String> result = new ArrayList<>();
+        TreeNode current = this;
+        while (current != null) {
+            String nodeId = current.getNodeId();
+            if (nodeId == null) {
+                break;
+            }
+            result.add(nodeId);
+            current = current.expandedSubNode;
+        }
+        return result;
+    }
+
+    void restoreExpandedPathNodeIds(@Nonnull List<String> nodeIds) {
+        if (nodeIds.isEmpty() || !nodeIds.get(0).equals(this.getNodeId())) {
+            return;
+        }
+        List<TreeNode> path = new ArrayList<>();
+        TreeNode current = this;
+        path.add(current);
+        for (int i = 1; i < nodeIds.size(); i++) {
+            TreeNode next = null;
+            for (TreeNode child : current.subNode) {
+                if (nodeIds.get(i).equals(child.getNodeId())) {
+                    next = child;
+                    break;
+                }
+            }
+            if (next == null) {
+                break;
+            }
+            path.add(next);
+            current = next;
+        }
+        this.restoreExpandedPathImmediately(path, 0);
         this.requestMeasure();
     }
 
@@ -182,16 +240,23 @@ public final class RootTreeNode extends TreeNode {
 
     @Override
     protected void render(@NotNull UIRenderContext context) {
-        if (this.renderAlpha <= 0.0f) {
+        float alpha = this.getEffectiveRenderAlpha();
+        if (alpha <= 0.0f) {
             return;
         }
-        context.renderSpriteWithAlpha(WEAssets.ITEM_RECT, this.finalRect.x, this.finalRect.y, this.renderAlpha);
+        context.renderSpriteWithAlpha(WEAssets.ITEM_RECT, this.finalRect.x, this.finalRect.y, alpha);
+        if (!this.renderingItem.isEmpty() && alpha >= ITEM_VISIBILITY_ALPHA_THRESHOLD) {
+            final float xOffset = 3.0f;
+            final float yOffset = 3.0f;
+            context.renderItem(this.renderingItem, (int) (this.finalRect.x + xOffset), (int) (this.finalRect.y + yOffset));
+            context.renderItemDecorations(this.renderingItem, (int) (this.finalRect.x + xOffset), (int) (this.finalRect.y + yOffset));
+        }
         if (this.isLastNode()) {
             context.renderSpriteWithAlpha(
                     WEAssets.ADD_NODE_RIGHT,
                     this.finalRect.x + WEAssets.ITEM_RECT.width + ADD_NODE_GAP,
                     this.finalRect.y + (WEAssets.ITEM_RECT.height - WEAssets.ADD_NODE_RIGHT.height) / 2.0f,
-                    this.renderAlpha
+                    alpha
             );
         }
     }

@@ -1,12 +1,20 @@
 package com.qwaecd.paramagic.ui_project.wand.content.tree;
 
+import com.qwaecd.paramagic.thaumaturgy.operator.AllParaOperators;
+import com.qwaecd.paramagic.thaumaturgy.operator.ParaOpId;
+import com.qwaecd.paramagic.thaumaturgy.operator.ParaOperator;
 import com.qwaecd.paramagic.tools.anim.EasingFunction;
 import com.qwaecd.paramagic.tools.anim.Interpolation;
+import com.qwaecd.paramagic.ui.api.TooltipContent;
+import com.qwaecd.paramagic.ui.api.TooltipQuery;
 import com.qwaecd.paramagic.ui.api.UIRenderContext;
+import com.qwaecd.paramagic.ui.api.event.UIEventContext;
 import com.qwaecd.paramagic.ui.core.*;
+import com.qwaecd.paramagic.ui.event.impl.MouseRelease;
 import com.qwaecd.paramagic.ui.util.Rect;
 import com.qwaecd.paramagic.ui.util.UIColor;
 import com.qwaecd.paramagic.ui_project.wand.WEAssets;
+import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
@@ -15,6 +23,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class TreeNode extends UINode {
+    @Nullable
+    private final String nodeId;
+    @Nullable
+    private final ParaOpId operatorId;
+    @Nonnull
+    protected final ItemStack renderingItem;
     protected final List<TreeNode> subNode = new ArrayList<>();
 
     protected static final float CHAIN_Y_GAP = 1.0f;
@@ -23,6 +37,11 @@ public class TreeNode extends UINode {
     protected static final float ITEM_RECT_GAP = 2.0f;
     private static final String REVEAL_ANIMATION_KEY = "TreeNodeReveal";
     private static final float MIN_REVEAL_ALPHA = 0.1f;
+    /**
+     * Items do not fade. They become visible only after the shared node chrome alpha has
+     * reached this value, so an operator never appears before its item cell.
+     */
+    protected static final float ITEM_VISIBILITY_ALPHA_THRESHOLD = 0.3f;
 
     @Nonnull
     protected SubTreeState state;
@@ -37,19 +56,64 @@ public class TreeNode extends UINode {
     protected final Rect appendNodeRectRight = new Rect();
     protected final Rect appendNodeRectDown = new Rect();
     protected final Rect deleteSubTreeRect = new Rect();
+    protected final Rect nodeItemRect = new Rect();
     protected final Rect chainClipRect = new Rect();
 
     protected float renderAlpha = 1.0f;
+    private final boolean playEntranceAnimation;
+    private float entranceAlpha;
     protected float revealProgress = 1.0f;
     protected boolean collapseAnimating = false;
 
     public TreeNode() {
+        this(null, null, false);
+    }
+
+    public TreeNode(@Nullable String nodeId, @Nullable ParaOpId operatorId) {
+        this(nodeId, operatorId, false);
+    }
+
+    public TreeNode(@Nullable String nodeId, @Nullable ParaOpId operatorId, boolean playEntranceAnimation) {
         super();
+        this.nodeId = nodeId;
+        this.operatorId = operatorId;
+        this.playEntranceAnimation = playEntranceAnimation;
+        this.entranceAlpha = playEntranceAnimation ? 0.0f : 1.0f;
+        ParaOperator operator = operatorId == null ? null : AllParaOperators.createOperator(operatorId);
+        this.renderingItem = operator == null ? ItemStack.EMPTY : operator.getRenderStack().copy();
         this.state = SubTreeState.ADDABLE;
         this.hiddenSubTreeNode = new HiddenSubTreeNode(this);
         this.hiddenSubTreeNode.disable();
         this.addChild(this.hiddenSubTreeNode);
     }
+
+    @Override
+    protected void onAttached(@NotNull UIManager manager) {
+        if (!this.playEntranceAnimation) {
+            return;
+        }
+        this.animateFloat(
+                0.0f,
+                1.0f,
+                0.4f,
+                EasingFunction.easeInOutQuad,
+                Interpolation::linear,
+                value -> this.entranceAlpha = value
+        ).setDelay(0.3f);
+    }
+
+    /**
+     * The single alpha value for every non-item visual belonging to this node.
+     * It combines the initial entrance animation with the expand/collapse reveal state.
+     */
+    protected final float getEffectiveRenderAlpha() {
+        return this.renderAlpha * this.entranceAlpha;
+    }
+
+    @Nullable
+    public String getNodeId() { return this.nodeId; }
+
+    public int getChildCount() { return this.subNode.size(); }
 
     protected boolean canHitAppendNodeRight(float mouseX, float mouseY) {
         return this.isLastNode() && this.appendNodeRectRight.contains(mouseX, mouseY);
@@ -68,6 +132,10 @@ public class TreeNode extends UINode {
             return false;
         }
         return !this.collapseAnimating && this.state == SubTreeState.EXPANDED && this.deleteSubTreeRect.contains(mouseX, mouseY);
+    }
+
+    protected boolean canHitInteractNode(float mouseX, float mouseY) {
+        return this.nodeItemRect.contains(mouseX, mouseY);
     }
 
     protected void createSubTree(TreeNode subNode) {
@@ -149,6 +217,42 @@ public class TreeNode extends UINode {
                 child.applyExpandedPath(expandedPath, pathIndex + 1);
             } else {
                 child.collapseForSingleExpandedPath();
+            }
+        }
+    }
+
+    /**
+     * Restores a previously visible path while rebuilding tree data. This is deliberately
+     * separate from {@link #applyExpandedPath(List, int)}: restoration is not a user-initiated
+     * expansion and therefore must not replay the expand animation.
+     */
+    protected void restoreExpandedPathImmediately(@Nonnull List<TreeNode> expandedPath, int pathIndex) {
+        if (pathIndex < 0 || pathIndex >= expandedPath.size() || expandedPath.get(pathIndex) != this) {
+            return;
+        }
+
+        this.hiddenSubTreeNode.disable();
+        this.collapseAnimating = false;
+        this.revealProgress = 1.0f;
+        this.renderAlpha = 1.0f;
+        if (this.subNode.isEmpty()) {
+            this.expandedSubNode = null;
+            this.setSubTreeAddable();
+            return;
+        }
+
+        TreeNode nextExpandedNode = pathIndex + 1 < expandedPath.size()
+                ? expandedPath.get(pathIndex + 1)
+                : null;
+        this.expandedSubNode = nextExpandedNode;
+        this.state = SubTreeState.EXPANDED;
+
+        for (TreeNode child : this.subNode) {
+            child.enableWithoutLayout();
+            if (child == nextExpandedNode) {
+                child.restoreExpandedPathImmediately(expandedPath, pathIndex + 1);
+            } else {
+                child.collapseForSingleExpandedPathImmediately();
             }
         }
     }
@@ -282,6 +386,9 @@ public class TreeNode extends UINode {
     }
 
     private float getRevealAlpha() {
+        if (this.state == SubTreeState.HIDDEN && !this.collapseAnimating) {
+            return 1.0f;
+        }
         return MIN_REVEAL_ALPHA + (1.0f - MIN_REVEAL_ALPHA) * this.revealProgress;
     }
 
@@ -405,6 +512,12 @@ public class TreeNode extends UINode {
     @Override
     protected void arrangeSelf(float parentX, float parentY, float parentW, float parentH) {
         super.arrangeSelf(parentX, parentY, parentW, parentH);
+        this.nodeItemRect.set(
+                this.finalRect.x,
+                this.finalRect.y,
+                WEAssets.ITEM_RECT.width,
+                WEAssets.ITEM_RECT.height
+        );
         if (this.isLastNode()) {
             this.appendNodeRectRight.set(
                     this.finalRect.x + WEAssets.ITEM_RECT.width + ADD_NODE_GAP,
@@ -434,6 +547,21 @@ public class TreeNode extends UINode {
                     WEAssets.ADD_NODE_DOWN.height
             );
         }
+    }
+
+    /**
+     * A tree node's layout rectangle also contains its expanded descendants. Only the actual
+     * item cell and explicit controls may become an event target; descendants are visited first.
+     */
+    @Override
+    public boolean hitTest(float mouseX, float mouseY) {
+        if (!this.visible || !this.hitTestable) {
+            return false;
+        }
+        return this.nodeItemRect.contains(mouseX, mouseY)
+                || this.appendNodeRectRight.contains(mouseX, mouseY)
+                || this.appendNodeRectDown.contains(mouseX, mouseY)
+                || this.deleteSubTreeRect.contains(mouseX, mouseY);
     }
 
     @Override
@@ -514,36 +642,44 @@ public class TreeNode extends UINode {
     protected void render(@NotNull UIRenderContext context) {
         float x = this.presentationRect.x;
         float y = this.presentationRect.y;
-        context.renderSprite(WEAssets.ITEM_RECT, x, y);
+        float alpha = this.getEffectiveRenderAlpha();
+        context.renderSpriteWithAlpha(WEAssets.ITEM_RECT, x, y, alpha);
+        if (!this.renderingItem.isEmpty() && alpha >= ITEM_VISIBILITY_ALPHA_THRESHOLD) {
+            final float xOffset = 3.0f;
+            final float yOffset = 3.0f;
+            context.renderItem(this.renderingItem, (int) (x + xOffset), (int) (y + yOffset));
+            context.renderItemDecorations(this.renderingItem, (int) (x + xOffset), (int) (y + yOffset));
+        }
         y += WEAssets.ITEM_RECT.height + CHAIN_Y_GAP;
         switch (this.state) {
             case EXPANDED -> {
                 x += (WEAssets.ITEM_RECT.width - WEAssets.CHAIN.width) / 2.0f;
-                this.renderExpandedChain(context, x, y);
+                this.renderExpandedChain(context, x, y, alpha);
             }
             case HIDDEN -> {
                 x += (WEAssets.ITEM_RECT.width - WEAssets.CHAIN.width) / 2.0f;
                 if (this.collapseAnimating) {
-                    this.renderExpandedChain(context, x, y);
+                    this.renderExpandedChain(context, x, y, alpha);
                 } else {
-                    context.renderSprite(WEAssets.CHAIN, x, y);
+                    context.renderSpriteWithAlpha(WEAssets.CHAIN, x, y, alpha);
                 }
             }
             case ADDABLE -> {
                 x += (WEAssets.ITEM_RECT.width - WEAssets.ADD_NODE_DOWN.width) / 2.0f;
-                context.renderSpriteWithAlpha(WEAssets.ADD_NODE_DOWN, x, y, this.renderAlpha);
+                context.renderSpriteWithAlpha(WEAssets.ADD_NODE_DOWN, x, y, alpha);
             }
         }
         if (this.isLastNode()) {
-            context.renderSprite(
+            context.renderSpriteWithAlpha(
                     WEAssets.ADD_NODE_RIGHT,
                     this.presentationRect.x + WEAssets.ITEM_RECT.width + ADD_NODE_GAP,
-                    this.presentationRect.y + (WEAssets.ITEM_RECT.height - WEAssets.ADD_NODE_RIGHT.height) / 2.0f
+                    this.presentationRect.y + (WEAssets.ITEM_RECT.height - WEAssets.ADD_NODE_RIGHT.height) / 2.0f,
+                    alpha
             );
         }
     }
 
-    private void renderExpandedChain(@Nonnull UIRenderContext context, float x, float y) {
+    private void renderExpandedChain(@Nonnull UIRenderContext context, float x, float y, float alpha) {
         float visibleHeight = (
                 WEAssets.CHAIN.height * 3.0f + BETWEEN_NODE_GAP * 2.0f
         ) * Math.max(0.0f, Math.min(1.0f, this.revealProgress));
@@ -554,7 +690,7 @@ public class TreeNode extends UINode {
         this.chainClipRect.set(x, y, WEAssets.CHAIN.width, visibleHeight);
         context.pushClipRect(this.chainClipRect);
         for (int i = 0; i < 3; i++) {
-            context.renderSprite(WEAssets.CHAIN, x, y);
+            context.renderSpriteWithAlpha(WEAssets.CHAIN, x, y, alpha);
             y += WEAssets.CHAIN.height + BETWEEN_NODE_GAP;
         }
         context.popClipRect();
@@ -566,6 +702,20 @@ public class TreeNode extends UINode {
         context.renderOutline(this.appendNodeRectRight, UIColor.BLUE);
         context.renderOutline(this.appendNodeRectDown, UIColor.BLUE);
         context.renderOutline(this.deleteSubTreeRect, UIColor.GREEN);
+    }
+
+    @Override
+    @Nullable
+    public TooltipContent getTooltip(@Nonnull TooltipQuery query) {
+        if (!this.nodeItemRect.contains(query.mouseX(), query.mouseY())) {
+            return null;
+        }
+        return UINode.getTooltipFromItem(this.renderingItem);
+    }
+
+    @Override
+    protected void onMouseRelease(UIEventContext<MouseRelease> context) {
+        context.consume();
     }
 
     @Nonnull

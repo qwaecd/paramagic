@@ -42,9 +42,9 @@ public class UIButton extends UINode {
         super();
     }
 
-    public UIButton(Rect localRect) {
+    public UIButton(Rect layoutRect) {
         super();
-        this.localRect.set(localRect);
+        this.layoutRect.set(layoutRect);
     }
 
     @Override
@@ -82,11 +82,6 @@ public class UIButton extends UINode {
         if (this.pressed) {
             context.renderOutline(this.finalRect, UIColor.fromRGBA(255, 255, 255, 200));
         }
-    }
-
-    @Override
-    public void layout(float parentX, float parentY, float parentW, float parentH) {
-        super.layout(parentX, parentY, parentW, parentH);
     }
 
     @Override

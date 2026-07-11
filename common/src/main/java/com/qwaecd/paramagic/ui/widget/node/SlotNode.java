@@ -49,8 +49,8 @@ public class SlotNode extends ItemNode {
         if (this.getRenderingItem().isEmpty()) {
             context.drawText(
                     "null",
-                    worldRect.x,
-                    worldRect.y + 4.0f,
+                    this.finalRect.x,
+                    this.finalRect.y + 4.0f,
                     UIColor.WHITE
             );
         }

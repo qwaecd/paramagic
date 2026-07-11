@@ -22,7 +22,7 @@ public class TypingBox extends NativeWidgetNode<MCEditBox, TypingBox> {
 
         @Override
         public void syncWidget(@Nonnull TypingBox node, @Nonnull MCEditBox widget) {
-            widget.resize(node.worldRect);
+            widget.resize(node.finalRect);
             widget.active = node.isHitTestable();
             widget.visible = node.isVisible();
             widget.setEditable(node.editable);

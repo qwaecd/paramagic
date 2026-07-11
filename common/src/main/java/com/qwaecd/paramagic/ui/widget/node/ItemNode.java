@@ -1,13 +1,13 @@
 package com.qwaecd.paramagic.ui.widget.node;
 
-import com.qwaecd.paramagic.ui.MenuContent;
+import com.qwaecd.paramagic.ui.api.TooltipContent;
+import com.qwaecd.paramagic.ui.api.TooltipQuery;
 import com.qwaecd.paramagic.ui.api.UIRenderContext;
 import com.qwaecd.paramagic.ui.api.event.UIEventContext;
 import com.qwaecd.paramagic.ui.core.UINode;
 import com.qwaecd.paramagic.ui.event.impl.MouseLeave;
 import com.qwaecd.paramagic.ui.event.impl.MouseOver;
 import com.qwaecd.paramagic.ui.util.UIColor;
-import com.qwaecd.paramagic.ui_project.edit_table.EditTableSprite;
 import net.minecraft.world.item.ItemStack;
 
 import javax.annotation.Nonnull;
@@ -22,33 +22,19 @@ public class ItemNode extends UINode {
 
     protected final int highLightColor = -2130706433;
 
-    protected static final EditTableSprite itemSlotSprit = new EditTableSprite(
-            41, 0,
-            20, 20,
-            -2, -2
-    );
-
     public ItemNode() {
         this.backgroundColor = UIColor.of(183, 126, 50, 255);
-        this.localRect.setWH(CELL_SIZE, CELL_SIZE);
+        this.layoutRect.setWH(CELL_SIZE, CELL_SIZE);
     }
 
     @Override
     protected void onMouseOver(UIEventContext<MouseOver> context) {
         this.isHovering = true;
-        MenuContent menuContent = context.manager.getMenuContent();
-        if (menuContent != null) {
-            menuContent.setHoveringItemNode(this);
-        }
     }
 
     @Override
     protected void onMouseLeave(UIEventContext<MouseLeave> context) {
         this.isHovering = false;
-        MenuContent menuContent = context.manager.getMenuContent();
-        if (menuContent != null) {
-            menuContent.setHoveringItemNode(null);
-        }
     }
 
     public void setRenderingItem(@Nullable ItemStack itemStack) {
@@ -61,19 +47,29 @@ public class ItemNode extends UINode {
     }
 
     @Override
+    @Nullable
+    public TooltipContent getTooltip(@Nonnull TooltipQuery query) {
+        ItemStack item = this.getRenderingItem();
+        if (item.isEmpty()) {
+            return null;
+        }
+        return UINode.getTooltipFromItem(item);
+    }
+
+    @Override
     protected void render(@Nonnull UIRenderContext context) {
         super.render(context);
 //        PoseStack view = RenderSystem.getModelViewStack();
 //        view.pushPose();
 //        float scale = 1.0f;
-//        view.translate(worldRect.x + CELL_SIZE / 2.0f, worldRect.y + CELL_SIZE / 2.0f, 0.0f);
+//        view.translate(finalRect.x + CELL_SIZE / 2.0f, finalRect.y + CELL_SIZE / 2.0f, 0.0f);
 //        view.scale(scale, scale, 1.0f);
 //        RenderSystem.applyModelViewMatrix();
 //        context.renderItem(this.currentItem, (int) (-CELL_SIZE / 2.0f), (int) (-CELL_SIZE / 2.0f));
 //        view.popPose();
 //        RenderSystem.applyModelViewMatrix();
-        context.renderItem(this.getRenderingItem(), (int) worldRect.x, (int) worldRect.y);
-        context.renderItemDecorations(this.getRenderingItem(), (int) this.worldRect.x, (int) this.worldRect.y);
+        context.renderItem(this.getRenderingItem(), (int) this.finalRect.x, (int) this.finalRect.y);
+        context.renderItemDecorations(this.getRenderingItem(), (int) this.finalRect.x, (int) this.finalRect.y);
         if (this.isHovering) {
             this.renderSlotHighlight(context);
         }
@@ -81,10 +77,9 @@ public class ItemNode extends UINode {
 
     @Override
     protected void renderBackGround(UIRenderContext context) {
-        context.renderSprite(itemSlotSprit, this.worldRect.x + itemSlotSprit.spriteOffsetX, this.worldRect.y + itemSlotSprit.spriteOffsetY);
     }
 
     protected void renderSlotHighlight(UIRenderContext context) {
-        context.fillBounds(this.worldRect.x, this.worldRect.y, this.worldRect.x + CELL_SIZE, this.worldRect.y + CELL_SIZE, this.highLightColor);
+        context.fillBounds(this.finalRect.x, this.finalRect.y, this.finalRect.x + CELL_SIZE, this.finalRect.y + CELL_SIZE, this.highLightColor);
     }
 }
