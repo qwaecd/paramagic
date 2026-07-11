@@ -2,21 +2,14 @@ package com.qwaecd.paramagic.tools.nbt;
 
 import com.qwaecd.paramagic.network.codec.NBTCodec;
 import com.qwaecd.paramagic.thaumaturgy.ParaCrystalData;
-import com.qwaecd.paramagic.thaumaturgy.operator.AllParaOperators;
-import com.qwaecd.paramagic.thaumaturgy.operator.ParaOpId;
-import com.qwaecd.paramagic.thaumaturgy.operator.ParaOperator;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.world.item.ItemStack;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.Objects;
 
 public final class CrystalComponentUtils {
-    private static final Logger LOGGER = LoggerFactory.getLogger(CrystalComponentUtils.class);
     @Nullable
     public static ParaCrystalData getComponentFromTag(@Nullable CompoundTag tag) {
         if (tag == null) {
@@ -47,122 +40,4 @@ public final class CrystalComponentUtils {
         writeComponentToTag(tag, component);
     }
 
-    public static boolean insertParaOpIdToPath(
-            @Nonnull ParaOpId opId, @Nonnull String path, @Nonnull ParaCrystalData component
-    ) {
-        ParaOperator operator = AllParaOperators.createOperator(opId);
-        if (operator == null) {
-            return false;
-        }
-        component.putOperator(path, operator);
-        return true;
-    }
-
-    public static boolean insertParaOperatorFromPathInItemStack(
-            @Nonnull ParaOpId opId, @Nonnull String path, @Nonnull ItemStack item
-    ) {
-        if (!AllParaOperators.contains(opId)) {
-            return false;
-        }
-
-        CompoundTag tag = item.getTag();
-        if (tag == null) {
-            return false;
-        }
-
-        try {
-            CompoundTag paraTag = tag.getCompound("para");
-            CompoundTag operatorMap = paraTag.getCompound("operatorMap");
-            CompoundTag entry = operatorMap.getCompound(path);
-            if (!(entry.contains(ParaOpId.OPERATOR_ID_KEY))) {
-                entry.putString(ParaOpId.OPERATOR_ID_KEY, opId.id.toString());
-                operatorMap.put(path, entry);
-            }
-            return true;
-        } catch (NullPointerException | ClassCastException ignored) {
-        } catch (Exception e) {
-            LOGGER.error("Failed to insert operator {} to path {} in item stack {}: {}", opId, path, item, e);
-        }
-        return false;
-    }
-
-    public static ItemStack noRemoveGetParaOperatorFromPathInItemStack(@Nonnull String path, @Nonnull ItemStack item) {
-        CompoundTag tag = item.getTag();
-        if (tag == null) {
-            return ItemStack.EMPTY;
-        }
-
-        try {
-            CompoundTag paraTag = tag.getCompound("para");
-            CompoundTag operatorMap = paraTag.getCompound("operatorMap");
-            if (!operatorMap.contains(path)) {
-                return ItemStack.EMPTY;
-            }
-            CompoundTag entry = operatorMap.getCompound(path);
-            if (!(entry.contains(ParaOpId.OPERATOR_ID_KEY))) {
-                return ItemStack.EMPTY;
-            }
-            String opIdStr = entry.getString(ParaOpId.OPERATOR_ID_KEY);
-            ParaOpId paraOpId = AllParaOperators.getIdByString(opIdStr);
-            Objects.requireNonNull(paraOpId, "Operator ID " + opIdStr + " not found in AllParaOperators");
-            ParaOperator operator = AllParaOperators.createOperator(paraOpId);
-            if (operator == null) {
-                return ItemStack.EMPTY;
-            }
-            return operator.createOperatorItem();
-        } catch (NullPointerException | ClassCastException ignored) {
-        } catch (Exception e) {
-            LOGGER.error("Failed to remove operator from path {} in item stack {}: {}", path, item, e);
-        }
-        return ItemStack.EMPTY;
-    }
-
-    public static ItemStack removeParaOperatorFromPathInItemStack(@Nonnull String path, @Nonnull ItemStack item) {
-        CompoundTag tag = item.getTag();
-        if (tag == null) {
-            return ItemStack.EMPTY;
-        }
-
-        try {
-            CompoundTag paraTag = tag.getCompound("para");
-            CompoundTag operatorMap = paraTag.getCompound("operatorMap");
-            if (!operatorMap.contains(path)) {
-                return ItemStack.EMPTY;
-            }
-            CompoundTag entry = operatorMap.getCompound(path);
-            if (!(entry.contains(ParaOpId.OPERATOR_ID_KEY))) {
-                return ItemStack.EMPTY;
-            }
-            String opIdStr = entry.getString(ParaOpId.OPERATOR_ID_KEY);
-            ParaOpId paraOpId = AllParaOperators.getIdByString(opIdStr);
-            Objects.requireNonNull(paraOpId, "Operator ID " + opIdStr + " not found in AllParaOperators");
-            ParaOperator operator = AllParaOperators.createOperator(paraOpId);
-            if (operator == null) {
-                return ItemStack.EMPTY;
-            }
-            operatorMap.remove(path);
-            return operator.createOperatorItem();
-        } catch (NullPointerException | ClassCastException ignored) {
-        } catch (Exception e) {
-            LOGGER.error("Failed to remove operator from path {} in item stack {}: {}", path, item, e);
-        }
-        return ItemStack.EMPTY;
-    }
-
-    public static boolean containsParaOperatorInPath(@Nonnull String path, @Nonnull ItemStack item) {
-        CompoundTag tag = item.getTag();
-        if (tag == null) {
-            return false;
-        }
-
-        try {
-            CompoundTag paraTag = tag.getCompound("para");
-            CompoundTag operatorMap = paraTag.getCompound("operatorMap");
-            return operatorMap.contains(path);
-        } catch (NullPointerException | ClassCastException ignored) {
-        } catch (Exception e) {
-            LOGGER.error("Failed to check operator in path {} in item stack {}: {}", path, item, e);
-        }
-        return false;
-    }
 }

@@ -13,7 +13,7 @@ import com.qwaecd.paramagic.spell.core.store.SessionDataValue;
 import com.qwaecd.paramagic.spell.server.ServerSession;
 import com.qwaecd.paramagic.spell.server.ServerSessionManager;
 import com.qwaecd.paramagic.thaumaturgy.ParaCrystalData;
-import com.qwaecd.paramagic.thaumaturgy.node.ParaTree;
+import com.qwaecd.paramagic.thaumaturgy.node.ParaSpellTree;
 import com.qwaecd.paramagic.world.entity.SpellAnchorEntity;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
@@ -29,11 +29,10 @@ public final class ArcaneSpellCaster {
 
     @Nullable
     public static ServerSession castOnServer(ServerLevel level, SpellCaster caster, ParaCrystalData crystal) {
-        ParaTree paraTree = new ParaTree(crystal.getParaData());
-        paraTree.updateAll(crystal);
+        ParaSpellTree spellTree = crystal.createRuntimeTree();
 
         ServerSessionManager manager = SessionManagers.getForServer(level);
-        ServerSession session = manager.tryCreateRuntimeSession(level, caster, new ArcaneRuntime(paraTree));
+        ServerSession session = manager.tryCreateRuntimeSession(level, caster, new ArcaneRuntime(spellTree));
         if (session == null) {
             return null;
         }
