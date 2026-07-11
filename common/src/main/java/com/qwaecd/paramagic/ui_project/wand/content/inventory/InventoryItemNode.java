@@ -2,7 +2,6 @@ package com.qwaecd.paramagic.ui_project.wand.content.inventory;
 
 import com.qwaecd.paramagic.tools.anim.EasingFunction;
 import com.qwaecd.paramagic.tools.anim.Interpolation;
-import com.qwaecd.paramagic.ui.MenuContent;
 import com.qwaecd.paramagic.ui.api.TooltipContent;
 import com.qwaecd.paramagic.ui.api.TooltipQuery;
 import com.qwaecd.paramagic.ui.api.UIRenderContext;
@@ -11,19 +10,18 @@ import com.qwaecd.paramagic.ui.core.LayoutConstraints;
 import com.qwaecd.paramagic.ui.core.MeasureResult;
 import com.qwaecd.paramagic.ui.core.UIManager;
 import com.qwaecd.paramagic.ui.core.UINode;
-import com.qwaecd.paramagic.ui.event.impl.*;
-import com.qwaecd.paramagic.ui.inventory.slot.UISlot;
+import com.qwaecd.paramagic.ui.event.impl.MouseLeave;
+import com.qwaecd.paramagic.ui.event.impl.MouseOver;
 import com.qwaecd.paramagic.ui.inventory.InventoryHolder;
 import com.qwaecd.paramagic.ui_project.wand.WEAssets;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.inventory.ClickType;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.Nonnull;
 
 public final class InventoryItemNode extends UINode {
     private final InventoryHolder playerInv;
+    private final InventoryInteractionController interactionController;
     private final int slot;
 
     public static final int SLOT_SIZE = 16;
@@ -34,11 +32,16 @@ public final class InventoryItemNode extends UINode {
     private boolean isHovering = false;
     private float renderAlpha = 0.0f;
 
-    public InventoryItemNode(int slot, InventoryHolder playerInv) {
+    public InventoryItemNode(int slot, InventoryHolder playerInv, InventoryInteractionController interactionController) {
         super();
         this.slot = slot;
         this.playerInv = playerInv;
+        this.interactionController = interactionController;
         this.layoutRect.setWH(SLOT_SIZE, SLOT_SIZE);
+    }
+
+    public int getSlotId() {
+        return this.slot;
     }
 
     @Override
@@ -54,35 +57,6 @@ public final class InventoryItemNode extends UINode {
     @Override
     protected void onMouseLeave(UIEventContext<MouseLeave> context) {
         this.isHovering = false;
-    }
-
-    @Override
-    protected void onMouseClick(UIEventContext<MouseClick> context) {
-        MenuContent menuContent = context.manager.getMenuContentOrThrow();
-        for (var menuSlot : menuContent.getMenu().slots) {
-            if (menuSlot instanceof UISlot uiSlot && uiSlot.getSlotId() == this.slot) {
-                menuContent.getScreen().slotClicked(uiSlot, context.event.button, ClickType.PICKUP);
-                context.consume();
-                return;
-            }
-        }
-    }
-
-    @Override
-    protected void onDoubleClick(UIEventContext<DoubleClick> context) {
-        MenuContent menuContent = context.manager.getMenuContentOrThrow();
-        for (var menuSlot : menuContent.getMenu().slots) {
-            if (menuSlot instanceof UISlot uiSlot && uiSlot.getSlotId() == this.slot) {
-                menuContent.getScreen().slotClicked(uiSlot, context.event.button, ClickType.PICKUP_ALL);
-                context.consume();
-                return;
-            }
-        }
-    }
-
-    @Override
-    protected void onMouseRelease(UIEventContext<MouseRelease> context) {
-        context.consume();
     }
 
     @Override
@@ -110,10 +84,15 @@ public final class InventoryItemNode extends UINode {
                 this.renderAlpha
         );
 
-        ItemStack itemStack = this.getRenderingItem();
+        ItemStack previewStack = this.interactionController.getQuickCraftPreview(this.slot);
+        boolean isQuickCraftPreview = previewStack != null;
+        ItemStack itemStack = isQuickCraftPreview ? previewStack : this.getRenderingItem();
+        if (isQuickCraftPreview) {
+            this.renderSlotHighlight(context);
+        }
         context.renderItem(itemStack, Math.round(this.finalRect.x), Math.round(this.finalRect.y));
         context.renderItemDecorations(itemStack, Math.round(this.finalRect.x), Math.round(this.finalRect.y));
-        if (this.isHovering) {
+        if (this.isHovering && !isQuickCraftPreview) {
             this.renderSlotHighlight(context);
         }
     }

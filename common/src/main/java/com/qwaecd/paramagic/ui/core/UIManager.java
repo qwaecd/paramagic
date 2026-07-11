@@ -62,12 +62,18 @@ public class UIManager {
     private ContextMenu contextMenu;
 
     private final Set<UINode> mouseMovingListeners = new HashSet<>();
+    private final Set<UIKeyListener> keyListeners = new LinkedHashSet<>();
 
     @Getter
     public final UINode rootNode;
 
     @Nullable
     private UINode mouseOver = null;
+
+    @Nullable
+    public UINode getMouseOverNode() {
+        return this.mouseOver;
+    }
 
     @Getter
     private final OverlayRoot overlayRoot;
@@ -431,6 +437,26 @@ public class UIManager {
         this.mouseMovingListeners.remove(node);
     }
 
+    public void registerKeyListener(@Nonnull UIKeyListener listener) {
+        this.keyListeners.add(listener);
+    }
+
+    public void unregisterKeyListener(@Nonnull UIKeyListener listener) {
+        this.keyListeners.remove(listener);
+    }
+
+    /**
+     * 依注册顺序分发键盘按下事件，首个消费事件的监听器终止分发。
+     */
+    public boolean onKeyPressed(int keyCode, int scanCode, int modifiers) {
+        for (UIKeyListener listener : List.copyOf(this.keyListeners)) {
+            if (listener.onKeyPressed(this, keyCode, scanCode, modifiers)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     /**
      * 遍历所有 UI 节点, 包括根节点, 请不要在该 lambda 内修改节点树的结构.
      * @throws ConcurrentModificationException 如果在遍历过程中修改了节点树结构.
@@ -463,6 +489,7 @@ public class UIManager {
 
     public void onClose() {
         this.rootNode.detachFromManager();
+        this.keyListeners.clear();
         if (instance == this) {
             instance = null;
         }

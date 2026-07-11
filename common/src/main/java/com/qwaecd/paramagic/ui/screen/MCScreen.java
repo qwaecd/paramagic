@@ -106,6 +106,9 @@ public abstract class MCScreen extends Screen implements NativeWidgetHostScreen 
         if (this.nativeWidgetHost.keyPressed(keyCode, scanCode, modifiers)) {
             return true;
         }
+        if (this.manager.onKeyPressed(keyCode, scanCode, modifiers)) {
+            return true;
+        }
         return super.keyPressed(keyCode, scanCode, modifiers);
     }
 
