@@ -1,7 +1,8 @@
 package com.qwaecd.paramagic.ui.util;
 
 import com.qwaecd.paramagic.network.Networking;
-import com.qwaecd.paramagic.network.packet.inventory.*;
+import com.qwaecd.paramagic.network.packet.inventory.C2SSpellTreeEditPacket;
+import com.qwaecd.paramagic.network.packet.inventory.SpellTreeEditOperation;
 
 import javax.annotation.Nonnull;
 

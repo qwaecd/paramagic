@@ -3,7 +3,7 @@ package com.qwaecd.paramagic.network;
 import com.qwaecd.paramagic.network.api.PlatformNetworking;
 import com.qwaecd.paramagic.network.handler.ServerSessionHandlers;
 import com.qwaecd.paramagic.network.handler.ServerSpellTreeHandler;
-import com.qwaecd.paramagic.network.packet.inventory.*;
+import com.qwaecd.paramagic.network.packet.inventory.C2SSpellTreeEditPacket;
 import com.qwaecd.paramagic.network.packet.session.C2SSessionAttachPacket;
 
 public class Networking {

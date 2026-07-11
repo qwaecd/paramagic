@@ -1,9 +1,9 @@
 package com.qwaecd.paramagic.network;
 
 import com.qwaecd.paramagic.network.api.PlatformNetworking;
-import com.qwaecd.paramagic.network.handler.ClientSpellTreeHandlers;
 import com.qwaecd.paramagic.network.handler.ClientEffectHandlers;
 import com.qwaecd.paramagic.network.handler.ClientSessionDataHandlers;
+import com.qwaecd.paramagic.network.handler.ClientSpellTreeHandlers;
 import com.qwaecd.paramagic.network.packet.effect.S2CEffectKill;
 import com.qwaecd.paramagic.network.packet.effect.S2CEffectSpawn;
 import com.qwaecd.paramagic.network.packet.inventory.S2CSpellTreeEditRejectedPacket;

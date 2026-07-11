@@ -2,8 +2,8 @@ package com.qwaecd.paramagic.ui.screen;
 
 import com.qwaecd.paramagic.tools.TimeProvider;
 import com.qwaecd.paramagic.ui.MCRenderBackend;
-import com.qwaecd.paramagic.ui.api.TooltipRenderer;
 import com.qwaecd.paramagic.ui.api.TooltipContent;
+import com.qwaecd.paramagic.ui.api.TooltipRenderer;
 import com.qwaecd.paramagic.ui.api.UIRenderContext;
 import com.qwaecd.paramagic.ui.api.UIRenderContextCache;
 import com.qwaecd.paramagic.ui.core.UIManager;

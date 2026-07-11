@@ -1,5 +1,7 @@
 package com.qwaecd.paramagic.ui_project.wand.content.tree;
 
+import com.qwaecd.paramagic.network.packet.inventory.SpellTreeEditOperation;
+import com.qwaecd.paramagic.thaumaturgy.spelltree.SpellNodeData;
 import com.qwaecd.paramagic.ui.api.UIRenderContext;
 import com.qwaecd.paramagic.ui.api.event.AllUIEvents;
 import com.qwaecd.paramagic.ui.api.event.UIEventContext;
@@ -9,10 +11,8 @@ import com.qwaecd.paramagic.ui.event.EventPhase;
 import com.qwaecd.paramagic.ui.event.impl.DoubleClick;
 import com.qwaecd.paramagic.ui.event.impl.MouseClick;
 import com.qwaecd.paramagic.ui.util.Rect;
-import com.qwaecd.paramagic.ui_project.wand.WEAssets;
 import com.qwaecd.paramagic.ui_project.wand.SpellTreeEditClientState;
-import com.qwaecd.paramagic.network.packet.inventory.SpellTreeEditOperation;
-import com.qwaecd.paramagic.thaumaturgy.spelltree.SpellNodeData;
+import com.qwaecd.paramagic.ui_project.wand.WEAssets;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;

@@ -1,15 +1,15 @@
 package com.qwaecd.paramagic.ui_project.wand;
 
+import com.qwaecd.paramagic.network.packet.inventory.SpellTreeEditOperation;
 import com.qwaecd.paramagic.thaumaturgy.ParaCrystalData;
+import com.qwaecd.paramagic.thaumaturgy.operator.ParaOpId;
 import com.qwaecd.paramagic.thaumaturgy.spelltree.ParaSpellTreeData;
 import com.qwaecd.paramagic.thaumaturgy.spelltree.SpellNodeData;
-import com.qwaecd.paramagic.thaumaturgy.operator.ParaOpId;
 import com.qwaecd.paramagic.tools.nbt.CrystalComponentUtils;
 import com.qwaecd.paramagic.ui.inventory.InventoryHolder;
 import com.qwaecd.paramagic.ui.util.UINetwork;
-import com.qwaecd.paramagic.world.item.content.ParaCrystalItem;
 import com.qwaecd.paramagic.world.item.ParaOperatorItem;
-import com.qwaecd.paramagic.network.packet.inventory.SpellTreeEditOperation;
+import com.qwaecd.paramagic.world.item.content.ParaCrystalItem;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemStack;
 

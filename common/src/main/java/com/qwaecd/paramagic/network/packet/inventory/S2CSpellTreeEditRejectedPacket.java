@@ -3,8 +3,8 @@ package com.qwaecd.paramagic.network.packet.inventory;
 import com.qwaecd.paramagic.network.DataCodec;
 import com.qwaecd.paramagic.network.api.Packet;
 import com.qwaecd.paramagic.network.api.PacketIdentifier;
-import com.qwaecd.paramagic.tools.ModRL;
 import com.qwaecd.paramagic.thaumaturgy.spelltree.ParaSpellTreeData;
+import com.qwaecd.paramagic.tools.ModRL;
 
 import javax.annotation.Nonnull;
 

@@ -1,10 +1,10 @@
 package com.qwaecd.paramagic.ui_project.wand.content.tree;
 
+import com.qwaecd.paramagic.network.packet.inventory.SpellTreeEditOperation;
 import com.qwaecd.paramagic.ui.core.LayoutConstraints;
 import com.qwaecd.paramagic.ui.core.MeasureResult;
 import com.qwaecd.paramagic.ui.core.UINode;
 import com.qwaecd.paramagic.ui_project.wand.SpellTreeEditClientState;
-import com.qwaecd.paramagic.network.packet.inventory.SpellTreeEditOperation;
 
 import javax.annotation.Nonnull;
 import java.util.List;

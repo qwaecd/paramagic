@@ -1,26 +1,26 @@
 package com.qwaecd.paramagic.ui_project.wand.content.tree;
 
+import com.qwaecd.paramagic.thaumaturgy.operator.AllParaOperators;
+import com.qwaecd.paramagic.thaumaturgy.operator.ParaOpId;
+import com.qwaecd.paramagic.thaumaturgy.operator.ParaOperator;
 import com.qwaecd.paramagic.tools.anim.EasingFunction;
 import com.qwaecd.paramagic.tools.anim.Interpolation;
-import com.qwaecd.paramagic.ui.api.UIRenderContext;
 import com.qwaecd.paramagic.ui.api.TooltipContent;
 import com.qwaecd.paramagic.ui.api.TooltipQuery;
+import com.qwaecd.paramagic.ui.api.UIRenderContext;
 import com.qwaecd.paramagic.ui.api.event.UIEventContext;
 import com.qwaecd.paramagic.ui.core.*;
 import com.qwaecd.paramagic.ui.event.impl.MouseRelease;
 import com.qwaecd.paramagic.ui.util.Rect;
 import com.qwaecd.paramagic.ui.util.UIColor;
 import com.qwaecd.paramagic.ui_project.wand.WEAssets;
-import com.qwaecd.paramagic.thaumaturgy.operator.AllParaOperators;
-import com.qwaecd.paramagic.thaumaturgy.operator.ParaOpId;
-import com.qwaecd.paramagic.thaumaturgy.operator.ParaOperator;
+import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
-import net.minecraft.world.item.ItemStack;
 
 public class TreeNode extends UINode {
     @Nullable
