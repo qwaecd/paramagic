@@ -3,6 +3,7 @@ package com.qwaecd.paramagic.ui.screen;
 import com.qwaecd.paramagic.tools.TimeProvider;
 import com.qwaecd.paramagic.ui.MCRenderBackend;
 import com.qwaecd.paramagic.ui.api.TooltipRenderer;
+import com.qwaecd.paramagic.ui.api.TooltipContent;
 import com.qwaecd.paramagic.ui.api.UIRenderContext;
 import com.qwaecd.paramagic.ui.api.UIRenderContextCache;
 import com.qwaecd.paramagic.ui.core.UIManager;
@@ -12,7 +13,6 @@ import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.narration.NarratableEntry;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
-import net.minecraft.world.item.ItemStack;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -37,11 +37,8 @@ public abstract class MCScreen extends Screen implements NativeWidgetHostScreen 
         this.cache.setRenderContext(new UIRenderContext(this.manager, null, new MCRenderBackend(null, this.font), 0, 0, 0, 0));
     }
 
-    public void renderTooltipWithItem(@Nullable ItemStack itemStack, @Nonnull GuiGraphics guiGraphics, int mouseX, int mouseY) {
-        if (itemStack == null || this.minecraft == null) {
-            return;
-        }
-        guiGraphics.renderTooltip(this.font, Screen.getTooltipFromItem(this.minecraft, itemStack), itemStack.getTooltipImage(), mouseX, mouseY);
+    public void renderTooltip(@Nonnull TooltipContent tooltip, @Nonnull GuiGraphics guiGraphics, int mouseX, int mouseY) {
+        guiGraphics.renderTooltip(this.font, tooltip.lines(), tooltip.visualComponent(), mouseX, mouseY);
     }
 
     @Override
@@ -172,8 +169,8 @@ public abstract class MCScreen extends Screen implements NativeWidgetHostScreen 
     protected TooltipRenderer createTooltipRenderer() {
         return new TooltipRenderer() {
             @Override
-            public void renderTooltipWithItem(@Nonnull ItemStack itemStack, GuiGraphics guiGraphics, int mouseX, int mouseY) {
-                MCScreen.this.renderTooltipWithItem(itemStack, guiGraphics, mouseX, mouseY);
+            public void renderTooltip(@Nonnull TooltipContent tooltip, GuiGraphics guiGraphics, int mouseX, int mouseY) {
+                MCScreen.this.renderTooltip(tooltip, guiGraphics, mouseX, mouseY);
             }
         };
     }

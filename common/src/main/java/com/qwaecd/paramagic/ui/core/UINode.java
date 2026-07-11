@@ -6,6 +6,8 @@ import com.qwaecd.paramagic.ui.animation.UIAnimator;
 import com.qwaecd.paramagic.ui.animation.ValueSetter;
 import com.qwaecd.paramagic.ui.animation.fast.FloatUIAnimator;
 import com.qwaecd.paramagic.ui.api.UIRenderContext;
+import com.qwaecd.paramagic.ui.api.TooltipContent;
+import com.qwaecd.paramagic.ui.api.TooltipQuery;
 import com.qwaecd.paramagic.ui.api.event.UIEventContext;
 import com.qwaecd.paramagic.ui.api.event.UIEventKey;
 import com.qwaecd.paramagic.ui.event.EventPhase;
@@ -20,6 +22,9 @@ import com.qwaecd.paramagic.ui.util.Rect;
 import com.qwaecd.paramagic.ui.util.UIColor;
 import com.qwaecd.paramagic.ui.util.UILayout;
 import lombok.Getter;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.world.item.ItemStack;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -459,6 +464,27 @@ public class UINode {
     }
 
     protected void onDetached(@Nonnull UIManager manager) {
+    }
+
+    /**
+     * 获取当前鼠标位置与节点状态下的 tooltip 内容。返回 {@code null} 时，UIManager 会继续查询父节点；
+     * 返回 {@link TooltipContent#EMPTY} 时，会阻止父节点 tooltip 的回溯但不绘制内容。
+     */
+    @Nullable
+    public TooltipContent getTooltip(@Nonnull TooltipQuery query) {
+        return null;
+    }
+
+    @Nullable
+    public static TooltipContent getTooltipFromItem(@Nullable ItemStack itemStack) {
+        if (itemStack == null) {
+            return null;
+        }
+        if (itemStack.isEmpty()) {
+            return TooltipContent.EMPTY;
+        }
+        Minecraft minecraft = Minecraft.getInstance();
+        return new TooltipContent(Screen.getTooltipFromItem(minecraft, itemStack), itemStack.getTooltipImage());
     }
 
 

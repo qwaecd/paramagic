@@ -3,6 +3,8 @@ package com.qwaecd.paramagic.ui_project.wand.content.inventory;
 import com.qwaecd.paramagic.tools.anim.EasingFunction;
 import com.qwaecd.paramagic.tools.anim.Interpolation;
 import com.qwaecd.paramagic.ui.MenuContent;
+import com.qwaecd.paramagic.ui.api.TooltipContent;
+import com.qwaecd.paramagic.ui.api.TooltipQuery;
 import com.qwaecd.paramagic.ui.api.UIRenderContext;
 import com.qwaecd.paramagic.ui.api.event.UIEventContext;
 import com.qwaecd.paramagic.ui.core.LayoutConstraints;
@@ -16,6 +18,7 @@ import com.qwaecd.paramagic.ui_project.wand.WEAssets;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.inventory.ClickType;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.Nonnull;
 
@@ -118,6 +121,11 @@ public final class InventoryItemNode extends UINode {
     @Nonnull
     private ItemStack getRenderingItem() {
         return this.playerInv.getStackInSlot(this.slot);
+    }
+
+    @Override
+    public TooltipContent getTooltip(@Nonnull TooltipQuery query) {
+        return UINode.getTooltipFromItem(this.getRenderingItem());
     }
 
     private void renderSlotHighlight(UIRenderContext context) {

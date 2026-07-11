@@ -2,15 +2,15 @@ package com.qwaecd.paramagic.ui.widget.node;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.qwaecd.paramagic.thaumaturgy.node.ParaNode;
 import com.qwaecd.paramagic.thaumaturgy.node.ParaTree;
 import com.qwaecd.paramagic.ui.MenuContent;
 import com.qwaecd.paramagic.ui.api.UIRenderContext;
 import com.qwaecd.paramagic.ui.api.event.AllUIEvents;
 import com.qwaecd.paramagic.ui.api.event.UIEventContext;
 import com.qwaecd.paramagic.ui.core.UINode;
-import com.qwaecd.paramagic.ui.event.impl.*;
-import com.qwaecd.paramagic.ui.io.mouse.MouseStateMachine;
+import com.qwaecd.paramagic.ui.event.impl.DoubleClick;
+import com.qwaecd.paramagic.ui.event.impl.MouseClick;
+import com.qwaecd.paramagic.ui.event.impl.MouseRelease;
 import com.qwaecd.paramagic.ui.util.UIColor;
 import com.qwaecd.paramagic.world.item.ParaOperatorItem;
 import net.minecraft.world.item.ItemStack;
@@ -46,14 +46,9 @@ public class PTTreeNode extends UINode {
     @Nonnull
     private final PTTreeLayout layout;
 
-    private final FakeItemNode itemNode;
-
-    private MenuContent menu;
-
     public PTTreeNode(@Nonnull ParaTree tree) {
         this.tree = tree;
         this.layout = new PTTreeLayout(tree, NODE_CELL_SIZE, hGap, vGap);
-        this.itemNode = new FakeItemNode();
 
         this.localRect.setWH(this.layout.getLayoutWidth(), this.layout.getLayoutHeight());
     }
@@ -94,49 +89,6 @@ public class PTTreeNode extends UINode {
         context.consume();
     }
 
-    @Override
-    public void mouseMoveListener(double mouseX, double mouseY, MouseStateMachine mouseState) {
-        final float size = 4.0f;
-        this.itemNode.worldRect.set((float) (mouseX - size * 0.5f), (float) (mouseY - size * 0.5f), size, size);
-        this.hoveringItemTest((float) mouseX, (float) mouseY);
-    }
-
-    private void hoveringItemTest(float mouseX, float mouseY) {
-        ParaNode node = this.findNode(mouseX, mouseY);
-        if (node == null || this.menu == null) {
-            if (menu != null) {
-                menu.setHoveringItemNode(null);
-            }
-            return;
-        }
-
-        if (node.getOperator() != null) {
-            this.itemNode.setRenderingItem(node.getOperator().getRenderStack());
-            menu.setHoveringItemNode(this.itemNode);
-        } else {
-            this.itemNode.setRenderingItem(null);
-            menu.setHoveringItemNode(null);
-        }
-    }
-
-    @Override
-    protected void onMouseOver(UIEventContext<MouseOver> context) {
-        if (this.menu == null) {
-            this.menu = context.manager.getMenuContentOrThrow();
-        }
-        context.manager.registerMouseMovingListener(this);
-        MouseOver event = context.event;
-        this.hoveringItemTest((float) event.mouseX, (float) event.mouseY);
-    }
-
-    @Override
-    protected void onMouseLeave(UIEventContext<MouseLeave> context) {
-        context.manager.unregisterMouseMovingListener(this);
-        if (this.menu != null) {
-            this.menu.setHoveringItemNode(null);
-        }
-    }
-
     @Nonnull
     public ParaTree getTree() {
         return this.tree;
@@ -148,16 +100,6 @@ public class PTTreeNode extends UINode {
             return canvas.zoom;
         }
         return 1.0f;
-    }
-
-    /**
-     * 在给定屏幕空间鼠标坐标的情况下，寻找命中的节点.
-     * @return 命中的 ParaNode，若没有命中任何节点则返回 null.
-     */
-    @Nullable
-    public ParaNode findNode(float mouseX, float mouseY) {
-        PTTreeLayout.NodeEntry entry = this.findNodeEntry(mouseX, mouseY);
-        return entry == null ? null : entry.node;
     }
 
     @Nullable
@@ -215,12 +157,6 @@ public class PTTreeNode extends UINode {
         }
     }
 
-    @Override
-    public void renderDebug(@Nonnull UIRenderContext context) {
-        super.renderDebug(context);
-        this.itemNode.renderDebug(context);
-    }
-
     /**
      * 在给定位置可视化渲染一个 ParaNodeEntry.
      * @param entry 需要渲染的 ParaNodeEntry.
@@ -262,26 +198,4 @@ public class PTTreeNode extends UINode {
         RenderSystem.applyModelViewMatrix();
     }
 
-    @Override
-    @Nullable
-    public UINode getMouseOverNode(float mouseX, float mouseY) {
-        if (!this.isVisible()) {
-            return null;
-        }
-        UINode overNode = super.getMouseOverNode(mouseX, mouseY);
-        if (overNode == null && this.itemNode.hitTest(mouseX, mouseY)) {
-            return this.itemNode;
-        }
-        return overNode;
-    }
-
-    public static final class FakeItemNode extends ItemNode {
-        @Override
-        protected void render(@Nonnull UIRenderContext context) {}
-
-        @Override
-        public void renderDebug(@Nonnull UIRenderContext context) {
-            context.renderOutline(this.worldRect, UIColor.BLUE);
-        }
-    }
 }

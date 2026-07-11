@@ -4,6 +4,7 @@ import com.qwaecd.paramagic.tools.TimeProvider;
 import com.qwaecd.paramagic.ui.MCRenderBackend;
 import com.qwaecd.paramagic.ui.MenuContent;
 import com.qwaecd.paramagic.ui.api.TooltipRenderer;
+import com.qwaecd.paramagic.ui.api.TooltipContent;
 import com.qwaecd.paramagic.ui.api.UIRenderContext;
 import com.qwaecd.paramagic.ui.api.UIRenderContextCache;
 import com.qwaecd.paramagic.ui.core.UIManager;
@@ -14,7 +15,6 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Renderable;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.narration.NarratableEntry;
-import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.gui.screens.inventory.MenuAccess;
 import net.minecraft.network.chat.Component;
@@ -22,7 +22,6 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ClickType;
 import net.minecraft.world.inventory.Slot;
-import net.minecraft.world.item.ItemStack;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -40,8 +39,8 @@ public abstract class MCContainerScreen<T extends AbstractContainerMenu> extends
         super(menu, playerInventory, title);
         TooltipRenderer tooltipRenderer = new TooltipRenderer() {
             @Override
-            public void renderTooltipWithItem(@Nonnull ItemStack itemStack, GuiGraphics guiGraphics, int mouseX, int mouseY) {
-                MCContainerScreen.this.renderTooltipWithItem(itemStack, guiGraphics, mouseX, mouseY);
+            public void renderTooltip(@Nonnull TooltipContent tooltip, GuiGraphics guiGraphics, int mouseX, int mouseY) {
+                MCContainerScreen.this.renderTooltip(tooltip, guiGraphics, mouseX, mouseY);
             }
         };
 
@@ -77,11 +76,8 @@ public abstract class MCContainerScreen<T extends AbstractContainerMenu> extends
         super.renderTooltip(guiGraphics, x, y);
     }
 
-    protected void renderTooltipWithItem(@Nonnull ItemStack itemStack, GuiGraphics guiGraphics, int mouseX, int mouseY) {
-        if (this.minecraft == null || this.minecraft.screen == null) {
-            return;
-        }
-        guiGraphics.renderComponentTooltip(this.minecraft.font, Screen.getTooltipFromItem(this.minecraft, itemStack), mouseX, mouseY);
+    protected void renderTooltip(@Nonnull TooltipContent tooltip, GuiGraphics guiGraphics, int mouseX, int mouseY) {
+        guiGraphics.renderTooltip(this.font, tooltip.lines(), tooltip.visualComponent(), mouseX, mouseY);
     }
 
     @Override

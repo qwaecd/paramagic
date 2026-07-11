@@ -551,8 +551,8 @@ public final class UIRenderContext {
         this.backend.renderItemDecorations(stack, x, y, null);
     }
 
-    public void renderTooltipWithItem(@Nonnull ItemStack stack, int x, int y) {
-        this.manager.getTooltipRenderer().renderTooltipWithItem(stack, this.guiGraphics, x, y);
+    public void renderTooltip(@Nonnull TooltipContent tooltip, int x, int y) {
+        this.manager.getTooltipRenderer().renderTooltip(tooltip, this.guiGraphics, x, y);
     }
 
     // ------------ 以下是使用 int color 的重载方法 ------------

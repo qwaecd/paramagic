@@ -1,6 +1,7 @@
 package com.qwaecd.paramagic.ui.widget.node;
 
-import com.qwaecd.paramagic.ui.MenuContent;
+import com.qwaecd.paramagic.ui.api.TooltipContent;
+import com.qwaecd.paramagic.ui.api.TooltipQuery;
 import com.qwaecd.paramagic.ui.api.UIRenderContext;
 import com.qwaecd.paramagic.ui.api.event.UIEventContext;
 import com.qwaecd.paramagic.ui.core.UINode;
@@ -36,19 +37,11 @@ public class ItemNode extends UINode {
     @Override
     protected void onMouseOver(UIEventContext<MouseOver> context) {
         this.isHovering = true;
-        MenuContent menuContent = context.manager.getMenuContent();
-        if (menuContent != null) {
-            menuContent.setHoveringItemNode(this);
-        }
     }
 
     @Override
     protected void onMouseLeave(UIEventContext<MouseLeave> context) {
         this.isHovering = false;
-        MenuContent menuContent = context.manager.getMenuContent();
-        if (menuContent != null) {
-            menuContent.setHoveringItemNode(null);
-        }
     }
 
     public void setRenderingItem(@Nullable ItemStack itemStack) {
@@ -58,6 +51,16 @@ public class ItemNode extends UINode {
     @Nonnull
     public ItemStack getRenderingItem() {
         return this.renderingItem;
+    }
+
+    @Override
+    @Nullable
+    public TooltipContent getTooltip(@Nonnull TooltipQuery query) {
+        ItemStack item = this.getRenderingItem();
+        if (item.isEmpty()) {
+            return null;
+        }
+        return UINode.getTooltipFromItem(item);
     }
 
     @Override

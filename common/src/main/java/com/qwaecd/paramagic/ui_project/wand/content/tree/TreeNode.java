@@ -3,6 +3,8 @@ package com.qwaecd.paramagic.ui_project.wand.content.tree;
 import com.qwaecd.paramagic.tools.anim.EasingFunction;
 import com.qwaecd.paramagic.tools.anim.Interpolation;
 import com.qwaecd.paramagic.ui.api.UIRenderContext;
+import com.qwaecd.paramagic.ui.api.TooltipContent;
+import com.qwaecd.paramagic.ui.api.TooltipQuery;
 import com.qwaecd.paramagic.ui.api.event.UIEventContext;
 import com.qwaecd.paramagic.ui.core.*;
 import com.qwaecd.paramagic.ui.event.impl.MouseRelease;
@@ -700,6 +702,15 @@ public class TreeNode extends UINode {
         context.renderOutline(this.appendNodeRectRight, UIColor.BLUE);
         context.renderOutline(this.appendNodeRectDown, UIColor.BLUE);
         context.renderOutline(this.deleteSubTreeRect, UIColor.GREEN);
+    }
+
+    @Override
+    @Nullable
+    public TooltipContent getTooltip(@Nonnull TooltipQuery query) {
+        if (!this.nodeItemRect.contains(query.mouseX(), query.mouseY())) {
+            return null;
+        }
+        return UINode.getTooltipFromItem(this.renderingItem);
     }
 
     @Override

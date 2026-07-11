@@ -4,6 +4,8 @@ import com.qwaecd.paramagic.ui.MenuContent;
 import com.qwaecd.paramagic.ui.animation.BaseUIAnimator;
 import com.qwaecd.paramagic.ui.animation.UIAnimationSystem;
 import com.qwaecd.paramagic.ui.api.TooltipRenderer;
+import com.qwaecd.paramagic.ui.api.TooltipContent;
+import com.qwaecd.paramagic.ui.api.TooltipQuery;
 import com.qwaecd.paramagic.ui.api.UIRenderContext;
 import com.qwaecd.paramagic.ui.api.event.AllUIEvents;
 import com.qwaecd.paramagic.ui.api.event.UIEventContext;
@@ -79,7 +81,7 @@ public class UIManager {
         this.mouseStateMachine = new MouseStateMachine();
         this.tooltipRenderer = tooltipRenderer;
         this.nativeWidgetHost = null;
-        this.overlayRoot = new OverlayRoot(this);
+        this.overlayRoot = new OverlayRoot();
     }
 
     public UIManager(UINode rootNode, @Nonnull TooltipRenderer tooltipRenderer, @Nullable MenuContent menuContent, @Nullable NativeWidgetHost nativeWidgetHost) {
@@ -89,7 +91,7 @@ public class UIManager {
         this.mouseStateMachine = new MouseStateMachine();
         this.tooltipRenderer = tooltipRenderer;
         this.nativeWidgetHost = nativeWidgetHost;
-        this.overlayRoot = new OverlayRoot(this);
+        this.overlayRoot = new OverlayRoot();
     }
 
     /**
@@ -131,8 +133,37 @@ public class UIManager {
         if (this.contextMenu != null) {
             this.contextMenu.renderTree(context);
         }
+        this.renderTooltip(context);
 
         this.processDeferredTasks(TaskStage.AFTER_RENDER);
+    }
+
+    private void renderTooltip(@Nonnull UIRenderContext context) {
+        TooltipQuery.Trigger trigger = this.capturedNode == null
+                ? TooltipQuery.Trigger.HOVER
+                : TooltipQuery.Trigger.CAPTURED;
+        TooltipContent tooltip = this.resolveTooltip(new TooltipQuery(context.mouseX, context.mouseY, trigger));
+        if (tooltip == null || tooltip.isEmpty()) {
+            return;
+        }
+        context.renderTooltip(tooltip, context.mouseX, context.mouseY);
+    }
+
+    /**
+     * 拖拽期间由 captured 节点决定 tooltip；其余时候使用当前 mouse over 节点。
+     * 当前节点之外最多向上回溯三层父节点。
+     */
+    @Nullable
+    private TooltipContent resolveTooltip(@Nonnull TooltipQuery query) {
+        UINode node = this.capturedNode != null ? this.capturedNode : this.mouseOver;
+        for (int depth = 0; node != null && depth <= 3; depth++) {
+            TooltipContent tooltip = node.getTooltip(query);
+            if (tooltip != null) {
+                return tooltip;
+            }
+            node = node.getParent();
+        }
+        return null;
     }
 
     /**
