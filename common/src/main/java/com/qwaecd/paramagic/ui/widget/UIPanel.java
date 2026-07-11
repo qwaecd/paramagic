@@ -89,16 +89,7 @@ public class UIPanel extends UINode {
             this.updatePanelSize();
             this.layoutItemNodes();
         }
-        return MeasureResult.of(this.localRect.w, this.localRect.h);
-    }
-
-    @Override
-    public void layout(float parentX, float parentY, float parentW, float parentH) {
-        if (!this.items.isEmpty()) {
-            this.updatePanelSize();
-            this.layoutItemNodes();
-        }
-        super.layout(parentX, parentY, parentW, parentH);
+        return MeasureResult.of(this.layoutRect.w, this.layoutRect.h);
     }
 
     /**
@@ -113,7 +104,7 @@ public class UIPanel extends UINode {
     protected void updatePanelSize() {
         int itemCount = this.items.size();
         if (itemCount == 0) {
-            this.localRect.setWH(0, 0);
+            this.layoutRect.setWH(0, 0);
             return;
         }
 
@@ -125,7 +116,7 @@ public class UIPanel extends UINode {
             int actualRows = (itemCount + this.expectItemCol - 1) / this.expectItemCol;
             float panelWidth = this.cellSize * this.expectItemCol + (this.expectItemCol - 1) * this.gapX;
             float panelHeight = this.cellSize * actualRows + (actualRows - 1) * this.gapY;
-            this.localRect.setWH(panelWidth, panelHeight);
+            this.layoutRect.setWH(panelWidth, panelHeight);
         } else {
             // 高度受限，单元格不超过 maxLength 约束下的最大值
             float maxCellSize = (this.maxLength - (this.expectItemRow - 1) * this.gapY) / this.expectItemRow;
@@ -134,7 +125,7 @@ public class UIPanel extends UINode {
             int actualCols = (itemCount + this.expectItemRow - 1) / this.expectItemRow;
             float panelWidth = this.cellSize * actualCols + (actualCols - 1) * this.gapX;
             float panelHeight = this.cellSize * this.expectItemRow + (this.expectItemRow - 1) * this.gapY;
-            this.localRect.setWH(panelWidth, panelHeight);
+            this.layoutRect.setWH(panelWidth, panelHeight);
         }
     }
 
@@ -159,8 +150,8 @@ public class UIPanel extends UINode {
                 row = index % this.expectItemRow;
             }
 
-            node.localRect.setXY(col * stepX, row * stepY);
-            node.localRect.setWH(this.cellSize, this.cellSize);
+            node.layoutRect.setXY(col * stepX, row * stepY);
+            node.layoutRect.setWH(this.cellSize, this.cellSize);
         }
     }
 }

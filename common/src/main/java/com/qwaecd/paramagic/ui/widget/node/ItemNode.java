@@ -24,7 +24,7 @@ public class ItemNode extends UINode {
 
     public ItemNode() {
         this.backgroundColor = UIColor.of(183, 126, 50, 255);
-        this.localRect.setWH(CELL_SIZE, CELL_SIZE);
+        this.layoutRect.setWH(CELL_SIZE, CELL_SIZE);
     }
 
     @Override
@@ -62,14 +62,14 @@ public class ItemNode extends UINode {
 //        PoseStack view = RenderSystem.getModelViewStack();
 //        view.pushPose();
 //        float scale = 1.0f;
-//        view.translate(worldRect.x + CELL_SIZE / 2.0f, worldRect.y + CELL_SIZE / 2.0f, 0.0f);
+//        view.translate(finalRect.x + CELL_SIZE / 2.0f, finalRect.y + CELL_SIZE / 2.0f, 0.0f);
 //        view.scale(scale, scale, 1.0f);
 //        RenderSystem.applyModelViewMatrix();
 //        context.renderItem(this.currentItem, (int) (-CELL_SIZE / 2.0f), (int) (-CELL_SIZE / 2.0f));
 //        view.popPose();
 //        RenderSystem.applyModelViewMatrix();
-        context.renderItem(this.getRenderingItem(), (int) worldRect.x, (int) worldRect.y);
-        context.renderItemDecorations(this.getRenderingItem(), (int) this.worldRect.x, (int) this.worldRect.y);
+        context.renderItem(this.getRenderingItem(), (int) this.finalRect.x, (int) this.finalRect.y);
+        context.renderItemDecorations(this.getRenderingItem(), (int) this.finalRect.x, (int) this.finalRect.y);
         if (this.isHovering) {
             this.renderSlotHighlight(context);
         }
@@ -80,6 +80,6 @@ public class ItemNode extends UINode {
     }
 
     protected void renderSlotHighlight(UIRenderContext context) {
-        context.fillBounds(this.worldRect.x, this.worldRect.y, this.worldRect.x + CELL_SIZE, this.worldRect.y + CELL_SIZE, this.highLightColor);
+        context.fillBounds(this.finalRect.x, this.finalRect.y, this.finalRect.x + CELL_SIZE, this.finalRect.y + CELL_SIZE, this.highLightColor);
     }
 }

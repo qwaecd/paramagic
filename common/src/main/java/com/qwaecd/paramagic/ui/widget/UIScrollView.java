@@ -23,7 +23,7 @@ public class UIScrollView extends UINode {
      */
     protected float sensitivity = 64.0f;
     /**
-     * 子节点在滚动方向上的内容总长度（基于 localRect 计算）
+     * 子节点在滚动方向上的内容总长度（基于 layoutRect 计算）
      */
     protected float contentExtent = 0.0f;
 
@@ -41,20 +41,19 @@ public class UIScrollView extends UINode {
         WheelEvent event = context.event;
         this.viewOffset += (float) event.scrollDelta * this.getSensitivity();
         this.clampViewOffset();
-        this.layoutChildren();
         this.requestLayout();
         context.consume();
     }
 
     /**
-     * 根据子节点的 localRect 重新计算内容在滚动方向上的总长度.
+     * 根据子节点的 layoutRect 重新计算内容在滚动方向上的总长度.
      */
     protected void recalculateContentExtent() {
         float maxExtent = 0.0f;
         for (UINode child : this.children) {
             float end = this.isHorizontal
-                    ? child.getLocalRect().x + child.getLocalRect().w
-                    : child.getLocalRect().y + child.getLocalRect().h;
+                    ? child.layoutRect.x + child.layoutRect.w
+                    : child.layoutRect.y + child.layoutRect.h;
             if (end > maxExtent) {
                 maxExtent = end;
             }
@@ -68,7 +67,7 @@ public class UIScrollView extends UINode {
      * 下限为 min(0, viewportSize - contentExtent)（列表底部/右侧不会出现空白）.
      */
     protected void clampViewOffset() {
-        float viewportSize = this.isHorizontal ? this.worldRect.w : this.worldRect.h;
+        float viewportSize = this.isHorizontal ? this.finalRect.w : this.finalRect.h;
         float minOffset = Math.min(0.0f, viewportSize - this.contentExtent);
         this.viewOffset = Math.max(minOffset, Math.min(0.0f, this.viewOffset));
     }
@@ -86,13 +85,12 @@ public class UIScrollView extends UINode {
     }
 
     /**
-     * 计算此节点及其子节点的屏幕绝对坐标.<br>
-     * 先布局自身的 worldRect, 再 clamp viewOffset, 最后以偏移量布局子节点.
+     * 计算滚动容器自身的自然尺寸。
      */
     @Override
     protected MeasureResult measureSelf(@Nonnull LayoutConstraints constraints) {
-        float width = UILayout.resolveWidth(this.sizeMode, this.localRect, constraints.getMaxWidth());
-        float height = UILayout.resolveHeight(this.sizeMode, this.localRect, constraints.getMaxHeight());
+        float width = UILayout.resolveWidth(this.sizeMode, this.layoutRect, constraints.getMaxWidth());
+        float height = UILayout.resolveHeight(this.sizeMode, this.layoutRect, constraints.getMaxHeight());
         return MeasureResult.of(width, height);
     }
 
@@ -106,23 +104,21 @@ public class UIScrollView extends UINode {
     }
 
     @Override
-    public void layout(float parentX, float parentY, float parentW, float parentH) {
-        UILayout.layout(this.localRect, this.worldRect, this.layoutParams, this.sizeMode, parentX, parentY, parentW, parentH);
+    protected void arrangeSelf(float parentX, float parentY, float parentW, float parentH) {
+        super.arrangeSelf(parentX, parentY, parentW, parentH);
         this.clampViewOffset();
-        this.layoutChildren();
-        this.markLayoutClean();
     }
 
     /**
-     * 以当前 viewOffset 重新布局所有子节点.<br>
-     * 滚动时只需调用此方法即可更新子树的 worldRect, 无需重新布局整棵树.
+     * 以当前 viewOffset 摆放所有子节点。
      */
-    protected void layoutChildren() {
-        float childParentX = this.worldRect.x + (this.isHorizontal ? this.viewOffset : 0);
-        float childParentY = this.worldRect.y + (this.isHorizontal ? 0 : this.viewOffset);
+    @Override
+    protected void arrangeChildren() {
+        float childParentX = this.finalRect.x + (this.isHorizontal ? this.viewOffset : 0);
+        float childParentY = this.finalRect.y + (this.isHorizontal ? 0 : this.viewOffset);
 
         for (UINode child : this.children) {
-            child.layout(childParentX, childParentY, this.worldRect.w, this.worldRect.h);
+            child.arrange(childParentX, childParentY, this.finalRect.w, this.finalRect.h);
         }
     }
 
@@ -147,27 +143,27 @@ public class UIScrollView extends UINode {
      * 将屏幕坐标的 X 转换为视图坐标(元素本地坐标系)的 X
      */
     protected float screenToViewX(float screenX) {
-        return screenX - this.worldRect.x - (this.isHorizontal ? this.viewOffset : 0);
+        return screenX - this.finalRect.x - (this.isHorizontal ? this.viewOffset : 0);
     }
 
     /**
      * 将屏幕坐标的 Y 转换为视图坐标(元素本地坐标系)的 Y
      */
     protected float screenToViewY(float screenY) {
-        return screenY - this.worldRect.y - (this.isHorizontal ? 0 : this.viewOffset);
+        return screenY - this.finalRect.y - (this.isHorizontal ? 0 : this.viewOffset);
     }
 
     /**
      * 将本地坐标系的 X 转换为屏幕坐标的 X
      */
     protected float viewToScreenX(float viewX) {
-        return viewX + this.worldRect.x + (this.isHorizontal ? this.viewOffset : 0);
+        return viewX + this.finalRect.x + (this.isHorizontal ? this.viewOffset : 0);
     }
 
     /**
      * 将本地坐标系的 Y 转换为屏幕坐标的 Y
      */
     protected float viewToScreenY(float viewY) {
-        return viewY + this.worldRect.y + (this.isHorizontal ? 0 : this.viewOffset);
+        return viewY + this.finalRect.y + (this.isHorizontal ? 0 : this.viewOffset);
     }
 }

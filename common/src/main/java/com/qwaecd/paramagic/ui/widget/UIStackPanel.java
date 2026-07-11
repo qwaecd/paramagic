@@ -100,7 +100,7 @@ public class UIStackPanel extends UINode {
 
         for (UINode child : this.children) {
             child.layoutRect.set(cursorX, cursorY, child.getMeasuredWidth(), child.getMeasuredHeight());
-            child.layout(this.finalRect.x, this.finalRect.y, this.finalRect.w, this.finalRect.h);
+            child.arrange(this.finalRect.x, this.finalRect.y, this.finalRect.w, this.finalRect.h);
 
             if (this.direction == Direction.HORIZONTAL) {
                 cursorX += child.getMeasuredWidth() + this.gap;

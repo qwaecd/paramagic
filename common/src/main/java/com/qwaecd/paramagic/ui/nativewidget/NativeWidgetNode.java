@@ -97,8 +97,8 @@ public abstract class NativeWidgetNode<W extends GuiEventListener & Renderable &
     }
 
     @Override
-    public void layout(float parentX, float parentY, float parentW, float parentH) {
-        super.layout(parentX, parentY, parentW, parentH);
+    protected void arrangeSelf(float parentX, float parentY, float parentW, float parentH) {
+        super.arrangeSelf(parentX, parentY, parentW, parentH);
         this.syncNativeWidget();
     }
 

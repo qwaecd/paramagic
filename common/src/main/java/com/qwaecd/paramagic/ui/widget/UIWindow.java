@@ -24,7 +24,7 @@ public class UIWindow extends MouseCaptureNode {
      */
     protected boolean allowMove = true;
 
-    public UIWindow(@Nonnull Rect localRect, @Nullable Component title) {
+    public UIWindow(@Nonnull Rect layoutRect, @Nullable Component title) {
         super();
         this.backgroundColor = UIColor.of(200, 200, 200, 255);
         if (title == null) {
@@ -35,11 +35,11 @@ public class UIWindow extends MouseCaptureNode {
             this.addChild(this.titleLabel);
         }
 
-        this.localRect.set(localRect);
+        this.layoutRect.set(layoutRect);
     }
 
-    public UIWindow(@Nonnull Rect localRect, @Nullable String title) {
-        this(localRect, title == null ? null : Component.literal(title));
+    public UIWindow(@Nonnull Rect layoutRect, @Nullable String title) {
+        this(layoutRect, title == null ? null : Component.literal(title));
     }
 
     @Override
@@ -69,8 +69,8 @@ public class UIWindow extends MouseCaptureNode {
 
         context.getManager().captureNode(this);
         this.captured = true;
-        this.grabOffsetX = (float) event.mouseX - this.worldRect.x;
-        this.grabOffsetY = (float) event.mouseY - this.worldRect.y;
+        this.grabOffsetX = (float) event.mouseX - this.finalRect.x;
+        this.grabOffsetY = (float) event.mouseY - this.finalRect.y;
         context.consume();
     }
 

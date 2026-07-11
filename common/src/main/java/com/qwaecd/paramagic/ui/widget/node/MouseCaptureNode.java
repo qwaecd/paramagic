@@ -24,8 +24,8 @@ public class MouseCaptureNode extends UINode {
         MouseClick event = context.event;
         context.getManager().captureNode(this);
         this.captured = true;
-        this.grabOffsetX = (float) event.mouseX - this.worldRect.x;
-        this.grabOffsetY = (float) event.mouseY - this.worldRect.y;
+        this.grabOffsetX = (float) event.mouseX - this.finalRect.x;
+        this.grabOffsetY = (float) event.mouseY - this.finalRect.y;
         context.consume();
     }
 
@@ -46,20 +46,11 @@ public class MouseCaptureNode extends UINode {
         // 计算鼠标在父节点坐标系下的位置
         UINode parent = this.getParent();
         if (parent == null) {
-            this.localRect.x = (float) mouseX - this.grabOffsetX;
-            this.localRect.y = (float) mouseY - this.grabOffsetY;
-            this.layout(
-                    0.0f, 0.0f,
-                    this.localRect.w, this.localRect.h
-            );
+            this.layoutRect.x = (float) mouseX - this.grabOffsetX;
+            this.layoutRect.y = (float) mouseY - this.grabOffsetY;
         } else {
-            this.localRect.x = (float) mouseX - parent.getWorldRect().x - this.grabOffsetX;
-            this.localRect.y = (float) mouseY - parent.getWorldRect().y - this.grabOffsetY;
-
-            this.layout(
-                    parent.getWorldRect().x, parent.getWorldRect().y,
-                    parent.getWorldRect().w, parent.getWorldRect().h
-            );
+            this.layoutRect.x = (float) mouseX - parent.finalRect.x - this.grabOffsetX;
+            this.layoutRect.y = (float) mouseY - parent.finalRect.y - this.grabOffsetY;
         }
         this.requestLayout();
     }

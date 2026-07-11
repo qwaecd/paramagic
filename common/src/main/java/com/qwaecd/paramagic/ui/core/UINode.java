@@ -85,22 +85,6 @@ public class UINode {
     @Nonnull
     public final Rect presentationRect;
 
-    /**
-     * @deprecated 使用 {@link #layoutRect} 或 setLayout* 方法表达布局输入。
-     */
-    @Deprecated
-    @Getter
-    @Nonnull
-    public final Rect localRect;
-
-    /**
-     * @deprecated 使用 {@link #finalRect} 读取布局输出。
-     */
-    @Deprecated
-    @Getter
-    @Nonnull
-    public final Rect worldRect;
-
     protected boolean debugMod = false;
     @Nonnull
     protected UIColor backgroundColor = UIColor.TRANSPARENT;
@@ -125,8 +109,6 @@ public class UINode {
         this.layoutRect = new Rect();
         this.finalRect = new Rect();
         this.presentationRect = new Rect(this.finalRect);
-        this.localRect = this.layoutRect;
-        this.worldRect = this.finalRect;
         this.layoutParams.setChangeListener(this::requestLayout);
     }
 
@@ -141,8 +123,6 @@ public class UINode {
         this.layoutRect = new Rect();
         this.finalRect = new Rect();
         this.presentationRect = new Rect(this.finalRect);
-        this.localRect = this.layoutRect;
-        this.worldRect = this.finalRect;
         this.layoutParams.setChangeListener(this::requestLayout);
 
         parent.addChild(this);
@@ -585,19 +565,6 @@ public class UINode {
     }
 
     /**
-     * 计算此节点及其子节点的屏幕绝对坐标
-     * @param parentX 父节点的屏幕X坐标
-     * @param parentY 父节点的屏幕Y坐标
-     * @param parentW 父节点的宽度
-     * @param parentH 父节点的高度
-     */
-    public void layout(float parentX, float parentY, float parentW, float parentH) {
-        this.arrangeSelf(parentX, parentY, parentW, parentH);
-        this.arrangeChildren();
-        this.markLayoutClean();
-    }
-
-    /**
      * 计算当前节点自己的最终屏幕矩形，不处理子节点。
      */
     protected void arrangeSelf(float parentX, float parentY, float parentW, float parentH) {
@@ -606,12 +573,12 @@ public class UINode {
     }
 
     /**
-     * 根据当前节点的最终矩形摆放子节点。默认行为保持旧的绝对布局语义。
+     * 根据当前节点的最终矩形摆放子节点。默认行为为绝对布局。
      */
     protected void arrangeChildren() {
         // 布局可以不考虑同层级先后顺序
         for (UINode child : this.children) {
-            child.layout(this.finalRect.x, this.finalRect.y, this.finalRect.w, this.finalRect.h);
+            child.arrange(this.finalRect.x, this.finalRect.y, this.finalRect.w, this.finalRect.h);
         }
     }
 
@@ -653,10 +620,12 @@ public class UINode {
     }
 
     /**
-     * 将节点摆放到父级坐标系中。当前版本委托旧 layout()，用于保证现有页面兼容。
+     * 将节点摆放到父级坐标系中。
      */
     public void arrange(float parentX, float parentY, float parentW, float parentH) {
-        this.layout(parentX, parentY, parentW, parentH);
+        this.arrangeSelf(parentX, parentY, parentW, parentH);
+        this.arrangeChildren();
+        this.markLayoutClean();
     }
 
     /**

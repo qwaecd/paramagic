@@ -13,16 +13,13 @@ public class ContextMenu extends UINode {
     }
 
     @Override
-    public void layout(float parentX, float parentY, float parentW, float parentH) {
-//        final float screenW = UIManager.getWindowWidth() / UIManager.getGuiScale();
-//        final float screenH = UIManager.getWindowHeight() / UIManager.getGuiScale();
-//        if (this.localRect.x + this.localRect.w > screenW) {
-//            this.localRect.x = screenW - this.localRect.w;
-//        }
-//        if (this.localRect.y + this.localRect.h > screenH) {
-//            this.localRect.y = screenH - this.localRect.h;
-//        }
-//        super.layout(parentX, parentY, parentW, parentH);
+    protected void arrangeSelf(float parentX, float parentY, float parentW, float parentH) {
+        super.arrangeSelf(parentX, parentY, parentW, parentH);
+        float maxX = parentX + parentW - this.finalRect.w;
+        float maxY = parentY + parentH - this.finalRect.h;
+        this.finalRect.x = Math.max(parentX, Math.min(this.finalRect.x, maxX));
+        this.finalRect.y = Math.max(parentY, Math.min(this.finalRect.y, maxY));
+        this.presentationRect.set(this.finalRect);
     }
 
     @Override

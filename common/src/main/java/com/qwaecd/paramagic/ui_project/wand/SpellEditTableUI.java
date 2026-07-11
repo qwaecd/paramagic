@@ -1,33 +1,24 @@
 package com.qwaecd.paramagic.ui_project.wand;
 
 import com.qwaecd.paramagic.Paramagic;
-import com.qwaecd.paramagic.ui.MenuContent;
 import com.qwaecd.paramagic.ui.api.UIRenderContext;
 import com.qwaecd.paramagic.ui.api.event.AllUIEvents;
-import com.qwaecd.paramagic.ui.core.TaskStage;
 import com.qwaecd.paramagic.ui.core.UIManager;
 import com.qwaecd.paramagic.ui.core.UINode;
-import com.qwaecd.paramagic.ui.core.UITask;
+import com.qwaecd.paramagic.ui.core.SizeMode;
 import com.qwaecd.paramagic.ui.event.EventPhase;
-import com.qwaecd.paramagic.ui.inventory.ContainerHolder;
-import com.qwaecd.paramagic.ui.inventory.InventoryHolder;
-import com.qwaecd.paramagic.ui.menu.SpellEditMenu;
 import com.qwaecd.paramagic.ui.util.Rect;
 import com.qwaecd.paramagic.ui.widget.UIButton;
 import com.qwaecd.paramagic.ui.widget.UILabel;
 
 import javax.annotation.Nonnull;
-import java.util.Objects;
 
 public class SpellEditTableUI extends UINode {
     private UIManager manager;
 
-//    private final EditWindow editWindow;
-
     public SpellEditTableUI() {
         super();
-//        this.editWindow = new EditWindow();
-//        this.addChild(this.editWindow);
+        this.setSizeMode(SizeMode.FILL);
 
         if (Paramagic.isDevEnv()) {
             this.addDebugButton();
@@ -39,37 +30,11 @@ public class SpellEditTableUI extends UINode {
             throw new IllegalStateException("Manager has already been set");
         }
         this.manager = manager;
-        MenuContent menu = manager.getMenuContent();
-        InventoryHolder inventory = Objects.requireNonNull(menu, "menu couldn't be null.").getPlayerInventory();
-
-        ContainerHolder tableContainer = ((SpellEditMenu) menu.getMenu()).getContainer();
-//        tableContainer.registerListener(this::onContainerChanged);
-//        UISlot containerUISlot = new UISlot(tableContainer, 0, inventorySize + tableContainer.size() - 1);
-//        SlotNode containerSlot = new SlotNode(containerUISlot);
-    }
-
-//    private void onContainerChanged(InventoryHolder container, UISlot slot) {
-//        this.editWindow.onContainerChanged(this, container, slot);
-//    }
-
-    @Override
-    public void layout(float parentX, float parentY, float parentW, float parentH) {
-        this.setToFullScreen();
-        super.layout(this.localRect.x, this.localRect.y, this.localRect.w, this.localRect.h);
     }
 
     @Override
     public void render(@Nonnull UIRenderContext context) {
         super.render(context);
-    }
-
-    private void deferredLayout() {
-        this.manager.offerDeferredTask(
-                UITask.create(
-                        manager -> this.layout(this.localRect.x, this.localRect.y, this.localRect.w, this.localRect.h),
-                        TaskStage.AFTER_EVENT
-                )
-        );
     }
 
 
@@ -95,24 +60,6 @@ public class SpellEditTableUI extends UINode {
                 }
         );
         button.getLayoutParams().botton();
-        // 不同尺寸的按钮
-        // 5 行 3 列
-//        int y = 0;
-//        for (int i = 0; i < 5; i++) {
-//            int x = 0;
-//            int dy =10;
-//            for (int j = 0; j < 3; j++) {
-//                UIButton debugButton = new UIButton(new Rect(0, 0, 60 + i * 20, 20 + j * 10));
-//                debugButton.localRect.set(x, y, 60 + i * 20, 20 + j * 10);
-//                dy = (int) debugButton.localRect.h + 10;
-//                x += (int) (debugButton.localRect.w + 10);
-//                UILabel debugLabel = new UILabel((int) debugButton.localRect.w + "x" + (int) debugButton.localRect.h);
-//                debugLabel.getLayoutParams().center();
-//                debugButton.addChild(debugLabel);
-//                this.addChild(debugButton);
-//            }
-//            y += 20 * i + dy;
-//        }
         this.addChild(button);
     }
 }
