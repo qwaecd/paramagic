@@ -7,7 +7,7 @@ import com.qwaecd.paramagic.lifecycle.ParamagicLifecycle;
 import com.qwaecd.paramagic.network.FabricNetworking;
 import com.qwaecd.paramagic.network.Networking;
 import com.qwaecd.paramagic.platform.FabricManaAccess;
-import com.qwaecd.paramagic.spell.caster.ManaAccess;
+import com.qwaecd.paramagic.spell.mana.ManaAccess;
 import com.qwaecd.paramagic.thaumaturgy.operator.AllParaOperators;
 import net.fabricmc.api.ModInitializer;
 

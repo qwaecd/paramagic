@@ -1,6 +1,8 @@
 package com.qwaecd.paramagic.spell.caster;
 
 
+import com.qwaecd.paramagic.spell.mana.ManaAccess;
+
 import java.util.UUID;
 
 public abstract class BaseSpellCaster implements SpellCaster {

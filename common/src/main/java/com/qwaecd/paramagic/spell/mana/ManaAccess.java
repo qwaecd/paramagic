@@ -1,4 +1,4 @@
-package com.qwaecd.paramagic.spell.caster;
+package com.qwaecd.paramagic.spell.mana;
 
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;

@@ -1,8 +1,8 @@
 package com.qwaecd.paramagic.platform;
 
-import com.qwaecd.paramagic.spell.caster.ManaAccess;
-import com.qwaecd.paramagic.spell.caster.ManaStorage;
-import com.qwaecd.paramagic.spell.caster.ManaSync;
+import com.qwaecd.paramagic.spell.mana.ManaAccess;
+import com.qwaecd.paramagic.spell.mana.ManaStorage;
+import com.qwaecd.paramagic.spell.mana.ManaSync;
 import com.qwaecd.paramagic.tools.ModRL;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;

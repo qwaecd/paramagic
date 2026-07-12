@@ -1,4 +1,4 @@
-package com.qwaecd.paramagic.spell.caster;
+package com.qwaecd.paramagic.spell.mana;
 
 import com.qwaecd.paramagic.network.Networking;
 import com.qwaecd.paramagic.network.packet.mana.S2CManaSyncPacket;

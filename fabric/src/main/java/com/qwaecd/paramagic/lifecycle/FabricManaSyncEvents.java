@@ -1,6 +1,6 @@
 package com.qwaecd.paramagic.lifecycle;
 
-import com.qwaecd.paramagic.spell.caster.ManaSync;
+import com.qwaecd.paramagic.spell.mana.ManaSync;
 import net.fabricmc.fabric.api.entity.event.v1.ServerPlayerEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 

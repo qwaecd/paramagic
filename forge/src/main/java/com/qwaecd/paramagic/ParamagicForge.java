@@ -6,7 +6,7 @@ import com.qwaecd.paramagic.lifecycle.ParamagicLifecycle;
 import com.qwaecd.paramagic.network.ForgeNetworking;
 import com.qwaecd.paramagic.network.Networking;
 import com.qwaecd.paramagic.platform.ForgeManaAccess;
-import com.qwaecd.paramagic.spell.caster.ManaAccess;
+import com.qwaecd.paramagic.spell.mana.ManaAccess;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 
