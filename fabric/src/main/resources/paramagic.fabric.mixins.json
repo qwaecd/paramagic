@@ -8,6 +8,7 @@
     "EntityDataSerializersMixin"
   ],
   "client": [
+    "client.LocalPlayerMixin",
     "client.ReplayCompatMixin"
   ],
   "server": [

@@ -2,6 +2,8 @@ package com.qwaecd.paramagic.ui_project.wand.content.tree;
 
 import com.qwaecd.paramagic.network.packet.inventory.SpellTreeEditOperation;
 import com.qwaecd.paramagic.thaumaturgy.spelltree.SpellNodeData;
+import com.qwaecd.paramagic.ui.api.TooltipContent;
+import com.qwaecd.paramagic.ui.api.TooltipQuery;
 import com.qwaecd.paramagic.ui.api.UIRenderContext;
 import com.qwaecd.paramagic.ui.api.event.AllUIEvents;
 import com.qwaecd.paramagic.ui.api.event.UIEventContext;
@@ -13,7 +15,10 @@ import com.qwaecd.paramagic.ui.event.impl.MouseClick;
 import com.qwaecd.paramagic.ui.util.Rect;
 import com.qwaecd.paramagic.ui_project.wand.SpellTreeEditClientState;
 import com.qwaecd.paramagic.ui_project.wand.WEAssets;
+import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
@@ -27,6 +32,11 @@ public final class RootTreeNode extends TreeNode {
     @Nonnull
     private final Consumer<SpellTreeEditOperation> treeChanged;
     private final boolean playEntranceAnimation;
+
+    private static final TooltipContent appendNodeRightTipRoot = TooltipContent.of(
+            Component.translatable("gui.paramagic.spell_edit_table.para_tree.tooltip.add_node")
+                    .withStyle(ChatFormatting.GREEN)
+    );
 
     public RootTreeNode(
             @Nonnull SpellTreeEditClientState editState,
@@ -44,6 +54,25 @@ public final class RootTreeNode extends TreeNode {
 
         this.addListener(AllUIEvents.MOUSE_CLICK, EventPhase.BUBBLING, this::handleChildClick);
         this.addListener(AllUIEvents.MOUSE_DOUBLE_CLICK, EventPhase.BUBBLING, this::handleChildDoubleClick);
+    }
+
+    @Override
+    public @Nullable TooltipContent getTooltip(@NotNull TooltipQuery query) {
+        final float x = query.mouseX();
+        final float y = query.mouseY();
+        if (this.nodeItemRect.contains(x, y)) {
+            return UINode.getTooltipFromItem(this.renderingItem);
+        }
+        if (this.deleteSubTreeRect.contains(x, y) && this.state == SubTreeState.EXPANDED) {
+            return deleteSubTreeTip;
+        }
+        if (this.appendNodeRectRight.contains(x,y)) {
+            return appendNodeRightTipRoot;
+        }
+        if (this.appendNodeRectDown.contains(x, y)) {
+            return appendNodeDownTip;
+        }
+        return null;
     }
 
     private void appendDataChildren(@Nonnull SpellNodeData parentData) {
@@ -68,29 +97,25 @@ public final class RootTreeNode extends TreeNode {
         } else if (targetNode instanceof HiddenSubTreeNode hiddenNode) {
             this.clickedHiddenNode(hiddenNode, context);
         }
+        context.consume();
     }
 
     private void clickedTreeNode(TreeNode targetNode, UIEventContext<MouseClick> context) {
         MouseClick event = context.event;
         if (targetNode.canHitDeleteNode((float) event.mouseX, (float) event.mouseY)) {
             this.submit(SpellTreeEditOperation.DELETE_SUBTREE, targetNode.getNodeId(), 0);
-            context.consume();
         } else if (targetNode.canHitAppendNodeRight((float) event.mouseX, (float) event.mouseY)) {
             if (targetNode.getParent() instanceof TreeNode treeNode) {
                 this.submit(SpellTreeEditOperation.ADD_CHILD, treeNode.getNodeId(), treeNode.getChildCount());
             } else if (targetNode == this) {
                 this.submit(SpellTreeEditOperation.ADD_CHILD, this.getNodeId(), this.getChildCount());
             }
-            context.consume();
         } else if (targetNode.canHitAppendNodeDown((float) event.mouseX, (float) event.mouseY)) {
             this.submit(SpellTreeEditOperation.ADD_CHILD, targetNode.getNodeId(), 0);
-            context.consume();
         } else if (targetNode.canHitDeleteSubTree((float) event.mouseX, (float) event.mouseY)) {
             this.submit(SpellTreeEditOperation.CLEAR_CHILDREN, targetNode.getNodeId(), 0);
-            context.consume();
         } else if (targetNode.canHitInteractNode((float) event.mouseX, (float) event.mouseY) && targetNode.getNodeId() != null) {
             this.submit(SpellTreeEditOperation.INTERACT_NODE_OPERATOR, targetNode.getNodeId(), 0);
-            context.consume();
         }
     }
 

@@ -67,19 +67,19 @@ public class TreeNode extends UINode {
     protected float revealProgress = 1.0f;
     protected boolean collapseAnimating = false;
 
-    private static final TooltipContent deleteSubTreeTip = TooltipContent.of(
+    protected static final TooltipContent deleteSubTreeTip = TooltipContent.of(
             Component.translatable("gui.paramagic.spell_edit_table.para_tree.tooltip.remove_sub_path")
                     .withStyle(ChatFormatting.GRAY)
     );
 
-    private static final TooltipContent appendNodeRightTip = TooltipContent.of(
+    protected static final TooltipContent appendNodeRightTip = TooltipContent.of(
             Component.translatable("gui.paramagic.spell_edit_table.para_tree.tooltip.add_node")
                     .withStyle(ChatFormatting.GREEN),
             Component.translatable("gui.paramagic.spell_edit_table.para_tree.tooltip.remove_node")
                     .withStyle(ChatFormatting.GRAY)
     );
 
-    private static final TooltipContent appendNodeDownTip = TooltipContent.of(
+    protected static final TooltipContent appendNodeDownTip = TooltipContent.of(
             Component.translatable("gui.paramagic.spell_edit_table.para_tree.tooltip.add_branch")
                     .withStyle(ChatFormatting.GREEN)
     );
