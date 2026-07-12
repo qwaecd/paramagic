@@ -2,7 +2,9 @@ package com.qwaecd.paramagic;
 
 import com.qwaecd.paramagic.lifecycle.LifecycleProviderClientForge;
 import com.qwaecd.paramagic.lifecycle.ParamagicLifecycleClient;
+import com.qwaecd.paramagic.client.input.ForgeKeyBindings;
 import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.client.event.RegisterKeyMappingsEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
@@ -15,5 +17,10 @@ public final class ParamagicForgeClient {
     public static void onClientSetup(FMLClientSetupEvent event) {
         ParamagicClient.initOnClient();
         ParamagicLifecycleClient.init(new LifecycleProviderClientForge());
+    }
+
+    @SubscribeEvent
+    public static void onRegisterKeyMappings(RegisterKeyMappingsEvent event) {
+        ForgeKeyBindings.registerAll(event);
     }
 }

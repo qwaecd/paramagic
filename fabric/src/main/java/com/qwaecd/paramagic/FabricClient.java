@@ -2,6 +2,7 @@ package com.qwaecd.paramagic;
 
 import com.mojang.brigadier.arguments.BoolArgumentType;
 import com.qwaecd.paramagic.client.render.impl.FabricRenderContext;
+import com.qwaecd.paramagic.client.input.FabricKeyBindings;
 import com.qwaecd.paramagic.client.renderer.entity.ModEntityRenderers;
 import com.qwaecd.paramagic.client.replay.FabricReplayCompat;
 import com.qwaecd.paramagic.core.particle.ParticleSystem;
@@ -49,6 +50,7 @@ public class FabricClient implements ClientModInitializer {
         ParamagicClient.initOnClient();
         ParamagicLifecycleClient.init(new LifecycleProviderClientFabric());
         FabricReplayCompat.init();
+        FabricKeyBindings.initialize();
 
         Services.PLATFORM.initializeOpenGL();
         registerClientCommands();

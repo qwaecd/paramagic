@@ -7,6 +7,7 @@ import com.qwaecd.paramagic.world.item.content.ParaCrystalItem;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.*;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -42,22 +43,42 @@ public class SpellEditTableBlock extends BaseEntityBlock {
 
     @Override
     public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
-        ItemStack offhandItem = player.getOffhandItem();
-        if (!(offhandItem.getItem() instanceof ParaCrystalItem)) {
+        if (!hasOffhandCrystal(player)) {
             return InteractionResult.PASS;
         }
 
         if (!level.isClientSide) {
-            player.openMenu(new SimpleMenuProvider(
-                    (containerId, inventory, menuPlayer) -> new SpellEditMenu(
-                            containerId,
-                            inventory,
-                            PlayerOffhandSpellTreeEditTarget.INSTANCE
-                    ),
-                    Component.literal("Spell Edit")
-            ));
+            openMenu((ServerPlayer) player);
         }
         return level.isClientSide ? InteractionResult.SUCCESS : InteractionResult.CONSUME;
+    }
+
+    /**
+     * Opens the offhand-crystal editor without requiring a table position.
+     * Both direct block interaction and C2S requests use this server-side
+     * entry point so the item precondition stays authoritative.
+     *
+     * @return whether a menu was opened
+     */
+    public static boolean openMenu(ServerPlayer player) {
+        if (!hasOffhandCrystal(player)) {
+            return false;
+        }
+
+        player.openMenu(new SimpleMenuProvider(
+                (containerId, inventory, menuPlayer) -> new SpellEditMenu(
+                        containerId,
+                        inventory,
+                        PlayerOffhandSpellTreeEditTarget.INSTANCE
+                ),
+                Component.literal("Spell Edit")
+        ));
+        return true;
+    }
+
+    private static boolean hasOffhandCrystal(Player player) {
+        ItemStack offhandItem = player.getOffhandItem();
+        return offhandItem.getItem() instanceof ParaCrystalItem;
     }
 
     @Override

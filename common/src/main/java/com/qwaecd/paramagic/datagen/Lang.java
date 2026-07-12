@@ -55,6 +55,7 @@ public class Lang {
         gui();
         paraType();
         debugKey();
+        keyBindings();
     }
 
     private static void debugKey() {
@@ -63,6 +64,12 @@ public class Lang {
         of("debug.paramagic.particle_stats.free", "Free particle slots: %d", "空闲粒子槽: %d");
         of("debug.paramagic.active_gpu_effect_count", "Active GPU effects: %d / %d", "GPU 特效数量: %d / %d");
         of("debug.paramagic.particle_stats.successful_emission_tasks", "Successful emission tasks: %d", "成功发射任务: %d");
+    }
+
+    private static void keyBindings() {
+        of("key.categories.paramagic", "Paramagic", "参数魔法");
+        of("key.paramagic.debug.toggle_particle_info", "Toggle GPU Particle Stats", "切换 GPU 粒子统计");
+        of("key.paramagic.action.edit_wand", "Open Wand Edit UI", "打开法杖编辑器");
     }
 
     private static void sound() {

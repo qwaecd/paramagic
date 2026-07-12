@@ -3,6 +3,7 @@ package com.qwaecd.paramagic.network;
 import com.qwaecd.paramagic.network.api.PlatformNetworking;
 import com.qwaecd.paramagic.network.handler.ServerSessionHandlers;
 import com.qwaecd.paramagic.network.handler.ServerSpellTreeHandler;
+import com.qwaecd.paramagic.network.packet.inventory.C2SOpenSpellEditMenuPacket;
 import com.qwaecd.paramagic.network.packet.inventory.C2SSpellTreeEditPacket;
 import com.qwaecd.paramagic.network.packet.session.C2SSessionAttachPacket;
 
@@ -19,6 +20,7 @@ public class Networking {
     }
 
     private static void registerAll(PlatformNetworking networking) {
+        networking.register(C2SOpenSpellEditMenuPacket.IDENTIFIER, C2SOpenSpellEditMenuPacket.class, C2SOpenSpellEditMenuPacket::decode, ServerSpellTreeHandler::openSpellEditMenu);
         networking.register(C2SSpellTreeEditPacket.IDENTIFIER, C2SSpellTreeEditPacket.class, C2SSpellTreeEditPacket::decode, ServerSpellTreeHandler::spellTreeEdit);
         networking.register(C2SSessionAttachPacket.IDENTIFIER, C2SSessionAttachPacket.class, C2SSessionAttachPacket::decode, ServerSessionHandlers::attachSession);
     }
