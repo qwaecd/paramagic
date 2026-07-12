@@ -14,6 +14,8 @@ import com.qwaecd.paramagic.ui.event.impl.MouseRelease;
 import com.qwaecd.paramagic.ui.util.Rect;
 import com.qwaecd.paramagic.ui.util.UIColor;
 import com.qwaecd.paramagic.ui_project.wand.WEAssets;
+import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
@@ -65,6 +67,23 @@ public class TreeNode extends UINode {
     protected float revealProgress = 1.0f;
     protected boolean collapseAnimating = false;
 
+    protected static final TooltipContent deleteSubTreeTip = TooltipContent.of(
+            Component.translatable("gui.paramagic.spell_edit_table.para_tree.tooltip.remove_sub_path")
+                    .withStyle(ChatFormatting.GRAY)
+    );
+
+    protected static final TooltipContent appendNodeRightTip = TooltipContent.of(
+            Component.translatable("gui.paramagic.spell_edit_table.para_tree.tooltip.add_node")
+                    .withStyle(ChatFormatting.GREEN),
+            Component.translatable("gui.paramagic.spell_edit_table.para_tree.tooltip.remove_node")
+                    .withStyle(ChatFormatting.GRAY)
+    );
+
+    protected static final TooltipContent appendNodeDownTip = TooltipContent.of(
+            Component.translatable("gui.paramagic.spell_edit_table.para_tree.tooltip.add_branch")
+                    .withStyle(ChatFormatting.GREEN)
+    );
+
     public TreeNode() {
         this(null, null, false);
     }
@@ -85,6 +104,26 @@ public class TreeNode extends UINode {
         this.hiddenSubTreeNode = new HiddenSubTreeNode(this);
         this.hiddenSubTreeNode.disable();
         this.addChild(this.hiddenSubTreeNode);
+    }
+
+    @Override
+    @Nullable
+    public TooltipContent getTooltip(@Nonnull TooltipQuery query) {
+        final float x = query.mouseX();
+        final float y = query.mouseY();
+        if (this.nodeItemRect.contains(x, y)) {
+            return UINode.getTooltipFromItem(this.renderingItem);
+        }
+        if (this.deleteSubTreeRect.contains(x, y) && this.state == SubTreeState.EXPANDED) {
+            return deleteSubTreeTip;
+        }
+        if (this.appendNodeRectRight.contains(x,y)) {
+            return appendNodeRightTip;
+        }
+        if (this.appendNodeRectDown.contains(x, y)) {
+            return appendNodeDownTip;
+        }
+        return null;
     }
 
     @Override
@@ -702,15 +741,6 @@ public class TreeNode extends UINode {
         context.renderOutline(this.appendNodeRectRight, UIColor.BLUE);
         context.renderOutline(this.appendNodeRectDown, UIColor.BLUE);
         context.renderOutline(this.deleteSubTreeRect, UIColor.GREEN);
-    }
-
-    @Override
-    @Nullable
-    public TooltipContent getTooltip(@Nonnull TooltipQuery query) {
-        if (!this.nodeItemRect.contains(query.mouseX(), query.mouseY())) {
-            return null;
-        }
-        return UINode.getTooltipFromItem(this.renderingItem);
     }
 
     @Override

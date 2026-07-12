@@ -43,6 +43,9 @@ public abstract class ParaOperator {
         return this.provider.createOperatorItem();
     }
 
+    /**
+     * 实现法术的实际作用效果，如无特别机制，不应对施法者的魔力产生影响.
+     */
     public boolean apply(ParaContext context) {
         return true;
     }
@@ -53,5 +56,9 @@ public abstract class ParaOperator {
 
     public float getTransmissionDelay() {
         return this.id.getTransmissionDelay();
+    }
+
+    public int getManaCost() {
+        return this.id.getManaCost();
     }
 }

@@ -13,6 +13,8 @@ public class ShaderInfo {
     private final String fileName;
     @Getter
     private final Set<ShaderType> shaderTypes;
+    @Getter
+    private final ShaderLoadGroup loadGroup;
     /**
      * List of subroutine information, can only be used for compute shaders.<br>
      * 着色器子程序信息列表，只能给 compute shader 使用。
@@ -27,9 +29,14 @@ public class ShaderInfo {
      * @param shaderTypes 一个包含所有着色器阶段的 Set。
      */
     public ShaderInfo(String path, String fileName, Set<ShaderType> shaderTypes) {
+        this(path, fileName, shaderTypes, ShaderLoadGroup.REQUIRED);
+    }
+
+    public ShaderInfo(String path, String fileName, Set<ShaderType> shaderTypes, ShaderLoadGroup loadGroup) {
         this.path = path;
         this.fileName = fileName;
         this.shaderTypes = Collections.unmodifiableSet(shaderTypes);
+        this.loadGroup = Objects.requireNonNull(loadGroup, "loadGroup");
     }
 
     /**
@@ -39,6 +46,10 @@ public class ShaderInfo {
      */
     public ShaderInfo(String path, String fileName, ShaderType... shaderTypes) {
         this(path, fileName, new HashSet<>(Arrays.asList(shaderTypes)));
+    }
+
+    public ShaderInfo(String path, String fileName, ShaderLoadGroup loadGroup, ShaderType... shaderTypes) {
+        this(path, fileName, new HashSet<>(Arrays.asList(shaderTypes)), loadGroup);
     }
 
     /**

@@ -6,9 +6,10 @@ import com.qwaecd.paramagic.core.render.ModRenderSystem;
 import lombok.Getter;
 
 import javax.annotation.Nullable;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+
+import static org.lwjgl.opengl.GL20.glDeleteProgram;
 
 public class ShaderManager {
     private static ShaderManager INSTANCE;
@@ -26,6 +27,8 @@ public class ShaderManager {
     private Shader debugMagicCircleShader;
     @Getter
     private Shader compositeShader;
+    @Getter
+    private boolean gpuParticlePipelineAvailable;
 
     private ShaderManager() {
         this.SHADER_REGISTRY = new HashMap<>();
@@ -83,13 +86,42 @@ public class ShaderManager {
     private void loadRegisteredShaders() {
         Paramagic.LOG.debug("Loading {} registered shaders...", SHADER_DEFINITIONS.size());
 
-        ShaderInfo defaultInfo = new ShaderInfo("", "position_color");
-        registerShaderInfo("position_color", defaultInfo);
         boolean canUseComputerShader = ModRenderSystem.getInstance().canUseComputerShader();
         boolean canUseGeometryShader = ModRenderSystem.getInstance().canUseGeometryShader();
-        for (Map.Entry<String, ShaderInfo> entry : SHADER_DEFINITIONS.entrySet()) {
+        List<Map.Entry<String, ShaderInfo>> definitions = SHADER_DEFINITIONS.entrySet().stream()
+                .sorted(Map.Entry.comparingByKey(Comparator.naturalOrder()))
+                .toList();
+
+        loadRequiredShaders(definitions, canUseComputerShader, canUseGeometryShader);
+
+        if (!canUseComputerShader || !canUseGeometryShader) {
+            this.gpuParticlePipelineAvailable = false;
+            Paramagic.LOG.warn(
+                    "Skipping GPU particle shader group (computeSupported={}, geometrySupported={}).",
+                    canUseComputerShader,
+                    canUseGeometryShader
+            );
+        } else {
+            this.gpuParticlePipelineAvailable = loadGpuParticleShaderGroup(definitions);
+        }
+
+        this.positionColorShader = SHADER_REGISTRY.get("position_color");
+        if (this.positionColorShader == null) {
+            throw new ShaderException("Failed to load the default {position_color} shader.");
+        }
+    }
+
+    private void loadRequiredShaders(
+            List<Map.Entry<String, ShaderInfo>> definitions,
+            boolean canUseComputerShader,
+            boolean canUseGeometryShader
+    ) {
+        for (Map.Entry<String, ShaderInfo> entry : definitions) {
             String name = entry.getKey();
             ShaderInfo info = entry.getValue();
+            if (info.getLoadGroup() != ShaderLoadGroup.REQUIRED) {
+                continue;
+            }
             try {
                 Shader shader = createShader(info, canUseComputerShader, canUseGeometryShader);
                 if (shader != null) {
@@ -108,10 +140,31 @@ public class ShaderManager {
                 throw new ShaderException("Shader load failure (fast-fail): " + name, e);
             }
         }
-        this.positionColorShader = SHADER_REGISTRY.get("position_color");
-        if (this.positionColorShader == null) {
-            throw new ShaderException("Failed to load the default {" + defaultInfo.getFileName() + "} shader.");
+    }
+
+    /**
+     * Compiles the real particle programs as one feature probe. A program is
+     * published only after every program in the group compiles and links.
+     */
+    private boolean loadGpuParticleShaderGroup(List<Map.Entry<String, ShaderInfo>> definitions) {
+        Map<String, Shader> loadedGroup = new LinkedHashMap<>();
+        try {
+            for (Map.Entry<String, ShaderInfo> entry : definitions) {
+                if (entry.getValue().getLoadGroup() != ShaderLoadGroup.GPU_PARTICLES) {
+                    continue;
+                }
+                Shader shader = ShaderProgramBuilder.buildFromInfo(entry.getValue());
+                loadedGroup.put(entry.getKey(), shader);
+            }
+        } catch (Exception e) {
+            loadedGroup.values().forEach(shader -> glDeleteProgram(shader.getProgramId()));
+            Paramagic.LOG.warn("GPU particle shader probe failed; particle effects will be disabled.", e);
+            return false;
         }
+
+        SHADER_REGISTRY.putAll(loadedGroup);
+        Paramagic.LOG.info("GPU particle shader probe succeeded ({} programs).", loadedGroup.size());
+        return true;
     }
 
     private static @Nullable Shader createShader(ShaderInfo info, boolean canUseComputerShader, boolean canUseGeometryShader) {

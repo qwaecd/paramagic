@@ -24,6 +24,7 @@ import com.qwaecd.paramagic.ui.util.UILayout;
 import lombok.Getter;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -85,7 +86,6 @@ public class UINode {
     @Nonnull
     public final Rect presentationRect;
 
-    protected boolean debugMod = false;
     @Nonnull
     protected UIColor backgroundColor = UIColor.TRANSPARENT;
     protected boolean layoutDirty = true;
@@ -452,7 +452,24 @@ public class UINode {
      */
     @Nullable
     public TooltipContent getTooltip(@Nonnull TooltipQuery query) {
+        if (this.isDebugMod()) {
+            return this.getDebugTooltip(query);
+        }
         return null;
+    }
+
+    @Nullable
+    public TooltipContent getDebugTooltip(@Nonnull TooltipQuery query) {
+        if (!UIManager.hasAltKeyDown()) {
+            return null;
+        }
+        return TooltipContent.of(
+                Component.literal("Debug Node: " + this.getClass().getSimpleName()),
+                Component.literal("Layout Rect: " + this.layoutRect),
+                Component.literal("Final Rect: " + this.finalRect),
+                Component.literal("Presentation Rect: " + this.presentationRect),
+                Component.literal("Measured Size: (" + this.measuredWidth + ", " + this.measuredHeight + ")")
+        );
     }
 
     @Nullable
@@ -668,7 +685,7 @@ public class UINode {
 
         this.render(context);
 
-        if (this.debugMod) {
+        if (this.isDebugMod()) {
             this.renderDebug(context);
         }
 
@@ -791,11 +808,13 @@ public class UINode {
     }
 
     public void setDebugMod(boolean debugMod) {
-        this.debugMod = debugMod;
+        if (this.manager != null) {
+            this.manager.setDebugMod(debugMod);
+        }
     }
 
     public boolean isDebugMod() {
-        return this.debugMod;
+        return this.manager != null && this.manager.isDebugMod();
     }
 
     @Nonnull

@@ -4,6 +4,8 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.inventory.tooltip.TooltipComponent;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -24,5 +26,18 @@ public record TooltipContent(
 
     public boolean isEmpty() {
         return this.lines.isEmpty() && this.visualComponent.isEmpty();
+    }
+
+    @Nonnull
+    public static TooltipContent of(@Nullable List<Component> lines) {
+        if (lines == null) {
+            return EMPTY;
+        }
+        return new TooltipContent(lines, Optional.empty());
+    }
+
+    @Nonnull
+    public static TooltipContent of(@Nonnull Component... line) {
+        return TooltipContent.of(Arrays.stream(line).toList());
     }
 }

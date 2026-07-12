@@ -11,7 +11,7 @@ import com.qwaecd.paramagic.world.item.ModItems;
 public class ExtendLifetimeOperator extends ModifierOperator {
     public static final ParaOpId OP_ID = ParaOpId.of(
             ModRL.inModSpace("extend_lifetime_operator"),
-            new ParaOpId.Properties(OperatorType.MODIFIER, 0.06f, 0.02f)
+            new ParaOpId.Properties(OperatorType.MODIFIER, 0.06f, 0.02f, 35)
     );
 
     private static final float LIFETIME_SCALE = 1.33f;

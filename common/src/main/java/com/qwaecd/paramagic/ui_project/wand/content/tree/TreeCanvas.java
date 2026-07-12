@@ -80,21 +80,22 @@ public final class TreeCanvas extends UINode {
     @Override
     protected void arrangeChildren() {
         final float scrollbarLayerX = PANEL_PADDING;
-        final float scrollbarLayerY = PANEL_PADDING;
+        final float scrollbarLayerY = PANEL_PADDING - 1.0f;
         final float scrollbarLayerW = Math.max(0.0f, this.finalRect.w - PANEL_PADDING * 2.0f);
         final float scrollbarLayerH = Math.max(0.0f, this.finalRect.h - PANEL_PADDING * 2.0f);
 
         float viewportWidth = Math.max(0.0f, scrollbarLayerW - SCROLLBAR_THICKNESS);
         float viewportHeight = Math.max(0.0f, scrollbarLayerH - SCROLLBAR_THICKNESS);
+        // 用于给一部分垄余，防止滑动条在初始位置或者末尾位置覆盖掉右上角的花纹
         this.topScrollbarRect.set(
                 0.0f,
                 0.0f,
-                viewportWidth,
+                viewportWidth - 1.0f,
                 SCROLLBAR_THICKNESS
         );
         this.rightScrollbarRect.set(
                 viewportWidth,
-                SCROLLBAR_THICKNESS,
+                SCROLLBAR_THICKNESS + 1.0f,
                 SCROLLBAR_THICKNESS,
                 viewportHeight
         );

@@ -19,12 +19,14 @@ public final class ParaOpId implements IDataSerializable {
 
     public final float cycleCooldown;
     public final float transmissionDelay;
+    public final int manaCost;
 
     private ParaOpId(@Nonnull ResourceLocation id, @Nonnull Properties prop) {
         this.id = id;
         this.type = prop.type;
         this.cycleCooldown = prop.cycleCooldown;
         this.transmissionDelay = prop.transmissionDelay;
+        this.manaCost = prop.manaCost;
     }
 
     public static ParaOpId of(@Nonnull ResourceLocation id, Properties prop) {
@@ -41,6 +43,10 @@ public final class ParaOpId implements IDataSerializable {
 
     public float getTransmissionDelay() {
         return this.transmissionDelay;
+    }
+
+    public int getManaCost() {
+        return this.manaCost;
     }
 
     @Override
@@ -76,15 +82,17 @@ public final class ParaOpId implements IDataSerializable {
         public final OperatorType type;
         public float cycleCooldown;
         public float transmissionDelay;
+        public int manaCost;
 
-        public Properties(OperatorType type, float transmissionDelay, float cycleCooldown) {
+        public Properties(OperatorType type, float transmissionDelay, float cycleCooldown, int manaCost) {
             this.type = type;
             this.transmissionDelay = transmissionDelay;
             this.cycleCooldown = cycleCooldown;
+            this.manaCost = manaCost;
         }
 
         public Properties(OperatorType type) {
-            this(type, 0.01f, 0.05f);
+            this(type, 0.01f, 0.05f, 10);
         }
 
         public Properties cycleCooldown(float cycleCooldown) {
@@ -94,6 +102,11 @@ public final class ParaOpId implements IDataSerializable {
 
         public Properties transmissionDelay(float transmissionDelay) {
             this.transmissionDelay = transmissionDelay;
+            return this;
+        }
+
+        public Properties manaCost(int manaCost) {
+            this.manaCost = manaCost;
             return this;
         }
     }

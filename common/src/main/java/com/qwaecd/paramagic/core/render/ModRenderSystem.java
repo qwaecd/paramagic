@@ -78,6 +78,7 @@ public class ModRenderSystem extends AbstractRenderSystem implements AutoCloseab
     private TextureManager textureManager;
     private boolean canUseComputeShader = false;
     private boolean canUseGeometryShader = false;
+    private boolean canUseGpuParticlePipeline = false;
 
     private final Matrix4f reusableMatrix = new Matrix4f();
     private final long renderStartNanos = System.nanoTime();
@@ -103,9 +104,15 @@ public class ModRenderSystem extends AbstractRenderSystem implements AutoCloseab
         instance.checkGLVersion();
 
         ShaderManager.init();
+        instance.canUseGpuParticlePipeline = instance.canUseComputeShader
+                && instance.canUseGeometryShader
+                && ShaderManager.getInstance().isGpuParticlePipelineAvailable();
+        if (!instance.canUseGpuParticlePipeline) {
+            Paramagic.LOG.warn("GPU particle pipeline is unavailable; particle effects will be disabled.");
+        }
         instance.textureManager = new TextureManager();
         SharedMeshes.init();
-        ParticleSystem.init(instance.canUseComputeShader, instance.canUseGeometryShader);
+        ParticleSystem.init(instance.canUseGpuParticlePipeline);
         ParaConverters.init();
 
 
@@ -413,6 +420,10 @@ public class ModRenderSystem extends AbstractRenderSystem implements AutoCloseab
     @SuppressWarnings("all")
     public boolean canUseGeometryShader() {
         return this.canUseGeometryShader;
+    }
+
+    public boolean canUseGpuParticlePipeline() {
+        return this.canUseGpuParticlePipeline;
     }
 
     public static boolean isInitialized() {

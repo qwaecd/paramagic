@@ -7,6 +7,20 @@ import java.util.UUID;
 
 public interface SpellCaster {
     UUID getCasterId();
+    int getMana();
+    int getMaxMana();
+    void setMana(int mana);
+    void setMaxMana(int maxMana);
+
+    default boolean tryConsumeMana(int amount) {
+        int currentMana = this.getMana();
+        if (currentMana < amount) {
+            return false;
+        }
+        this.setMana(currentMana - amount);
+        return true;
+    }
+
     default int getEntityNetworkId() {
         return -1;
     }

@@ -1,24 +1,53 @@
 package com.qwaecd.paramagic.spell.caster;
 
+import com.qwaecd.paramagic.spell.mana.ManaAccess;
 import com.qwaecd.paramagic.spell.server.ServerSession;
 import com.qwaecd.paramagic.spell.server.ServerSessionManager;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.Set;
+import java.util.UUID;
 
 
 public class PlayerCaster extends BaseSpellCaster implements SpellCaster {
     private final Player source;
 
     protected PlayerCaster(Player player) {
-        super(player.getUUID());
+        super(getCasterIdFromPlayer(player));
         this.source = player;
+    }
+
+    public static UUID getCasterIdFromPlayer(Player player) {
+        return player.getUUID();
     }
 
     @Override
     public int getEntityNetworkId() {
         return this.source.getId();
+    }
+
+    @Override
+    public int getMana() {
+        return ManaAccess.getMana(this.source);
+    }
+
+    @Override
+    public int getMaxMana() {
+        return ManaAccess.getMaxMana(this.source);
+    }
+
+    @Override
+    public void setMana(int mana) {
+        if (this.source.isCreative()) {
+            return;
+        }
+        ManaAccess.setMana(this.source, mana);
+    }
+
+    @Override
+    public void setMaxMana(int maxMana) {
+        ManaAccess.setMaxMana(this.source, maxMana);
     }
 
     @Override

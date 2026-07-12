@@ -85,7 +85,8 @@ public class WandEditScreen extends MCContainerScreen<SpellEditMenu> {
                 AllUIEvents.MOUSE_CLICK,
                 EventPhase.CAPTURING,
                 (context) -> {
-                    context.getManager().forEachUINode(node -> node.setDebugMod(!node.isDebugMod()));
+                    UIManager uiManager = context.getManager();
+                    uiManager.setDebugMod(!uiManager.isDebugMod());
                     context.consume();
                 }
         );
@@ -93,7 +94,8 @@ public class WandEditScreen extends MCContainerScreen<SpellEditMenu> {
                 AllUIEvents.MOUSE_DOUBLE_CLICK,
                 EventPhase.CAPTURING,
                 (context) -> {
-                    context.getManager().forEachUINode(node -> node.setDebugMod(!node.isDebugMod()));
+                    UIManager uiManager = context.getManager();
+                    uiManager.setDebugMod(!uiManager.isDebugMod());
                     context.consume();
                 }
         );
