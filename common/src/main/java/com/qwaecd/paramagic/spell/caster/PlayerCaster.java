@@ -22,6 +22,26 @@ public class PlayerCaster extends BaseSpellCaster implements SpellCaster {
     }
 
     @Override
+    public int getMana() {
+        return ManaAccess.getMana(this.source);
+    }
+
+    @Override
+    public int getMaxMana() {
+        return ManaAccess.getMaxMana(this.source);
+    }
+
+    @Override
+    public void setMana(int mana) {
+        ManaAccess.setMana(this.source, mana);
+    }
+
+    @Override
+    public void setMaxMana(int maxMana) {
+        ManaAccess.setMaxMana(this.source, maxMana);
+    }
+
+    @Override
     public boolean canStartSession(ServerSessionManager manager) {
         Set<ServerSession> sessionSet = manager.getSessionsByCaster(this);
         return sessionSet.isEmpty();

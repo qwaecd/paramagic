@@ -13,4 +13,12 @@ public interface PlatformNetworking {
             PacketFactory<T> factory,
             PacketHandler<T> handler
     );
+
+    <T extends Packet<T>> void registerClientbound(
+            PacketIdentifier key,
+            Class<T> packetClass,
+            PacketFactory<T> factory
+    );
+
+    <T extends Packet<T>> void registerClientHandler(PacketIdentifier key, PacketHandler<T> handler);
 }

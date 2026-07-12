@@ -98,4 +98,14 @@ public final class Rect {
     public Rect inset(float insetX, float insetY) {
         return this.inset(insetX, insetY, new Rect());
     }
+
+    @Override
+    public String toString() {
+        return "Rect{" +
+                "x=" + x +
+                ", y=" + y +
+                ", w=" + w +
+                ", h=" + h +
+                '}';
+    }
 }

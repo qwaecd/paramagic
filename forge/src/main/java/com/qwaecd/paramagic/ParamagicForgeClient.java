@@ -3,6 +3,8 @@ package com.qwaecd.paramagic;
 import com.qwaecd.paramagic.lifecycle.LifecycleProviderClientForge;
 import com.qwaecd.paramagic.lifecycle.ParamagicLifecycleClient;
 import com.qwaecd.paramagic.client.input.ForgeKeyBindings;
+import com.qwaecd.paramagic.network.ClientNetworking;
+import com.qwaecd.paramagic.network.Networking;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.RegisterKeyMappingsEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -17,6 +19,7 @@ public final class ParamagicForgeClient {
     public static void onClientSetup(FMLClientSetupEvent event) {
         ParamagicClient.initOnClient();
         ParamagicLifecycleClient.init(new LifecycleProviderClientForge());
+        ClientNetworking.registerAllOnClient(Networking.get());
     }
 
     @SubscribeEvent

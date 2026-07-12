@@ -10,6 +10,7 @@ import com.qwaecd.paramagic.particle.client.shared.SharedGPUEffectRegistry;
 import com.qwaecd.paramagic.platform.annotation.PlatformScope;
 import com.qwaecd.paramagic.platform.annotation.PlatformScopeType;
 import com.qwaecd.paramagic.spell.core.SessionManagers;
+import com.qwaecd.paramagic.spell.caster.client.ClientManaState;
 
 @PlatformScope(PlatformScopeType.CLIENT)
 public final class ParamagicLifecycleClient {
@@ -30,6 +31,7 @@ public final class ParamagicLifecycleClient {
     }
 
     private static void registerAll(LifecycleBusClient bus) {
+        bus.registerLocalPlayerLeaveWorldHandler(ClientManaState::reset);
         bus.registerLocalPlayerLeaveWorldHandler(() -> SessionManagers.getForClient().reset());
         bus.registerLocalPlayerLeaveWorldHandler(() -> ClientEffectRepository.getInstance().reset());
         bus.registerLocalPlayerLeaveWorldHandler(SharedGPUEffectRegistry::reset);
