@@ -23,28 +23,31 @@ public class ShaderProgramBuilder {
 
     public static Shader buildFromInfo(ShaderInfo info) {
         ShaderProgramBuilder builder = new ShaderProgramBuilder(info.getPath(), info.getFileName());
-
-        for (ShaderType type : info.getShaderTypes()) {
-            List<SubroutineInfo> subroutineInfoList = info.getSubroutineInfoList();
-            if (subroutineInfoList != null && info.isComputeShader() && !subroutineInfoList.isEmpty()) {
-                StringBuilder subroutineSource = new StringBuilder();
-                for (SubroutineInfo subInfo : subroutineInfoList) {
-                    subroutineSource
-                            .append("// ---- begin subroutine: ")
-                            .append(subInfo.getPath()).append(subInfo.getFileName()).append(subInfo.getShaderType().getExtension())
-                            .append(" ----\n")
-                            .append(ShaderTools.loadShaderSource(subInfo.getPath(), subInfo.getFileName(), subInfo.getShaderType()))
-                            .append("\n");
+        try {
+            for (ShaderType type : info.getShaderTypes()) {
+                List<SubroutineInfo> subroutineInfoList = info.getSubroutineInfoList();
+                if (subroutineInfoList != null && info.isComputeShader() && !subroutineInfoList.isEmpty()) {
+                    StringBuilder subroutineSource = new StringBuilder();
+                    for (SubroutineInfo subInfo : subroutineInfoList) {
+                        subroutineSource
+                                .append("// ---- begin subroutine: ")
+                                .append(subInfo.getPath()).append(subInfo.getFileName()).append(subInfo.getShaderType().getExtension())
+                                .append(" ----\n")
+                                .append(ShaderTools.loadShaderSource(subInfo.getPath(), subInfo.getFileName(), subInfo.getShaderType()))
+                                .append("\n");
+                    }
+                    builder.addShader(type, subroutineSource.toString());
+                } else if (subroutineInfoList != null && type != ShaderType.COMPUTE) {
+                    throw new ShaderException("Subroutine list present but current shader stage is " + type);
+                } else {
+                    builder.addShader(type);
                 }
-                builder.addShader(type, subroutineSource.toString());
-            } else if (subroutineInfoList != null && type != ShaderType.COMPUTE) {
-                throw new ShaderException("Subroutine list present but current shader stage is " + type);
-            } else {
-                builder.addShader(type);
             }
+            return builder.build();
+        } catch (RuntimeException e) {
+            builder.deleteIncompleteProgram();
+            throw e;
         }
-
-        return builder.build();
     }
 
     private void addShader(ShaderType type) {
@@ -61,7 +64,6 @@ public class ShaderProgramBuilder {
 
     private Shader build() {
         if (shaderIds.isEmpty()) {
-            glDeleteProgram(programId);
             throw new ShaderException("No shader stages attached for program {" + name + "}. Did the source files fail to load?");
         }
 
@@ -69,12 +71,6 @@ public class ShaderProgramBuilder {
 
         if (glGetProgrami(programId, GL_LINK_STATUS) == 0) {
             String log = glGetProgramInfoLog(programId, 32768);
-            // Clean up attached shaders before throwing
-            shaderIds.forEach(id -> {
-                glDetachShader(programId, id);
-                glDeleteShader(id);
-            });
-            glDeleteProgram(programId);
             throw new ShaderException("Failed to link shader program {" + name + "}: " + log);
         }
 
@@ -84,5 +80,13 @@ public class ShaderProgramBuilder {
         });
 
         return new Shader(path, name, programId);
+    }
+
+    private void deleteIncompleteProgram() {
+        shaderIds.forEach(shaderId -> {
+            glDetachShader(programId, shaderId);
+            glDeleteShader(shaderId);
+        });
+        glDeleteProgram(programId);
     }
 }

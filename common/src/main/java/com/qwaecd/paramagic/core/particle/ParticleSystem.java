@@ -58,8 +58,7 @@ public class ParticleSystem implements AutoCloseable {
     @Nullable
     private final Shader shapeRenderShader;
 
-    private final boolean canUseComputeShader;
-    private final boolean canUseGeometryShader;
+    private final boolean gpuParticlePipelineAvailable;
 
     // 用于重用的暂存发射请求的列表
     private final List<EmissionRequest> emissionRequests;
@@ -82,13 +81,12 @@ public class ParticleSystem implements AutoCloseable {
     private int cachedFreeParticleCount;
     private int cachedSuccessfulTaskCount;
 
-    private ParticleSystem(boolean canUseComputeShader, boolean canUseGeometryShader) {
-        this.canUseComputeShader = canUseComputeShader;
-        this.canUseGeometryShader = canUseGeometryShader;
+    private ParticleSystem(boolean gpuParticlePipelineAvailable) {
+        this.gpuParticlePipelineAvailable = gpuParticlePipelineAvailable;
         this.memoryManager = new ParticleMemoryManager(MAX_PARTICLES, MAX_EFFECT_COUNT);
         this.effectManager = new EffectManager(MAX_EFFECT_COUNT, this.memoryManager);
 
-        this.computeShaderProvider = new CShaderProvider(this.canUseComputeShader && this.canUseGeometryShader);
+        this.computeShaderProvider = new CShaderProvider(this.gpuParticlePipelineAvailable);
         this.emissionProcessor = new ParticleEmissionProcessor(computeShaderProvider, this.memoryManager.getMAX_REQUESTS_PER_FRAME());
 
         this.pointRenderShader = ShaderManager.getInstance().getShaderNullable("particle_render_point");
@@ -117,16 +115,16 @@ public class ParticleSystem implements AutoCloseable {
         return INSTANCE != null;
     }
 
-    public static void init(boolean canUseComputeShader, boolean canUseGeometryShader) {
+    public static void init(boolean gpuParticlePipelineAvailable) {
         if (INSTANCE != null) {
             Paramagic.LOG.warn("ParticleManager is already initialized.");
             return;
         }
-        INSTANCE = new ParticleSystem(canUseComputeShader, canUseGeometryShader);
-        if (canUseComputeShader && canUseGeometryShader) {
+        INSTANCE = new ParticleSystem(gpuParticlePipelineAvailable);
+        if (gpuParticlePipelineAvailable) {
             INSTANCE.memoryManager.init();
         } else {
-            Paramagic.LOG.warn("Compute shaders are not supported. Particle effects will be disabled.");
+            Paramagic.LOG.warn("GPU particle pipeline is not supported. Particle effects will be disabled.");
         }
     }
 
@@ -431,7 +429,7 @@ public class ParticleSystem implements AutoCloseable {
 
     @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     private boolean shouldWork() {
-        return this.canUseComputeShader && this.canUseGeometryShader;
+        return this.gpuParticlePipelineAvailable;
     }
 
     private void flushEffects() {

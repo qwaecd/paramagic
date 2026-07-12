@@ -2,8 +2,7 @@ package com.qwaecd.paramagic.core.render.shader;
 
 public class AllShaders {
     public static void registerAllShaders() {
-        // default shader 在 ShaderManager 里注册
-//        ShaderManager.registerShaderInfo("position_color", new ShaderInfo("", "position_color"));
+        ShaderManager.registerShaderInfo("position_color", new ShaderInfo("", "position_color"));
 
         ShaderManager.registerShaderInfo("sun", new ShaderInfo("", "sun"));
 
@@ -40,21 +39,21 @@ public class AllShaders {
     }
 
     private static void computeShaders() {
-        ShaderManager.registerShaderInfo("initialize_request", new ShaderInfo("compute/", "initialize_request", ShaderType.COMPUTE));
-        ShaderManager.registerShaderInfo("reserve_request", new ShaderInfo("compute/", "reserve_request", ShaderType.COMPUTE));
-        ShaderManager.registerShaderInfo("particle_update", new ShaderInfo("compute/", "particle_update", ShaderType.COMPUTE));
-        ShaderManager.registerShaderInfo("particle_classify", new ShaderInfo("compute/", "particle_classify", ShaderType.COMPUTE));
-        ShaderManager.registerShaderInfo("particle_build_draw_commands", new ShaderInfo("compute/", "particle_build_draw_commands", ShaderType.COMPUTE));
-        ShaderManager.registerShaderInfo("particle_debug_stats", new ShaderInfo("compute/", "particle_debug_stats", ShaderType.COMPUTE));
+        ShaderManager.registerShaderInfo("initialize_request", new ShaderInfo("compute/", "initialize_request", ShaderLoadGroup.GPU_PARTICLES, ShaderType.COMPUTE));
+        ShaderManager.registerShaderInfo("reserve_request", new ShaderInfo("compute/", "reserve_request", ShaderLoadGroup.GPU_PARTICLES, ShaderType.COMPUTE));
+        ShaderManager.registerShaderInfo("particle_update", new ShaderInfo("compute/", "particle_update", ShaderLoadGroup.GPU_PARTICLES, ShaderType.COMPUTE));
+        ShaderManager.registerShaderInfo("particle_classify", new ShaderInfo("compute/", "particle_classify", ShaderLoadGroup.GPU_PARTICLES, ShaderType.COMPUTE));
+        ShaderManager.registerShaderInfo("particle_build_draw_commands", new ShaderInfo("compute/", "particle_build_draw_commands", ShaderLoadGroup.GPU_PARTICLES, ShaderType.COMPUTE));
+        ShaderManager.registerShaderInfo("particle_debug_stats", new ShaderInfo("compute/", "particle_debug_stats", ShaderLoadGroup.GPU_PARTICLES, ShaderType.COMPUTE));
 
         // Point pass: vertex + fragment
         ShaderManager.registerShaderInfo("particle_render_point",
-                new ShaderInfo("particle/", "particle_render", ShaderType.VERTEX, ShaderType.FRAGMENT));
+                new ShaderInfo("particle/", "particle_render", ShaderLoadGroup.GPU_PARTICLES, ShaderType.VERTEX, ShaderType.FRAGMENT));
         // Shape pass: vertex + geometry + fragment, triangle/quad selected by uniform.
         ShaderManager.registerShaderInfo("particle_render_shape",
-                new ShaderInfo("particle/", "particle_render", ShaderType.VERTEX, ShaderType.GEOMETRY, ShaderType.FRAGMENT));
+                new ShaderInfo("particle/", "particle_render", ShaderLoadGroup.GPU_PARTICLES, ShaderType.VERTEX, ShaderType.GEOMETRY, ShaderType.FRAGMENT));
 
         // Keep legacy alias for compatibility.
-        ShaderManager.registerShaderInfo("particle_render", new ShaderInfo("particle/", "particle_render"));
+        ShaderManager.registerShaderInfo("particle_render", new ShaderInfo("particle/", "particle_render", ShaderLoadGroup.GPU_PARTICLES, ShaderType.VERTEX, ShaderType.FRAGMENT));
     }
 }
