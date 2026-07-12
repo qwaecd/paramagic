@@ -2,7 +2,6 @@ package com.qwaecd.paramagic.mixin.client;
 
 import com.qwaecd.paramagic.world.item.WandItem;
 import net.minecraft.client.player.LocalPlayer;
-import net.minecraft.world.item.ItemStack;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;

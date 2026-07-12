@@ -1,7 +1,7 @@
 package com.qwaecd.paramagic.spell.caster;
 
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.player.Player;
 
 import java.util.Objects;
 

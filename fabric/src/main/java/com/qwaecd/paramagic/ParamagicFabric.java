@@ -1,9 +1,9 @@
 package com.qwaecd.paramagic;
 
 import com.qwaecd.paramagic.init.*;
+import com.qwaecd.paramagic.lifecycle.FabricManaSyncEvents;
 import com.qwaecd.paramagic.lifecycle.LifecycleProviderFabric;
 import com.qwaecd.paramagic.lifecycle.ParamagicLifecycle;
-import com.qwaecd.paramagic.lifecycle.FabricManaSyncEvents;
 import com.qwaecd.paramagic.network.FabricNetworking;
 import com.qwaecd.paramagic.network.Networking;
 import com.qwaecd.paramagic.platform.FabricManaAccess;

@@ -1,6 +1,5 @@
 package com.qwaecd.paramagic.platform;
 
-import com.qwaecd.paramagic.Paramagic;
 import com.qwaecd.paramagic.spell.caster.ManaAccess;
 import com.qwaecd.paramagic.spell.caster.ManaStorage;
 import com.qwaecd.paramagic.spell.caster.ManaSync;
@@ -8,9 +7,10 @@ import com.qwaecd.paramagic.tools.ModRL;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.server.level.ServerPlayer;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.CapabilityManager;
 import net.minecraftforge.common.capabilities.CapabilityToken;
@@ -19,7 +19,6 @@ import net.minecraftforge.common.util.INBTSerializable;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
-import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.IEventBus;
 import org.jetbrains.annotations.Nullable;
 

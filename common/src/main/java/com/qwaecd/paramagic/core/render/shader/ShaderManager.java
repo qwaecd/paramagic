@@ -6,11 +6,7 @@ import com.qwaecd.paramagic.core.render.ModRenderSystem;
 import lombok.Getter;
 
 import javax.annotation.Nullable;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static org.lwjgl.opengl.GL20.glDeleteProgram;

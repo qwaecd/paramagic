@@ -2,8 +2,8 @@ package com.qwaecd.paramagic.client;
 
 import com.qwaecd.paramagic.Paramagic;
 import com.qwaecd.paramagic.world.item.WandItem;
-import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.player.Input;
+import net.minecraft.client.player.LocalPlayer;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.MovementInputUpdateEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
