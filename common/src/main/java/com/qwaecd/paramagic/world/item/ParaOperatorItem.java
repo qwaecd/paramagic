@@ -72,6 +72,13 @@ public abstract class ParaOperatorItem extends Item {
                         .withStyle(ChatFormatting.DARK_PURPLE).append(cycleCooldownStyle)
         );
 
+        int manaCost = id.getManaCost();
+        Component manaCostStyle = Component.literal(String.valueOf(manaCost)).withStyle(ChatFormatting.AQUA);
+        components.add(
+                Component.translatable("tooltip.paramagic.para_operator_item.mana_cost")
+                        .withStyle(ChatFormatting.DARK_AQUA).append(manaCostStyle)
+        );
+
         this.appendDescribeHoverText(stack, level, components, isAdvanced);
     }
 

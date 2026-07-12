@@ -6,13 +6,12 @@ import net.minecraft.world.entity.player.Player;
 import java.util.Objects;
 
 public final class ManaAccess {
-    public static final int DEFAULT_MAX_MANA = 1000;
+    public static final int DEFAULT_MAX_MANA = 500;
     private static ManaStorage storage;
 
     private ManaAccess() {
     }
 
-    /** Called exactly once by the active loader's mod entry point. */
     public static synchronized void initialize(ManaStorage manaStorage) {
         if (storage != null) {
             throw new IllegalStateException("ManaAccess has already been initialized");

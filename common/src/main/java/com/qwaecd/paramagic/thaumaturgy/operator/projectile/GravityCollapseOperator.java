@@ -15,7 +15,7 @@ import org.joml.Vector3f;
 public class GravityCollapseOperator extends ProjectileOperator {
     public static final ParaOpId OP_ID = ParaOpId.of(
             ModRL.inModSpace("gravity_collapse_operator"),
-            new ParaOpId.Properties(OperatorType.PROJECTILE, 2.71828f, 3.14159f)
+            new ParaOpId.Properties(OperatorType.PROJECTILE, 2.71828f, 3.14159f, 172)
     );
     public GravityCollapseOperator() {
         super(OP_ID, ModItems.GRAVITY_COLLAPSE_OPERATOR);

@@ -17,7 +17,7 @@ import org.joml.Vector3d;
 public class GradualAccelerationOperator extends ModifierOperator {
     public static final ParaOpId OP_ID = ParaOpId.of(
             ModRL.inModSpace("gradual_acceleration_operator"),
-            new ParaOpId.Properties(OperatorType.MODIFIER, 0.04f, 0.03f)
+            new ParaOpId.Properties(OperatorType.MODIFIER, 0.04f, 0.03f, 50)
     );
 
     private static final float FORWARD_ACCELERATION = 8.0E-3f;

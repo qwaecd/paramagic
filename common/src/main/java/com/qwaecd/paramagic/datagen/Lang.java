@@ -84,6 +84,8 @@ public class Lang {
                 "§lTransmission Delay: §r", "§l传导延迟: §r");
         of("tooltip.paramagic.para_operator_item.cycle_cooldown",
                 "§lCycle Cooldown: §r", "§l回转冷却: §r");
+        of("tooltip.paramagic.para_operator_item.mana_cost",
+                "§lMana Cost: §r", "§l法力消耗: §r");
 
         of("tooltip.paramagic.magic_arrow_operator.describe", "Ordinary arrow", "普通的箭矢");
         of("tooltip.paramagic.void_operator.describe", "Does nothing", "什么也不做");

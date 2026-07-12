@@ -58,8 +58,14 @@ public final class ParaContext {
         Iterator<ParaOperator> iterator = list.iterator();
         while (iterator.hasNext()) {
             ParaOperator operator = iterator.next();
+            final int manaCost = operator.getManaCost();
+            final int currentMana = this.caster.getMana();
+            if (currentMana < manaCost) {
+                continue;
+            }
             boolean applied = operator.apply(this);
             if (applied) {
+                this.caster.tryConsumeMana(manaCost);
                 if (operator.getType() == OperatorType.MODIFIER) {
                     this.appliedModifiers.add(operator);
                 }
@@ -75,7 +81,14 @@ public final class ParaContext {
             return;
         }
         for (ParaOperator operator : list) {
-            operator.apply(this);
+            final int currentMana = this.caster.getMana();
+            if (currentMana < operator.getManaCost()) {
+                continue;
+            }
+            boolean applied = operator.apply(this);
+            if (applied) {
+                this.caster.tryConsumeMana(operator.getManaCost());
+            }
         }
 
         this.operators.remove(OperatorType.PROJECTILE);

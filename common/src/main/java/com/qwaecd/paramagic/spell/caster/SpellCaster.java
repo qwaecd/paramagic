@@ -13,12 +13,11 @@ public interface SpellCaster {
     void setMaxMana(int maxMana);
 
     default boolean tryConsumeMana(int amount) {
-        int currentMana = getMana();
+        int currentMana = this.getMana();
         if (currentMana < amount) {
             return false;
         }
-        // A negative amount restores mana.
-        setMana(currentMana - amount);
+        this.setMana(currentMana - amount);
         return true;
     }
 
