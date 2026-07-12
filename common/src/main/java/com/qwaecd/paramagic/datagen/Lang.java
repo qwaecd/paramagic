@@ -103,6 +103,16 @@ public class Lang {
         of("gui.paramagic.spell_edit_table.para_struct", "Para Struct", "参量结构");
         of("gui.paramagic.spell_edit_table.crystal_edit", "Crystal", "水晶编辑");
         of("gui.paramagic.spell_edit_table.para_tree", "Para Tree", "法术树");
+        of("gui.paramagic.spell_edit_table.para_tree.tooltip.remove_sub_path",
+                "Hold Ctrl and left-click to remove this branch", "按住 Ctrl 并左键点击以移除该分支");
+        of("gui.paramagic.spell_edit_table.para_tree.tooltip.add_node",
+                "Add Node", "添加节点");
+        of("gui.paramagic.spell_edit_table.para_tree.tooltip.remove_node",
+                "Hold Ctrl and left-click to remove this node", "按住 Ctrl 并左键点击以移除该节点");
+        of("gui.paramagic.spell_edit_table.para_tree.tooltip.add_branch",
+                "Add Branch", "添加分支");
+        of("gui.paramagic.spell_edit_table.para_tree.tooltip.expand_sub_path",
+                "Click to expand this branch", "点击以展开该分支");
         of("gui.paramagic.spell_edit_table.context_menu.add_path", "Add Para Path", "添加参量路径");
         of("gui.paramagic.spell_edit_table.context_menu.remove_path", "Remove Para Path", "移除参量路径");
         of("gui.paramagic.spell_edit_table.context_menu.open_window", "Open Edit Window", "打开编辑窗口");
