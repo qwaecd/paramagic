@@ -61,6 +61,8 @@ public class UIManager {
     @Nullable
     private ContextMenu contextMenu;
 
+    private boolean debugMod = false;
+
     private final Set<UINode> mouseMovingListeners = new HashSet<>();
     private final Set<UIKeyListener> keyListeners = new LinkedHashSet<>();
 
@@ -163,7 +165,7 @@ public class UIManager {
     private TooltipContent resolveTooltip(@Nonnull TooltipQuery query) {
         UINode node = this.capturedNode != null ? this.capturedNode : this.mouseOver;
         for (int depth = 0; node != null && depth <= 3; depth++) {
-            TooltipContent tooltip = node.getTooltip(query);
+            TooltipContent tooltip = this.isDebugMod() ? node.getDebugTooltip(query) : node.getTooltip(query);
             if (tooltip != null) {
                 return tooltip;
             }
@@ -637,6 +639,14 @@ public class UIManager {
         this.animationSystem.removeAnimatorsInSubtree(root);
     }
 
+
+    public void setDebugMod(boolean debugMod) {
+        this.debugMod = debugMod;
+    }
+
+    public boolean isDebugMod() {
+        return this.debugMod;
+    }
 
     public static float getWindowWidth() {
         return Minecraft.getInstance().getWindow().getWidth();

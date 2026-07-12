@@ -63,14 +63,8 @@ public final class RootTreeNode extends TreeNode {
         if (this.nodeItemRect.contains(x, y)) {
             return UINode.getTooltipFromItem(this.renderingItem);
         }
-        if (this.deleteSubTreeRect.contains(x, y) && this.state == SubTreeState.EXPANDED) {
-            return deleteSubTreeTip;
-        }
         if (this.appendNodeRectRight.contains(x,y)) {
             return appendNodeRightTipRoot;
-        }
-        if (this.appendNodeRectDown.contains(x, y)) {
-            return appendNodeDownTip;
         }
         return null;
     }
@@ -117,6 +111,11 @@ public final class RootTreeNode extends TreeNode {
         } else if (targetNode.canHitInteractNode((float) event.mouseX, (float) event.mouseY) && targetNode.getNodeId() != null) {
             this.submit(SpellTreeEditOperation.INTERACT_NODE_OPERATOR, targetNode.getNodeId(), 0);
         }
+    }
+
+    @Override
+    protected boolean canHitDeleteSubTree(float mouseX, float mouseY) {
+        return false;
     }
 
     private void submit(@Nonnull SpellTreeEditOperation operation, String nodeId, int childIndex) {

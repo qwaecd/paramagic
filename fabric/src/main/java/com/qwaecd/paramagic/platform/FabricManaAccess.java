@@ -9,6 +9,7 @@ import net.fabricmc.fabric.api.attachment.v1.AttachmentTarget;
 import net.fabricmc.fabric.api.attachment.v1.AttachmentType;
 import net.minecraft.world.entity.player.Player;
 
+@SuppressWarnings("UnstableApiUsage")
 public final class FabricManaAccess implements ManaStorage {
     private static final AttachmentType<Integer> MANA = AttachmentRegistry.<Integer>builder()
             .persistent(Codec.INT)
