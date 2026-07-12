@@ -4,7 +4,7 @@ import com.qwaecd.paramagic.network.api.NetworkContext;
 import com.qwaecd.paramagic.network.packet.mana.S2CManaSyncPacket;
 import com.qwaecd.paramagic.platform.annotation.PlatformScope;
 import com.qwaecd.paramagic.platform.annotation.PlatformScopeType;
-import com.qwaecd.paramagic.spell.caster.client.ClientManaState;
+import com.qwaecd.paramagic.spell.mana.ClientManaState;
 
 @PlatformScope(PlatformScopeType.CLIENT)
 public final class ClientManaHandlers {

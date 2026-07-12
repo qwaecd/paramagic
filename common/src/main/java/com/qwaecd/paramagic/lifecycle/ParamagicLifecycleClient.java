@@ -9,7 +9,7 @@ import com.qwaecd.paramagic.particle.client.ClientEffectRepository;
 import com.qwaecd.paramagic.particle.client.shared.SharedGPUEffectRegistry;
 import com.qwaecd.paramagic.platform.annotation.PlatformScope;
 import com.qwaecd.paramagic.platform.annotation.PlatformScopeType;
-import com.qwaecd.paramagic.spell.caster.client.ClientManaState;
+import com.qwaecd.paramagic.spell.mana.ClientManaState;
 import com.qwaecd.paramagic.spell.core.SessionManagers;
 
 @PlatformScope(PlatformScopeType.CLIENT)
