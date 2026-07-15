@@ -30,6 +30,8 @@ public final class ModItems {
     public static Entry<TrackingOperatorItem> TRACKING_OPERATOR;
     public static Entry<WeightlessOperatorItem> WEIGHTLESS_OPERATOR;
     public static Entry<GravityCollapseOperatorItem> GRAVITY_COLLAPSE_OPERATOR;
+    public static Entry<PierceOperatorItem> PIERCE_OPERATOR;
+    public static Entry<BounceOperatorItem> BOUNCE_OPERATOR;
 
     public static Entry<ParaCrystalItem> PARA_CRYSTAL;
 
@@ -58,6 +60,8 @@ public final class ModItems {
         HEAVY_OPERATOR = create(provider, "heavy_operator", HeavyOperatorItem::new);
         WEIGHTLESS_OPERATOR = create(provider, "weightless_operator", WeightlessOperatorItem::new);
         GRAVITY_COLLAPSE_OPERATOR = create(provider, "gravity_collapse_operator", GravityCollapseOperatorItem::new);
+        PIERCE_OPERATOR = create(provider, "pierce_operator", PierceOperatorItem::new);
+        BOUNCE_OPERATOR = create(provider, "bounce_operator", BounceOperatorItem::new);
     }
 
     public interface Entry<T extends Item> extends Supplier<T> {
