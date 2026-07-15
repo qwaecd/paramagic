@@ -13,7 +13,7 @@ import net.minecraft.world.phys.Vec3;
 public class MagicArrowOperator extends ProjectileOperator {
     public static final ParaOpId OP_ID = ParaOpId.of(
             ModRL.inModSpace("magic_arrow_operator"),
-            new ParaOpId.Properties(OperatorType.PROJECTILE, 0.02f, 0.02f, 50)
+            new ParaOpId.Properties(OperatorType.PROJECTILE, 0.05f, 0.4f, 30)
     );
     public MagicArrowOperator() {
         super(OP_ID, ModItems.MAGIC_ARROW_OPERATOR);

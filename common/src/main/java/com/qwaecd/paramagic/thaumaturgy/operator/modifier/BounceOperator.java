@@ -10,7 +10,7 @@ import com.qwaecd.paramagic.world.item.ModItems;
 public class BounceOperator extends ModifierOperator {
     public static final ParaOpId OP_ID = ParaOpId.of(
             ModRL.inModSpace("bounce_operator"),
-            new ParaOpId.Properties(OperatorType.MODIFIER, 0.04f, 0.05f, 25)
+            new ParaOpId.Properties(OperatorType.MODIFIER, 0.05f, 0.5f, 50)
     );
 
     private static final int BOUNCE_BONUS = 1;

@@ -6,7 +6,7 @@ import net.minecraft.world.entity.player.Player;
 import java.util.Objects;
 
 public final class ManaAccess {
-    public static final int DEFAULT_MAX_MANA = 1000;
+    public static final int DEFAULT_MAX_MANA = 600;
     private static ManaStorage storage;
 
     private ManaAccess() {

@@ -20,7 +20,7 @@ import org.joml.Vector3d;
 public class ShortTrackingOperator extends ModifierOperator {
     public static final ParaOpId OP_ID = ParaOpId.of(
             ModRL.inModSpace("short_tracking_operator"),
-            new ParaOpId.Properties(OperatorType.MODIFIER, 0.1f, 0.08f, 100)
+            new ParaOpId.Properties(OperatorType.MODIFIER, 0.14f, 1.8f, 170)
     );
 
     private static final float TRACKING_RANGE = 8.0f;
