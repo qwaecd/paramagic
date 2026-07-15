@@ -194,33 +194,22 @@ public abstract class BaseProjectile extends ThrowableProjectile implements Proj
                     cursor = nextStart;
                     continue;
                 }
-                Vec3 incomingVelocity = this.getDeltaMovement();
-                Vec3 remainingAfterHit = segmentEnd.subtract(hitLocation);
+                BounceResult bounceResult = decision == HitDecision.BOUNCE
+                        ? this.calculateBounce(
+                                Vec3.atLowerCornerOf(blockHitResult.getDirection().getNormal()),
+                                this.getDeltaMovement(),
+                                segmentEnd.subtract(hitLocation),
+                                this.getBounceRestitution(blockHitResult)
+                        )
+                        : null;
+                CollisionResolution resolution = this.resolveCollision(decision, decision == HitDecision.PASS_THROUGH, bounceResult);
                 this.setPos(hitLocation);
                 this.onHit(blockHitResult);
+                this.onCollisionResolved(blockHitResult, resolution);
                 if (this.isRemoved()) {
                     return new CollisionResolveResult(hitLocation);
                 }
-                if (decision == HitDecision.BOUNCE) {
-                    Vec3 reflectedRemainingDelta = this.tryBounceFromBlock(blockHitResult, incomingVelocity, remainingAfterHit);
-                    if (reflectedRemainingDelta == null) {
-                        this.stopAfterFailedBounce();
-                        cursor = hitLocation;
-                        break;
-                    }
-                    this.bounceCount++;
-                    this.onBlockBounced(blockHitResult);
-                    Vec3 nextStart = this.advancePastHit(hitLocation, reflectedRemainingDelta);
-                    if (nextStart == null) {
-                        cursor = hitLocation;
-                        break;
-                    }
-                    Vec3 consumedAdvance = nextStart.subtract(hitLocation);
-                    remainingDelta = reflectedRemainingDelta.subtract(consumedAdvance);
-                    cursor = nextStart;
-                    continue;
-                }
-                if (decision == HitDecision.PASS_THROUGH) {
+                if (resolution.action() == HitDecision.PASS_THROUGH) {
                     Vec3 nextStart = this.advancePastHit(hitLocation, remainingDelta);
                     if (nextStart == null) {
                         cursor = hitLocation;
@@ -230,6 +219,15 @@ public abstract class BaseProjectile extends ThrowableProjectile implements Proj
                     cursor = nextStart;
                     continue;
                 }
+                if (resolution.action() == HitDecision.BOUNCE) {
+                    BounceContinuation continuation = this.applyBounce(hitLocation, bounceResult);
+                    if (continuation != null) {
+                        cursor = continuation.nextStart();
+                        remainingDelta = continuation.remainingDelta();
+                        continue;
+                    }
+                }
+                this.finishStoppedCollision(blockHitResult, resolution);
                 cursor = hitLocation;
                 break;
             }
@@ -243,20 +241,25 @@ public abstract class BaseProjectile extends ThrowableProjectile implements Proj
                 }
                 boolean piercesEntity = (decision == HitDecision.PASS_THROUGH || decision == HitDecision.BOUNCE)
                         && this.canPassThroughEntity(entityHitResult.getEntity());
-                Vec3 incomingVelocity = this.getDeltaMovement();
-                Vec3 remainingAfterHit = segmentEnd.subtract(hitLocation);
-                Vec3 bounceNormal = decision == HitDecision.BOUNCE
+                Vec3 bounceNormal = !piercesEntity && decision == HitDecision.BOUNCE
                         ? this.getEntityBounceNormal(entityHitResult.getEntity(), cursor, segmentEnd, hitLocation)
-                        : Vec3.ZERO;
+                        : null;
+                BounceResult bounceResult = bounceNormal == null ? null : this.calculateBounce(
+                        bounceNormal,
+                        this.getDeltaMovement(),
+                        segmentEnd.subtract(hitLocation),
+                        this.getEntityBounceRestitution(entityHitResult)
+                );
+                CollisionResolution resolution = this.resolveCollision(decision, piercesEntity, bounceResult);
                 this.setPos(hitLocation);
                 this.onHit(entityHitResult);
+                this.onCollisionResolved(entityHitResult, resolution);
                 if (this.isRemoved()) {
                     return new CollisionResolveResult(hitLocation);
                 }
-                if (piercesEntity) {
+                if (resolution.action() == HitDecision.PASS_THROUGH) {
                     resolvedEntityIds.add(entityHitResult.getEntity().getId());
                     this.piercedEntityCount++;
-                    this.onEntityPierced(entityHitResult);
                     Vec3 nextStart = this.advancePastHit(hitLocation, remainingDelta);
                     if (nextStart == null) {
                         cursor = hitLocation;
@@ -266,26 +269,16 @@ public abstract class BaseProjectile extends ThrowableProjectile implements Proj
                     cursor = nextStart;
                     continue;
                 }
-                if (decision == HitDecision.BOUNCE) {
-                    Vec3 reflectedRemainingDelta = this.tryBounce(bounceNormal, incomingVelocity, remainingAfterHit, this.getEntityBounceRestitution(entityHitResult));
-                    if (reflectedRemainingDelta == null) {
-                        this.stopAfterFailedBounce();
-                        cursor = hitLocation;
-                        break;
-                    }
+                if (resolution.action() == HitDecision.BOUNCE) {
                     resolvedEntityIds.add(entityHitResult.getEntity().getId());
-                    this.bounceCount++;
-                    this.onEntityBounced(entityHitResult);
-                    Vec3 nextStart = this.advancePastHit(hitLocation, reflectedRemainingDelta);
-                    if (nextStart == null) {
-                        cursor = hitLocation;
-                        break;
+                    BounceContinuation continuation = this.applyBounce(hitLocation, bounceResult);
+                    if (continuation != null) {
+                        cursor = continuation.nextStart();
+                        remainingDelta = continuation.remainingDelta();
+                        continue;
                     }
-                    Vec3 consumedAdvance = nextStart.subtract(hitLocation);
-                    remainingDelta = reflectedRemainingDelta.subtract(consumedAdvance);
-                    cursor = nextStart;
-                    continue;
                 }
+                this.finishStoppedCollision(entityHitResult, resolution);
                 cursor = hitLocation;
                 break;
             }
@@ -418,9 +411,15 @@ public abstract class BaseProjectile extends ThrowableProjectile implements Proj
     }
 
     @Override
-    protected void onHit(HitResult result) {
-        // 可以是 方块 也可以是 实体
+    protected final void onHit(HitResult result) {
         super.onHit(result);
+    }
+
+    protected void onCollisionResolved(HitResult hitResult, CollisionResolution resolution) {
+    }
+
+    protected boolean shouldDiscardAfterCollision(HitResult hitResult, CollisionResolution resolution) {
+        return resolution.action() == HitDecision.STOP;
     }
 
     /**
@@ -478,27 +477,6 @@ public abstract class BaseProjectile extends ThrowableProjectile implements Proj
      */
     protected double getEntityBounceRestitution(EntityHitResult hitResult) {
         return 0.6d;
-    }
-
-    /**
-     * Invoked after the projectile has bounced from a block and its reflected
-     * velocity has been applied.
-     */
-    protected void onBlockBounced(BlockHitResult hitResult) {
-    }
-
-    /**
-     * Invoked after the projectile has bounced from an entity and its
-     * reflected velocity has been applied.
-     */
-    protected void onEntityBounced(EntityHitResult hitResult) {
-    }
-
-    /**
-     * Invoked after an entity hit has applied its normal hit handling and the
-     * projectile is confirmed to continue through it.
-     */
-    protected void onEntityPierced(EntityHitResult hitResult) {
     }
 
     private boolean handlePortalOrGatewayHit(BlockHitResult hitResult) {
@@ -599,14 +577,18 @@ public abstract class BaseProjectile extends ThrowableProjectile implements Proj
         return this.piercedEntityCount < maxPierceCount;
     }
 
-    @Nullable
-    private Vec3 tryBounceFromBlock(BlockHitResult hitResult, Vec3 incomingVelocity, Vec3 remainingDelta) {
-        Vec3 normal = Vec3.atLowerCornerOf(hitResult.getDirection().getNormal());
-        return this.tryBounce(normal, incomingVelocity, remainingDelta, this.getBounceRestitution(hitResult));
+    private CollisionResolution resolveCollision(HitDecision decision, boolean passesThrough, @Nullable BounceResult bounceResult) {
+        if (passesThrough) {
+            return new CollisionResolution(HitDecision.PASS_THROUGH);
+        }
+        if (decision == HitDecision.BOUNCE && bounceResult != null) {
+            return new CollisionResolution(HitDecision.BOUNCE);
+        }
+        return new CollisionResolution(HitDecision.STOP);
     }
 
     @Nullable
-    private Vec3 tryBounce(Vec3 normal, Vec3 incomingVelocity, Vec3 remainingDelta, double restitution) {
+    private BounceResult calculateBounce(Vec3 normal, Vec3 incomingVelocity, Vec3 remainingDelta, double restitution) {
         if (!this.canBounce() || normal.lengthSqr() < 1.0E-12D) {
             return null;
         }
@@ -619,8 +601,33 @@ public abstract class BaseProjectile extends ThrowableProjectile implements Proj
         }
         restitution = Math.max(0.0D, restitution);
         Vec3 reflectedVelocity = this.reflect(incomingVelocity, normal).scale(restitution);
-        this.setVelocity(reflectedVelocity.x, reflectedVelocity.y, reflectedVelocity.z, !this.level().isClientSide);
-        return this.reflect(remainingDelta, normal).scale(restitution);
+        Vec3 reflectedRemainingDelta = this.reflect(remainingDelta, normal).scale(restitution);
+        if (reflectedRemainingDelta.lengthSqr() <= COLLISION_ADVANCE_EPSILON * COLLISION_ADVANCE_EPSILON) {
+            return null;
+        }
+        return new BounceResult(reflectedVelocity, reflectedRemainingDelta);
+    }
+
+    @Nullable
+    private BounceContinuation applyBounce(Vec3 hitLocation, @Nullable BounceResult bounceResult) {
+        if (bounceResult == null) {
+            return null;
+        }
+        Vec3 velocity = bounceResult.reflectedVelocity();
+        this.setVelocity(velocity.x, velocity.y, velocity.z, !this.level().isClientSide);
+        this.bounceCount++;
+        Vec3 nextStart = this.advancePastHit(hitLocation, bounceResult.reflectedRemainingDelta());
+        if (nextStart == null) {
+            return null;
+        }
+        return new BounceContinuation(nextStart, bounceResult.reflectedRemainingDelta().subtract(nextStart.subtract(hitLocation)));
+    }
+
+    private void finishStoppedCollision(HitResult hitResult, CollisionResolution resolution) {
+        this.setVelocity(0.0D, 0.0D, 0.0D, !this.level().isClientSide);
+        if (!this.level().isClientSide && this.shouldDiscardAfterCollision(hitResult, resolution)) {
+            this.discard();
+        }
     }
 
     private Vec3 getEntityBounceNormal(Entity target, Vec3 start, Vec3 end, Vec3 hitLocation) {
@@ -700,11 +707,13 @@ public abstract class BaseProjectile extends ThrowableProjectile implements Proj
         return vector.subtract(normal.scale(2.0D * vector.dot(normal)));
     }
 
-    private void stopAfterFailedBounce() {
-        this.setVelocity(0.0D, 0.0D, 0.0D, !this.level().isClientSide);
+    private record AxisEntry(double time, Vec3 normal) {
     }
 
-    private record AxisEntry(double time, Vec3 normal) {
+    private record BounceResult(Vec3 reflectedVelocity, Vec3 reflectedRemainingDelta) {
+    }
+
+    private record BounceContinuation(Vec3 nextStart, Vec3 remainingDelta) {
     }
 
     protected void applyKineticsStep() {

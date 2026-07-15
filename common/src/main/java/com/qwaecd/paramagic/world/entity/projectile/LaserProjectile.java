@@ -19,7 +19,6 @@ import net.minecraft.world.phys.Vec3;
 import org.joml.Vector3d;
 import org.joml.Vector3f;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import static com.qwaecd.paramagic.core.particle.emitter.property.key.AllEmitterProperties.*;
@@ -54,8 +53,7 @@ public class LaserProjectile extends BaseProjectile implements ProjectileEntity,
     }
 
     @Override
-    protected void onHit(@Nonnull HitResult hitResult) {
-        super.onHit(hitResult);
+    protected void onCollisionResolved(HitResult hitResult, CollisionResolution resolution) {
         if (this.level().isClientSide) {
             return;
         }
@@ -63,7 +61,6 @@ public class LaserProjectile extends BaseProjectile implements ProjectileEntity,
             Entity target = entityHitResult.getEntity();
             target.hurt(this.damageSources().magic(), HIT_DAMAGE);
         }
-        this.onLifeEnd();
     }
 
     @Nullable
