@@ -24,6 +24,7 @@ import com.qwaecd.paramagic.world.sound.SoundHelper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
+import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
@@ -53,9 +54,12 @@ public abstract class BaseProjectile extends ThrowableProjectile implements Proj
     private static final Logger LOGGER = LoggerFactory.getLogger(BaseProjectile.class);
 
     protected static final EntityDataAccessor<List<ParaOpId>> PROJECTILE_RUNTIME_MODIFIER = SynchedEntityData.defineId(BaseProjectile.class, AllEntityDataSerializers.PROJECTILE_RUNTIME_MODIFIER);
+    private static final EntityDataAccessor<Integer> MAX_ENTITY_PIERCE_COUNT = SynchedEntityData.defineId(BaseProjectile.class, EntityDataSerializers.INT);
+    private static final EntityDataAccessor<Integer> MAX_BOUNCE_COUNT = SynchedEntityData.defineId(BaseProjectile.class, EntityDataSerializers.INT);
 
     private static final int MAX_COLLISION_ITERATIONS = 16;
     private static final double COLLISION_ADVANCE_EPSILON = 1.0E-2D;
+    private static final double ENTITY_COLLISION_INFLATION = 0.3D;
 
     protected float age = 0.0f;
 
@@ -70,11 +74,15 @@ public abstract class BaseProjectile extends ThrowableProjectile implements Proj
     protected final List<ParaOperator> recordedOperators = new ArrayList<>();
 
     protected float inaccuracy = 0.0f;
+    protected int maxEntityPierceCount = 0;
+    protected int maxBounceCount = 0;
+
 
     private boolean hasBeenShot = false;
     private boolean leftOwnerLike = false;
-    private boolean noPhysicsLike = false;
+    private boolean ignoresWorldCollision = false;
     private int piercedEntityCount = 0;
+    private int bounceCount = 0;
 
     protected BaseProjectile(EntityType<? extends ThrowableProjectile> entityType, Level level) {
         super(entityType, level);
@@ -136,21 +144,24 @@ public abstract class BaseProjectile extends ThrowableProjectile implements Proj
 
     protected MovementPlan resolveMovement(Vec3 start, Vec3 delta) {
         // Tick-driven movement: x += v (v is blocks/tick).
-        return new MovementPlan(start, delta, start.add(delta));
+        return new MovementPlan(start, delta);
     }
 
     protected CollisionResolveResult processCollisionPipeline(MovementPlan plan) {
-        if (this.isNoPhysics() || plan.delta.lengthSqr() < 1.0E-12D) {
-            return new CollisionResolveResult(plan.intendedEnd);
+        if (this.ignoresWorldCollision() || plan.delta().lengthSqr() < 1.0E-12D) {
+            return new CollisionResolveResult(plan.end());
         }
 
-        Vec3 cursor = plan.start;
-        Vec3 remainingDelta = plan.delta;
-        Set<Integer> piercedEntityIds = new HashSet<>();
+        Vec3 cursor = plan.start();
+        Vec3 remainingDelta = plan.delta();
+        // This set only prevents the same entity from being resolved twice in
+        // one movement segment. It is deliberately reset every tick so a
+        // projectile may resolve that target again on later ticks.
+        Set<Integer> resolvedEntityIds = new HashSet<>();
         int iterations = 0;
         while (iterations++ < MAX_COLLISION_ITERATIONS && remainingDelta.lengthSqr() >= 1.0E-12D) {
             Vec3 segmentEnd = cursor.add(remainingDelta);
-            HitResult hitResult = this.detectFirstHit(cursor, segmentEnd, entity -> this.canHitEntity(entity) && !piercedEntityIds.contains(entity.getId()));
+            HitResult hitResult = this.detectFirstHit(cursor, segmentEnd, entity -> this.canHitEntity(entity) && !resolvedEntityIds.contains(entity.getId()));
             if (hitResult.getType() == HitResult.Type.MISS) {
                 cursor = segmentEnd;
                 break;
@@ -159,16 +170,10 @@ public abstract class BaseProjectile extends ThrowableProjectile implements Proj
             Vec3 hitLocation = hitResult.getLocation();
             // block
             if (hitResult instanceof BlockHitResult blockHitResult) {
-                PortalBlockDecision portalDecision = this.handlePortalOrGatewayHit(blockHitResult);
-                if (portalDecision == PortalBlockDecision.HANDLED_STOP) {
-                    cursor = hitLocation;
-                    break;
-                }
-                if (portalDecision == PortalBlockDecision.HANDLED_PASS_THROUGH) {
-                    cursor = segmentEnd;
-                    break;
-                }
-                if (!this.canHitBlock(blockHitResult)) {
+                if (this.isPortalOrGateway(blockHitResult)) {
+                    if (this.handlePortalOrGatewayHit(blockHitResult)) {
+                        return new CollisionResolveResult(this.position());
+                    }
                     Vec3 nextStart = this.advancePastHit(hitLocation, remainingDelta);
                     if (nextStart == null) {
                         cursor = hitLocation;
@@ -178,11 +183,42 @@ public abstract class BaseProjectile extends ThrowableProjectile implements Proj
                     cursor = nextStart;
                     continue;
                 }
-                HitDecision decision = this.sanitizeHitDecision(this.onHitBlockDecision(blockHitResult));
+                HitDecision decision = this.onHitBlockDecision(blockHitResult);
+                if (decision == HitDecision.IGNORE) {
+                    Vec3 nextStart = this.advancePastHit(hitLocation, remainingDelta);
+                    if (nextStart == null) {
+                        cursor = hitLocation;
+                        break;
+                    }
+                    remainingDelta = segmentEnd.subtract(nextStart);
+                    cursor = nextStart;
+                    continue;
+                }
+                Vec3 incomingVelocity = this.getDeltaMovement();
+                Vec3 remainingAfterHit = segmentEnd.subtract(hitLocation);
                 this.setPos(hitLocation);
                 this.onHit(blockHitResult);
                 if (this.isRemoved()) {
                     return new CollisionResolveResult(hitLocation);
+                }
+                if (decision == HitDecision.BOUNCE) {
+                    Vec3 reflectedRemainingDelta = this.tryBounceFromBlock(blockHitResult, incomingVelocity, remainingAfterHit);
+                    if (reflectedRemainingDelta == null) {
+                        this.stopAfterFailedBounce();
+                        cursor = hitLocation;
+                        break;
+                    }
+                    this.bounceCount++;
+                    this.onBlockBounced(blockHitResult);
+                    Vec3 nextStart = this.advancePastHit(hitLocation, reflectedRemainingDelta);
+                    if (nextStart == null) {
+                        cursor = hitLocation;
+                        break;
+                    }
+                    Vec3 consumedAdvance = nextStart.subtract(hitLocation);
+                    remainingDelta = reflectedRemainingDelta.subtract(consumedAdvance);
+                    cursor = nextStart;
+                    continue;
                 }
                 if (decision == HitDecision.PASS_THROUGH) {
                     Vec3 nextStart = this.advancePastHit(hitLocation, remainingDelta);
@@ -200,21 +236,53 @@ public abstract class BaseProjectile extends ThrowableProjectile implements Proj
 
             // entity
             if (hitResult instanceof EntityHitResult entityHitResult) {
-                HitDecision decision = this.sanitizeHitDecision(this.onHitEntityDecision(entityHitResult));
+                HitDecision decision = this.onHitEntityDecision(entityHitResult);
+                if (decision == HitDecision.IGNORE) {
+                    resolvedEntityIds.add(entityHitResult.getEntity().getId());
+                    continue;
+                }
+                boolean piercesEntity = (decision == HitDecision.PASS_THROUGH || decision == HitDecision.BOUNCE)
+                        && this.canPassThroughEntity(entityHitResult.getEntity());
+                Vec3 incomingVelocity = this.getDeltaMovement();
+                Vec3 remainingAfterHit = segmentEnd.subtract(hitLocation);
+                Vec3 bounceNormal = decision == HitDecision.BOUNCE
+                        ? this.getEntityBounceNormal(entityHitResult.getEntity(), cursor, segmentEnd, hitLocation)
+                        : Vec3.ZERO;
                 this.setPos(hitLocation);
                 this.onHit(entityHitResult);
                 if (this.isRemoved()) {
                     return new CollisionResolveResult(hitLocation);
                 }
-                if (decision == HitDecision.PASS_THROUGH && this.canPassThroughEntity(entityHitResult.getEntity())) {
-                    piercedEntityIds.add(entityHitResult.getEntity().getId());
+                if (piercesEntity) {
+                    resolvedEntityIds.add(entityHitResult.getEntity().getId());
                     this.piercedEntityCount++;
+                    this.onEntityPierced(entityHitResult);
                     Vec3 nextStart = this.advancePastHit(hitLocation, remainingDelta);
                     if (nextStart == null) {
                         cursor = hitLocation;
                         break;
                     }
                     remainingDelta = segmentEnd.subtract(nextStart);
+                    cursor = nextStart;
+                    continue;
+                }
+                if (decision == HitDecision.BOUNCE) {
+                    Vec3 reflectedRemainingDelta = this.tryBounce(bounceNormal, incomingVelocity, remainingAfterHit, this.getEntityBounceRestitution(entityHitResult));
+                    if (reflectedRemainingDelta == null) {
+                        this.stopAfterFailedBounce();
+                        cursor = hitLocation;
+                        break;
+                    }
+                    resolvedEntityIds.add(entityHitResult.getEntity().getId());
+                    this.bounceCount++;
+                    this.onEntityBounced(entityHitResult);
+                    Vec3 nextStart = this.advancePastHit(hitLocation, reflectedRemainingDelta);
+                    if (nextStart == null) {
+                        cursor = hitLocation;
+                        break;
+                    }
+                    Vec3 consumedAdvance = nextStart.subtract(hitLocation);
+                    remainingDelta = reflectedRemainingDelta.subtract(consumedAdvance);
                     cursor = nextStart;
                     continue;
                 }
@@ -349,49 +417,141 @@ public abstract class BaseProjectile extends ThrowableProjectile implements Proj
         return entityDistance <= blockDistance ? entityHitResult : blockHitResult;
     }
 
+    @Override
+    protected void onHit(HitResult result) {
+        // 可以是 方块 也可以是 实体
+        super.onHit(result);
+    }
+
+    /**
+     * Resolves entity-hit movement on both logical sides. Implementations must
+     * be deterministic and free of gameplay side effects.
+     * If {@link HitDecision#BOUNCE} is selected for an entity that is still
+     * eligible for piercing, piercing takes priority over bounce processing.
+     * {@link HitDecision#IGNORE} skips this entity for the rest of the tick
+     * without invoking hit callbacks.
+     */
     protected HitDecision onHitEntityDecision(EntityHitResult hitResult) {
-        return HitDecision.STOP;
+        if (this.getMaxEntityPierceCount() != 0 && this.canPierceEntity(hitResult.getEntity())) {
+            return HitDecision.PASS_THROUGH;
+        }
+        return this.canBounce() ? HitDecision.BOUNCE : HitDecision.STOP;
     }
 
+    /**
+     * Resolves block-hit movement on both logical sides. Implementations must
+     * be deterministic and free of gameplay side effects. {@link HitDecision#BOUNCE}
+     * is supported for block collisions.
+     */
     protected HitDecision onHitBlockDecision(BlockHitResult hitResult) {
-        return HitDecision.STOP;
+        return this.canBounce() ? HitDecision.BOUNCE : HitDecision.STOP;
     }
 
-    protected PortalBlockDecision handlePortalOrGatewayHit(BlockHitResult hitResult) {
+    /**
+     * Returns the total number of bounces allowed for this projectile. A value
+     * less than or equal to zero disables bouncing.
+     */
+    @Override
+    public int getMaxBounceCount() {
+        return this.maxBounceCount;
+    }
+
+    @Override
+    public void setMaxBounceCount(int count) {
+        this.maxBounceCount = Math.max(0, count);
+        if (!this.level().isClientSide) {
+            this.entityData.set(MAX_BOUNCE_COUNT, this.maxBounceCount);
+        }
+    }
+
+    /**
+     * Returns the speed multiplier applied after this block bounce. Values
+     * less than or equal to zero stop the projectile after the bounce.
+     */
+    protected double getBounceRestitution(BlockHitResult hitResult) {
+        return 0.8d;
+    }
+
+    /**
+     * Returns the speed multiplier applied after this entity bounce. Values
+     * less than or equal to zero stop the projectile after the bounce.
+     */
+    protected double getEntityBounceRestitution(EntityHitResult hitResult) {
+        return 0.6d;
+    }
+
+    /**
+     * Invoked after the projectile has bounced from a block and its reflected
+     * velocity has been applied.
+     */
+    protected void onBlockBounced(BlockHitResult hitResult) {
+    }
+
+    /**
+     * Invoked after the projectile has bounced from an entity and its
+     * reflected velocity has been applied.
+     */
+    protected void onEntityBounced(EntityHitResult hitResult) {
+    }
+
+    /**
+     * Invoked after an entity hit has applied its normal hit handling and the
+     * projectile is confirmed to continue through it.
+     */
+    protected void onEntityPierced(EntityHitResult hitResult) {
+    }
+
+    private boolean handlePortalOrGatewayHit(BlockHitResult hitResult) {
         BlockPos blockPos = hitResult.getBlockPos();
         BlockState blockState = this.level().getBlockState(blockPos);
         if (blockState.is(Blocks.NETHER_PORTAL)) {
             this.handleInsidePortal(blockPos);
-            return PortalBlockDecision.HANDLED_PASS_THROUGH;
-        }
-        if (!blockState.is(Blocks.END_GATEWAY)) {
-            return PortalBlockDecision.NOT_HANDLED;
+            return false;
         }
         BlockEntity blockEntity = this.level().getBlockEntity(blockPos);
         if (blockEntity instanceof TheEndGatewayBlockEntity gatewayBlockEntity && TheEndGatewayBlockEntity.canEntityTeleport(this)) {
             TheEndGatewayBlockEntity.teleportEntity(this.level(), blockPos, blockState, this, gatewayBlockEntity);
+            return true;
         }
-        return PortalBlockDecision.HANDLED_PASS_THROUGH;
+        return false;
     }
 
-    protected boolean canHitBlock(BlockHitResult hitResult) {
-        return true;
+    private boolean isPortalOrGateway(BlockHitResult hitResult) {
+        BlockState blockState = this.level().getBlockState(hitResult.getBlockPos());
+        return blockState.is(Blocks.NETHER_PORTAL) || blockState.is(Blocks.END_GATEWAY);
     }
 
-    protected int getMaxPierceCount() {
-        return 0;
+    /**
+     * Returns the total number of entities this projectile may pass through.
+     * Zero disables entity piercing; a negative value permits unlimited
+     * piercing for the projectile's lifetime.
+     */
+    @Override
+    public int getMaxEntityPierceCount() {
+        return this.maxEntityPierceCount;
     }
 
+    @Override
+    public void setMaxEntityPierceCount(int count) {
+        this.maxEntityPierceCount = count;
+        if (!this.level().isClientSide) {
+            this.entityData.set(MAX_ENTITY_PIERCE_COUNT, count);
+        }
+    }
+
+    /**
+     * Determines whether this entity may consume one entity-pierce allowance.
+     */
     protected boolean canPierceEntity(Entity entity) {
         return true;
     }
 
-    protected void setNoPhysics(boolean noPhysicsLike) {
-        this.noPhysicsLike = noPhysicsLike;
+    protected void setIgnoresWorldCollision(boolean ignoresWorldCollision) {
+        this.ignoresWorldCollision = ignoresWorldCollision;
     }
 
-    protected boolean isNoPhysics() {
-        return this.noPhysicsLike;
+    protected boolean ignoresWorldCollision() {
+        return this.ignoresWorldCollision;
     }
 
     @Override
@@ -419,18 +579,9 @@ public abstract class BaseProjectile extends ThrowableProjectile implements Proj
         return true;
     }
 
-    private HitDecision sanitizeHitDecision(HitDecision decision) {
-        if (decision == HitDecision.BOUNCE || decision == HitDecision.IGNORE) {
-            // TODO: 实现完整的反弹以及忽略策略
-            LOGGER.warn("Hit decision {} is disabled in BaseProjectile first stage, fallback to STOP for entity {}", decision, this.getId());
-            return HitDecision.STOP;
-        }
-        return decision;
-    }
-
     private Vec3 advancePastHit(Vec3 hitLocation, Vec3 remainingDelta) {
         double lengthSqr = remainingDelta.lengthSqr();
-        if (lengthSqr < 1.0E-12D) {
+        if (lengthSqr <= COLLISION_ADVANCE_EPSILON * COLLISION_ADVANCE_EPSILON) {
             return null;
         }
         Vec3 direction = remainingDelta.scale(1.0D / Math.sqrt(lengthSqr));
@@ -441,11 +592,119 @@ public abstract class BaseProjectile extends ThrowableProjectile implements Proj
         if (!this.canPierceEntity(entity)) {
             return false;
         }
-        int maxPierceCount = this.getMaxPierceCount();
+        int maxPierceCount = this.getMaxEntityPierceCount();
         if (maxPierceCount < 0) {
             return true;
         }
         return this.piercedEntityCount < maxPierceCount;
+    }
+
+    @Nullable
+    private Vec3 tryBounceFromBlock(BlockHitResult hitResult, Vec3 incomingVelocity, Vec3 remainingDelta) {
+        Vec3 normal = Vec3.atLowerCornerOf(hitResult.getDirection().getNormal());
+        return this.tryBounce(normal, incomingVelocity, remainingDelta, this.getBounceRestitution(hitResult));
+    }
+
+    @Nullable
+    private Vec3 tryBounce(Vec3 normal, Vec3 incomingVelocity, Vec3 remainingDelta, double restitution) {
+        if (!this.canBounce() || normal.lengthSqr() < 1.0E-12D) {
+            return null;
+        }
+        normal = normal.normalize();
+        if (incomingVelocity.dot(normal) >= 0.0D) {
+            return null;
+        }
+        if (!Double.isFinite(restitution)) {
+            return null;
+        }
+        restitution = Math.max(0.0D, restitution);
+        Vec3 reflectedVelocity = this.reflect(incomingVelocity, normal).scale(restitution);
+        this.setVelocity(reflectedVelocity.x, reflectedVelocity.y, reflectedVelocity.z, !this.level().isClientSide);
+        return this.reflect(remainingDelta, normal).scale(restitution);
+    }
+
+    private Vec3 getEntityBounceNormal(Entity target, Vec3 start, Vec3 end, Vec3 hitLocation) {
+        AABB bounds = target.getBoundingBox().inflate(ENTITY_COLLISION_INFLATION);
+        Vec3 delta = end.subtract(start);
+        AxisEntry xEntry = this.findAxisEntry(start.x, delta.x, bounds.minX, bounds.maxX, new Vec3(-1.0D, 0.0D, 0.0D), new Vec3(1.0D, 0.0D, 0.0D));
+        AxisEntry yEntry = this.findAxisEntry(start.y, delta.y, bounds.minY, bounds.maxY, new Vec3(0.0D, -1.0D, 0.0D), new Vec3(0.0D, 1.0D, 0.0D));
+        AxisEntry zEntry = this.findAxisEntry(start.z, delta.z, bounds.minZ, bounds.maxZ, new Vec3(0.0D, 0.0D, -1.0D), new Vec3(0.0D, 0.0D, 1.0D));
+        AxisEntry entry = this.latestEntry(xEntry, yEntry, zEntry);
+        if (entry != null && entry.time() >= 0.0D && entry.time() <= 1.0D) {
+            return entry.normal();
+        }
+        return this.nearestAabbFaceNormal(bounds, hitLocation);
+    }
+
+    @Nullable
+    private AxisEntry findAxisEntry(double origin, double delta, double min, double max, Vec3 minNormal, Vec3 maxNormal) {
+        if (Math.abs(delta) < 1.0E-12D) {
+            return null;
+        }
+        double minTime = (min - origin) / delta;
+        double maxTime = (max - origin) / delta;
+        return minTime <= maxTime ? new AxisEntry(minTime, minNormal) : new AxisEntry(maxTime, maxNormal);
+    }
+
+    @Nullable
+    private AxisEntry latestEntry(@Nullable AxisEntry... entries) {
+        if (entries == null) {
+            return null;
+        }
+        AxisEntry latest = null;
+        for (AxisEntry entry : entries) {
+            if (entry != null && (latest == null || entry.time() > latest.time())) {
+                latest = entry;
+            }
+        }
+        return latest;
+    }
+
+    private Vec3 nearestAabbFaceNormal(AABB bounds, Vec3 location) {
+        double xMinDistance = Math.abs(location.x - bounds.minX);
+        double xMaxDistance = Math.abs(bounds.maxX - location.x);
+        double yMinDistance = Math.abs(location.y - bounds.minY);
+        double yMaxDistance = Math.abs(bounds.maxY - location.y);
+        double zMinDistance = Math.abs(location.z - bounds.minZ);
+        double zMaxDistance = Math.abs(bounds.maxZ - location.z);
+        double nearest = xMinDistance;
+        Vec3 normal = new Vec3(-1.0D, 0.0D, 0.0D);
+        if (xMaxDistance < nearest) {
+            nearest = xMaxDistance;
+            normal = new Vec3(1.0D, 0.0D, 0.0D);
+        }
+        if (yMinDistance < nearest) {
+            nearest = yMinDistance;
+            normal = new Vec3(0.0D, -1.0D, 0.0D);
+        }
+        if (yMaxDistance < nearest) {
+            nearest = yMaxDistance;
+            normal = new Vec3(0.0D, 1.0D, 0.0D);
+        }
+        if (zMinDistance < nearest) {
+            nearest = zMinDistance;
+            normal = new Vec3(0.0D, 0.0D, -1.0D);
+        }
+        if (zMaxDistance < nearest) {
+            normal = new Vec3(0.0D, 0.0D, 1.0D);
+        }
+        return normal;
+    }
+
+    private boolean canBounce() {
+        int maxBounceCount = this.getMaxBounceCount();
+        return maxBounceCount > 0 && this.bounceCount < maxBounceCount;
+    }
+
+    private Vec3 reflect(Vec3 vector, Vec3 normal) {
+        return vector.subtract(normal.scale(2.0D * vector.dot(normal)));
+    }
+
+    private void stopAfterFailedBounce() {
+        this.setVelocity(0.0D, 0.0D, 0.0D, !this.level().isClientSide);
+    }
+
+    private record AxisEntry(double time, Vec3 normal) {
     }
 
     protected void applyKineticsStep() {
@@ -566,11 +825,18 @@ public abstract class BaseProjectile extends ThrowableProjectile implements Proj
     @Override
     protected void defineSynchedData() {
         this.entityData.define(PROJECTILE_RUNTIME_MODIFIER, new ArrayList<>());
+        this.entityData.define(MAX_ENTITY_PIERCE_COUNT, 0);
+        this.entityData.define(MAX_BOUNCE_COUNT, 0);
     }
 
     @Override
     public void onSyncedDataUpdated(EntityDataAccessor<?> key) {
         super.onSyncedDataUpdated(key);
+        if (MAX_ENTITY_PIERCE_COUNT.equals(key)) {
+            this.maxEntityPierceCount = this.entityData.get(MAX_ENTITY_PIERCE_COUNT);
+        } else if (MAX_BOUNCE_COUNT.equals(key)) {
+            this.maxBounceCount = this.entityData.get(MAX_BOUNCE_COUNT);
+        }
         if (this.level().isClientSide && PROJECTILE_RUNTIME_MODIFIER.equals(key)) {
             List<ParaOpId> paraOpIds = this.entityData.get(PROJECTILE_RUNTIME_MODIFIER);
             if (paraOpIds.isEmpty()) {
@@ -609,8 +875,11 @@ public abstract class BaseProjectile extends ThrowableProjectile implements Proj
         tag.putFloat("age", this.age);
         tag.putBoolean("hasBeenShot", this.hasBeenShot);
         tag.putBoolean("leftOwnerLike", this.leftOwnerLike);
-        tag.putBoolean("noPhysicsLike", this.noPhysicsLike);
+        tag.putBoolean("ignoresWorldCollision", this.ignoresWorldCollision);
+        tag.putInt("maxEntityPierceCount", this.maxEntityPierceCount);
+        tag.putInt("maxBounceCount", this.maxBounceCount);
         tag.putInt("piercedEntityCount", this.piercedEntityCount);
+        tag.putInt("bounceCount", this.bounceCount);
 
         NBTCodec codec = new NBTCodec(tag);
 //        ParaOpId[] paraOpIds = this.recordedOperators.stream()
@@ -636,8 +905,11 @@ public abstract class BaseProjectile extends ThrowableProjectile implements Proj
         this.age = tag.getFloat("age");
         this.hasBeenShot = tag.getBoolean("hasBeenShot");
         this.leftOwnerLike = tag.getBoolean("leftOwnerLike");
-        this.noPhysicsLike = tag.getBoolean("noPhysicsLike");
+        this.ignoresWorldCollision = tag.getBoolean("ignoresWorldCollision");
+        this.setMaxEntityPierceCount(tag.getInt("maxEntityPierceCount"));
+        this.setMaxBounceCount(tag.getInt("maxBounceCount"));
         this.piercedEntityCount = tag.getInt("piercedEntityCount");
+        this.bounceCount = tag.getInt("bounceCount");
 
         NBTCodec codec = new NBTCodec(tag);
         try {

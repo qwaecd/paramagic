@@ -28,6 +28,29 @@ public interface ProjectileEntity {
     }
 
     /**
+     * Returns the total number of entities this projectile may pass through.
+     * Zero disables piercing; a negative value allows unlimited piercing.
+     */
+    int getMaxEntityPierceCount();
+
+    /**
+     * Sets the total entity-pierce allowance. Zero disables piercing; a
+     * negative value allows unlimited piercing.
+     */
+    void setMaxEntityPierceCount(int value);
+
+    /**
+     * Returns the total number of bounces this projectile may perform.
+     */
+    int getMaxBounceCount();
+
+    /**
+     * Sets the total bounce allowance. Values less than zero are treated as
+     * zero and disable bouncing.
+     */
+    void setMaxBounceCount(int value);
+
+    /**
      * 将投射物射出到世界中
      */
     void shoot();

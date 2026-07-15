@@ -65,7 +65,7 @@ public class GravityCollapseEntity extends BaseProjectile implements ProjectileE
     }
 
     @Override
-    protected boolean isNoPhysics() {
+    protected boolean ignoresWorldCollision() {
         return true;
     }
 

@@ -42,6 +42,8 @@ public abstract class ArrowLikeProjectileEntity extends AbstractArrow implements
     protected final List<ParaOperator> recordedOperators = new ArrayList<>();
 
     protected float inaccuracy = 0.0f;
+    private int maxEntityPierceCount = 0;
+    private int maxBounceCount = 0;
 
     protected ArrowLikeProjectileEntity(EntityType<? extends AbstractArrow> entityType, Level level) {
         this(entityType, level, 1.0f);
@@ -164,6 +166,28 @@ public abstract class ArrowLikeProjectileEntity extends AbstractArrow implements
     }
 
     @Override
+    public int getMaxEntityPierceCount() {
+        return this.maxEntityPierceCount;
+    }
+
+    @Override
+    public void setMaxEntityPierceCount(int count) {
+        this.maxEntityPierceCount = count;
+        int vanillaPierceLevel = count < 0 ? Byte.MAX_VALUE : Math.min(count, Byte.MAX_VALUE);
+        this.setPierceLevel((byte) vanillaPierceLevel);
+    }
+
+    @Override
+    public int getMaxBounceCount() {
+        return this.maxBounceCount;
+    }
+
+    @Override
+    public void setMaxBounceCount(int count) {
+        this.maxBounceCount = Math.max(0, count);
+    }
+
+    @Override
     public void setDragCoefficient(double coefficient) {
         this.kineticsState.setDragCoefficient(coefficient);
     }
@@ -206,6 +230,8 @@ public abstract class ArrowLikeProjectileEntity extends AbstractArrow implements
     public void addAdditionalSaveData(CompoundTag compound) {
         super.addAdditionalSaveData(compound);
         CompoundTag tag = new CompoundTag();
+        tag.putInt("maxEntityPierceCount", this.maxEntityPierceCount);
+        tag.putInt("maxBounceCount", this.maxBounceCount);
         NBTCodec codec = new NBTCodec(tag);
         ParaOpId[] paraOpIds = this.recordedOperators.stream()
                 .filter(Objects::nonNull)
@@ -223,6 +249,8 @@ public abstract class ArrowLikeProjectileEntity extends AbstractArrow implements
         if (tag.isEmpty()) {
             return;
         }
+        this.setMaxEntityPierceCount(tag.getInt("maxEntityPierceCount"));
+        this.setMaxBounceCount(tag.getInt("maxBounceCount"));
         NBTCodec codec = new NBTCodec(tag);
         try {
             IDataSerializable[] array = codec.readObjectArray("recordedOperators", ParaOpId::fromCodec);
