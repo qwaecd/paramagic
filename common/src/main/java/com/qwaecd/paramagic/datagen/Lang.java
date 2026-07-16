@@ -50,6 +50,8 @@ public class Lang {
         of("item.paramagic.tracking_operator", "Tracking", "追踪");
         of("item.paramagic.weightless_operator", "Weightless", "失重");
         of("item.paramagic.gravity_collapse_operator", "Gravitational Collapse", "引力坍缩");
+        of("item.paramagic.pierce_operator", "Pierce", "穿刺");
+        of("item.paramagic.bounce_operator", "Bounce", "弹跳");
         sound();
         operatorTooltip();
         gui();
@@ -99,6 +101,8 @@ public class Lang {
         of("tooltip.paramagic.tracking_operator.describe", "Bends projectiles to track distant targets", "扭转投射物以追向较远目标");
         of("tooltip.paramagic.weightless_operator.describe", "Significantly reduces the gravity applied to projectiles", "显著降低投射物受到的重力");
         of("tooltip.paramagic.gravity_collapse_operator.describe1", "When you distort the world's magic field to its limit...", "当你将世界的魔力场扭曲至极限时...");
+        of("tooltip.paramagic.pierce_operator.describe", "Increases the max entity pierce count by 1", "使投射物最大穿刺次数 +1");
+        of("tooltip.paramagic.bounce_operator.describe", "Increases the max bounce count by 1", "使投射物最大弹跳次数 +1");
     }
 
     private static void paraType() {

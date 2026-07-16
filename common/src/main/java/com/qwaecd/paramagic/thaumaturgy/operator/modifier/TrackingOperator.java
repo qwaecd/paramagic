@@ -20,7 +20,7 @@ import org.joml.Vector3d;
 public class TrackingOperator extends ModifierOperator {
     public static final ParaOpId OP_ID = ParaOpId.of(
             ModRL.inModSpace("tracking_operator"),
-            new ParaOpId.Properties(OperatorType.MODIFIER, 0.025f, 0.06f, 90)
+            new ParaOpId.Properties(OperatorType.MODIFIER, 0.12f, 1.6f, 150)
     );
 
     private static final float TRACKING_RANGE = 12.0f;

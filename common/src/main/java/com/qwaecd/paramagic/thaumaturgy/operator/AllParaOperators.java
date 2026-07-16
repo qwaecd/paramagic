@@ -39,6 +39,8 @@ public final class AllParaOperators {
         registerOperator(TrackingOperator.OP_ID, TrackingOperator::new);
         registerOperator(WeightlessOperator.OP_ID, WeightlessOperator::new);
         registerOperator(GravityCollapseOperator.OP_ID, GravityCollapseOperator::new);
+        registerOperator(PierceOperator.OP_ID, PierceOperator::new);
+        registerOperator(BounceOperator.OP_ID, BounceOperator::new);
     }
 
     @Nullable
