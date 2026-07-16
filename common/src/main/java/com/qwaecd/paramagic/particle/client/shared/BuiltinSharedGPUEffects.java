@@ -32,6 +32,7 @@ public final class BuiltinSharedGPUEffects {
         );
         SharedGPUEffectRegistry.registerTemplate(
                 SharedGPUEffectTemplate.builder(LASER_BEAM)
+                        .maxParticleCount(Integer.MAX_VALUE)
                         .maxLifeTime(0.0f)
                         .build()
         );

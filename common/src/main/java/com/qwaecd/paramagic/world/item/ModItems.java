@@ -7,12 +7,16 @@ import com.qwaecd.paramagic.world.item.operator.*;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 public final class ModItems {
     public static final Map<String, Entry<? extends Item>> ITEMS = new LinkedHashMap<>();
+    private static final List<Entry<? extends Item>> OPERATORS = new ArrayList<>();
 
     public static ItemProvider PROVIDER;
     public static Entry<DebugWand> DEBUG_WAND;
@@ -41,6 +45,10 @@ public final class ModItems {
         operators(provider);
     }
 
+    public static void forEachOperator(Consumer<Entry<? extends Item>> consumer) {
+        OPERATORS.forEach(consumer);
+    }
+
     private static void worldItems(ItemProvider provider, ItemFactories factories) {
         DEBUG_WAND = create(provider, "debug_wand", DebugWand::new);
         EXPLOSION_WAND = create(provider, "explosion_wand", factories.explosionWand());
@@ -48,20 +56,20 @@ public final class ModItems {
     }
 
     private static void operators(ItemProvider provider) {
-        VOID_OPERATOR = create(provider, "void_operator", VoidOperatorItem::new);
-        ACCELERATE_OPERATOR = create(provider, "accelerate_operator", AccelerateOperatorItem::new);
-        GRADUAL_ACCELERATION_OPERATOR = create(provider, "gradual_acceleration_operator", GradualAccelerationOperatorItem::new);
-        SHORTEN_LIFETIME_OPERATOR = create(provider, "shorten_lifetime_operator", ShortenLifetimeOperatorItem::new);
-        EXTEND_LIFETIME_OPERATOR = create(provider, "extend_lifetime_operator", ExtendLifetimeOperatorItem::new);
-        LASER_OPERATOR = create(provider, "laser_operator", LaserOperatorItem::new);
-        MAGIC_ARROW_OPERATOR = create(provider, "magic_arrow_operator", MagicArrowOperatorItem::new);
-        TRACKING_OPERATOR = create(provider, "tracking_operator", TrackingOperatorItem::new);
-        SHORT_TRACKING_OPERATOR = create(provider, "short_tracking_operator", ShortTrackingOperatorItem::new);
-        HEAVY_OPERATOR = create(provider, "heavy_operator", HeavyOperatorItem::new);
-        WEIGHTLESS_OPERATOR = create(provider, "weightless_operator", WeightlessOperatorItem::new);
-        GRAVITY_COLLAPSE_OPERATOR = create(provider, "gravity_collapse_operator", GravityCollapseOperatorItem::new);
-        PIERCE_OPERATOR = create(provider, "pierce_operator", PierceOperatorItem::new);
-        BOUNCE_OPERATOR = create(provider, "bounce_operator", BounceOperatorItem::new);
+        VOID_OPERATOR = createOperator(provider, "void_operator", VoidOperatorItem::new);
+        ACCELERATE_OPERATOR = createOperator(provider, "accelerate_operator", AccelerateOperatorItem::new);
+        GRADUAL_ACCELERATION_OPERATOR = createOperator(provider, "gradual_acceleration_operator", GradualAccelerationOperatorItem::new);
+        SHORTEN_LIFETIME_OPERATOR = createOperator(provider, "shorten_lifetime_operator", ShortenLifetimeOperatorItem::new);
+        EXTEND_LIFETIME_OPERATOR = createOperator(provider, "extend_lifetime_operator", ExtendLifetimeOperatorItem::new);
+        LASER_OPERATOR = createOperator(provider, "laser_operator", LaserOperatorItem::new);
+        MAGIC_ARROW_OPERATOR = createOperator(provider, "magic_arrow_operator", MagicArrowOperatorItem::new);
+        TRACKING_OPERATOR = createOperator(provider, "tracking_operator", TrackingOperatorItem::new);
+        SHORT_TRACKING_OPERATOR = createOperator(provider, "short_tracking_operator", ShortTrackingOperatorItem::new);
+        HEAVY_OPERATOR = createOperator(provider, "heavy_operator", HeavyOperatorItem::new);
+        WEIGHTLESS_OPERATOR = createOperator(provider, "weightless_operator", WeightlessOperatorItem::new);
+        GRAVITY_COLLAPSE_OPERATOR = createOperator(provider, "gravity_collapse_operator", GravityCollapseOperatorItem::new);
+        PIERCE_OPERATOR = createOperator(provider, "pierce_operator", PierceOperatorItem::new);
+        BOUNCE_OPERATOR = createOperator(provider, "bounce_operator", BounceOperatorItem::new);
     }
 
     public interface Entry<T extends Item> extends Supplier<T> {
@@ -82,6 +90,12 @@ public final class ModItems {
     public static <T extends Item> Entry<T> create(ItemProvider provider, String name, Supplier<? extends T> factory) {
         Entry<T> entry = provider.register(name, factory);
         ITEMS.put(name, entry);
+        return entry;
+    }
+
+    public static <T extends Item> Entry<T> createOperator(ItemProvider provider, String name, Supplier<? extends T> factory) {
+        Entry<T> entry = create(provider, name, factory);
+        OPERATORS.add(entry);
         return entry;
     }
 }

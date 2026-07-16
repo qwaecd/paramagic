@@ -2,6 +2,7 @@ package com.qwaecd.paramagic.world.entity.projectile;
 
 import com.qwaecd.paramagic.core.particle.emitter.Emitter;
 import com.qwaecd.paramagic.core.particle.emitter.impl.PointEmitter;
+import com.qwaecd.paramagic.core.particle.emitter.property.type.VelocityModeStates;
 import com.qwaecd.paramagic.particle.client.shared.BuiltinSharedGPUEffects;
 import com.qwaecd.paramagic.particle.client.shared.SharedGPUEffectRef;
 import com.qwaecd.paramagic.particle.client.shared.SharedGPUEffectRegistry;
@@ -21,6 +22,8 @@ import org.joml.Vector3f;
 
 import javax.annotation.Nullable;
 
+import java.util.List;
+
 import static com.qwaecd.paramagic.core.particle.emitter.property.key.AllEmitterProperties.*;
 
 public class LaserProjectile extends BaseProjectile implements ProjectileEntity, LifetimeCarrier {
@@ -28,7 +31,7 @@ public class LaserProjectile extends BaseProjectile implements ProjectileEntity,
     private float lifeTime = 5.0f;
 
     private float HIT_DAMAGE = 5.0f;
-    private Emitter sharedBeamEmitter;
+    private List<Emitter> sharedBeamEmitters;
 
     public LaserProjectile(EntityType<? extends LaserProjectile> entityType, Level level) {
         super(entityType, level, 8.0f);
@@ -75,25 +78,37 @@ public class LaserProjectile extends BaseProjectile implements ProjectileEntity,
         if (velocity.lengthSqr() <= 1.0e-8) {
             return;
         }
-        Emitter emitter = this.getOrCreateSharedBeamEmitter();
-        emitter.moveTo(position);
-        emitter.modifyProp(BASE_VELOCITY, v -> v.set(0.5f));
-        LASER_EFFECT.submitFromEmitter(emitter, deltaTime);
+        List<Emitter> emitters = this.getOrCreateSharedBeamEmitter();
+        for (Emitter emi : emitters) {
+            emi.moveTo(position);
+            LASER_EFFECT.submitFromEmitter(emi, deltaTime);
+        }
     }
 
-    private Emitter getOrCreateSharedBeamEmitter() {
-        if (this.sharedBeamEmitter != null) {
-            return this.sharedBeamEmitter;
+    private List<Emitter> getOrCreateSharedBeamEmitter() {
+        if (this.sharedBeamEmitters != null) {
+            return this.sharedBeamEmitters;
         }
 
-        Emitter emitter = new PointEmitter(new Vector3f(), 160.0f);
-        emitter.modifyProp(COLOR, v -> v.set(0.9f, 0.35f, 1.95f, 1.0f));
-        emitter.modifyProp(LIFE_TIME_RANGE, v -> v.set(0.5f, 0.9f));
-        emitter.modifyProp(SIZE_RANGE, v -> v.set(0.0014f, 0.0028f));
-        emitter.getProperty(BLOOM_INTENSITY).set(1.8f);
-        emitter.getProperty(VELOCITY_SPREAD).set(180.0f);
-        this.sharedBeamEmitter = emitter;
-        return emitter;
+        Emitter emitter1 = new PointEmitter(new Vector3f(), 160.0f);
+        emitter1.modifyProp(BASE_VELOCITY, v -> v.set(0.5f));
+        emitter1.modifyProp(COLOR, v -> v.set(0.9f, 0.35f, 1.95f, 1.0f));
+        emitter1.modifyProp(LIFE_TIME_RANGE, v -> v.set(0.5f, 0.9f));
+        emitter1.modifyProp(SIZE_RANGE, v -> v.set(0.0014f, 0.0028f));
+        emitter1.trySet(BLOOM_INTENSITY, 1.8f);
+        emitter1.trySet(VELOCITY_SPREAD, 180.0f);
+        emitter1.trySet(VELOCITY_MODE, VelocityModeStates.CONE);
+
+        Emitter emitter2 = new PointEmitter(new Vector3f(), 200.0f);
+        emitter2.modifyProp(BASE_VELOCITY, v -> v.set(0.01f));
+        emitter2.modifyProp(COLOR, v -> v.set(1.95f, 0.35f, 0.95f, 1.0f));
+        emitter2.modifyProp(LIFE_TIME_RANGE, v -> v.set(0.5f, 2.9f));
+        emitter2.modifyProp(SIZE_RANGE, v -> v.set(0.0024f, 0.0048f));
+        emitter2.trySet(BLOOM_INTENSITY, 1.5f);
+        emitter2.trySet(VELOCITY_SPREAD, 15.0f);
+        emitter2.trySet(VELOCITY_MODE, VelocityModeStates.RANDOM);
+        this.sharedBeamEmitters = List.of(emitter1, emitter2);
+        return sharedBeamEmitters;
     }
 
     @Override
