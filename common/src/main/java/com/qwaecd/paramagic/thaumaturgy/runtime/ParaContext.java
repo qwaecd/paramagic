@@ -34,7 +34,6 @@ public final class ParaContext {
     }
 
     public void execute() {
-        this.appliedModifiers.clear();
         this.prepareProjectiles();
         this.iterate(OperatorType.MODIFIER);
         this.iterate(OperatorType.ALPHA);
@@ -47,6 +46,10 @@ public final class ParaContext {
                 }
             }
             projectile.shoot();
+        }
+
+        if (!this.projectiles.isEmpty()) {
+            this.appliedModifiers.clear();
         }
     }
 
