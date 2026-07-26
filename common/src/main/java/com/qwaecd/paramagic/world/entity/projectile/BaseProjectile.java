@@ -8,6 +8,7 @@ import com.qwaecd.paramagic.network.serializer.AllEntityDataSerializers;
 import com.qwaecd.paramagic.platform.annotation.PlatformScope;
 import com.qwaecd.paramagic.platform.annotation.PlatformScopeType;
 import com.qwaecd.paramagic.thaumaturgy.ProjectileEntity;
+import com.qwaecd.paramagic.thaumaturgy.DamagingProjectileEntity;
 import com.qwaecd.paramagic.thaumaturgy.operator.AllParaOperators;
 import com.qwaecd.paramagic.thaumaturgy.operator.ParaOpId;
 import com.qwaecd.paramagic.thaumaturgy.operator.ParaOperator;
@@ -20,9 +21,12 @@ import com.qwaecd.paramagic.thaumaturgy.projectile.kinetics.engine.PhysicsState;
 import com.qwaecd.paramagic.thaumaturgy.projectile.kinetics.runtime.ProjectileRuntimeModifier;
 import com.qwaecd.paramagic.thaumaturgy.projectile.kinetics.runtime.ProjectileRuntimeModifierContext;
 import com.qwaecd.paramagic.thaumaturgy.projectile.kinetics.runtime.ProjectileRuntimeModifierHost;
+import com.qwaecd.paramagic.thaumaturgy.projectile.damage.ProjectileDamage;
+import com.qwaecd.paramagic.thaumaturgy.projectile.damage.ProjectileDamageResolver;
 import com.qwaecd.paramagic.world.sound.SoundHelper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.Tag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
@@ -254,6 +258,7 @@ public abstract class BaseProjectile extends ThrowableProjectile implements Proj
                 this.setPos(hitLocation);
                 this.onHit(entityHitResult);
                 this.onCollisionResolved(entityHitResult, resolution);
+                this.applyProjectileDamage(entityHitResult.getEntity());
                 if (this.isRemoved()) {
                     return new CollisionResolveResult(hitLocation);
                 }
@@ -538,7 +543,19 @@ public abstract class BaseProjectile extends ThrowableProjectile implements Proj
             return false;
         }
         Entity owner = this.getOwner();
+        if (owner == target
+                && this instanceof DamagingProjectileEntity damagingProjectile
+                && !damagingProjectile.getProjectileDamage().canHitOwner()) {
+            return false;
+        }
         return owner == null || this.leftOwnerLike || !owner.isPassengerOfSameVehicle(target);
+    }
+
+    private void applyProjectileDamage(Entity target) {
+        if (this.level().isClientSide || !(this instanceof DamagingProjectileEntity damagingProjectile)) {
+            return;
+        }
+        ProjectileDamageResolver.damage(this, target, damagingProjectile.getProjectileDamage());
     }
 
     private boolean checkLeftOwnerLike() {
@@ -901,6 +918,9 @@ public abstract class BaseProjectile extends ThrowableProjectile implements Proj
                 .toList();
         writeRecordedOperators(codec, list);
         codec.writeObject("kineticsState", this.kineticsState);
+        if (this instanceof DamagingProjectileEntity damagingProjectile) {
+            tag.put("projectileDamage", damagingProjectile.getProjectileDamage().save());
+        }
         compound.put(Paramagic.MOD_ID, tag);
     }
 
@@ -919,6 +939,13 @@ public abstract class BaseProjectile extends ThrowableProjectile implements Proj
         this.setMaxBounceCount(tag.getInt("maxBounceCount"));
         this.piercedEntityCount = tag.getInt("piercedEntityCount");
         this.bounceCount = tag.getInt("bounceCount");
+        if (this instanceof DamagingProjectileEntity damagingProjectile && tag.contains("projectileDamage", Tag.TAG_COMPOUND)) {
+            try {
+                damagingProjectile.setProjectileDamage(ProjectileDamage.load(tag.getCompound("projectileDamage")));
+            } catch (RuntimeException e) {
+                LOGGER.warn("Failed to read damage data for projectile {}", this.getId(), e);
+            }
+        }
 
         NBTCodec codec = new NBTCodec(tag);
         try {

@@ -1,8 +1,10 @@
 package com.qwaecd.paramagic.thaumaturgy.operator.modifier;
 
+import com.qwaecd.paramagic.thaumaturgy.DamagingProjectileEntity;
 import com.qwaecd.paramagic.thaumaturgy.ProjectileEntity;
 import com.qwaecd.paramagic.thaumaturgy.operator.OperatorType;
 import com.qwaecd.paramagic.thaumaturgy.operator.ParaOpId;
+import com.qwaecd.paramagic.thaumaturgy.projectile.damage.ModDamageTypes;
 import com.qwaecd.paramagic.thaumaturgy.runtime.ParaContext;
 import com.qwaecd.paramagic.tools.ModRL;
 import com.qwaecd.paramagic.world.item.ModItems;
@@ -32,5 +34,13 @@ public class PierceOperator extends ModifierOperator {
 
     private void tryApplyPierce(ProjectileEntity projectile) {
         projectile.setMaxEntityPierceCount(projectile.getMaxEntityPierceCount() + PIERCE_BONUS);
+        if (projectile instanceof DamagingProjectileEntity damagingProjectile) {
+            final float amount = damagingProjectile.getProjectileDamage().amount() * 0.9f;
+            damagingProjectile.setDamage(
+                    ModDamageTypes.ARCANE_PROJECTILE_BYPASSES_COOLDOWN,
+                    amount,
+                    true
+            );
+        }
     }
 }

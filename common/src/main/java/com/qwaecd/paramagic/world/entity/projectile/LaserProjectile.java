@@ -7,30 +7,31 @@ import com.qwaecd.paramagic.particle.client.shared.BuiltinSharedGPUEffects;
 import com.qwaecd.paramagic.particle.client.shared.SharedGPUEffectRef;
 import com.qwaecd.paramagic.particle.client.shared.SharedGPUEffectRegistry;
 import com.qwaecd.paramagic.thaumaturgy.ProjectileEntity;
+import com.qwaecd.paramagic.thaumaturgy.DamagingProjectileEntity;
 import com.qwaecd.paramagic.thaumaturgy.projectile.property.LifetimeCarrier;
+import com.qwaecd.paramagic.thaumaturgy.projectile.damage.ModDamageTypes;
+import com.qwaecd.paramagic.thaumaturgy.projectile.damage.ProjectileDamage;
 import com.qwaecd.paramagic.world.entity.ModEntityTypes;
 import com.qwaecd.paramagic.world.sound.ModSounds;
 import net.minecraft.sounds.SoundEvent;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.phys.EntityHitResult;
-import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Vector3d;
 import org.joml.Vector3f;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import java.util.List;
 
 import static com.qwaecd.paramagic.core.particle.emitter.property.key.AllEmitterProperties.*;
 
-public class LaserProjectile extends BaseProjectile implements ProjectileEntity, LifetimeCarrier {
+public class LaserProjectile extends BaseProjectile implements ProjectileEntity, DamagingProjectileEntity, LifetimeCarrier {
     private static final SharedGPUEffectRef LASER_EFFECT = SharedGPUEffectRegistry.ref(BuiltinSharedGPUEffects.LASER_BEAM);
     private float lifeTime = 5.0f;
 
-    private float HIT_DAMAGE = 5.0f;
+    private ProjectileDamage projectileDamage = new ProjectileDamage(ModDamageTypes.ARCANE_PROJECTILE, 0.0f, false);
     private List<Emitter> sharedBeamEmitters;
 
     public LaserProjectile(EntityType<? extends LaserProjectile> entityType, Level level) {
@@ -52,17 +53,6 @@ public class LaserProjectile extends BaseProjectile implements ProjectileEntity,
         }
         if (this.age > this.lifeTime) {
             this.onLifeEnd();
-        }
-    }
-
-    @Override
-    protected void onCollisionResolved(HitResult hitResult, CollisionResolution resolution) {
-        if (this.level().isClientSide) {
-            return;
-        }
-        if (hitResult instanceof EntityHitResult entityHitResult) {
-            Entity target = entityHitResult.getEntity();
-            target.hurt(this.damageSources().magic(), HIT_DAMAGE);
         }
     }
 
@@ -134,5 +124,16 @@ public class LaserProjectile extends BaseProjectile implements ProjectileEntity,
     @Override
     public void setLifetime(float lifetime) {
         this.lifeTime = lifetime;
+    }
+
+    @Override
+    @Nonnull
+    public ProjectileDamage getProjectileDamage() {
+        return this.projectileDamage;
+    }
+
+    @Override
+    public void setProjectileDamage(@Nonnull ProjectileDamage damage) {
+        this.projectileDamage = damage;
     }
 }

@@ -52,6 +52,8 @@ public class Lang {
         of("item.paramagic.gravity_collapse_operator", "Gravitational Collapse", "引力坍缩");
         of("item.paramagic.pierce_operator", "Pierce", "穿刺");
         of("item.paramagic.bounce_operator", "Bounce", "弹跳");
+        of("death.attack.arcane_projectile", "%1$s was pierced by arcane energy", "%1$s 被奥术能量贯穿");
+        of("death.attack.arcane_projectile.player", "%1$s was pierced by arcane energy from %2$s", "%1$s 被 %2$s 的奥术能量贯穿");
         sound();
         operatorTooltip();
         gui();
