@@ -1,6 +1,11 @@
 package com.qwaecd.paramagic.thaumaturgy.operator;
 
 import com.qwaecd.paramagic.thaumaturgy.operator.flow.VoidOperator;
+import com.qwaecd.paramagic.thaumaturgy.operator.flow.BranchOperator;
+import com.qwaecd.paramagic.thaumaturgy.operator.flow.CycleOperator;
+import com.qwaecd.paramagic.thaumaturgy.operator.alpha.DoubleCastOperator;
+import com.qwaecd.paramagic.thaumaturgy.operator.alpha.QuadrupleCastOperator;
+import com.qwaecd.paramagic.thaumaturgy.operator.alpha.TripleCastOperator;
 import com.qwaecd.paramagic.thaumaturgy.operator.modifier.*;
 import com.qwaecd.paramagic.thaumaturgy.operator.projectile.GravityCollapseOperator;
 import com.qwaecd.paramagic.thaumaturgy.operator.projectile.LaserOperator;
@@ -28,6 +33,11 @@ public final class AllParaOperators {
 
     public static void registerAll() {
         registerOperator(VoidOperator.OP_ID, VoidOperator::new);
+        registerOperator(BranchOperator.OP_ID, BranchOperator::new);
+        registerOperator(CycleOperator.OP_ID, CycleOperator::new);
+        registerOperator(DoubleCastOperator.OP_ID, DoubleCastOperator::new);
+        registerOperator(TripleCastOperator.OP_ID, TripleCastOperator::new);
+        registerOperator(QuadrupleCastOperator.OP_ID, QuadrupleCastOperator::new);
         registerOperator(AccelerateOperator.OP_ID, AccelerateOperator::new);
         registerOperator(GradualAccelerationOperator.OP_ID, GradualAccelerationOperator::new);
         registerOperator(ShortenLifetimeOperator.OP_ID, ShortenLifetimeOperator::new);

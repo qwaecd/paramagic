@@ -23,6 +23,11 @@ public final class ModItems {
     public static Entry<ExplosionWand> EXPLOSION_WAND;
 
     public static Entry<VoidOperatorItem> VOID_OPERATOR;
+    public static Entry<BranchOperatorItem> BRANCH_OPERATOR;
+    public static Entry<CycleOperatorItem> CYCLE_OPERATOR;
+    public static Entry<DoubleCastOperatorItem> DOUBLE_CAST_OPERATOR;
+    public static Entry<TripleCastOperatorItem> TRIPLE_CAST_OPERATOR;
+    public static Entry<QuadrupleCastOperatorItem> QUADRUPLE_CAST_OPERATOR;
     public static Entry<AccelerateOperatorItem> ACCELERATE_OPERATOR;
     public static Entry<ExtendLifetimeOperatorItem> EXTEND_LIFETIME_OPERATOR;
     public static Entry<GradualAccelerationOperatorItem> GRADUAL_ACCELERATION_OPERATOR;
@@ -57,6 +62,11 @@ public final class ModItems {
 
     private static void operators(ItemProvider provider) {
         VOID_OPERATOR = createOperator(provider, "void_operator", VoidOperatorItem::new);
+        BRANCH_OPERATOR = createOperator(provider, "branch_operator", BranchOperatorItem::new);
+        CYCLE_OPERATOR = createOperator(provider, "cycle_operator", CycleOperatorItem::new);
+        DOUBLE_CAST_OPERATOR = createOperator(provider, "double_cast_operator", DoubleCastOperatorItem::new);
+        TRIPLE_CAST_OPERATOR = createOperator(provider, "triple_cast_operator", TripleCastOperatorItem::new);
+        QUADRUPLE_CAST_OPERATOR = createOperator(provider, "quadruple_cast_operator", QuadrupleCastOperatorItem::new);
         ACCELERATE_OPERATOR = createOperator(provider, "accelerate_operator", AccelerateOperatorItem::new);
         GRADUAL_ACCELERATION_OPERATOR = createOperator(provider, "gradual_acceleration_operator", GradualAccelerationOperatorItem::new);
         SHORTEN_LIFETIME_OPERATOR = createOperator(provider, "shorten_lifetime_operator", ShortenLifetimeOperatorItem::new);

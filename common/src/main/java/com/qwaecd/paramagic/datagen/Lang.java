@@ -38,6 +38,11 @@ public class Lang {
         of("item.paramagic.explosion_wand", "EXPLOSION WAND", "慧慧的法杖");
         of("block.paramagic.spell_edit_table", "Spell Edit Table", "法术编辑台");
         of("item.paramagic.void_operator", "Void Operator", "空参量");
+        of("item.paramagic.branch_operator", "Branch", "分支");
+        of("item.paramagic.cycle_operator", "Cycle", "回转");
+        of("item.paramagic.double_cast_operator", "Double Cast", "二重施法");
+        of("item.paramagic.triple_cast_operator", "Triple Cast", "三重施法");
+        of("item.paramagic.quadruple_cast_operator", "Quadruple Cast", "四重施法");
         of("item.paramagic.accelerate_operator", "Accelerate", "加速");
         of("item.paramagic.extend_lifetime_operator", "Extend Lifetime", "延长存在时间");
         of("item.paramagic.gradual_acceleration_operator", "Gradual Acceleration", "逐渐加速");
@@ -93,6 +98,11 @@ public class Lang {
 
         of("tooltip.paramagic.magic_arrow_operator.describe", "Ordinary arrow", "普通的箭矢");
         of("tooltip.paramagic.void_operator.describe", "Does nothing", "什么也不做");
+        of("tooltip.paramagic.branch_operator.describe", "Replays prepared spells in a separate branch", "在独立分支中重演已准备的法术");
+        of("tooltip.paramagic.cycle_operator.describe", "Restarts a completed branch after its delays", "使已完成的支脉络在双延迟后重启");
+        of("tooltip.paramagic.double_cast_operator.describe", "Adds one projectile cast this tick", "本 tick 额外获得一次投射物施放额度");
+        of("tooltip.paramagic.triple_cast_operator.describe", "Adds two projectile casts this tick", "本 tick 额外获得两次投射物施放额度");
+        of("tooltip.paramagic.quadruple_cast_operator.describe", "Adds three projectile casts this tick", "本 tick 额外获得三次投射物施放额度");
         of("tooltip.paramagic.accelerate_operator.describe", "Accelerates the launch of projectiles", "使投射物加速射出");
         of("tooltip.paramagic.extend_lifetime_operator.describe", "Extends projectile lifetime", "延长投射物存在时间");
         of("tooltip.paramagic.gradual_acceleration_operator.describe", "Continuously accelerates projectiles to a higher speed", "让投射物持续向更高速度加速");
