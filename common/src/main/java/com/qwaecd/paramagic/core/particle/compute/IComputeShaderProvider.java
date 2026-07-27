@@ -92,6 +92,11 @@ public interface IComputeShaderProvider {
     ComputeShader particleBuildDrawCommandsShader();
 
     /**
+     * Returns the compute shader that scatters particle IDs into contiguous bucket ranges after prefix sums.
+     */
+    ComputeShader particleScatterShader();
+
+    /**
      * Returns the compute shader that writes small GPU particle debug stats into an async readback buffer.
      * <p>Chinese: 返回用于将 GPU 粒子调试统计写入异步回读缓冲的小型 compute shader。</p>
      * <p>

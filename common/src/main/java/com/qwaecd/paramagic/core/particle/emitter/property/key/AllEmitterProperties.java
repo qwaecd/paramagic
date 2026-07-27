@@ -1,6 +1,8 @@
 package com.qwaecd.paramagic.core.particle.emitter.property.key;
 
 import com.qwaecd.paramagic.core.particle.emitter.property.type.*;
+import com.qwaecd.paramagic.core.particle.material.ParticleMaterialRegistry;
+import net.minecraft.resources.ResourceLocation;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
@@ -26,6 +28,11 @@ public final class AllEmitterProperties {
     public static final PropertyKey<Vector2f> SIZE_RANGE = register("size_range", Vector2f.class);
     public static final PropertyKey<Float> SPHERE_RADIUS = register("sphere_radius", Float.class);
     public static final PropertyKey<Float> BLOOM_INTENSITY = register("bloom_intensity", Float.class);
+    /**
+     * Registered GPU particle material. Slot 0 ({@link ParticleMaterialRegistry#ADDITIVE_UNTEXTURED})
+     * keeps the original additive path; every registered texture material is rendered as a cutout quad.
+     */
+    public static final PropertyKey<ResourceLocation> PARTICLE_MATERIAL = register("particle_material", ResourceLocation.class);
 
     public static final PropertyKey<Boolean> EMIT_FROM_VOLUME = register("emit_from_volume", Boolean.class);
     /**

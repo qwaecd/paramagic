@@ -4,6 +4,7 @@ import com.qwaecd.paramagic.Paramagic;
 import com.qwaecd.paramagic.assembler.AssemblyException;
 import com.qwaecd.paramagic.assembler.ParaComposer;
 import com.qwaecd.paramagic.client.material.EnergyFlowMaterial;
+import com.qwaecd.paramagic.client.particle.ParamagicParticleMaterials;
 import com.qwaecd.paramagic.client.obj.laser.EnergyCoreSphere;
 import com.qwaecd.paramagic.client.obj.sun.Sun;
 import com.qwaecd.paramagic.client.renderbase.SharedMeshes;
@@ -15,6 +16,7 @@ import com.qwaecd.paramagic.core.particle.emitter.ParticleBurst;
 import com.qwaecd.paramagic.core.particle.emitter.impl.CircleEmitter;
 import com.qwaecd.paramagic.core.particle.emitter.impl.LineEmitter;
 import com.qwaecd.paramagic.core.particle.emitter.impl.PointEmitter;
+import com.qwaecd.paramagic.core.particle.emitter.property.type.ParticleFacingModeStates;
 import com.qwaecd.paramagic.core.particle.emitter.property.type.ParticlePrimitiveTypeStates;
 import com.qwaecd.paramagic.core.particle.emitter.property.type.VelocityModeStates;
 import com.qwaecd.paramagic.core.render.ModRenderSystem;
@@ -44,6 +46,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
+import org.joml.Vector4f;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -70,7 +73,7 @@ public class DebugTools {
 //        testGpuMagicCircleEffect();
 //        paraTest();
 //        effectTest();
-        spawnDebugPointBurst();
+        spawnDebugTexturedParticleBurst();
     }
 
     private static void spawnDebugLaserSphere() {
@@ -256,6 +259,62 @@ public class DebugTools {
         if (ParticleSystem.getInstance().spawnEffect(effect)) {
             testEffects.add(effect);
         }
+    }
+
+    /** Emits both built-in cutout textures so their independent material buckets can be inspected together. */
+    private static void spawnDebugTexturedParticleBurst() {
+        LocalPlayer player = Minecraft.getInstance().player;
+        Vector3f playerPosition = player == null ? new Vector3f() : player.position().toVector3f();
+
+        PointEmitter particle0 = createDebugTexturedEmitter(
+                ParamagicParticleMaterials.PARTICLE_0,
+                new Vector4f(1.0f, 1.0f, 0.3f, 1.0f),
+                new Vector3f(-0.35f, 3.5f, 0.0f)
+        );
+        PointEmitter particle1 = createDebugTexturedEmitter(
+                ParamagicParticleMaterials.PARTICLE_1,
+                new Vector4f(0.25f, 0.65f, 1.0f, 1.0f),
+                new Vector3f(0.35f, 3.5f, 0.0f)
+        );
+//        particle0.addBurst(new ParticleBurst(0.0f, 2_000));
+//        particle1.addBurst(new ParticleBurst(0.0f, 2_000));
+
+        PhysicsParamBuilder physics = new PhysicsParamBuilder();
+        physics.primaryForceEnabled(false)
+                .secondaryForceEnabled(false)
+                .sinusoidalForceEnabled(false)
+                .linearForceEnabled(false)
+                .dragCoefficient(0.0f);
+
+        GPUParticleEffect effect = new GPUParticleEffect(
+                List.of(particle0, particle1),
+                400000,
+                12.0f,
+                physics.build()
+        );
+        effect.getTransform().setPosition(playerPosition);
+        if (ParticleSystem.getInstance().spawnEffect(effect)) {
+            testEffects.add(effect);
+        }
+    }
+
+    private static PointEmitter createDebugTexturedEmitter(
+            net.minecraft.resources.ResourceLocation material,
+            Vector4f color,
+            Vector3f velocity
+    ) {
+        PointEmitter emitter = new PointEmitter(new Vector3f(), 200.0f);
+        emitter.modifyProp(BASE_VELOCITY, v -> v.set(velocity));
+        emitter.modifyProp(LIFE_TIME_RANGE, v -> v.set(1.5f, 5.0f));
+        emitter.modifyProp(COLOR, v -> v.set(color.x, color.y, color.z, color.w));
+        emitter.modifyProp(SIZE_RANGE, v -> v.set(0.25f, 0.75f));
+        emitter.trySet(VELOCITY_SPREAD, 180.0f);
+        emitter.trySet(VELOCITY_MODE, VelocityModeStates.RANDOM);
+        emitter.trySet(BLOOM_INTENSITY, 0.45f);
+        emitter.trySet(PARTICLE_PRIMITIVE_TYPE, ParticlePrimitiveTypeStates.QUAD);
+        emitter.trySet(PARTICLE_FACING_MODE, ParticleFacingModeStates.CAMERA_FACING);
+        emitter.trySet(PARTICLE_MATERIAL, material);
+        return emitter;
     }
 
     public static void clearTestEffects() {

@@ -1,5 +1,7 @@
 #version 430 core
 #define BINDING_BUCKET_COUNTERS 7
+#define BINDING_BUCKET_CURSORS 8
+#define BINDING_BUCKET_OFFSETS 9
 #define BINDING_BUCKET_DRAW_COMMANDS 11
 
 layout(local_size_x = 1, local_size_y = 1, local_size_z = 1) in;
@@ -12,26 +14,30 @@ struct DrawArraysIndirectCommand {
 };
 
 layout(std430, binding = BINDING_BUCKET_COUNTERS) buffer BucketCounters {
-    uint pointCount;
-    uint triangleCount;
-    uint quadCount;
-    uint _padding;
+    uint bucketCounts[];
 };
-
+layout(std430, binding = BINDING_BUCKET_CURSORS) buffer BucketCursors {
+    uint bucketCursors[];
+};
+layout(std430, binding = BINDING_BUCKET_OFFSETS) buffer BucketOffsets {
+    uint bucketOffsets[];
+};
 layout(std430, binding = BINDING_BUCKET_DRAW_COMMANDS) buffer DrawCommands {
-    DrawArraysIndirectCommand commands[3];
+    DrawArraysIndirectCommand commands[];
 };
 
-void writeCommand(uint idx, uint countValue) {
-    commands[idx].count = countValue;
-    commands[idx].instanceCount = 1u;
-    commands[idx].first = 0u;
-    commands[idx].baseInstance = 0u;
-}
+uniform int u_bucketCount;
 
 void main() {
-    writeCommand(0u, pointCount);
-    writeCommand(1u, triangleCount);
-    writeCommand(2u, quadCount);
+    uint offset = 0u;
+    for (int i = 0; i < u_bucketCount; ++i) {
+        uint count = bucketCounts[i];
+        bucketOffsets[i] = offset;
+        bucketCursors[i] = offset;
+        commands[i].count = count;
+        commands[i].instanceCount = 1u;
+        commands[i].first = offset;
+        commands[i].baseInstance = 0u;
+        offset += count;
+    }
 }
-

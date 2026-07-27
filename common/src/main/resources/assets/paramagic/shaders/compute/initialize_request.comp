@@ -22,7 +22,7 @@ struct EmissionRequest {
     int count;
     int emitterType;
     int effectId;
-    int _padding;
+    int materialSlot;
 
     vec4 param1;
     vec4 param2;
@@ -33,7 +33,7 @@ struct EmissionRequest {
 };
 
 struct Particle {
-    vec4 meta;        // x: effectId, y: primitiveType(bits in float), z: facingMode(bits in float), w: unused
+    vec4 meta;        // x: effectId, y: primitiveType(bits in float), z: facingMode(bits in float), w: materialSlot(bits in float)
     vec4 position;    // x, y, z, mass(unused)
     vec4 velocity;    // vx, vy, vz, normal.x (when facingMode=normal)
     vec4 attributes;  // x: age, y: lifetime, z: normal.y, w: normal.z
@@ -246,7 +246,7 @@ void pointEmitter(uint particleIndex, EmissionRequest req, uint unique_ID) {
     vec3 initial_velocity = random_dir_local * length(req.param2.xyz);
 
 
-    particles[particleIndex].meta = vec4(float(req.effectId), req.param6.z, req.param6.w, 0.0);
+    particles[particleIndex].meta = vec4(float(req.effectId), req.param6.z, req.param6.w, uintBitsToFloat(uint(req.materialSlot)));
     particles[particleIndex].position = req.param1;
     particles[particleIndex].velocity = vec4(initial_velocity, 0.0);
     particles[particleIndex].attributes = vec4(0.0, randomFloatInRange(req.param4.x, req.param4.y, 1.2 + float(unique_ID)), 0.0, 0.0);
@@ -279,7 +279,7 @@ void lineEmitter(uint particleIndex, EmissionRequest req, uint unique_ID) {
 
     vec3 localPositionOnLine = req.param1.xyz + (req.param2.xyz - req.param1.xyz) * random(2.0 + float(unique_ID));
 
-    particles[particleIndex].meta = vec4(float(req.effectId), req.param6.z, req.param6.w, 0.0);
+    particles[particleIndex].meta = vec4(float(req.effectId), req.param6.z, req.param6.w, uintBitsToFloat(uint(req.materialSlot)));
     particles[particleIndex].position = vec4(localPositionOnLine, req.param1.w);
     particles[particleIndex].velocity = vec4(initial_velocity, 0.0);
     particles[particleIndex].attributes = vec4(0.0, randomFloatInRange(req.param4.x, req.param4.y, 2.1 + float(unique_ID)), 0.0, 0.0);
@@ -351,7 +351,7 @@ void sphereEmitter(uint particleIndex, EmissionRequest req, uint unique_ID) {
     float finalOffset = mix(surfaceOffset, volumeOffset, isVolume);
     vec3 particlePosition = req.param1.xyz + random_dir_local * finalOffset;
 
-    particles[particleIndex].meta = vec4(float(req.effectId), req.param6.z, req.param6.w, 0.0);
+    particles[particleIndex].meta = vec4(float(req.effectId), req.param6.z, req.param6.w, uintBitsToFloat(uint(req.materialSlot)));
     particles[particleIndex].position = vec4(particlePosition, req.param1.w);
     particles[particleIndex].velocity = vec4(initial_velocity * isNonZero, 0.0);
     particles[particleIndex].attributes = vec4(0.0, randomFloatInRange(req.param4.x, req.param4.y, 3.4 + float(unique_ID)), 0.0, 0.0);
@@ -439,7 +439,7 @@ void cubeEmitter(uint particleIndex, EmissionRequest req, uint unique_ID) {
             break;
         }
     }
-    particles[particleIndex].meta = vec4(float(req.effectId), req.param6.z, req.param6.w, 0.0);
+    particles[particleIndex].meta = vec4(float(req.effectId), req.param6.z, req.param6.w, uintBitsToFloat(uint(req.materialSlot)));
     particles[particleIndex].position = vec4(particlePosition, req.param1.w);
     particles[particleIndex].velocity = vec4(initial_velocity, 0.0);
     particles[particleIndex].attributes = vec4(0.0, randomFloatInRange(req.param4.x, req.param4.y, 4.4 + float(unique_ID)), 0.0, 0.0);
@@ -489,7 +489,7 @@ void circleEmitter(uint particleIndex, EmissionRequest req, uint unique_ID) {
             break;
         }
     }
-    particles[particleIndex].meta = vec4(float(req.effectId), req.param6.z, req.param6.w, 0.0);
+    particles[particleIndex].meta = vec4(float(req.effectId), req.param6.z, req.param6.w, uintBitsToFloat(uint(req.materialSlot)));
     particles[particleIndex].position = vec4(particlePosition, req.param1.w);
     particles[particleIndex].velocity = vec4(initial_velocity, 0.0);
     particles[particleIndex].attributes = vec4(0.0, randomFloatInRange(req.param4.x, req.param4.y, 5.4 + float(unique_ID)), 0.0, 0.0);

@@ -6,7 +6,7 @@ import org.joml.Vector4f;
  * <pre>
  * struct Particle {
  *   // (16 bytes)
- *   vec4 meta;     // x: effectId, y: primitiveType(bits in float), z: facingMode(bits in float), w: unused
+ *   vec4 meta;     // x: effectId, y: primitiveType(bits in float), z: facingMode(bits in float), w: materialSlot(bits in float)
  *   // 物理属性 (16 bytes)
  *   vec4 position;    // x, y, z, mass
  *   // 物理属性 (16 bytes)

@@ -14,7 +14,7 @@ import java.nio.ByteBuffer;
  *     int count;          // 本次请求发射的粒子数量
  *     int emitterType;    // 发射器类型ID (e.g., 0=POINT, 1=BURST_SPHERE)
  *     int effectId;       // (高级功能) 所属Effect的唯一ID，用于实现Effect级别的粒子上限
- *     int _padding;       // 填充，确保vec4对齐
+ *     int materialSlot;   // 0=纯色加色；1..N=预注册的 cutout quad 材质
  *
  *     // --- 通用参数 (其含义由emitterType解释) ---
  *     // 注意：空间语义统一为 effect-local（局部空间）
@@ -35,7 +35,8 @@ public final class EmissionRequest {
     private final int emitterType;
     @Setter
     private int effectId;
-    private int _padding;
+    @Setter
+    private int materialSlot;
 
     private Vector4f param1;
     private Vector4f param2;
@@ -58,7 +59,7 @@ public final class EmissionRequest {
         this.count = count;
         this.emitterType = emitterType;
         this.effectId = effectId;
-        this._padding = 0;
+        this.materialSlot = 0;
 
         this.param1 = param1;
         this.param2 = param2;
@@ -71,7 +72,7 @@ public final class EmissionRequest {
         buffer.putInt(count);
         buffer.putInt(emitterType);
         buffer.putInt(effectId);
-        buffer.putInt(_padding);
+        buffer.putInt(materialSlot);
 
         write(param1, buffer);
         write(param2, buffer);
