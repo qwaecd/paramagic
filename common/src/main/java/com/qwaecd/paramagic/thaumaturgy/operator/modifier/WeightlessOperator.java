@@ -1,24 +1,17 @@
 package com.qwaecd.paramagic.thaumaturgy.operator.modifier;
 
 import com.qwaecd.paramagic.thaumaturgy.ProjectileEntity;
-import com.qwaecd.paramagic.thaumaturgy.operator.OperatorType;
+import com.qwaecd.paramagic.thaumaturgy.operator.OperatorRegistration;
 import com.qwaecd.paramagic.thaumaturgy.operator.ParaOpId;
 import com.qwaecd.paramagic.thaumaturgy.projectile.kinetics.PhysicsProvider;
 import com.qwaecd.paramagic.thaumaturgy.runtime.ParaContext;
-import com.qwaecd.paramagic.tools.ModRL;
-import com.qwaecd.paramagic.world.item.ModItems;
 
 public class WeightlessOperator extends ModifierOperator {
-    public static final ParaOpId OP_ID = ParaOpId.of(
-            ModRL.inModSpace("weightless_operator"),
-            new ParaOpId.Properties(OperatorType.MODIFIER, 0.05f, 0.6f, 60)
-    );
-
     private static final float GRAVITY_SCALE = 0.15f;
     private static final float LINEAR_DAMPING = 0.0f;
 
-    public WeightlessOperator() {
-        super(OP_ID, ModItems.WEIGHTLESS_OPERATOR);
+    public WeightlessOperator(ParaOpId id) {
+        super(id, OperatorRegistration.itemOf("weightless_operator"));
     }
 
     @Override

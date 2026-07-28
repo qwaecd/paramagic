@@ -1,22 +1,16 @@
 package com.qwaecd.paramagic.thaumaturgy.operator.projectile;
 
 import com.qwaecd.paramagic.spell.caster.SpellCaster;
-import com.qwaecd.paramagic.thaumaturgy.operator.OperatorType;
+import com.qwaecd.paramagic.thaumaturgy.operator.OperatorRegistration;
 import com.qwaecd.paramagic.thaumaturgy.operator.ParaOpId;
 import com.qwaecd.paramagic.thaumaturgy.runtime.ParaContext;
-import com.qwaecd.paramagic.tools.ModRL;
 import com.qwaecd.paramagic.world.entity.projectile.MagicArrowProjectile;
-import com.qwaecd.paramagic.world.item.ModItems;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
 
 public class MagicArrowOperator extends ProjectileOperator {
-    public static final ParaOpId OP_ID = ParaOpId.of(
-            ModRL.inModSpace("magic_arrow_operator"),
-            new ParaOpId.Properties(OperatorType.PROJECTILE, 0.05f, 0.4f, 30)
-    );
-    public MagicArrowOperator() {
-        super(OP_ID, ModItems.MAGIC_ARROW_OPERATOR);
+    public MagicArrowOperator(ParaOpId id) {
+        super(id, OperatorRegistration.itemOf("magic_arrow_operator"));
     }
 
     @Override

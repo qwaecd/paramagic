@@ -1,7 +1,7 @@
 package com.qwaecd.paramagic.thaumaturgy.operator.modifier;
 
 import com.qwaecd.paramagic.thaumaturgy.ProjectileEntity;
-import com.qwaecd.paramagic.thaumaturgy.operator.OperatorType;
+import com.qwaecd.paramagic.thaumaturgy.operator.OperatorRegistration;
 import com.qwaecd.paramagic.thaumaturgy.operator.ParaOpId;
 import com.qwaecd.paramagic.thaumaturgy.projectile.kinetics.PhysicsProvider;
 import com.qwaecd.paramagic.thaumaturgy.projectile.kinetics.engine.KineticsAccumulator;
@@ -10,22 +10,15 @@ import com.qwaecd.paramagic.thaumaturgy.projectile.kinetics.runtime.ProjectileRu
 import com.qwaecd.paramagic.thaumaturgy.projectile.kinetics.runtime.ProjectileRuntimeModifierContext;
 import com.qwaecd.paramagic.thaumaturgy.projectile.kinetics.runtime.ProjectileRuntimeModifierHost;
 import com.qwaecd.paramagic.thaumaturgy.runtime.ParaContext;
-import com.qwaecd.paramagic.tools.ModRL;
-import com.qwaecd.paramagic.world.item.ModItems;
 import org.joml.Vector3d;
 
 public class GradualAccelerationOperator extends ModifierOperator {
-    public static final ParaOpId OP_ID = ParaOpId.of(
-            ModRL.inModSpace("gradual_acceleration_operator"),
-            new ParaOpId.Properties(OperatorType.MODIFIER, 0.08f, 0.8f, 90)
-    );
-
     private static final float FORWARD_ACCELERATION = 8.0E-3f;
     private static final float MIN_TARGET_SPEED = 1.2f;
     private static final float TARGET_SPEED_MULTIPLIER = 1.5f;
 
-    public GradualAccelerationOperator() {
-        super(OP_ID, ModItems.GRADUAL_ACCELERATION_OPERATOR);
+    public GradualAccelerationOperator(ParaOpId id) {
+        super(id, OperatorRegistration.itemOf("gradual_acceleration_operator"));
     }
 
     @Override

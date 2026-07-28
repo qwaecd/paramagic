@@ -18,6 +18,9 @@ public class ParamagicFabric implements ModInitializer {
     public void onInitialize() {
         Paramagic.LOG.info("Hello Fabric world!");
         ManaAccess.initialize(new FabricManaAccess());
+        // 必须早于 Paramagic.init() 内的 Lang.init() 与后续 ModItemsFabric.registerAll()，
+        // 以保证 OperatorRegistration 的 REGISTRY 已被填充，从而驱动 lang/item/operator 三处注册。
+        AllParaOperators.registerAll();
         Paramagic.init();
 
         ModItemsFabric.registerAll();
@@ -31,7 +34,6 @@ public class ParamagicFabric implements ModInitializer {
 
         Networking.init(new FabricNetworking());
         FabricManaSyncEvents.register();
-        AllParaOperators.registerAll();
         ParamagicLifecycle.init(new LifecycleProviderFabric());
     }
 }

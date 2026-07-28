@@ -1,9 +1,9 @@
 package com.qwaecd.paramagic.world.item;
 
+import com.qwaecd.paramagic.thaumaturgy.operator.OperatorRegistration;
 import com.qwaecd.paramagic.world.item.content.ParaCrystalItem;
 import com.qwaecd.paramagic.world.item.debug.DebugWand;
 import com.qwaecd.paramagic.world.item.feat.ExplosionWand;
-import com.qwaecd.paramagic.world.item.operator.*;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 
@@ -21,27 +21,6 @@ public final class ModItems {
     public static ItemProvider PROVIDER;
     public static Entry<DebugWand> DEBUG_WAND;
     public static Entry<ExplosionWand> EXPLOSION_WAND;
-
-    public static Entry<VoidOperatorItem> VOID_OPERATOR;
-    public static Entry<BranchOperatorItem> BRANCH_OPERATOR;
-    public static Entry<CycleOperatorItem> CYCLE_OPERATOR;
-    public static Entry<DoubleCastOperatorItem> DOUBLE_CAST_OPERATOR;
-    public static Entry<TripleCastOperatorItem> TRIPLE_CAST_OPERATOR;
-    public static Entry<QuadrupleCastOperatorItem> QUADRUPLE_CAST_OPERATOR;
-    public static Entry<AccelerateOperatorItem> ACCELERATE_OPERATOR;
-    public static Entry<ExtendLifetimeOperatorItem> EXTEND_LIFETIME_OPERATOR;
-    public static Entry<GradualAccelerationOperatorItem> GRADUAL_ACCELERATION_OPERATOR;
-    public static Entry<HeavyOperatorItem> HEAVY_OPERATOR;
-    public static Entry<LaserOperatorItem> LASER_OPERATOR;
-    public static Entry<MagicArrowOperatorItem> MAGIC_ARROW_OPERATOR;
-    public static Entry<ShortenLifetimeOperatorItem> SHORTEN_LIFETIME_OPERATOR;
-    public static Entry<ShortTrackingOperatorItem> SHORT_TRACKING_OPERATOR;
-    public static Entry<TrackingOperatorItem> TRACKING_OPERATOR;
-    public static Entry<WeightlessOperatorItem> WEIGHTLESS_OPERATOR;
-    public static Entry<GravityCollapseOperatorItem> GRAVITY_COLLAPSE_OPERATOR;
-    public static Entry<PierceOperatorItem> PIERCE_OPERATOR;
-    public static Entry<BounceOperatorItem> BOUNCE_OPERATOR;
-
     public static Entry<ParaCrystalItem> PARA_CRYSTAL;
 
     public static void init(ItemProvider provider, ItemFactories factories) {
@@ -60,26 +39,15 @@ public final class ModItems {
         PARA_CRYSTAL = create(provider, "para_crystal", ParaCrystalItem::new);
     }
 
+    /**
+     * 所有法术 item 由 {@link OperatorRegistration} 的 REGISTRY 驱动统一注册：不再在 ModItems 内逐项列举。
+     * 注册成功后回填 item 绑定，供 operator 构造时通过 {@link OperatorRegistration#itemOf(String)} 取到。
+     */
     private static void operators(ItemProvider provider) {
-        VOID_OPERATOR = createOperator(provider, "void_operator", VoidOperatorItem::new);
-        BRANCH_OPERATOR = createOperator(provider, "branch_operator", BranchOperatorItem::new);
-        CYCLE_OPERATOR = createOperator(provider, "cycle_operator", CycleOperatorItem::new);
-        DOUBLE_CAST_OPERATOR = createOperator(provider, "double_cast_operator", DoubleCastOperatorItem::new);
-        TRIPLE_CAST_OPERATOR = createOperator(provider, "triple_cast_operator", TripleCastOperatorItem::new);
-        QUADRUPLE_CAST_OPERATOR = createOperator(provider, "quadruple_cast_operator", QuadrupleCastOperatorItem::new);
-        ACCELERATE_OPERATOR = createOperator(provider, "accelerate_operator", AccelerateOperatorItem::new);
-        GRADUAL_ACCELERATION_OPERATOR = createOperator(provider, "gradual_acceleration_operator", GradualAccelerationOperatorItem::new);
-        SHORTEN_LIFETIME_OPERATOR = createOperator(provider, "shorten_lifetime_operator", ShortenLifetimeOperatorItem::new);
-        EXTEND_LIFETIME_OPERATOR = createOperator(provider, "extend_lifetime_operator", ExtendLifetimeOperatorItem::new);
-        LASER_OPERATOR = createOperator(provider, "laser_operator", LaserOperatorItem::new);
-        MAGIC_ARROW_OPERATOR = createOperator(provider, "magic_arrow_operator", MagicArrowOperatorItem::new);
-        TRACKING_OPERATOR = createOperator(provider, "tracking_operator", TrackingOperatorItem::new);
-        SHORT_TRACKING_OPERATOR = createOperator(provider, "short_tracking_operator", ShortTrackingOperatorItem::new);
-        HEAVY_OPERATOR = createOperator(provider, "heavy_operator", HeavyOperatorItem::new);
-        WEIGHTLESS_OPERATOR = createOperator(provider, "weightless_operator", WeightlessOperatorItem::new);
-        GRAVITY_COLLAPSE_OPERATOR = createOperator(provider, "gravity_collapse_operator", GravityCollapseOperatorItem::new);
-        PIERCE_OPERATOR = createOperator(provider, "pierce_operator", PierceOperatorItem::new);
-        BOUNCE_OPERATOR = createOperator(provider, "bounce_operator", BounceOperatorItem::new);
+        OperatorRegistration.forEachDescriptor(d -> {
+            Entry<? extends Item> entry = createOperator(provider, d.name, d.itemFactory);
+            OperatorRegistration.bindItem(d.name, entry);
+        });
     }
 
     public interface Entry<T extends Item> extends Supplier<T> {
