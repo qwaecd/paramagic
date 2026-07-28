@@ -13,11 +13,11 @@ public final class ShaderBindingPoints {
     public static final int EMISSION_TASKS = 5;
     public static final int EFFECT_PHYSICS_PARAMS = 6;
 
-    // 按图元类型分桶（点 / 三角形 / 矩形）
+    // 紧凑的粒子渲染桶：3 个纯色桶 + 每个纹理材质 1 个 quad 桶
     public static final int BUCKET_COUNTERS = 7;
-    public static final int BUCKET_POINT_INDICES = 8;
-    public static final int BUCKET_TRIANGLE_INDICES = 9;
-    public static final int BUCKET_QUAD_INDICES = 10;
+    public static final int BUCKET_CURSORS = 8;
+    public static final int BUCKET_OFFSETS = 9;
+    public static final int BUCKET_PARTICLE_INDICES = 10;
     public static final int BUCKET_DRAW_COMMANDS = 11;
     public static final int PARTICLE_DEBUG_STATS = 12;
 }

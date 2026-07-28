@@ -3,7 +3,6 @@ package com.qwaecd.paramagic.thaumaturgy.runtime;
 import com.qwaecd.paramagic.spell.caster.SpellCaster;
 import com.qwaecd.paramagic.spell.server.ServerSpellContext;
 import com.qwaecd.paramagic.thaumaturgy.ProjectileEntity;
-import com.qwaecd.paramagic.thaumaturgy.operator.OperatorType;
 import com.qwaecd.paramagic.thaumaturgy.operator.ParaOperator;
 import com.qwaecd.paramagic.thaumaturgy.operator.modifier.ModifierOperator;
 import lombok.Getter;
@@ -23,8 +22,8 @@ public final class ParaContext {
     @Getter
     @Nonnull
     public final SpellCaster caster;
-    private final Map<OperatorType, List<ParaOperator>> operators = new EnumMap<>(OperatorType.class);
-    private final List<ParaOperator> appliedModifiers = new ArrayList<>();
+//    private final Map<OperatorType, List<ParaOperator>> operators = new EnumMap<>(OperatorType.class);
+//    private final List<ParaOperator> appliedModifiers = new ArrayList<>();
     private final List<ProjectileEntity> projectiles = new ArrayList<>();
 
     public ParaContext(@Nonnull ServerSpellContext context) {
@@ -33,8 +32,7 @@ public final class ParaContext {
         this.caster = context.getCaster();
     }
 
-    public void execute() {
-        this.appliedModifiers.clear();
+    /*public void execute() {
         this.prepareProjectiles();
         this.iterate(OperatorType.MODIFIER);
         this.iterate(OperatorType.ALPHA);
@@ -48,9 +46,13 @@ public final class ParaContext {
             }
             projectile.shoot();
         }
-    }
 
-    private void iterate(OperatorType type) {
+        if (!this.projectiles.isEmpty()) {
+            this.appliedModifiers.clear();
+        }
+    }*/
+
+    /*private void iterate(OperatorType type) {
         List<ParaOperator> list = this.operators.get(type);
         if (list == null) {
             return;
@@ -72,9 +74,9 @@ public final class ParaContext {
                 iterator.remove();
             }
         }
-    }
+    }*/
 
-    private void prepareProjectiles() {
+    /*private void prepareProjectiles() {
         this.projectiles.clear();
         var list = this.operators.get(OperatorType.PROJECTILE);
         if (list == null) {
@@ -92,16 +94,68 @@ public final class ParaContext {
         }
 
         this.operators.remove(OperatorType.PROJECTILE);
-    }
+    }*/
 
     public void addProjectile(ProjectileEntity projectile) {
         this.projectiles.add(projectile);
     }
 
-    public void addOperator(@Nonnull ParaOperator operator) {
+    /**
+     * 将一个投射物操作符创建的实体追加到某条执行脉络私有的待发射列表。
+     * 本方法不施加修正，也不发射实体。
+     */
+    public boolean appendProjectileBatch(
+            @Nonnull ParaOperator projectileOperator,
+            @Nonnull List<ProjectileEntity> destination
+    ) {
+        this.projectiles.clear();
+        if (!projectileOperator.apply(this) || this.projectiles.isEmpty()) {
+            this.projectiles.clear();
+            return false;
+        }
+
+        destination.addAll(this.projectiles);
+        this.projectiles.clear();
+        return true;
+    }
+
+    /**
+     * 结算一条执行脉络在本 tick 内积累的全部投射物。
+     *
+     * <p>调用时暂时把脉络私有列表装入 {@link #projectiles}，以复用既有修正操作符的
+     * {@link #forEachProjectiles(ProjectileModifier)} 实现；结算后立即清空该临时列表。</p>
+     */
+    public void releaseProjectileBatch(
+            @Nonnull List<ProjectileEntity> batch,
+            @Nonnull List<ParaOperator> modifiers
+    ) {
+        if (batch.isEmpty()) {
+            return;
+        }
+
+        this.projectiles.clear();
+        this.projectiles.addAll(batch);
+
+        List<ModifierOperator> applied = new ArrayList<>();
+        for (ParaOperator operator : modifiers) {
+            if (operator instanceof ModifierOperator modifier && operator.apply(this)) {
+                applied.add(modifier);
+            }
+        }
+
+        for (ProjectileEntity projectile : this.projectiles) {
+            for (ModifierOperator modifier : applied) {
+                projectile.recordOperator(modifier);
+            }
+            projectile.shoot();
+        }
+        this.projectiles.clear();
+    }
+
+    /*public void addOperator(@Nonnull ParaOperator operator) {
         OperatorType type = operator.getType();
         this.operators.computeIfAbsent(type, t -> new ArrayList<>()).add(operator);
-    }
+    }*/
 
     public void forEachProjectiles(ProjectileModifier action) {
         for (int i = 0; i < this.projectiles.size(); i++) {

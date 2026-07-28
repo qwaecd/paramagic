@@ -10,11 +10,14 @@ import com.qwaecd.paramagic.core.particle.effect.EffectFlags;
 import com.qwaecd.paramagic.core.particle.effect.EffectManager;
 import com.qwaecd.paramagic.core.particle.effect.GPUParticleEffect;
 import com.qwaecd.paramagic.core.particle.memory.ParticleMemoryManager;
+import com.qwaecd.paramagic.core.particle.material.ParticleMaterialRegistry;
 import com.qwaecd.paramagic.core.particle.request.ParticleEmissionProcessor;
+import com.qwaecd.paramagic.core.render.ModRenderSystem;
 import com.qwaecd.paramagic.core.render.Transform;
 import com.qwaecd.paramagic.core.render.context.RenderContext;
 import com.qwaecd.paramagic.core.render.shader.Shader;
 import com.qwaecd.paramagic.core.render.shader.ShaderManager;
+import com.qwaecd.paramagic.core.render.texture.TextureManager;
 import com.qwaecd.paramagic.platform.annotation.PlatformScope;
 import com.qwaecd.paramagic.platform.annotation.PlatformScopeType;
 import net.minecraft.client.Minecraft;
@@ -68,6 +71,9 @@ public class ParticleSystem implements AutoCloseable {
     private static final int BUCKET_TYPE_TRIANGLE = 1;
     private static final int BUCKET_TYPE_QUAD = 2;
     private static final int INDIRECT_COMMAND_STRIDE_BYTES = 4 * Integer.BYTES; // DrawArraysIndirectCommand
+    private static final int ADDITIVE_BUCKET_COUNT = 3;
+    private boolean renderDataPrepared;
+    private boolean hasPreparedParticleData;
 
     // debug data
     private static final int DEBUG_STATS_SIZE_BYTES = 4 * Integer.BYTES;
@@ -83,7 +89,8 @@ public class ParticleSystem implements AutoCloseable {
 
     private ParticleSystem(boolean gpuParticlePipelineAvailable) {
         this.gpuParticlePipelineAvailable = gpuParticlePipelineAvailable;
-        this.memoryManager = new ParticleMemoryManager(MAX_PARTICLES, MAX_EFFECT_COUNT);
+        this.memoryManager = new ParticleMemoryManager(MAX_PARTICLES, MAX_EFFECT_COUNT,
+                ParticleMaterialRegistry.MAX_TEXTURED_MATERIALS);
         this.effectManager = new EffectManager(MAX_EFFECT_COUNT, this.memoryManager);
 
         this.computeShaderProvider = new CShaderProvider(this.gpuParticlePipelineAvailable);
@@ -109,6 +116,8 @@ public class ParticleSystem implements AutoCloseable {
         this.effectManager.reset();
         this.emissionRequests.clear();
         this.killedEffects.clear();
+        this.renderDataPrepared = false;
+        this.hasPreparedParticleData = false;
     }
 
     public static boolean isInitialized() {
@@ -121,6 +130,8 @@ public class ParticleSystem implements AutoCloseable {
             return;
         }
         INSTANCE = new ParticleSystem(gpuParticlePipelineAvailable);
+        ParticleMaterialRegistry.freeze();
+        ParticleMaterialRegistry.preload(ModRenderSystem.getInstance().getTextureManager());
         if (gpuParticlePipelineAvailable) {
             INSTANCE.memoryManager.init();
         } else {
@@ -132,59 +143,69 @@ public class ParticleSystem implements AutoCloseable {
         return this.effectManager.getCurrentEffectCount();
     }
 
-    public void renderParticles(RenderContext context) {
-        if (!shouldWork()) {
+    /** Draws all registered texture materials as alpha-cutout quads. Call before the ordinary alpha pass. */
+    public void renderMaskedTexturedParticles(RenderContext context) {
+        this.prepareRenderData();
+        if (!this.hasPreparedParticleData || this.shapeRenderShader == null) {
             return;
         }
-
-        if (this.pointRenderShader == null) {
-            return;
-        }
-
-        if (this.effectManager.getCurrentEffectCount() == 0) {
-            this.tryWriteDebugStats();
-            return;
-        }
-
-        this.dispatchClassify();
-        if (!this.dispatchBuildDrawCommands()) {
-            return;
-        }
-        this.effectManager.forEachActiveEffect(this::uploadEffectModelMatrixIfDirty);
 
         Matrix4f projectionMatrix = context.getProjectionMatrix();
         Matrix4f viewMatrix = context.getMatrixStackProvider().getViewMatrix();
         Vector3d cameraPos = context.getCamera().position();
-        this.memoryManager.renderParticleStep();
-        glBindVertexArray(this.emptyVao);
-        glBindBuffer(GL_DRAW_INDIRECT_BUFFER, this.memoryManager.getBucketDrawCommandsSSBO());
+        this.bindRenderBuffers();
+        this.shapeRenderShader.bind();
+        this.setCommonRenderUniforms(this.shapeRenderShader, projectionMatrix, viewMatrix, cameraPos, this.computePointSizeScale(projectionMatrix));
+        this.shapeRenderShader.setUniformValue1i("u_bucketType", BUCKET_TYPE_QUAD);
+        this.shapeRenderShader.setUniformValue1i("u_textured", 1);
+        this.shapeRenderShader.setUniformValue1i("u_particleTexture", 0);
 
-        // Point bucket
-        this.pointRenderShader.bind();
-        this.setCommonRenderUniforms(this.pointRenderShader, projectionMatrix, viewMatrix, cameraPos, this.computePointSizeScale(projectionMatrix));
-        this.pointRenderShader.setUniformValue1i("u_bucketType", BUCKET_TYPE_POINT);
-        glDrawArraysIndirect(GL_POINTS, 0L);
-        this.pointRenderShader.unbind();
+        TextureManager textureManager = ModRenderSystem.getInstance().getTextureManager();
+        for (ParticleMaterialRegistry.RegisteredMaterial material : ParticleMaterialRegistry.materials()) {
+            textureManager.bind(material.texture(), 0);
+            this.shapeRenderShader.setUniformValue1f("u_alphaCutoff", material.alphaCutoff());
+            int bucketIndex = ADDITIVE_BUCKET_COUNT + material.slot() - 1;
+            glDrawArraysIndirect(GL_POINTS, (long) bucketIndex * INDIRECT_COMMAND_STRIDE_BYTES);
+        }
+        this.shapeRenderShader.unbind();
+        this.unbindRenderBuffers();
+    }
 
-        // Triangle + Quad buckets share one geometry shader, selected by uniform branch.
+    /** Draws the original additive point, triangle and quad particle buckets. Call after alpha objects. */
+    public void renderAdditiveParticles(RenderContext context) {
+        this.prepareRenderData();
+        if (!this.hasPreparedParticleData) {
+            this.finishRenderFrame();
+            return;
+        }
+
+        Matrix4f projectionMatrix = context.getProjectionMatrix();
+        Matrix4f viewMatrix = context.getMatrixStackProvider().getViewMatrix();
+        Vector3d cameraPos = context.getCamera().position();
+        this.bindRenderBuffers();
+
+        if (this.pointRenderShader != null) {
+            this.pointRenderShader.bind();
+            this.setCommonRenderUniforms(this.pointRenderShader, projectionMatrix, viewMatrix, cameraPos, this.computePointSizeScale(projectionMatrix));
+            this.pointRenderShader.setUniformValue1i("u_bucketType", BUCKET_TYPE_POINT);
+            this.pointRenderShader.setUniformValue1i("u_textured", 0);
+            glDrawArraysIndirect(GL_POINTS, 0L);
+            this.pointRenderShader.unbind();
+        }
+
         if (this.shapeRenderShader != null) {
             this.shapeRenderShader.bind();
             this.setCommonRenderUniforms(this.shapeRenderShader, projectionMatrix, viewMatrix, cameraPos, this.computePointSizeScale(projectionMatrix));
-
+            this.shapeRenderShader.setUniformValue1i("u_textured", 0);
             this.shapeRenderShader.setUniformValue1i("u_bucketType", BUCKET_TYPE_TRIANGLE);
             glDrawArraysIndirect(GL_POINTS, (long) INDIRECT_COMMAND_STRIDE_BYTES);
-
             this.shapeRenderShader.setUniformValue1i("u_bucketType", BUCKET_TYPE_QUAD);
             glDrawArraysIndirect(GL_POINTS, (long) INDIRECT_COMMAND_STRIDE_BYTES * 2L);
             this.shapeRenderShader.unbind();
         }
 
-        glBindBuffer(GL_DRAW_INDIRECT_BUFFER, 0);
-        glBindVertexArray(0);
-        glUseProgram(0);
-        this.memoryManager.unbindAllSSBO();
-
-        this.tryWriteDebugStats();
+        this.unbindRenderBuffers();
+        this.finishRenderFrame();
     }
 
     private void tryWriteDebugStats() {
@@ -195,6 +216,8 @@ public class ParticleSystem implements AutoCloseable {
     }
 
     public void update(float deltaTime) {
+        this.renderDataPrepared = false;
+        this.hasPreparedParticleData = false;
         flushEffects();
         if (this.effectManager.getCurrentEffectCount() == 0 || !this.shouldWork()) {
             return;
@@ -287,16 +310,33 @@ public class ParticleSystem implements AutoCloseable {
         memoryManager.unbindAllSSBO();
     }
 
+    private void prepareRenderData() {
+        if (this.renderDataPrepared || !this.shouldWork()) {
+            return;
+        }
+        this.renderDataPrepared = true;
+        if (this.effectManager.getCurrentEffectCount() == 0) {
+            return;
+        }
+        this.dispatchClassify();
+        if (!this.dispatchBuildDrawCommands()) {
+            return;
+        }
+        this.effectManager.forEachActiveEffect(this::uploadEffectModelMatrixIfDirty);
+        this.hasPreparedParticleData = true;
+    }
+
     private void dispatchClassify() {
         ComputeShader classifyShader = this.computeShaderProvider.particleClassifyShader();
         if (classifyShader == null) {
             return;
         }
         this.memoryManager.resetBucketCounters();
-        this.memoryManager.classifyStep();
+        this.memoryManager.classifyCountStep();
 
         classifyShader.bind();
         classifyShader.setUniformValue1i("u_maxParticles", MAX_PARTICLES);
+        classifyShader.setUniformValue1i("u_maxTexturedMaterials", ParticleMaterialRegistry.MAX_TEXTURED_MATERIALS);
         classifyShader.dispatch((MAX_PARTICLES + ParticleMemoryManager.LOCAL_SIZE - 1) / ParticleMemoryManager.LOCAL_SIZE, 1, 1);
 
         glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
@@ -306,16 +346,46 @@ public class ParticleSystem implements AutoCloseable {
 
     private boolean dispatchBuildDrawCommands() {
         ComputeShader commandShader = this.computeShaderProvider.particleBuildDrawCommandsShader();
-        if (commandShader == null) {
+        ComputeShader scatterShader = this.computeShaderProvider.particleScatterShader();
+        if (commandShader == null || scatterShader == null) {
             return false;
         }
         this.memoryManager.buildDrawCommandsStep();
         commandShader.bind();
+        commandShader.setUniformValue1i("u_bucketCount", this.memoryManager.getBucketCount());
         commandShader.dispatch(1, 1, 1);
-        glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT | GL_COMMAND_BARRIER_BIT);
+        glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
         commandShader.unbind();
         this.memoryManager.unbindAllSSBO();
+
+        this.memoryManager.scatterStep();
+        scatterShader.bind();
+        scatterShader.setUniformValue1i("u_maxParticles", MAX_PARTICLES);
+        scatterShader.setUniformValue1i("u_maxTexturedMaterials", ParticleMaterialRegistry.MAX_TEXTURED_MATERIALS);
+        scatterShader.dispatch((MAX_PARTICLES + ParticleMemoryManager.LOCAL_SIZE - 1) / ParticleMemoryManager.LOCAL_SIZE, 1, 1);
+        glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT | GL_COMMAND_BARRIER_BIT);
+        scatterShader.unbind();
+        this.memoryManager.unbindAllSSBO();
         return true;
+    }
+
+    private void bindRenderBuffers() {
+        this.memoryManager.renderParticleStep();
+        glBindVertexArray(this.emptyVao);
+        glBindBuffer(GL_DRAW_INDIRECT_BUFFER, this.memoryManager.getBucketDrawCommandsSSBO());
+    }
+
+    private void unbindRenderBuffers() {
+        glBindBuffer(GL_DRAW_INDIRECT_BUFFER, 0);
+        glBindVertexArray(0);
+        glUseProgram(0);
+        this.memoryManager.unbindAllSSBO();
+    }
+
+    private void finishRenderFrame() {
+        this.tryWriteDebugStats();
+        this.renderDataPrepared = false;
+        this.hasPreparedParticleData = false;
     }
 
     private void dispatchDebugStatsWrite() {

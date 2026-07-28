@@ -1,24 +1,18 @@
 package com.qwaecd.paramagic.thaumaturgy.operator.projectile;
 
 import com.qwaecd.paramagic.spell.caster.SpellCaster;
-import com.qwaecd.paramagic.thaumaturgy.operator.OperatorType;
+import com.qwaecd.paramagic.thaumaturgy.operator.OperatorRegistration;
 import com.qwaecd.paramagic.thaumaturgy.operator.ParaOpId;
 import com.qwaecd.paramagic.thaumaturgy.runtime.ParaContext;
-import com.qwaecd.paramagic.tools.ModRL;
 import com.qwaecd.paramagic.world.entity.projectile.GravityCollapseEntity;
-import com.qwaecd.paramagic.world.item.ModItems;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Vector3f;
 
 
 public class GravityCollapseOperator extends ProjectileOperator {
-    public static final ParaOpId OP_ID = ParaOpId.of(
-            ModRL.inModSpace("gravity_collapse_operator"),
-            new ParaOpId.Properties(OperatorType.PROJECTILE, 2.71828f, 3.14159f, 172)
-    );
-    public GravityCollapseOperator() {
-        super(OP_ID, ModItems.GRAVITY_COLLAPSE_OPERATOR);
+    public GravityCollapseOperator(ParaOpId id) {
+        super(id, OperatorRegistration.itemOf("gravity_collapse_operator"));
     }
 
     @Override

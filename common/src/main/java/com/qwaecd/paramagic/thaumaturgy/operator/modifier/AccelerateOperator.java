@@ -1,25 +1,18 @@
 package com.qwaecd.paramagic.thaumaturgy.operator.modifier;
 
 import com.qwaecd.paramagic.thaumaturgy.ProjectileEntity;
-import com.qwaecd.paramagic.thaumaturgy.operator.OperatorType;
+import com.qwaecd.paramagic.thaumaturgy.operator.OperatorRegistration;
 import com.qwaecd.paramagic.thaumaturgy.operator.ParaOpId;
 import com.qwaecd.paramagic.thaumaturgy.projectile.kinetics.PhysicsProvider;
 import com.qwaecd.paramagic.thaumaturgy.projectile.kinetics.engine.PhysicsMath;
 import com.qwaecd.paramagic.thaumaturgy.runtime.ParaContext;
-import com.qwaecd.paramagic.tools.ModRL;
-import com.qwaecd.paramagic.world.item.ModItems;
 import org.joml.Vector3d;
 
 public class AccelerateOperator extends ModifierOperator {
-    public static final ParaOpId OP_ID = ParaOpId.of(
-            ModRL.inModSpace("accelerate_operator"),
-            new ParaOpId.Properties(OperatorType.MODIFIER, 0.04f, 0.4f, 35)
-    );
-
     private static final float IMPULSE = 0.5f;
 
-    public AccelerateOperator() {
-        super(OP_ID, ModItems.ACCELERATE_OPERATOR);
+    public AccelerateOperator(ParaOpId id) {
+        super(id, OperatorRegistration.itemOf("accelerate_operator"));
     }
 
     @Override

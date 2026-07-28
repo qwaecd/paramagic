@@ -259,6 +259,9 @@ public class ModRenderSystem extends AbstractRenderSystem implements AutoCloseab
             drawOne(it.renderable, context, timeSeconds);
         }
 
+        stateCache.apply(RenderState.PARTICLE_MASKED);
+        this.particleSystem.renderMaskedTexturedParticles(context);
+
         stateCache.apply(RenderState.ALPHA);
         for (RenderItem it : renderQueue.transparent) {
             drawOne(it.renderable, context, timeSeconds);
@@ -270,7 +273,7 @@ public class ModRenderSystem extends AbstractRenderSystem implements AutoCloseab
         }
 
         stateCache.apply(RenderState.ADDITIVE);
-        this.particleSystem.renderParticles(context);
+        this.particleSystem.renderAdditiveParticles(context);
 
         mainFbo.unbind();
     }

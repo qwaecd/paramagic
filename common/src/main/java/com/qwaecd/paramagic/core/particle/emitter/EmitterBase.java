@@ -6,6 +6,8 @@ import com.qwaecd.paramagic.core.particle.emitter.property.EmitterProperty;
 import com.qwaecd.paramagic.core.particle.emitter.property.key.PropertyKey;
 import com.qwaecd.paramagic.core.particle.emitter.property.type.ParticleFacingModeStates;
 import com.qwaecd.paramagic.core.particle.emitter.property.type.ParticlePrimitiveTypeStates;
+import com.qwaecd.paramagic.core.particle.material.ParticleMaterialRegistry;
+import net.minecraft.resources.ResourceLocation;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
 
@@ -16,6 +18,7 @@ import java.util.List;
 import java.util.Map;
 
 import static com.qwaecd.paramagic.core.particle.emitter.property.key.AllEmitterProperties.PARTICLE_FACING_MODE;
+import static com.qwaecd.paramagic.core.particle.emitter.property.key.AllEmitterProperties.PARTICLE_MATERIAL;
 import static com.qwaecd.paramagic.core.particle.emitter.property.key.AllEmitterProperties.PARTICLE_PRIMITIVE_TYPE;
 
 public abstract class EmitterBase implements Emitter {
@@ -77,6 +80,8 @@ public abstract class EmitterBase implements Emitter {
                 (req, v) -> req.getParam6().z = Float.intBitsToFloat(v.value)));
         registerProperty(PARTICLE_FACING_MODE, new EmitterProperty<>(ParticleFacingModeStates.CAMERA_FACING,
                 (req, v) -> req.getParam6().w = Float.intBitsToFloat(v.value)));
+        registerProperty(PARTICLE_MATERIAL, new EmitterProperty<>(ParticleMaterialRegistry.ADDITIVE_UNTEXTURED,
+                (req, materialId) -> req.setMaterialSlot(ParticleMaterialRegistry.resolveSlot(materialId))));
     }
 
     protected <T> void registerProperty(PropertyKey<T> key, EmitterProperty<T> property) {

@@ -12,6 +12,7 @@ in ParticleVaryings {
     flat uint particleSeed;
     flat uint shapeFlags;
     flat uint facingMode;
+    vec2 uv;
 } particleIn[];
 
 uniform mat4 u_projectionMatrix;
@@ -27,6 +28,7 @@ out ParticleVaryings {
     flat uint particleSeed;
     flat uint shapeFlags;
     flat uint facingMode;
+    vec2 uv;
 } particleOut;
 
 const int BUCKET_TRIANGLE = 1;
@@ -70,7 +72,7 @@ vec2 randomJitter(uint particleSeed, uint vertexIndex, float halfSize) {
     return jitterDir * (halfSize * JITTER_STRENGTH);
 }
 
-void emitViewVertex(vec3 viewPos) {
+void emitViewVertex(vec3 viewPos, vec2 uv) {
     gl_Position = u_projectionMatrix * vec4(viewPos, 1.0);
     particleOut.color = particleIn[0].color;
     particleOut.intensity = particleIn[0].intensity;
@@ -81,6 +83,7 @@ void emitViewVertex(vec3 viewPos) {
     particleOut.particleSeed = particleIn[0].particleSeed;
     particleOut.shapeFlags = particleIn[0].shapeFlags;
     particleOut.facingMode = particleIn[0].facingMode;
+    particleOut.uv = uv;
     EmitVertex();
 }
 
@@ -115,9 +118,9 @@ void emitTriangle(vec3 centerView, float halfSize, float angle, vec3 axisX, vec3
     p1 = rotate2D(p1, angle);
     p2 = rotate2D(p2, angle);
 
-    emitViewVertex(centerView + axisX * p0.x + axisY * p0.y);
-    emitViewVertex(centerView + axisX * p1.x + axisY * p1.y);
-    emitViewVertex(centerView + axisX * p2.x + axisY * p2.y);
+    emitViewVertex(centerView + axisX * p0.x + axisY * p0.y, vec2(0.5, 1.0));
+    emitViewVertex(centerView + axisX * p1.x + axisY * p1.y, vec2(0.0, 0.0));
+    emitViewVertex(centerView + axisX * p2.x + axisY * p2.y, vec2(1.0, 0.0));
     EndPrimitive();
 }
 
@@ -138,10 +141,10 @@ void emitQuad(vec3 centerView, float halfSize, float angle, vec3 axisX, vec3 axi
     tl = rotate2D(tl, angle);
     tr = rotate2D(tr, angle);
 
-    emitViewVertex(centerView + axisX * bl.x + axisY * bl.y);
-    emitViewVertex(centerView + axisX * br.x + axisY * br.y);
-    emitViewVertex(centerView + axisX * tl.x + axisY * tl.y);
-    emitViewVertex(centerView + axisX * tr.x + axisY * tr.y);
+    emitViewVertex(centerView + axisX * bl.x + axisY * bl.y, vec2(0.0, 0.0));
+    emitViewVertex(centerView + axisX * br.x + axisY * br.y, vec2(1.0, 0.0));
+    emitViewVertex(centerView + axisX * tl.x + axisY * tl.y, vec2(0.0, 1.0));
+    emitViewVertex(centerView + axisX * tr.x + axisY * tr.y, vec2(1.0, 1.0));
     EndPrimitive();
 }
 

@@ -1,12 +1,10 @@
 #version 430 core
 #define BINDING_PARTICLE_DATA 1
 #define BINDING_EFFECT_META_DATA 3
-#define BINDING_BUCKET_POINT_INDICES 8
-#define BINDING_BUCKET_TRIANGLE_INDICES 9
-#define BINDING_BUCKET_QUAD_INDICES 10
+#define BINDING_BUCKET_PARTICLE_INDICES 10
 
 struct Particle {
-    vec4 meta;        // x: effectId, y: primitiveType(bits in float), z: facingMode(bits in float), w: unused
+    vec4 meta;        // x: effectId, y: primitiveType(bits in float), z: facingMode(bits in float), w: materialSlot(bits in float)
     vec4 position;    // x, y, z, mass(unused)
     vec4 velocity;    // vx, vy, vz, normal.x (when facingMode=normal)
     vec4 attributes;  // x: age, y: lifetime, z: normal.y, w: normal.z
@@ -30,16 +28,8 @@ layout(std430, binding = BINDING_EFFECT_META_DATA) buffer EffectData {
     EffectMetaData effectData[];
 };
 
-layout(std430, binding = BINDING_BUCKET_POINT_INDICES) buffer PointBucket {
-    uint pointIndices[];
-};
-
-layout(std430, binding = BINDING_BUCKET_TRIANGLE_INDICES) buffer TriangleBucket {
-    uint triangleIndices[];
-};
-
-layout(std430, binding = BINDING_BUCKET_QUAD_INDICES) buffer QuadBucket {
-    uint quadIndices[];
+layout(std430, binding = BINDING_BUCKET_PARTICLE_INDICES) buffer BucketParticleIndices {
+    uint particleIndices[];
 };
 
 uniform mat4 u_projectionMatrix;
@@ -58,16 +48,11 @@ out ParticleVaryings {
     flat uint particleSeed;
     flat uint shapeFlags;
     flat uint facingMode;
+    vec2 uv;
 } particleOut;
 
 uint resolveParticleIndex(uint bucketSlot) {
-    if (u_bucketType == 1) {
-        return triangleIndices[bucketSlot];
-    }
-    if (u_bucketType == 2) {
-        return quadIndices[bucketSlot];
-    }
-    return pointIndices[bucketSlot];
+    return particleIndices[bucketSlot];
 }
 
 void main() {
@@ -86,6 +71,7 @@ void main() {
         particleOut.particleSeed = 0u;
         particleOut.shapeFlags = 0u;
         particleOut.facingMode = 0u;
+        particleOut.uv = vec2(0.0);
         return;
     }
 
@@ -103,6 +89,7 @@ void main() {
     particleOut.centerView = centerView.xyz;
 
     particleOut.facingMode = floatBitsToUint(particle.meta.z);
+    particleOut.uv = vec2(0.0);
     vec3 localNormal = vec3(particle.velocity.w, particle.attributes.z, particle.attributes.w);
     vec3 worldNormal = mat3(effectData[effectId].modelMatrix) * localNormal;
     vec3 viewNormal = (u_viewMatrix * vec4(worldNormal, 0.0)).xyz;

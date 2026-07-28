@@ -2,6 +2,7 @@ package com.qwaecd.paramagic;
 
 import com.qwaecd.paramagic.core.render.ModRenderSystem;
 import com.qwaecd.paramagic.core.render.shader.AllShaders;
+import com.qwaecd.paramagic.client.particle.ParamagicParticleMaterials;
 import com.qwaecd.paramagic.particle.api.EmitterFactoryRegistry;
 import com.qwaecd.paramagic.particle.client.ClientEffectRepository;
 import com.qwaecd.paramagic.particle.client.shared.BuiltinSharedGPUEffects;
@@ -13,6 +14,7 @@ public class ParamagicClient {
     public static void initOnClient() {
         EmitterFactoryRegistry.registerAll();
         AllShaders.registerAllShaders();
+        ParamagicParticleMaterials.registerAll();
         ModRenderSystem.init();
         ClientSessionManager.init();
         ClientEffectRepository.init();

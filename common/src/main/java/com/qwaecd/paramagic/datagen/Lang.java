@@ -1,5 +1,6 @@
 package com.qwaecd.paramagic.datagen;
 
+import com.qwaecd.paramagic.thaumaturgy.operator.OperatorRegistration;
 import lombok.Getter;
 
 import java.util.HashMap;
@@ -37,21 +38,10 @@ public class Lang {
         of("item.paramagic.debug_wand", "Debug wand", "调试魔杖");
         of("item.paramagic.explosion_wand", "EXPLOSION WAND", "慧慧的法杖");
         of("block.paramagic.spell_edit_table", "Spell Edit Table", "法术编辑台");
-        of("item.paramagic.void_operator", "Void Operator", "空参量");
-        of("item.paramagic.accelerate_operator", "Accelerate", "加速");
-        of("item.paramagic.extend_lifetime_operator", "Extend Lifetime", "延长存在时间");
-        of("item.paramagic.gradual_acceleration_operator", "Gradual Acceleration", "逐渐加速");
-        of("item.paramagic.heavy_operator", "Heavy", "沉重");
-        of("item.paramagic.laser_operator", "Laser", "激光");
-        of("item.paramagic.magic_arrow_operator", "Magic Arrow", "魔法箭");
         of("item.paramagic.para_crystal", "Para Crystal", "魔力水晶");
-        of("item.paramagic.shorten_lifetime_operator", "Shorten Lifetime", "缩短存在时间");
-        of("item.paramagic.short_tracking_operator", "Short Tracking", "短距离追踪");
-        of("item.paramagic.tracking_operator", "Tracking", "追踪");
-        of("item.paramagic.weightless_operator", "Weightless", "失重");
-        of("item.paramagic.gravity_collapse_operator", "Gravitational Collapse", "引力坍缩");
-        of("item.paramagic.pierce_operator", "Pierce", "穿刺");
-        of("item.paramagic.bounce_operator", "Bounce", "弹跳");
+        of("death.attack.arcane_projectile", "%1$s was pierced by arcane energy", "%1$s 被奥术能量贯穿");
+        of("death.attack.arcane_projectile.player", "%1$s was pierced by arcane energy from %2$s", "%1$s 被 %2$s 的奥术能量贯穿");
+        OperatorRegistration.registerLangs();
         sound();
         operatorTooltip();
         gui();
@@ -88,21 +78,6 @@ public class Lang {
                 "§lCycle Cooldown: §r", "§l回转冷却: §r");
         of("tooltip.paramagic.para_operator_item.mana_cost",
                 "§lMana Cost: §r", "§l法力消耗: §r");
-
-        of("tooltip.paramagic.magic_arrow_operator.describe", "Ordinary arrow", "普通的箭矢");
-        of("tooltip.paramagic.void_operator.describe", "Does nothing", "什么也不做");
-        of("tooltip.paramagic.accelerate_operator.describe", "Accelerates the launch of projectiles", "使投射物加速射出");
-        of("tooltip.paramagic.extend_lifetime_operator.describe", "Extends projectile lifetime", "延长投射物存在时间");
-        of("tooltip.paramagic.gradual_acceleration_operator.describe", "Continuously accelerates projectiles to a higher speed", "让投射物持续向更高速度加速");
-        of("tooltip.paramagic.heavy_operator.describe", "Makes projectiles fall faster and appear heavier", "让投射物更快下坠并显得更加沉重");
-        of("tooltip.paramagic.laser_operator.describe", "Fires a high-speed laser with a glowing beam trail", "发射一束高速前进并带有发光束线的激光");
-        of("tooltip.paramagic.shorten_lifetime_operator.describe", "Shortens projectile lifetime", "缩短投射物存在时间");
-        of("tooltip.paramagic.short_tracking_operator.describe", "Strongly bends projectiles to track close-range targets", "强力扭转投射物以追向近距离目标");
-        of("tooltip.paramagic.tracking_operator.describe", "Bends projectiles to track distant targets", "扭转投射物以追向较远目标");
-        of("tooltip.paramagic.weightless_operator.describe", "Significantly reduces the gravity applied to projectiles", "显著降低投射物受到的重力");
-        of("tooltip.paramagic.gravity_collapse_operator.describe1", "When you distort the world's magic field to its limit...", "当你将世界的魔力场扭曲至极限时...");
-        of("tooltip.paramagic.pierce_operator.describe", "Increases the max entity pierce count by 1", "使投射物最大穿刺次数 +1");
-        of("tooltip.paramagic.bounce_operator.describe", "Increases the max bounce count by 1", "使投射物最大弹跳次数 +1");
     }
 
     private static void paraType() {

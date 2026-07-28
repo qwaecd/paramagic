@@ -9,6 +9,7 @@ public class CShaderProvider implements IComputeShaderProvider {
     private final ComputeShader particleUpdateShader;
     private final ComputeShader particleClassifyShader;
     private final ComputeShader particleBuildDrawCommandsShader;
+    private final ComputeShader particleScatterShader;
     private final ComputeShader particleDebugStatsShader;
 
     private final boolean computeShadersSupported;
@@ -20,6 +21,7 @@ public class CShaderProvider implements IComputeShaderProvider {
         this.particleUpdateShader = get("particle_update");
         this.particleClassifyShader = get("particle_classify");
         this.particleBuildDrawCommandsShader = get("particle_build_draw_commands");
+        this.particleScatterShader = get("particle_scatter");
         this.particleDebugStatsShader = get("particle_debug_stats");
     }
 
@@ -60,6 +62,11 @@ public class CShaderProvider implements IComputeShaderProvider {
     @Override
     public ComputeShader particleBuildDrawCommandsShader() {
         return this.particleBuildDrawCommandsShader;
+    }
+
+    @Override
+    public ComputeShader particleScatterShader() {
+        return this.particleScatterShader;
     }
 
     @Override

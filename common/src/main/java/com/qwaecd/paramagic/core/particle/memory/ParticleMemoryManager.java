@@ -29,20 +29,22 @@ public final class ParticleMemoryManager implements AutoCloseable {
     private final int emissionTasksSSBO;
     private final int effectPhysicsParamsSSBO;
     private final int bucketCountersSSBO;
-    private final int pointBucketIndicesSSBO;
-    private final int triangleBucketIndicesSSBO;
-    private final int quadBucketIndicesSSBO;
+    private final int bucketCursorsSSBO;
+    private final int bucketOffsetsSSBO;
+    private final int bucketParticleIndicesSSBO;
     private final int bucketDrawCommandsSSBO;
+    private final int bucketCount;
     public static final int DEBUG_STATS_BUFFER_COUNT = 3;
     private static final int DEBUG_STATS_SIZE_BYTES = Integer.BYTES * 4;
     private final int[] debugStatsSSBOs;
 
     public static final int LOCAL_SIZE = 256;
 
-    public ParticleMemoryManager(int maxParticles, int maxEffectCount) {
+    public ParticleMemoryManager(int maxParticles, int maxEffectCount, int maxTexturedMaterialCount) {
         this.MAX_PARTICLES = maxParticles;
         this.MAX_EFFECT_COUNT = maxEffectCount;
         this.MAX_REQUESTS_PER_FRAME = maxEffectCount * 4;
+        this.bucketCount = 3 + maxTexturedMaterialCount;
         this.particleDataSSBO = glGenBuffers();
         this.deadListSSBO = glGenBuffers();
         this.globalData = glGenBuffers();
@@ -51,9 +53,9 @@ public final class ParticleMemoryManager implements AutoCloseable {
         this.emissionTasksSSBO = glGenBuffers();
         this.effectPhysicsParamsSSBO = glGenBuffers();
         this.bucketCountersSSBO = glGenBuffers();
-        this.pointBucketIndicesSSBO = glGenBuffers();
-        this.triangleBucketIndicesSSBO = glGenBuffers();
-        this.quadBucketIndicesSSBO = glGenBuffers();
+        this.bucketCursorsSSBO = glGenBuffers();
+        this.bucketOffsetsSSBO = glGenBuffers();
+        this.bucketParticleIndicesSSBO = glGenBuffers();
         this.bucketDrawCommandsSSBO = glGenBuffers();
         this.debugStatsSSBOs = new int[DEBUG_STATS_BUFFER_COUNT];
         for (int i = 0; i < DEBUG_STATS_BUFFER_COUNT; i++) {
@@ -95,22 +97,25 @@ public final class ParticleMemoryManager implements AutoCloseable {
     public void renderParticleStep() {
         glBindBufferBase(GL_SHADER_STORAGE_BUFFER, ShaderBindingPoints.PARTICLE_DATA, this.particleDataSSBO);
         glBindBufferBase(GL_SHADER_STORAGE_BUFFER, ShaderBindingPoints.EFFECT_META_DATA, this.effectMetaDataSSBO);
-        glBindBufferBase(GL_SHADER_STORAGE_BUFFER, ShaderBindingPoints.BUCKET_POINT_INDICES, this.pointBucketIndicesSSBO);
-        glBindBufferBase(GL_SHADER_STORAGE_BUFFER, ShaderBindingPoints.BUCKET_TRIANGLE_INDICES, this.triangleBucketIndicesSSBO);
-        glBindBufferBase(GL_SHADER_STORAGE_BUFFER, ShaderBindingPoints.BUCKET_QUAD_INDICES, this.quadBucketIndicesSSBO);
+        glBindBufferBase(GL_SHADER_STORAGE_BUFFER, ShaderBindingPoints.BUCKET_PARTICLE_INDICES, this.bucketParticleIndicesSSBO);
     }
 
-    public void classifyStep() {
+    public void classifyCountStep() {
         glBindBufferBase(GL_SHADER_STORAGE_BUFFER, ShaderBindingPoints.PARTICLE_DATA, this.particleDataSSBO);
         glBindBufferBase(GL_SHADER_STORAGE_BUFFER, ShaderBindingPoints.BUCKET_COUNTERS, this.bucketCountersSSBO);
-        glBindBufferBase(GL_SHADER_STORAGE_BUFFER, ShaderBindingPoints.BUCKET_POINT_INDICES, this.pointBucketIndicesSSBO);
-        glBindBufferBase(GL_SHADER_STORAGE_BUFFER, ShaderBindingPoints.BUCKET_TRIANGLE_INDICES, this.triangleBucketIndicesSSBO);
-        glBindBufferBase(GL_SHADER_STORAGE_BUFFER, ShaderBindingPoints.BUCKET_QUAD_INDICES, this.quadBucketIndicesSSBO);
     }
 
     public void buildDrawCommandsStep() {
         glBindBufferBase(GL_SHADER_STORAGE_BUFFER, ShaderBindingPoints.BUCKET_COUNTERS, this.bucketCountersSSBO);
+        glBindBufferBase(GL_SHADER_STORAGE_BUFFER, ShaderBindingPoints.BUCKET_CURSORS, this.bucketCursorsSSBO);
+        glBindBufferBase(GL_SHADER_STORAGE_BUFFER, ShaderBindingPoints.BUCKET_OFFSETS, this.bucketOffsetsSSBO);
         glBindBufferBase(GL_SHADER_STORAGE_BUFFER, ShaderBindingPoints.BUCKET_DRAW_COMMANDS, this.bucketDrawCommandsSSBO);
+    }
+
+    public void scatterStep() {
+        glBindBufferBase(GL_SHADER_STORAGE_BUFFER, ShaderBindingPoints.PARTICLE_DATA, this.particleDataSSBO);
+        glBindBufferBase(GL_SHADER_STORAGE_BUFFER, ShaderBindingPoints.BUCKET_CURSORS, this.bucketCursorsSSBO);
+        glBindBufferBase(GL_SHADER_STORAGE_BUFFER, ShaderBindingPoints.BUCKET_PARTICLE_INDICES, this.bucketParticleIndicesSSBO);
     }
 
     public void debugStatsWriteStep(int bufferIndex) {
@@ -119,12 +124,12 @@ public final class ParticleMemoryManager implements AutoCloseable {
     }
 
     /**
-     * 每帧分类前重置分桶计数器（point/triangle/quad）。
+     * 每帧分类前重置紧凑分桶计数器。
      */
     public void resetBucketCounters() {
         glBindBuffer(GL_SHADER_STORAGE_BUFFER, this.bucketCountersSSBO);
         try (MemoryStack stack = MemoryStack.stackPush()) {
-            IntBuffer zero = stack.callocInt(4);
+            IntBuffer zero = stack.callocInt(this.bucketCount);
             glBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, zero);
         }
         glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
@@ -183,7 +188,7 @@ public final class ParticleMemoryManager implements AutoCloseable {
         initEmissionTasksBuffer();
         initEffectPhysicsParamsBuffer();
         initBucketCountersBuffer();
-        initBucketIndicesBuffers();
+        initBucketIndexBuffers();
         initBucketDrawCommandsBuffer();
         initDebugStatsBuffers();
 
@@ -301,34 +306,32 @@ public final class ParticleMemoryManager implements AutoCloseable {
     }
 
     private void initBucketCountersBuffer() {
-        // pointCount / triangleCount / quadCount / padding
         glBindBuffer(GL_SHADER_STORAGE_BUFFER, this.bucketCountersSSBO);
-        glBufferData(GL_SHADER_STORAGE_BUFFER, Integer.BYTES * 4L, GL_DYNAMIC_DRAW);
-        IntBuffer zeroBuffer = MemoryUtil.memCallocInt(4);
+        glBufferData(GL_SHADER_STORAGE_BUFFER, Integer.BYTES * (long) this.bucketCount, GL_DYNAMIC_DRAW);
+        IntBuffer zeroBuffer = MemoryUtil.memCallocInt(this.bucketCount);
         glBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, zeroBuffer);
         MemoryUtil.memFree(zeroBuffer);
     }
 
-    private void initBucketIndicesBuffers() {
+    private void initBucketIndexBuffers() {
+        long bucketMetaSize = Integer.BYTES * (long) this.bucketCount;
+        glBindBuffer(GL_SHADER_STORAGE_BUFFER, this.bucketCursorsSSBO);
+        glBufferData(GL_SHADER_STORAGE_BUFFER, bucketMetaSize, GL_DYNAMIC_DRAW);
+
+        glBindBuffer(GL_SHADER_STORAGE_BUFFER, this.bucketOffsetsSSBO);
+        glBufferData(GL_SHADER_STORAGE_BUFFER, bucketMetaSize, GL_DYNAMIC_DRAW);
+
         long indexBufferSize = (long) MAX_PARTICLES * Integer.BYTES;
-        glBindBuffer(GL_SHADER_STORAGE_BUFFER, this.pointBucketIndicesSSBO);
-        glBufferData(GL_SHADER_STORAGE_BUFFER, indexBufferSize, GL_DYNAMIC_DRAW);
-
-        glBindBuffer(GL_SHADER_STORAGE_BUFFER, this.triangleBucketIndicesSSBO);
-        glBufferData(GL_SHADER_STORAGE_BUFFER, indexBufferSize, GL_DYNAMIC_DRAW);
-
-        glBindBuffer(GL_SHADER_STORAGE_BUFFER, this.quadBucketIndicesSSBO);
+        glBindBuffer(GL_SHADER_STORAGE_BUFFER, this.bucketParticleIndicesSSBO);
         glBufferData(GL_SHADER_STORAGE_BUFFER, indexBufferSize, GL_DYNAMIC_DRAW);
     }
 
     private void initBucketDrawCommandsBuffer() {
         // DrawArraysIndirectCommand = {count, instanceCount, first, baseInstance}
-        // 3 commands: point / triangle / quad
-        final int commandCount = 3;
-        final long bytes = (long) commandCount * Integer.BYTES * 4;
+        final long bytes = (long) this.bucketCount * Integer.BYTES * 4;
         glBindBuffer(GL_SHADER_STORAGE_BUFFER, this.bucketDrawCommandsSSBO);
         glBufferData(GL_SHADER_STORAGE_BUFFER, bytes, GL_DYNAMIC_DRAW);
-        IntBuffer zeroBuffer = MemoryUtil.memCallocInt(commandCount * 4);
+        IntBuffer zeroBuffer = MemoryUtil.memCallocInt(this.bucketCount * 4);
         glBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, zeroBuffer);
         MemoryUtil.memFree(zeroBuffer);
     }
@@ -347,6 +350,10 @@ public final class ParticleMemoryManager implements AutoCloseable {
         return this.bucketDrawCommandsSSBO;
     }
 
+    public int getBucketCount() {
+        return this.bucketCount;
+    }
+
     public int getDebugStatsSSBO(int bufferIndex) {
         return this.debugStatsSSBOs[bufferIndex];
     }
@@ -362,9 +369,9 @@ public final class ParticleMemoryManager implements AutoCloseable {
         glDeleteBuffers(this.emissionTasksSSBO);
         glDeleteBuffers(this.effectPhysicsParamsSSBO);
         glDeleteBuffers(this.bucketCountersSSBO);
-        glDeleteBuffers(this.pointBucketIndicesSSBO);
-        glDeleteBuffers(this.triangleBucketIndicesSSBO);
-        glDeleteBuffers(this.quadBucketIndicesSSBO);
+        glDeleteBuffers(this.bucketCursorsSSBO);
+        glDeleteBuffers(this.bucketOffsetsSSBO);
+        glDeleteBuffers(this.bucketParticleIndicesSSBO);
         glDeleteBuffers(this.bucketDrawCommandsSSBO);
         for (int debugStatsSSBO : this.debugStatsSSBOs) {
             glDeleteBuffers(debugStatsSSBO);

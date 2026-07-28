@@ -20,6 +20,8 @@ public class RenderState {
     }
 
     public static final RenderState OPAQUE   = new RenderState(true,  true,  BlendMode.NONE,    true);
+    /** Alpha-tested particle sprites: depth-writing but double-sided. */
+    public static final RenderState PARTICLE_MASKED = new RenderState(true, true, BlendMode.NONE, false);
     public static final RenderState ALPHA    = new RenderState(true,  false, BlendMode.ALPHA,   false);
     public static final RenderState ADDITIVE = new RenderState(true,  false, BlendMode.ADDITIVE,false);
 }

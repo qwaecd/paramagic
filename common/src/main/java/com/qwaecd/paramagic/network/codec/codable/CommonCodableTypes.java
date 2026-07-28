@@ -2,6 +2,7 @@ package com.qwaecd.paramagic.network.codec.codable;
 
 import com.qwaecd.paramagic.core.particle.emitter.property.type.*;
 import com.qwaecd.paramagic.network.DataCodec;
+import net.minecraft.resources.ResourceLocation;
 import org.joml.Quaternionf;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
@@ -82,6 +83,10 @@ public final class CommonCodableTypes {
     public static final ICodableType<ParticleShapeFlags> PARTICLE_SHAPE_FLAGS = registerWithClass(34, ParticleShapeFlags.class,
             ((codec, k) -> codec.readObject(k, ParticleShapeFlags::fromCodec)),
             (DataCodec::writeObject)
+    );
+    public static final ICodableType<ResourceLocation> RESOURCE_LOCATION = registerWithClass(35, ResourceLocation.class,
+            (codec, k) -> new ResourceLocation(codec.readString(k)),
+            (codec, k, v) -> codec.writeString(k, v.toString())
     );
 
     public static <T> ICodableType<T> registerWithClass(

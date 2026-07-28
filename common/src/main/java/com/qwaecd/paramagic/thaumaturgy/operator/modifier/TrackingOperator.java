@@ -1,7 +1,7 @@
 package com.qwaecd.paramagic.thaumaturgy.operator.modifier;
 
 import com.qwaecd.paramagic.thaumaturgy.ProjectileEntity;
-import com.qwaecd.paramagic.thaumaturgy.operator.OperatorType;
+import com.qwaecd.paramagic.thaumaturgy.operator.OperatorRegistration;
 import com.qwaecd.paramagic.thaumaturgy.operator.ParaOpId;
 import com.qwaecd.paramagic.thaumaturgy.projectile.kinetics.PhysicsProvider;
 import com.qwaecd.paramagic.thaumaturgy.projectile.kinetics.ProjectileTargetingAlgorithms;
@@ -11,23 +11,16 @@ import com.qwaecd.paramagic.thaumaturgy.projectile.kinetics.runtime.ProjectileRu
 import com.qwaecd.paramagic.thaumaturgy.projectile.kinetics.runtime.ProjectileRuntimeModifierContext;
 import com.qwaecd.paramagic.thaumaturgy.projectile.kinetics.runtime.ProjectileRuntimeModifierHost;
 import com.qwaecd.paramagic.thaumaturgy.runtime.ParaContext;
-import com.qwaecd.paramagic.tools.ModRL;
-import com.qwaecd.paramagic.world.item.ModItems;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Vector3d;
 
 public class TrackingOperator extends ModifierOperator {
-    public static final ParaOpId OP_ID = ParaOpId.of(
-            ModRL.inModSpace("tracking_operator"),
-            new ParaOpId.Properties(OperatorType.MODIFIER, 0.12f, 1.6f, 150)
-    );
-
     private static final float TRACKING_RANGE = 12.0f;
     private static final float TRACKING_STRENGTH = 0.2f;
 
-    public TrackingOperator() {
-        super(OP_ID, ModItems.TRACKING_OPERATOR);
+    public TrackingOperator(ParaOpId id) {
+        super(id, OperatorRegistration.itemOf("tracking_operator"));
     }
 
     @Override

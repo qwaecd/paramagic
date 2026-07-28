@@ -17,7 +17,7 @@ struct EmissionRequest {
     int count;
     int emitterType;
     int effectId;
-    int _padding;
+    int materialSlot;
 
     vec4 param1;
     vec4 param2;
