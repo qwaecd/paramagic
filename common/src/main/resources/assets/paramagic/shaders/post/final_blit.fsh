@@ -33,7 +33,7 @@ void main() {
     if (u_enableGammaCorrection) {
         ldrColor = pow(ldrColor, vec3(1.0 / gamma));
     }
-#if false
+#if 0
     float L = dot(gameSample.rgb, vec3(0.2126, 0.7152, 0.0722));
     float suppress = 1.0 - smoothstep(0.6, 0.95, L);
     FragColor.rgb = ldrColor * suppress * (1.0 - gameSample.rgb);
